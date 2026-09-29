@@ -1,0 +1,1318 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>المحاضرة الأولى: البيانات والمعلومات والمعرفة | إسلام عاطف Code & AI</title>
+  
+  <!-- Modern Arabic & Tech Typography -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  
+  <!-- Presentation Stylesheet -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <div id="presentation-viewport">
+    <div id="presentation-frame">
+      
+      <!-- Background Ambient Grid & Glow -->
+      <div class="bg-grid"></div>
+      <div class="bg-glow"></div>
+
+      <!-- Whiteboard / Annotation Canvas Layer -->
+      <canvas id="drawing-canvas"></canvas>
+
+      <!-- ==========================================================
+           SLIDES CONTAINER (22 Slides)
+           ========================================================== -->
+      <main class="slides-wrapper">
+
+        <!-- ----------------------------------------------------
+             SLIDE 1: Cover (الغلاف)
+             ---------------------------------------------------- -->
+        <section class="slide active" id="slide-1">
+          <div class="cover-layout">
+            <div class="cover-tag">
+              <span>⚡</span>
+              <span>الصف الأول الثانوي — مادة البرمجة والذكاء الاصطناعي</span>
+            </div>
+            
+            <h1 class="cover-main-title">البيانات والمعلومات والمعرفة</h1>
+            <p class="cover-sub-title">المحاضرة الأولى: المفاهيم التأسيسية وهندسة البيانات</p>
+
+            <div class="cover-meta">
+              <div class="cover-meta-item">
+                المُحاضر: <strong>م / إسلام عاطف</strong>
+              </div>
+              <div style="color: var(--cyan-primary); font-size: 20px;">•</div>
+              <div class="cover-meta-item">
+                المنصة: <strong>Eslam Atef | Code & AI</strong>
+              </div>
+              <div style="color: var(--cyan-primary); font-size: 20px;">•</div>
+              <div class="cover-meta-item" style="color: var(--cyan-primary); font-family: var(--font-mono); font-weight: 700;">
+                Think. Code. Build with AI.
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ----------------------------------------------------
+             SLIDE 2: أهداف المحاضرة (Objectives)
+             ---------------------------------------------------- -->
+        <section class="slide" id="slide-2">
+          <header class="slide-header">
+            <div class="brand-badge">
+              <div class="brand-logo-icon">E</div>
+              <div class="brand-text">
+                <span class="brand-title">Eslam Atef | Code & AI</span>
+                <span class="brand-tagline">Think. Code. Build with AI.</span>
+              </div>
+            </div>
+            <div class="lesson-badge">مخرجات التعلم المستهدفة</div>
+            <div class="slide-number-indicator">02 / 22</div>
+          </header>
+
+          <div class="slide-title-area">
+            <h2 class="slide-title"><span class="slide-title-icon">🎯</span> أهداف المحاضرة الأولى</h2>
+            <p class="slide-subtitle">بنهاية هذه المحاضرة، سيكون الطالب قادراً على استيعاب وتطبيق المفاهيم التالية:</p>
+          </div>
+
+          <div class="slide-body">
+            <div class="card-grid grid-cols-4">
+              <div class="tech-card">
+                <div class="card-badge">01</div>
+                <h3 class="card-title">البيانات Data</h3>
+                <p class="card-desc">فهم الحقائق الخام المجردة، وأنواع تمثيلها (أرقام، حروف، رموز).</p>
+              </div>
+
+              <div class="tech-card">
+                <div class="card-badge">02</div>
+                <h3 class="card-title">المعلومات Information</h3>
+                <p class="card-desc">تحويل البيانات إلى معنى وقيمة تفيد المتلقي في اتخاذ القرار.</p>
+              </div>
+
+              <div class="tech-card">
+                <div class="card-badge">03</div>
+                <h3 class="card-title">المعرفة Knowledge</h3>
+                <p class="card-desc">استنتاج حلول وفهم عميق من خلال تنظيم وتحليل المعلومات.</p>
+              </div>
+
+              <div class="tech-card">
+                <div class="card-badge">04</div>
+                <h3 class="card-title">المقارنة الدقيقة</h3>
+                <p class="card-desc">التمييز البصري والعملي بين البيانات والمعلومات والمعرفة.</p>
+              </div>
+
+              <div class="tech-card">
+                <div class="card-badge">05</div>
+                <h3 class="card-title">أولية وثانوية</h3>
+                <p class="card-desc">الفرق الجوهري بين المصدر المباشر والوسيط (طرف ثالث).</p>
+              </div>
+
+              <div class="tech-card">
+                <div class="card-badge">06</div>
+                <h3 class="card-title">التحقق المتقاطع</h3>
+                <p class="card-desc">منهجية Cross-checking لتقييم الدقة والموثوقية العلمية.</p>
+              </div>
+
+              <div class="tech-card">
+                <div class="card-badge">07</div>
+                <h3 class="card-title">أنواع الوسائط Media</h3>
+                <p class="card-desc">وسائط التعبير، النقل والانتشار، ووسائط التسجيل والتخزين.</p>
+              </div>
+
+              <div class="tech-card">
+                <div class="card-badge">08</div>
+                <h3 class="card-title">الثقافة الإعلامية</h3>
+                <p class="card-desc">تفسير ونقد المعلومات الواردة من مختلف الوسائط بدقة.</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ----------------------------------------------------
+             SLIDE 3: ما هي البيانات؟ (What is Data?)
+             ---------------------------------------------------- -->
+        <section class="slide" id="slide-3">
+          <header class="slide-header">
+            <div class="brand-badge">
+              <div class="brand-logo-icon">E</div>
+              <div class="brand-text"><span class="brand-title">Eslam Atef | Code & AI</span><span class="brand-tagline">Think. Code. Build with AI.</span></div>
+            </div>
+            <div class="lesson-badge">مفهوم أساسي</div>
+            <div class="slide-number-indicator">03 / 22</div>
+          </header>
+
+          <div class="slide-title-area">
+            <h2 class="slide-title"><span class="slide-title-icon">🔢</span> ما هي البيانات؟ (Data)</h2>
+            <p class="slide-subtitle">التعريف الدقيق المعتمد في المنهج المدرسي</p>
+          </div>
+
+          <div class="slide-body">
+            <div class="tech-card" style="margin-bottom: 20px; border-right: 5px solid var(--cyan-primary);">
+              <h3 style="font-size: 22px; color: var(--cyan-primary); margin-bottom: 8px;">تعريف البيانات (Data):</h3>
+              <p style="font-size: 19px; line-height: 1.8; color: #FFFFFF; font-weight: 600;">
+                «البيانات هي <strong>حقائق مجردة</strong> يتم تمثيلها باستخدام: 
+                <span style="color: var(--cyan-primary);">الأرقام</span>، 
+                <span style="color: var(--cyan-primary);">الحروف</span>، أو 
+                <span style="color: var(--cyan-primary);">الرموز</span>، دون سياق محدد يمنحها معنى مكتملاً».
+              </p>
+            </div>
+
+            <div style="font-size: 16px; font-weight: 700; margin-bottom: 12px; color: var(--text-secondary);">
+              أمثلة واقعية على البيانات الخام:
+            </div>
+
+            <div class="card-grid grid-cols-4" style="margin-bottom: 20px;">
+              <div class="tech-card" style="text-align: center; padding: 20px;">
+                <div style="font-size: 38px; font-weight: 900; color: var(--cyan-primary); font-family: var(--font-mono);">85</div>
+                <div style="font-size: 13px; color: var(--text-muted); margin-top: 4px;">رقم مجرد</div>
+              </div>
+              <div class="tech-card" style="text-align: center; padding: 20px;">
+                <div style="font-size: 38px; font-weight: 900; color: var(--cyan-primary); font-family: var(--font-mono);">32</div>
+                <div style="font-size: 13px; color: var(--text-muted); margin-top: 4px;">رقم مجرد</div>
+              </div>
+              <div class="tech-card" style="text-align: center; padding: 20px;">
+                <div style="font-size: 34px; font-weight: 800; color: #FFFFFF;">Ahmed</div>
+                <div style="font-size: 13px; color: var(--text-muted); margin-top: 4px;">حروف / اسم خام</div>
+              </div>
+              <div class="tech-card" style="text-align: center; padding: 20px;">
+                <div style="font-size: 38px; font-weight: 900; color: var(--cyan-primary); font-family: var(--font-mono);">85%</div>
+                <div style="font-size: 13px; color: var(--text-muted); margin-top: 4px;">نسبة بلا مرجع</div>
+              </div>
+            </div>
+
+            <!-- سؤال تفاعلي للمناقشة -->
+            <div class="tech-card" style="background: rgba(13, 21, 39, 0.95); border-color: rgba(255, 214, 0, 0.4);">
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                  <span style="color: #FFD600; font-size: 20px; font-weight: 900;">❓ سؤال للمناقشة مع الطلاب:</span>
+                  <span style="font-size: 17px; font-weight: 700; margin-right: 10px;">"هل هذه الأشكال تمثل بيانات أم معلومات؟ ولماذا؟"</span>
+                </div>
+                <button class="tool-btn reveal-answer-btn" data-target="answer-slide-3" style="background: rgba(0, 229, 255, 0.15); border: 1px solid var(--cyan-primary);">
+                  كشف الإجابة والشرح
+                </button>
+              </div>
+
+              <div id="answer-slide-3" style="display: none; margin-top: 14px; padding-top: 12px; border-top: 1px dashed rgba(255, 255, 255, 0.2);">
+                <p style="font-size: 15.5px; color: #A5F3FC; line-height: 1.7;">
+                  💡 <strong>الإجابة:</strong> هذه <strong>بيانات فقط (Data)</strong>؛ لأنها أرقام وحروف منفصلة لا نعرف ماذا تعني: هل 85 درجة مئوية؟ هل هي نسبة نجاح؟ هل 32 عمر شخص أم مقاس حذاء؟ طالما لا يوجد سياق فهي بيانات خام.
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ----------------------------------------------------
+             SLIDE 4: مثال على البيانات (Dashboard)
+             ---------------------------------------------------- -->
+        <section class="slide" id="slide-4">
+          <header class="slide-header">
+            <div class="brand-badge">
+              <div class="brand-logo-icon">E</div>
+              <div class="brand-text"><span class="brand-title">Eslam Atef | Code & AI</span><span class="brand-tagline">Think. Code. Build with AI.</span></div>
+            </div>
+            <div class="lesson-badge">دراسة حالة تفاعلية</div>
+            <div class="slide-number-indicator">04 / 22</div>
+          </header>
+
+          <div class="slide-title-area">
+            <h2 class="slide-title"><span class="slide-title-icon">📊</span> لوحة البيانات الخام (Data Dashboard)</h2>
+            <p class="slide-subtitle">اضغط "التالي" لإظهار سجلات البيانات خطوة بخطوة</p>
+          </div>
+
+          <div class="slide-body">
+            <div class="card-grid grid-cols-4" style="margin-bottom: 24px;">
+              <div class="tech-card step-item" style="text-align: center;">
+                <div class="card-badge">سجل 01</div>
+                <div style="font-size: 26px; font-weight: 800; margin-bottom: 8px;">أحمد</div>
+                <div style="font-size: 42px; font-weight: 900; color: var(--cyan-primary); font-family: var(--font-mono);">85</div>
+              </div>
+
+              <div class="tech-card step-item" style="text-align: center;">
+                <div class="card-badge">سجل 02</div>
+                <div style="font-size: 26px; font-weight: 800; margin-bottom: 8px;">محمد</div>
+                <div style="font-size: 42px; font-weight: 900; color: var(--cyan-primary); font-family: var(--font-mono);">72</div>
+              </div>
+
+              <div class="tech-card step-item" style="text-align: center;">
+                <div class="card-badge">سجل 03</div>
+                <div style="font-size: 26px; font-weight: 800; margin-bottom: 8px;">سارة</div>
+                <div style="font-size: 42px; font-weight: 900; color: var(--cyan-primary); font-family: var(--font-mono);">91</div>
+              </div>
+
+              <div class="tech-card step-item" style="text-align: center;">
+                <div class="card-badge">سجل 04</div>
+                <div style="font-size: 26px; font-weight: 800; margin-bottom: 8px;">علي</div>
+                <div style="font-size: 42px; font-weight: 900; color: var(--cyan-primary); font-family: var(--font-mono);">68</div>
+              </div>
+            </div>
+
+            <!-- سؤال التحليل -->
+            <div class="tech-card step-item" style="background: rgba(19, 29, 51, 0.95); border: 1.5px solid var(--cyan-primary);">
+              <h3 style="font-size: 20px; color: #FFD600; margin-bottom: 10px;">🤔 سؤال محوري: "إيه اللي نقدر نعرفه من الأرقام دي؟"</h3>
+              <ul style="font-size: 16px; color: #E2E8F0; line-height: 1.9; padding-right: 24px;">
+                <li>هل درجات أحمد ومحمد في مادة البرمجة؟ أم درجات اختبار سرعة؟ أم تقييم بدني؟</li>
+                <li>هل الاختبار من 100 أم من 150؟</li>
+                <li>هل سارة مؤهلة للمركز الأول؟</li>
+              </ul>
+              <div class="highlight-box" style="margin-top: 12px;">
+                💡 <strong>الاستنتاج العلمي:</strong> طالما لا نملك السياق والمعنى الكامل لتلك الأرقام، فإنها تظل مجرد <strong>بيانات خام (Raw Data)</strong> غير صالحة لاتخاذ قرار بمفردها.
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ----------------------------------------------------
+             SLIDE 5: ما هي المعلومات؟ (What is Information?)
+             ---------------------------------------------------- -->
+        <section class="slide" id="slide-5">
+          <header class="slide-header">
+            <div class="brand-badge">
+              <div class="brand-logo-icon">E</div>
+              <div class="brand-text"><span class="brand-title">Eslam Atef | Code & AI</span><span class="brand-tagline">Think. Code. Build with AI.</span></div>
+            </div>
+            <div class="lesson-badge">مفهوم أساسي</div>
+            <div class="slide-number-indicator">05 / 22</div>
+          </header>
+
+          <div class="slide-title-area">
+            <h2 class="slide-title"><span class="slide-title-icon">💡</span> ما هي المعلومات؟ (Information)</h2>
+            <p class="slide-subtitle">الارتقاء من الأرقام المجردة إلى المعنى واتخاذ القرار</p>
+          </div>
+
+          <div class="slide-body">
+            <div class="tech-card" style="margin-bottom: 26px; border-right: 5px solid var(--accent-green);">
+              <h3 style="font-size: 22px; color: #34D399; margin-bottom: 8px;">تعريف المعلومات (Information):</h3>
+              <p style="font-size: 20px; line-height: 1.8; color: #FFFFFF; font-weight: 600;">
+                «المعلومات هي <strong>البيانات التي أصبح لها معنى أو قيمة</strong> بالنسبة للمستلم، 
+                ويمكن استخدامها مباشرة في <strong>اتخاذ القرارات</strong>».
+              </p>
+            </div>
+
+            <!-- مخطط تدفق البيانات للمعلومات -->
+            <div class="flow-container">
+              <div class="flow-step">
+                <div class="step-en">DATA</div>
+                <div class="step-ar">البيانات الخام</div>
+                <div class="step-sub">أرقام وحقائق مجردة (85)</div>
+              </div>
+
+              <div class="flow-arrow">➔</div>
+
+              <div class="flow-step active-step">
+                <div class="step-en" style="color: #FFD600;">+ MEANING / CONTEXT</div>
+                <div class="step-ar" style="color: #FFD600;">المعالجة والسياق</div>
+                <div class="step-sub">ربط البيانات بمادة ومقياس محدد</div>
+              </div>
+
+              <div class="flow-arrow">➔</div>
+
+              <div class="flow-step" style="border-color: #10B981;">
+                <div class="step-en" style="color: #34D399;">INFORMATION</div>
+                <div class="step-ar">المعلومات</div>
+                <div class="step-sub">أحمد حصل على 85% في مادة الذكاء الاصطناعي</div>
+              </div>
+
+              <div class="flow-arrow">➔</div>
+
+              <div class="flow-step">
+                <div class="step-en" style="color: #A78BFA;">DECISION</div>
+                <div class="step-ar">اتخاذ القرار</div>
+                <div class="step-sub">تكريم الطالب واجتيازه للمرحلة المتقدمة</div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ----------------------------------------------------
+             SLIDE 6: الفرق بين Data و Information (المقارنة)
+             ---------------------------------------------------- -->
+        <section class="slide" id="slide-6">
+          <header class="slide-header">
+            <div class="brand-badge">
+              <div class="brand-logo-icon">E</div>
+              <div class="brand-text"><span class="brand-title">Eslam Atef | Code & AI</span><span class="brand-tagline">Think. Code. Build with AI.</span></div>
+            </div>
+            <div class="lesson-badge">مقارنة بصرية</div>
+            <div class="slide-number-indicator">06 / 22</div>
+          </header>
+
+          <div class="slide-title-area">
+            <h2 class="slide-title"><span class="slide-title-icon">⚖️</span> الفرق بين البيانات والمعلومات</h2>
+            <p class="slide-subtitle">مقارنة بصرية توضح التحول الجوهري من المادة الخام إلى المعنى</p>
+          </div>
+
+          <div class="slide-body">
+            <div class="card-grid grid-cols-2">
+              <!-- بطاقة البيانات -->
+              <div class="tech-card" style="border-color: rgba(239, 68, 68, 0.4); background: rgba(239, 68, 68, 0.04);">
+                <div class="card-badge" style="background: rgba(239, 68, 68, 0.15); color: #F87171; border-color: rgba(239, 68, 68, 0.3);">البيانات (Data)</div>
+                <div style="font-size: 54px; font-weight: 900; color: #F87171; font-family: var(--font-mono); margin: 14px 0;">85</div>
+                <ul style="color: #CBD5E1; line-height: 2; font-size: 16px; padding-right: 20px;">
+                  <li>حقائق أولية غير معالجة.</li>
+                  <li>لا تحمل دلالة أو سياقاً محدداً بمفردها.</li>
+                  <li>غير كافية لاتخاذ أي قرار أو فهم الوضع الحقيقي.</li>
+                </ul>
+              </div>
+
+              <!-- بطاقة المعلومات -->
+              <div class="tech-card" style="border-color: rgba(16, 185, 129, 0.5); background: rgba(16, 185, 129, 0.05);">
+                <div class="card-badge" style="background: rgba(16, 185, 129, 0.15); color: #34D399; border-color: rgba(16, 185, 129, 0.3);">المعلومات (Information)</div>
+                <div style="font-size: 24px; font-weight: 800; color: #FFFFFF; line-height: 1.5; margin: 18px 0;">
+                  "أحمد حصل على <span style="color: #34D399;">85%</span> في الاختبار النهائي لمادة البرمجة والذكاء الاصطناعي"
+                </div>
+                <ul style="color: #CBD5E1; line-height: 2; font-size: 16px; padding-right: 20px;">
+                  <li>بيانات تم تنظيمها وإعطاؤها معنى واضحاً.</li>
+                  <li>تحتوي على اسم الطالب، النسبة، والمادة.</li>
+                  <li>تساعد في اتخاذ قرار فوري (منحه شهادة تفوق).</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ----------------------------------------------------
+             SLIDE 7: خصائص المعلومات (Characteristics)
+             ---------------------------------------------------- -->
+        <section class="slide" id="slide-7">
+          <header class="slide-header">
+            <div class="brand-badge">
+              <div class="brand-logo-icon">E</div>
+              <div class="brand-text"><span class="brand-title">Eslam Atef | Code & AI</span><span class="brand-tagline">Think. Code. Build with AI.</span></div>
+            </div>
+            <div class="lesson-badge">محتوى الكتاب المدرسي</div>
+            <div class="slide-number-indicator">07 / 22</div>
+          </header>
+
+          <div class="slide-title-area">
+            <h2 class="slide-title"><span class="slide-title-icon">✨</span> خصائص المعلومات (Characteristics of Information)</h2>
+            <p class="slide-subtitle">الخصائص الثلاث الرسمية المعتمدة في المنهج (تظهر بالضغط على التالي)</p>
+          </div>
+
+          <div class="slide-body">
+            <div class="card-grid grid-cols-3">
+              <!-- الخاصية 1 -->
+              <div class="tech-card step-item" style="border-top: 4px solid var(--cyan-primary);">
+                <div class="card-badge">الخاصية الأولى</div>
+                <h3 class="card-title">1. الاستمرار (Persistence)</h3>
+                <p class="card-desc">
+                  بقاء المعلومات محفوظة واستمرار وجودها مع مرور الزمن، بحيث تكون قابلة للوصول والاسترجاع والرجوع إليها عند الحاجة دون أن تتلاشى بمجرد استخدامها.
+                </p>
+                <div class="highlight-box">
+                  📁 <strong>مثال:</strong> سجلات درجات الطلاب في قواعد البيانات المدرسية المحفوظة لسنوات.
+                </div>
+              </div>
+
+              <!-- الخاصية 2 -->
+              <div class="tech-card step-item" style="border-top: 4px solid #10B981;">
+                <div class="card-badge" style="color: #34D399; border-color: rgba(16, 185, 129, 0.4);">الخاصية الثانية</div>
+                <h3 class="card-title">2. إمكانية إعادة الإنتاج (Reproducibility)</h3>
+                <p class="card-desc">
+                  إمكانية نسخ وتكرار وإنتاج نسخ مطابقة من نفس المعلومة دون أن تنقص المعلومة الأصلية أو تفقد قيمتها العلمية بأي شكل.
+                </p>
+                <div class="highlight-box">
+                  🔄 <strong>مثال:</strong> نسخ ملف كتاب PDF وتوزيعه على 1000 طالب دون أن تتغير النسخة الأصلية.
+                </div>
+              </div>
+
+              <!-- الخاصية 3 -->
+              <div class="tech-card step-item" style="border-top: 4px solid #F59E0B;">
+                <div class="card-badge" style="color: #FBBF24; border-color: rgba(245, 158, 11, 0.4);">الخاصية الثالثة</div>
+                <h3 class="card-title">3. الانتشار (Propagation)</h3>
+                <p class="card-desc">
+                  قدرة المعلومات على الانتقال والانتشار السريع والوصول إلى عدد هائل من المستقبلين عبر مختلف قنوات الاتصال والشبكات الرقمية.
+                </p>
+                <div class="highlight-box">
+                  🌐 <strong>مثال:</strong> خبر عاجل أو منشور على الإنترنت يصل لملايين الأشخاص خلال ثوانٍ معدودة.
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ----------------------------------------------------
+             SLIDE 8: اختبر نفسك (Interactive Question 1)
+             ---------------------------------------------------- -->
+        <section class="slide" id="slide-8">
+          <header class="slide-header">
+            <div class="brand-badge">
+              <div class="brand-logo-icon">E</div>
+              <div class="brand-text"><span class="brand-title">Eslam Atef | Code & AI</span><span class="brand-tagline">Think. Code. Build with AI.</span></div>
+            </div>
+            <div class="lesson-badge">تطبيق تفاعلي</div>
+            <div class="slide-number-indicator">08 / 22</div>
+          </header>
+
+          <div class="slide-title-area">
+            <h2 class="slide-title"><span class="slide-title-icon">❓</span> اختبر نفسك: خصائص المعلومات</h2>
+            <p class="slide-subtitle">اختر الإجابة الصحيحة للتحقق من الاستيعاب المباشر</p>
+          </div>
+
+          <div class="slide-body">
+            <div class="tech-card" style="max-width: 900px; margin: 0 auto; width: 100%;">
+              <div style="font-size: 20px; font-weight: 800; color: #FFFFFF; line-height: 1.7; margin-bottom: 20px;">
+                "لو عندك معلومة يمكن نشرها وتوزيعها بسهولة وسرعة لعدد كبير جداً من الأشخاص حول العالم، أي خاصية من خصائص المعلومات توضح ذلك؟"
+              </div>
+
+              <div class="quiz-options">
+                <button class="quiz-btn interactive-choice-btn" data-correct="false">
+                  <span>A — الاستمرار (Persistence)</span>
+                  <span style="font-family: var(--font-mono); font-size: 13px; color: var(--text-muted);">بقاء المعلومة مخزنة</span>
+                </button>
+
+                <button class="quiz-btn interactive-choice-btn" data-correct="false">
+                  <span>B — إمكانية إعادة الإنتاج (Reproducibility)</span>
+                  <span style="font-family: var(--font-mono); font-size: 13px; color: var(--text-muted);">نسخ وتكرار المعلومة</span>
+                </button>
+
+                <button class="quiz-btn interactive-choice-btn" data-correct="true" data-explanation="الانتشار (Propagation) هو الخاصية المعنية بسرعة وتوزيع المعلومات ونقلها لعدد غير محدود من المتلقين.">
+                  <span>C — الانتشار (Propagation)</span>
+                  <span style="font-family: var(--font-mono); font-size: 13px; color: var(--cyan-primary);">سرعة وسعة الانتشار</span>
+                </button>
+              </div>
+
+              <div class="feedback-banner"></div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ----------------------------------------------------
+             SLIDE 9: ما هي المعرفة؟ (What is Knowledge?)
+             ---------------------------------------------------- -->
+        <section class="slide" id="slide-9">
+          <header class="slide-header">
+            <div class="brand-badge">
+              <div class="brand-logo-icon">E</div>
+              <div class="brand-text"><span class="brand-title">Eslam Atef | Code & AI</span><span class="brand-tagline">Think. Code. Build with AI.</span></div>
+            </div>
+            <div class="lesson-badge">مفهوم أساسي</div>
+            <div class="slide-number-indicator">09 / 22</div>
+          </header>
+
+          <div class="slide-title-area">
+            <h2 class="slide-title"><span class="slide-title-icon">🧠</span> ما هي المعرفة؟ (Knowledge)</h2>
+            <p class="slide-subtitle">قمة الهرم المعلوماتي: من التحليل إلى حل المشكلات</p>
+          </div>
+
+          <div class="slide-body">
+            <div class="flow-container" style="margin-bottom: 24px;">
+              <div class="flow-step">
+                <div class="step-en">DATA</div>
+                <div class="step-ar">بيانات</div>
+                <div class="step-sub">85</div>
+              </div>
+              <div class="flow-arrow">➔</div>
+              <div class="flow-step">
+                <div class="step-en">INFORMATION</div>
+                <div class="step-ar">معلومات</div>
+                <div class="step-sub">أحمد حصل على 85% في البرمجة</div>
+              </div>
+              <div class="flow-arrow">➔</div>
+              <div class="flow-step active-step" style="border-color: #A855F7; box-shadow: 0 0 25px rgba(168, 85, 247, 0.4);">
+                <div class="step-en" style="color: #C084FC;">KNOWLEDGE</div>
+                <div class="step-ar" style="color: #FFFFFF;">المعرفة</div>
+                <div class="step-sub">تحليل الأداء واستنتاج خطة تطوير</div>
+              </div>
+            </div>
+
+            <div class="tech-card" style="border-right: 5px solid #A855F7;">
+              <h3 style="font-size: 21px; color: #C084FC; margin-bottom: 8px;">تعريف المعرفة من الكتاب المدرسي:</h3>
+              <p style="font-size: 18.5px; line-height: 1.8; color: #FFFFFF; font-weight: 600;">
+                «تنتج المعرفة من <strong>تحليل وتنظيم المعلومات بشكل منهجي</strong>، وتطبيق الفهم والخبرة لاستيعاب الأسباب والأنماط، مما يساعد في <strong>حل المشكلات واتخاذ قرارات مستقبلية ذكية</strong>».
+              </p>
+              
+              <div class="highlight-box" style="margin-top: 14px;">
+                🎓 <strong>تطبيق عملي من درجات الطلاب:</strong> بعد تجميع معلومات درجات الطلاب على مدار العام، يتضح لنا معرفياً أن معظم الطلاب يواجهون صعوبة في كتابة الدوال البرمجية (Functions)، وبناءً على هذه المعرفة نقوم بتصميم ورشة تدريبية خاصة لمعالجة هذه المشكلة.
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ----------------------------------------------------
+             SLIDE 10: المعلومات الأولية (Primary Information)
+             ---------------------------------------------------- -->
+        <section class="slide" id="slide-10">
+          <header class="slide-header">
+            <div class="brand-badge">
+              <div class="brand-logo-icon">E</div>
+              <div class="brand-text"><span class="brand-title">Eslam Atef | Code & AI</span><span class="brand-tagline">Think. Code. Build with AI.</span></div>
+            </div>
+            <div class="lesson-badge">مصادر المعلومات</div>
+            <div class="slide-number-indicator">10 / 22</div>
+          </header>
+
+          <div class="slide-title-area">
+            <h2 class="slide-title"><span class="slide-title-icon">🔬</span> المعلومات الأولية (Primary Information)</h2>
+            <p class="slide-subtitle">المصدر المباشر الخالي من الوسطاء</p>
+          </div>
+
+          <div class="slide-body">
+            <div class="tech-card" style="margin-bottom: 24px; border-right: 5px solid var(--cyan-primary);">
+              <h3 style="font-size: 21px; color: var(--cyan-primary); margin-bottom: 8px;">تعريف المعلومات الأولية من الكتاب المدرسي:</h3>
+              <p style="font-size: 19px; line-height: 1.8; color: #FFFFFF; font-weight: 600;">
+                «هي معلومات يتم الحصول عليها <strong>مباشرة من التجربة الشخصية أو البحث الميداني أو التجارب المعملية</strong> دون تدخل وسيط أو طرف ثالث».
+              </p>
+            </div>
+
+            <div style="font-size: 16px; font-weight: 700; color: var(--text-secondary); margin-bottom: 14px;">
+              أمثلة رسمية على المعلومات الأولية:
+            </div>
+
+            <div class="card-grid grid-cols-3">
+              <div class="tech-card">
+                <div class="card-badge">مثال 01</div>
+                <h3 class="card-title">🧪 تقارير التجارب المعملية</h3>
+                <p class="card-desc">تسجيل درجات الحرارة أو التفاعلات الكيميائية التي قمت برصدها بنفسك أثناء التجربة.</p>
+              </div>
+
+              <div class="tech-card">
+                <div class="card-badge">مثال 02</div>
+                <h3 class="card-title">📋 نتائج الاستبيانات المباشرة</h3>
+                <p class="card-desc">إجابات الاستبيان التي جمعتها بنفسك مباشرة من زملائك أو مجتمع البحث.</p>
+              </div>
+
+              <div class="tech-card">
+                <div class="card-badge">مثال 03</div>
+                <h3 class="card-title">📝 جداول الملاحظة والرصد</h3>
+                <p class="card-desc">ملاحظات الباحث المدونة في الميدان بالعين المجردة وبأجهزة القياس المباشرة.</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ----------------------------------------------------
+             SLIDE 11: المعلومات الثانوية (Secondary Information)
+             ---------------------------------------------------- -->
+        <section class="slide" id="slide-11">
+          <header class="slide-header">
+            <div class="brand-badge">
+              <div class="brand-logo-icon">E</div>
+              <div class="brand-text"><span class="brand-title">Eslam Atef | Code & AI</span><span class="brand-tagline">Think. Code. Build with AI.</span></div>
+            </div>
+            <div class="lesson-badge">مصادر المعلومات</div>
+            <div class="slide-number-indicator">11 / 22</div>
+          </header>
+
+          <div class="slide-title-area">
+            <h2 class="slide-title"><span class="slide-title-icon">📚</span> المعلومات الثانوية (Secondary Information)</h2>
+            <p class="slide-subtitle">معلومات منقولة عبر طرف ثالث</p>
+          </div>
+
+          <div class="slide-body">
+            <div class="tech-card" style="margin-bottom: 24px; border-right: 5px solid #F59E0B;">
+              <h3 style="font-size: 21px; color: #FBBF24; margin-bottom: 8px;">تعريف المعلومات الثانوية من الكتاب المدرسي:</h3>
+              <p style="font-size: 19px; line-height: 1.8; color: #FFFFFF; font-weight: 600;">
+                «هي معلومات <strong>لم يتم الحصول عليها مباشرة</strong> من التجربة الشخصية، ولكن تم تلقيها ونقلها <strong>من خلال طرف ثالث (Third-party)</strong>».
+              </p>
+            </div>
+
+            <div style="font-size: 16px; font-weight: 700; color: var(--text-secondary); margin-bottom: 14px;">
+              أمثلة رسمية على المعلومات الثانوية:
+            </div>
+
+            <div class="card-grid grid-cols-3">
+              <div class="tech-card">
+                <div class="card-badge" style="color: #FBBF24; border-color: rgba(245, 158, 11, 0.4);">مثال 01</div>
+                <h3 class="card-title">📖 الكتب المدرسية والمراجع</h3>
+                <p class="card-desc">معلومات جمعها وكتبها مؤلفون آخرون بالاعتماد على دراسات وبحوث سابقة.</p>
+              </div>
+
+              <div class="tech-card">
+                <div class="card-badge" style="color: #FBBF24; border-color: rgba(245, 158, 11, 0.4);">مثال 02</div>
+                <h3 class="card-title">📰 الصحف والمجلات</h3>
+                <p class="card-desc">تقارير صحفية ينقلها مراسلون وكتاب بناءً على أحداث لم تشهدها بنفسك.</p>
+              </div>
+
+              <div class="tech-card">
+                <div class="card-badge" style="color: #FBBF24; border-color: rgba(245, 158, 11, 0.4);">مثال 03</div>
+                <h3 class="card-title">📺 البرامج التلفزيونية والأخبار</h3>
+                <p class="card-desc">بث إعلامي يقدم تلخيصاً وتفسيراً للأحداث والأخبار للجمهور العام.</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ----------------------------------------------------
+             SLIDE 12: Primary vs Secondary (تمرين تصنيف)
+             ---------------------------------------------------- -->
+        <section class="slide" id="slide-12">
+          <header class="slide-header">
+            <div class="brand-badge">
+              <div class="brand-logo-icon">E</div>
+              <div class="brand-text"><span class="brand-title">Eslam Atef | Code & AI</span><span class="brand-tagline">Think. Code. Build with AI.</span></div>
+            </div>
+            <div class="lesson-badge">نشاط تفاعلي</div>
+            <div class="slide-number-indicator">12 / 22</div>
+          </header>
+
+          <div class="slide-title-area">
+            <h2 class="slide-title"><span class="slide-title-icon">🏷️</span> تمرين التصنيف: أولية أم ثانوية؟</h2>
+            <p class="slide-subtitle">اضغط على نوع المصدر لكل بطاقة للتحقق من فهمك وتصنيفك</p>
+          </div>
+
+          <div class="slide-body">
+            <div class="card-grid grid-cols-2">
+              <div class="tech-card" data-correct-type="primary" data-note="لأنك أنت من قمت بإجراء التجربة بنفسك ودونت النتائج مباشرة.">
+                <h3 class="card-title">🧪 1. تقرير كتبته بنفسك عن تجربة الكيمياء في معمل المدرسة</h3>
+                <div style="display: flex; gap: 10px; margin-top: 14px;">
+                  <button class="tool-btn classify-btn" data-type="primary" style="background: rgba(0, 229, 255, 0.15); border: 1px solid var(--cyan-primary);">أولية (Primary)</button>
+                  <button class="tool-btn classify-btn" data-type="secondary" style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.2);">ثانوية (Secondary)</button>
+                </div>
+                <div class="classify-result" style="display: none; margin-top: 10px; font-size: 14.5px;"></div>
+              </div>
+
+              <div class="tech-card" data-correct-type="secondary" data-note="لأنك تقرأ ما كتبه مؤلف الكتاب كطرف ثالث ينقل لك المعلومات.">
+                <h3 class="card-title">📚 2. فصل في كتاب الفيزياء يشرح قانون الجاذبية الأرضية</h3>
+                <div style="display: flex; gap: 10px; margin-top: 14px;">
+                  <button class="tool-btn classify-btn" data-type="primary" style="background: rgba(0, 229, 255, 0.15); border: 1px solid var(--cyan-primary);">أولية (Primary)</button>
+                  <button class="tool-btn classify-btn" data-type="secondary" style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.2);">ثانوية (Secondary)</button>
+                </div>
+                <div class="classify-result" style="display: none; margin-top: 10px; font-size: 14.5px;"></div>
+              </div>
+
+              <div class="tech-card" data-correct-type="primary" data-note="لأن الإجابات تم جمعها مباشرة من المستجيبين دون وسيط خارجي.">
+                <h3 class="card-title">📊 3. استبيان وزعته على 50 طالباً لمعرفة لغات البرمجة المفضلة</h3>
+                <div style="display: flex; gap: 10px; margin-top: 14px;">
+                  <button class="tool-btn classify-btn" data-type="primary" style="background: rgba(0, 229, 255, 0.15); border: 1px solid var(--cyan-primary);">أولية (Primary)</button>
+                  <button class="tool-btn classify-btn" data-type="secondary" style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.2);">ثانوية (Secondary)</button>
+                </div>
+                <div class="classify-result" style="display: none; margin-top: 10px; font-size: 14.5px;"></div>
+              </div>
+
+              <div class="tech-card" data-correct-type="secondary" data-note="المقال الصحفي طرف ثالث ينقل أحداثاً وتفاسير من مصادر أخرى.">
+                <h3 class="card-title">📰 4. مقال في صحيفة عن أحدث تطبيقات الذكاء الاصطناعي في الطب</h3>
+                <div style="display: flex; gap: 10px; margin-top: 14px;">
+                  <button class="tool-btn classify-btn" data-type="primary" style="background: rgba(0, 229, 255, 0.15); border: 1px solid var(--cyan-primary);">أولية (Primary)</button>
+                  <button class="tool-btn classify-btn" data-type="secondary" style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.2);">ثانوية (Secondary)</button>
+                </div>
+                <div class="classify-result" style="display: none; margin-top: 10px; font-size: 14.5px;"></div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ----------------------------------------------------
+             SLIDE 13: التحقق من المعلومات (Cross-checking)
+             ---------------------------------------------------- -->
+        <section class="slide" id="slide-13">
+          <header class="slide-header">
+            <div class="brand-badge">
+              <div class="brand-logo-icon">E</div>
+              <div class="brand-text"><span class="brand-title">Eslam Atef | Code & AI</span><span class="brand-tagline">Think. Code. Build with AI.</span></div>
+            </div>
+            <div class="lesson-badge">منهجية علمية</div>
+            <div class="slide-number-indicator">13 / 22</div>
+          </header>
+
+          <div class="slide-title-area">
+            <h2 class="slide-title"><span class="slide-title-icon">🔍</span> التحقق من المعلومات (Cross-checking)</h2>
+            <p class="slide-subtitle">لماذا نقوم بالتحقق المتقاطع؟ وكيف نقيم دقة وموثوقية المعلومات؟</p>
+          </div>
+
+          <div class="slide-body">
+            <div class="tech-card" style="margin-bottom: 24px; border-right: 5px solid var(--cyan-primary);">
+              <h3 style="font-size: 20px; color: var(--cyan-primary); margin-bottom: 8px;">مفهوم التحقق المتقاطع من الكتاب:</h3>
+              <p style="font-size: 18px; line-height: 1.8; color: #FFFFFF; font-weight: 600;">
+                «المعلومات الثانوية قد تختلف عن الأصل أو تحتوي على <strong>تفسيرات إضافية أو أخطاء</strong>، ولذلك نقوم بـ <strong>المقارنة بين أكثر من مصدر مستقل</strong> لتقييم الدقة والموثوقية».
+              </p>
+            </div>
+
+            <!-- المخطط البصري -->
+            <div class="flow-container">
+              <div class="flow-step">
+                <div class="step-en">SOURCE 1</div>
+                <div class="step-ar">مصدر ثانوي أول</div>
+                <div class="step-sub">موقع إخباري</div>
+              </div>
+
+              <div class="flow-arrow">+</div>
+
+              <div class="flow-step">
+                <div class="step-en">SOURCE 2</div>
+                <div class="step-ar">مصدر ثانوي ثانٍ</div>
+                <div class="step-sub">تقرير أكاديمي</div>
+              </div>
+
+              <div class="flow-arrow">+</div>
+
+              <div class="flow-step">
+                <div class="step-en">SOURCE 3</div>
+                <div class="step-ar">مصدر ثالث</div>
+                <div class="step-sub">الموقع الرسمي للجهة</div>
+              </div>
+
+              <div class="flow-arrow">➔</div>
+
+              <div class="flow-step active-step">
+                <div class="step-en" style="color: var(--cyan-primary);">CROSS-CHECKING</div>
+                <div class="step-ar">التحقق والمقارنة</div>
+                <div class="step-sub">مطابقة الحقائق ونفي التعارض</div>
+              </div>
+
+              <div class="flow-arrow">➔</div>
+
+              <div class="flow-step" style="border-color: #10B981;">
+                <div class="step-en" style="color: #34D399;">RELIABILITY</div>
+                <div class="step-ar">تقييم الموثوقية</div>
+                <div class="step-sub">اعتماد المعلومة الصحيحة</div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ----------------------------------------------------
+             SLIDE 14: ما هي الوسائط؟ (Media)
+             ---------------------------------------------------- -->
+        <section class="slide" id="slide-14">
+          <header class="slide-header">
+            <div class="brand-badge">
+              <div class="brand-logo-icon">E</div>
+              <div class="brand-text"><span class="brand-title">Eslam Atef | Code & AI</span><span class="brand-tagline">Think. Code. Build with AI.</span></div>
+            </div>
+            <div class="lesson-badge">مفهوم الوسائط</div>
+            <div class="slide-number-indicator">14 / 22</div>
+          </header>
+
+          <div class="slide-title-area">
+            <h2 class="slide-title"><span class="slide-title-icon">📡</span> ما هي الوسائط؟ (Media)</h2>
+            <p class="slide-subtitle">جسر التواصل ونقل المعرفة والبيانات</p>
+          </div>
+
+          <div class="slide-body">
+            <div class="tech-card" style="margin-bottom: 24px; border-right: 5px solid var(--cyan-primary);">
+              <h3 style="font-size: 21px; color: var(--cyan-primary); margin-bottom: 8px;">تعريف الوسائط من الكتاب المدرسي:</h3>
+              <p style="font-size: 21px; line-height: 1.8; color: #FFFFFF; font-weight: 700;">
+                «الوسائط هي <strong>وسائل وأدوات لنقل وتوصيل المعلومات</strong> إلى عدد من الأشخاص».
+              </p>
+            </div>
+
+            <div class="card-grid grid-cols-5" style="text-align: center;">
+              <div class="tech-card">
+                <div style="font-size: 34px; margin-bottom: 8px;">📄</div>
+                <div style="font-size: 17px; font-weight: 800; color: #FFFFFF;">Text</div>
+                <div style="font-size: 13px; color: var(--text-secondary); margin-top: 4px;">النصوص المكتوبة</div>
+              </div>
+
+              <div class="tech-card">
+                <div style="font-size: 34px; margin-bottom: 8px;">🖼️</div>
+                <div style="font-size: 17px; font-weight: 800; color: #FFFFFF;">Images</div>
+                <div style="font-size: 13px; color: var(--text-secondary); margin-top: 4px;">الصور والرسومات</div>
+              </div>
+
+              <div class="tech-card">
+                <div style="font-size: 34px; margin-bottom: 8px;">🎙️</div>
+                <div style="font-size: 17px; font-weight: 800; color: #FFFFFF;">Audio</div>
+                <div style="font-size: 13px; color: var(--text-secondary); margin-top: 4px;">المقاطع الصوتية</div>
+              </div>
+
+              <div class="tech-card">
+                <div style="font-size: 34px; margin-bottom: 8px;">🎬</div>
+                <div style="font-size: 17px; font-weight: 800; color: #FFFFFF;">Video</div>
+                <div style="font-size: 13px; color: var(--text-secondary); margin-top: 4px;">مقاطع الفيديو</div>
+              </div>
+
+              <div class="tech-card">
+                <div style="font-size: 34px; margin-bottom: 8px;">🌐</div>
+                <div style="font-size: 17px; font-weight: 800; color: #FFFFFF;">Internet</div>
+                <div style="font-size: 13px; color: var(--text-secondary); margin-top: 4px;">شبكة الويب العالمية</div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ----------------------------------------------------
+             SLIDE 15: أنواع الوسائط (Types of Media)
+             ---------------------------------------------------- -->
+        <section class="slide" id="slide-15">
+          <header class="slide-header">
+            <div class="brand-badge">
+              <div class="brand-logo-icon">E</div>
+              <div class="brand-text"><span class="brand-title">Eslam Atef | Code & AI</span><span class="brand-tagline">Think. Code. Build with AI.</span></div>
+            </div>
+            <div class="lesson-badge">التصنيف الثلاثي</div>
+            <div class="slide-number-indicator">15 / 22</div>
+          </header>
+
+          <div class="slide-title-area">
+            <h2 class="slide-title"><span class="slide-title-icon">🗂️</span> أنواع الوسائط (Types of Media)</h2>
+            <p class="slide-subtitle">التصنيف الثلاثي المعتمد في المنهج (تظهر بالضغط على التالي)</p>
+          </div>
+
+          <div class="slide-body">
+            <div class="card-grid grid-cols-3">
+              <div class="tech-card step-item" style="border-top: 4px solid var(--cyan-primary);">
+                <div class="card-badge">النوع الأول</div>
+                <h3 class="card-title">1. وسائط التعبير</h3>
+                <div style="font-family: var(--font-mono); font-size: 13px; color: var(--cyan-primary); margin-bottom: 8px;">Expression Media</div>
+                <p class="card-desc">
+                  الوسائل والصيغ التي نستخدمها لصياغة الأفكار والمعلومات والتعبير عنها.
+                </p>
+                <div class="highlight-box">
+                  نصوص • صور • صوت • فيديو
+                </div>
+              </div>
+
+              <div class="tech-card step-item" style="border-top: 4px solid #10B981;">
+                <div class="card-badge" style="color: #34D399; border-color: rgba(16, 185, 129, 0.4);">النوع الثاني</div>
+                <h3 class="card-title">2. وسائط النقل والانتشار</h3>
+                <div style="font-family: var(--font-mono); font-size: 13px; color: #34D399; margin-bottom: 8px;">Transmission / Propagation Media</div>
+                <p class="card-desc">
+                  القنوات والشبكات والأجهزة التي تنقل وتبث المعلومة من مكان لآخر وللجمهور.
+                </p>
+                <div class="highlight-box">
+                  تلفزيون • راديو • صحف • إنترنت
+                </div>
+              </div>
+
+              <div class="tech-card step-item" style="border-top: 4px solid #F59E0B;">
+                <div class="card-badge" style="color: #FBBF24; border-color: rgba(245, 158, 11, 0.4);">النوع الثالث</div>
+                <h3 class="card-title">3. وسائط التسجيل</h3>
+                <div style="font-family: var(--font-mono); font-size: 13px; color: #FBBF24; margin-bottom: 8px;">Recording Media</div>
+                <p class="card-desc">
+                  الأوعية والوسائط المادية والرقمية التي تحفظ وتخزن المعلومات عليها للرجوع إليها لاحقاً.
+                </p>
+                <div class="highlight-box">
+                  ورق • فلاش USB • أقراص DVD • سحابة
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ----------------------------------------------------
+             SLIDE 16: وسائط التعبير (Expression Media)
+             ---------------------------------------------------- -->
+        <section class="slide" id="slide-16">
+          <header class="slide-header">
+            <div class="brand-badge">
+              <div class="brand-logo-icon">E</div>
+              <div class="brand-text"><span class="brand-title">Eslam Atef | Code & AI</span><span class="brand-tagline">Think. Code. Build with AI.</span></div>
+            </div>
+            <div class="lesson-badge">وسائط التعبير</div>
+            <div class="slide-number-indicator">16 / 22</div>
+          </header>
+
+          <div class="slide-title-area">
+            <h2 class="slide-title"><span class="slide-title-icon">🎨</span> وسائط التعبير (Expression Media)</h2>
+            <p class="slide-subtitle">الأشكال الأربعة التي نجسد ونعبر بها عن المحتوى</p>
+          </div>
+
+          <div class="slide-body">
+            <div class="card-grid grid-cols-4">
+              <div class="tech-card" style="text-align: center;">
+                <div style="font-size: 48px; margin-bottom: 12px;">✍️</div>
+                <h3 class="card-title">Text (النصوص)</h3>
+                <p class="card-desc">الحروف والكلمات المكتوبة والأرقام والشفرات البرمجية التي تصف المفاهيم بدقة ووضوح.</p>
+              </div>
+
+              <div class="tech-card" style="text-align: center;">
+                <div style="font-size: 48px; margin-bottom: 12px;">🖼️</div>
+                <h3 class="card-title">Images (الصور)</h3>
+                <p class="card-desc">الرسومات، المخططات الهندسية، والصور الفوتوغرافية التي تلخص المعنى بصرياً وتختصر الشرح.</p>
+              </div>
+
+              <div class="tech-card" style="text-align: center;">
+                <div style="font-size: 48px; margin-bottom: 12px;">🎧</div>
+                <h3 class="card-title">Audio (الصوت)</h3>
+                <p class="card-desc">التسجيلات الصوتية، الشرح المسموع، والنبرات التي تنقل التوجيهات والمشاعر للمستمع.</p>
+              </div>
+
+              <div class="tech-card" style="text-align: center;">
+                <div style="font-size: 48px; margin-bottom: 12px;">🎬</div>
+                <h3 class="card-title">Video (الفيديو)</h3>
+                <p class="card-desc">تكامل الصوت والصورة والحركة معاً لمحاكاة التجارب والدروس التفاعلية بأعلى درجات التفاعل.</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ----------------------------------------------------
+             SLIDE 17: وسائط النقل والانتشار (Transmission Media)
+             ---------------------------------------------------- -->
+        <section class="slide" id="slide-17">
+          <header class="slide-header">
+            <div class="brand-badge">
+              <div class="brand-logo-icon">E</div>
+              <div class="brand-text"><span class="brand-title">Eslam Atef | Code & AI</span><span class="brand-tagline">Think. Code. Build with AI.</span></div>
+            </div>
+            <div class="lesson-badge">وسائط النقل</div>
+            <div class="slide-number-indicator">17 / 22</div>
+          </header>
+
+          <div class="slide-title-area">
+            <h2 class="slide-title"><span class="slide-title-icon">🚀</span> وسائط النقل والانتشار (Transmission Media)</h2>
+            <p class="slide-subtitle">أمثلة الكتاب المدرسي على قنوات البث والنقل</p>
+          </div>
+
+          <div class="slide-body">
+            <div class="card-grid grid-cols-3">
+              <div class="tech-card">
+                <div style="font-size: 36px; margin-bottom: 8px;">📺</div>
+                <h3 class="card-title">TV (التلفزيون)</h3>
+                <p class="card-desc">بث مرئي واسع النطاق يصل لملايين المنازل في نفس التوقيت.</p>
+              </div>
+
+              <div class="tech-card">
+                <div style="font-size: 36px; margin-bottom: 8px;">📻</div>
+                <h3 class="card-title">Radio (الراديو)</h3>
+                <p class="card-desc">بث صوتي يعتمد على موجات الأثير لنقل الأخبار والتنبيهات السريعة.</p>
+              </div>
+
+              <div class="tech-card">
+                <div style="font-size: 36px; margin-bottom: 8px;">📰</div>
+                <h3 class="card-title">Newspapers (الصحف)</h3>
+                <p class="card-desc">قناة تقليدية مطبوعة تنقل الأخبار والتحقيقات الصحفية يومياً.</p>
+              </div>
+
+              <div class="tech-card">
+                <div style="font-size: 36px; margin-bottom: 8px;">📚</div>
+                <h3 class="card-title">Books (الكتب)</h3>
+                <p class="card-desc">وسيلة نشر ونقل علمي توثق النظريات وتوزعها عبر المكتبات والمدارس.</p>
+              </div>
+
+              <div class="tech-card">
+                <div style="font-size: 36px; margin-bottom: 8px;">📞</div>
+                <h3 class="card-title">Phone (الهاتف)</h3>
+                <p class="card-desc">اتصال شخصي ومباشر ينقل الصوت والبيانات بين طرفين عبر الشبكات.</p>
+              </div>
+
+              <div class="tech-card">
+                <div style="font-size: 36px; margin-bottom: 8px;">🌐</div>
+                <h3 class="card-title">Internet (الإنترنت)</h3>
+                <p class="card-desc">أقوى وسيلة نقل وانتشار رقمي في العصر الحديث تمتاز بالسرعة والانتشار الفوري.</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ----------------------------------------------------
+             SLIDE 18: وسائط التسجيل (Recording Media)
+             ---------------------------------------------------- -->
+        <section class="slide" id="slide-18">
+          <header class="slide-header">
+            <div class="brand-badge">
+              <div class="brand-logo-icon">E</div>
+              <div class="brand-text"><span class="brand-title">Eslam Atef | Code & AI</span><span class="brand-tagline">Think. Code. Build with AI.</span></div>
+            </div>
+            <div class="lesson-badge">وسائط التسجيل</div>
+            <div class="slide-number-indicator">18 / 22</div>
+          </header>
+
+          <div class="slide-title-area">
+            <h2 class="slide-title"><span class="slide-title-icon">💾</span> وسائط التسجيل والتخزين (Recording Media)</h2>
+            <p class="slide-subtitle">الأوعية المادية والرقمية لحفظ المعلومات</p>
+          </div>
+
+          <div class="slide-body">
+            <div class="card-grid grid-cols-4">
+              <div class="tech-card" style="text-align: center;">
+                <div style="font-size: 44px; margin-bottom: 10px;">📜</div>
+                <h3 class="card-title">Paper (الورق)</h3>
+                <p class="card-desc">أقدم وسائط التسجيل لحفظ النصوص والرسومات والمستندات الرسمية تاريخياً ومادياً.</p>
+              </div>
+
+              <div class="tech-card" style="text-align: center;">
+                <div style="font-size: 44px; margin-bottom: 10px;">🔌</div>
+                <h3 class="card-title">USB Flash Drives</h3>
+                <p class="card-desc">وحدات ذاكرة إلكترونية محمولة تعتمد على تقنية Flash لتخزين كميات كبيرة من البيانات ونقلها بسهولة.</p>
+              </div>
+
+              <div class="tech-card" style="text-align: center;">
+                <div style="font-size: 44px; margin-bottom: 10px;">💿</div>
+                <h3 class="card-title">DVD / Optical Media</h3>
+                <p class="card-desc">أقراص ضوئية تعتمد على أشعة الليزر لقراءة وكتابة البيانات ومقاطع الفيديو والبرامج.</p>
+              </div>
+
+              <div class="tech-card" style="text-align: center;">
+                <div style="font-size: 44px; margin-bottom: 10px;">☁️</div>
+                <h3 class="card-title">Cloud Storage</h3>
+                <p class="card-desc">مستودعات تخزين رقمية على خوادم الإنترنت تتيح الوصول لبياناتك من أي جهاز في العالم.</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ----------------------------------------------------
+             SLIDE 19: اختبر نفسك — أنواع الوسائط
+             ---------------------------------------------------- -->
+        <section class="slide" id="slide-19">
+          <header class="slide-header">
+            <div class="brand-badge">
+              <div class="brand-logo-icon">E</div>
+              <div class="brand-text"><span class="brand-title">Eslam Atef | Code & AI</span><span class="brand-tagline">Think. Code. Build with AI.</span></div>
+            </div>
+            <div class="lesson-badge">تطبيق تفاعلي</div>
+            <div class="slide-number-indicator">19 / 22</div>
+          </header>
+
+          <div class="slide-title-area">
+            <h2 class="slide-title"><span class="slide-title-icon">🧩</span> اختبر نفسك: صنف نوع الوسيط</h2>
+            <p class="slide-subtitle">حدد نوع الوسيط الصحيح لكل عنصر من العناصر المعروضة</p>
+          </div>
+
+          <div class="slide-body">
+            <div class="card-grid grid-cols-3">
+              <!-- سؤال 1 -->
+              <div class="tech-card">
+                <div style="font-size: 36px; text-align: center; margin-bottom: 8px;">🖼️</div>
+                <h3 style="font-size: 18px; text-align: center; margin-bottom: 12px;">"الصورة الفوتوغرافية"</h3>
+                <div class="quiz-options">
+                  <button class="quiz-btn interactive-choice-btn" data-correct="true" data-explanation="الصور من أشكال التعبير عن الأفكار.">وسائط تعبير (Expression)</button>
+                  <button class="quiz-btn interactive-choice-btn" data-correct="false">وسائط نقل (Transmission)</button>
+                  <button class="quiz-btn interactive-choice-btn" data-correct="false">وسائط تسجيل (Recording)</button>
+                </div>
+                <div class="feedback-banner"></div>
+              </div>
+
+              <!-- سؤال 2 -->
+              <div class="tech-card">
+                <div style="font-size: 36px; text-align: center; margin-bottom: 8px;">📺</div>
+                <h3 style="font-size: 18px; text-align: center; margin-bottom: 12px;">"جهاز التلفزيون أو البث"</h3>
+                <div class="quiz-options">
+                  <button class="quiz-btn interactive-choice-btn" data-correct="false">وسائط تعبير (Expression)</button>
+                  <button class="quiz-btn interactive-choice-btn" data-correct="true" data-explanation="التلفزيون قناة لنقل وبث المعلومات للجمهور.">وسائط نقل (Transmission)</button>
+                  <button class="quiz-btn interactive-choice-btn" data-correct="false">وسائط تسجيل (Recording)</button>
+                </div>
+                <div class="feedback-banner"></div>
+              </div>
+
+              <!-- سؤال 3 -->
+              <div class="tech-card">
+                <div style="font-size: 36px; text-align: center; margin-bottom: 8px;">🔌</div>
+                <h3 style="font-size: 18px; text-align: center; margin-bottom: 12px;">"وحدة الذاكرة Flash USB"</h3>
+                <div class="quiz-options">
+                  <button class="quiz-btn interactive-choice-btn" data-correct="false">وسائط تعبير (Expression)</button>
+                  <button class="quiz-btn interactive-choice-btn" data-correct="false">وسائط نقل (Transmission)</button>
+                  <button class="quiz-btn interactive-choice-btn" data-correct="true" data-explanation="الفلاش USB وعاء لتخزين وتسجيل وحفظ البيانات.">وسائط تسجيل (Recording)</button>
+                </div>
+                <div class="feedback-banner"></div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ----------------------------------------------------
+             SLIDE 20: الثقافة الإعلامية (Media Literacy)
+             ---------------------------------------------------- -->
+        <section class="slide" id="slide-20">
+          <header class="slide-header">
+            <div class="brand-badge">
+              <div class="brand-logo-icon">E</div>
+              <div class="brand-text"><span class="brand-title">Eslam Atef | Code & AI</span><span class="brand-tagline">Think. Code. Build with AI.</span></div>
+            </div>
+            <div class="lesson-badge">مهارات التفكير النقدي</div>
+            <div class="slide-number-indicator">20 / 22</div>
+          </header>
+
+          <div class="slide-title-area">
+            <h2 class="slide-title"><span class="slide-title-icon">🛡️</span> الثقافة الإعلامية (Media Literacy)</h2>
+            <p class="slide-subtitle">حصانة الفرد في عصر التدفق المعلوماتي الرقمي</p>
+          </div>
+
+          <div class="slide-body">
+            <div class="tech-card" style="margin-bottom: 22px; border-right: 5px solid var(--cyan-primary);">
+              <h3 style="font-size: 21px; color: var(--cyan-primary); margin-bottom: 8px;">تعريف الثقافة الإعلامية من الكتاب المدرسي:</h3>
+              <p style="font-size: 20px; line-height: 1.8; color: #FFFFFF; font-weight: 700;">
+                «القدرة على <strong>الوصول إلى المعلومات وتفسيرها وتحليلها وتقييمها</strong> 
+                التي يتم الحصول عليها من مختلف الوسائط <strong>بشكل دقيق ونقدي</strong>».
+              </p>
+            </div>
+
+            <div class="tech-card" style="background: rgba(13, 21, 39, 0.95); border: 1.5px solid var(--cyan-primary);">
+              <h3 style="font-size: 19px; color: #FFD600; margin-bottom: 10px;">📱 مثال توضيحي واقعي: الأخبار على السوشيال ميديا</h3>
+              <p style="font-size: 16px; color: #E2E8F0; line-height: 1.8;">
+                عند رؤية خبر أو معلومة على وسائل التواصل الاجتماعي (Facebook, X, TikTok)، يطبق الشخص المثقف إعلامياً أسئلة الفحص النقدي:
+              </p>
+
+              <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-top: 14px;">
+                <div style="background: rgba(0, 229, 255, 0.08); padding: 12px 16px; border-radius: 10px;">
+                  <strong style="color: var(--cyan-primary);">1. من الناشر؟</strong>
+                  <div style="font-size: 13.5px; color: var(--text-secondary); margin-top: 4px;">هل هو جهة رسمية موثوقة أم حساب مجهول؟</div>
+                </div>
+
+                <div style="background: rgba(0, 229, 255, 0.08); padding: 12px 16px; border-radius: 10px;">
+                  <strong style="color: var(--cyan-primary);">2. ما المصدر الأصلي؟</strong>
+                  <div style="font-size: 13.5px; color: var(--text-secondary); margin-top: 4px;">هل توجد دراسة أو تجربة تدعم هذا الادعاء؟</div>
+                </div>
+
+                <div style="background: rgba(0, 229, 255, 0.08); padding: 12px 16px; border-radius: 10px;">
+                  <strong style="color: var(--cyan-primary);">3. التحقق المتقاطع</strong>
+                  <div style="font-size: 13.5px; color: var(--text-secondary); margin-top: 4px;">هل أجمعت المصادر الموثوقة الأخرى على نفس الخبر؟</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ----------------------------------------------------
+             SLIDE 21: مراجعة المحاضرة (Mind Map)
+             ---------------------------------------------------- -->
+        <section class="slide" id="slide-21">
+          <header class="slide-header">
+            <div class="brand-badge">
+              <div class="brand-logo-icon">E</div>
+              <div class="brand-text"><span class="brand-title">Eslam Atef | Code & AI</span><span class="brand-tagline">Think. Code. Build with AI.</span></div>
+            </div>
+            <div class="lesson-badge">ملخص شامل</div>
+            <div class="slide-number-indicator">21 / 22</div>
+          </header>
+
+          <div class="slide-title-area">
+            <h2 class="slide-title"><span class="slide-title-icon">🗺️</span> الخريطة الذهنية للمحاضرة الأولى</h2>
+            <p class="slide-subtitle">تكامل جميع المفاهيم الأساسية في هيكل بصري واحد</p>
+          </div>
+
+          <div class="slide-body">
+            <div class="card-grid grid-cols-3">
+              <!-- العمود 1: الهرم الأساسي -->
+              <div class="tech-card" style="border-top: 4px solid var(--cyan-primary);">
+                <div class="card-badge">الهرم المعلوماتي</div>
+                <h3 class="card-title">البيانات ➔ المعلومات ➔ المعرفة</h3>
+                <ul style="color: #CBD5E1; line-height: 2; font-size: 15px; padding-right: 20px;">
+                  <li><strong>Data:</strong> حقائق مجردة خام (أرقام، حروف، رموز).</li>
+                  <li><strong>Information:</strong> بيانات ذات معنى وقيمة لاتخاذ القرار.</li>
+                  <li><strong>Knowledge:</strong> تحليل وتنظيم منهجي لحل المشكلات.</li>
+                </ul>
+              </div>
+
+              <!-- العمود 2: مصادر المعلومات -->
+              <div class="tech-card" style="border-top: 4px solid #10B981;">
+                <div class="card-badge" style="color: #34D399; border-color: rgba(16, 185, 129, 0.4);">المصادر والتحقق</div>
+                <h3 class="card-title">المصادر الأولية والثانوية</h3>
+                <ul style="color: #CBD5E1; line-height: 2; font-size: 15px; padding-right: 20px;">
+                  <li><strong>Primary:</strong> مصدر مباشر من التجربة والبحث الميداني.</li>
+                  <li><strong>Secondary:</strong> منقولة عبر طرف ثالث (كتب، صحف).</li>
+                  <li><strong>Cross-checking:</strong> مقارنة المصادر لضمان الدقة.</li>
+                </ul>
+              </div>
+
+              <!-- العمود 3: منظومة الوسائط -->
+              <div class="tech-card" style="border-top: 4px solid #F59E0B;">
+                <div class="card-badge" style="color: #FBBF24; border-color: rgba(245, 158, 11, 0.4);">الوسائط والثقافة</div>
+                <h3 class="card-title">أنواع الوسائط (Media)</h3>
+                <ul style="color: #CBD5E1; line-height: 2; font-size: 15px; padding-right: 20px;">
+                  <li><strong>تعبيرية:</strong> نصوص، صور، صوت، فيديو.</li>
+                  <li><strong>نقل وانتشار:</strong> تلفزيون، راديو، هاتف، إنترنت.</li>
+                  <li><strong>تسجيل:</strong> ورق، فلاش USB، أقراص DVD، سحابة.</li>
+                  <li><strong>Media Literacy:</strong> التفسير والنقد الدقيق للمحتوى.</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ----------------------------------------------------
+             SLIDE 22: الاختبار النهائي التفاعلي (Quiz Engine)
+             ---------------------------------------------------- -->
+        <section class="slide" id="slide-22">
+          <header class="slide-header">
+            <div class="brand-badge">
+              <div class="brand-logo-icon">E</div>
+              <div class="brand-text"><span class="brand-title">Eslam Atef | Code & AI</span><span class="brand-tagline">Think. Code. Build with AI.</span></div>
+            </div>
+            <div class="lesson-badge">التقييم الختامي</div>
+            <div class="slide-number-indicator">22 / 22</div>
+          </header>
+
+          <div class="slide-title-area">
+            <h2 class="slide-title"><span class="slide-title-icon">🏆</span> الاختبار الختامي التفاعلي</h2>
+            <p class="slide-subtitle">أجب عن الأسئلة التالية لاختبار فهمك الشامل لدرس البيانات والمعلومات والمعرفة</p>
+          </div>
+
+          <div class="slide-body" style="justify-content: flex-start; overflow-y: auto; max-height: 520px; padding-left: 10px;">
+            <!-- Quiz questions injected dynamically via JavaScript -->
+            <div id="final-quiz-questions"></div>
+
+            <!-- Score banner -->
+            <div id="quiz-score-card" class="tech-card" style="display: none; background: rgba(13, 21, 39, 0.98); border: 2px solid var(--cyan-primary); margin-top: 16px; text-align: center; padding: 24px;">
+              <div id="quiz-score-text" style="font-size: 20px; font-weight: 800; margin-bottom: 14px;"></div>
+              
+              <div style="background: rgba(255, 255, 255, 0.1); border-radius: 20px; height: 12px; width: 60%; margin: 0 auto 18px auto; overflow: hidden;">
+                <div id="quiz-score-bar" style="background: linear-gradient(90deg, #00E5FF, #10B981); width: 0%; height: 100%; transition: width 0.6s ease;"></div>
+              </div>
+
+              <button id="reset-quiz-btn" class="tool-btn" style="margin: 0 auto; background: var(--cyan-primary); color: #0A0F1D; font-weight: 900; padding: 10px 24px;">
+                🔄 إعادة الاختبار
+              </button>
+            </div>
+          </div>
+        </section>
+
+      </main>
+
+      <!-- ==========================================================
+           PRESENTER FLOATING MINIMAL TOOLBAR (Bottom Bar)
+           ========================================================== -->
+      <footer id="presenter-toolbar">
+        <!-- Navigation -->
+        <button id="prev-btn" class="tool-btn" title="السابق (Arrow Left / PageUp)">
+          <span>←</span>
+          <span>السابق</span>
+        </button>
+
+        <div id="slide-counter" class="slide-counter">01 / 22</div>
+
+        <button id="next-btn" class="tool-btn" title="التالي (Arrow Right / Space / PageDown)">
+          <span>التالي</span>
+          <span>→</span>
+        </button>
+
+        <div class="toolbar-sep"></div>
+
+        <!-- Annotation / Whiteboard Tools -->
+        <button id="pen-btn" class="tool-btn" title="القلم الحر (P)">
+          <span>✏️</span>
+          <span>القلم</span>
+        </button>
+
+        <button id="highlighter-btn" class="tool-btn" title="قلم التمييز (H)">
+          <span>🖍️</span>
+          <span>التمييز</span>
+        </button>
+
+        <button id="eraser-btn" class="tool-btn" title="الممحاة (E)">
+          <span>🧹</span>
+          <span>الممحاة</span>
+        </button>
+
+        <!-- Color Picker -->
+        <div class="color-picker" title="تغيير لون القلم">
+          <div class="color-dot selected" data-color="#00E5FF" style="background-color: #00E5FF;" title="Cyan"></div>
+          <div class="color-dot" data-color="#FF5252" style="background-color: #FF5252;" title="Red"></div>
+          <div class="color-dot" data-color="#FFD600" style="background-color: #FFD600;" title="Yellow"></div>
+          <div class="color-dot" data-color="#FFFFFF" style="background-color: #FFFFFF;" title="White"></div>
+        </div>
+
+        <button id="clear-btn" class="tool-btn" title="مسح كل رسومات الشريحة (C)">
+          <span>🗑️</span>
+          <span>مسح الرسم</span>
+        </button>
+
+        <div class="toolbar-sep"></div>
+
+        <!-- Fullscreen & UI controls -->
+        <button id="fullscreen-btn" class="tool-btn" title="ملء الشاشة (F11 / F)">
+          <span>⛶</span>
+          <span>ملء الشاشة</span>
+        </button>
+
+        <button id="toggle-toolbar-btn" class="tool-btn" title="إخفاء شريط الأدوات أثناء التسجيل (B)">
+          <span>👁️</span>
+          <span>إخفاء</span>
+        </button>
+      </footer>
+
+      <!-- Floating restore button when toolbar is hidden -->
+      <button id="show-toolbar-btn">▲ إظهار شريط الأدوات (B)</button>
+
+    </div>
+  </div>
+
+  <!-- Presentation Script Engine -->
+  <script src="script.js"></script>
+</body>
+</html>

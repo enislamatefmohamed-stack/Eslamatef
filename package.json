@@ -1,0 +1,9 @@
+{
+  "name": "eslam-atef-code-ai",
+  "version": "1.0.0",
+  "description": "Eslam Atef | Code & AI Educational Platform",
+  "private": true,
+  "scripts": {
+    "build": "bash build.sh"
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "version": 2,
+  "outputDirectory": "build/web",
+  "buildCommand": "bash build.sh",
+  "routes": [
+    {
+      "src": "/presentation/(.*)",
+      "dest": "/presentation/$1"
+    },
+    {
+      "src": "/presentation",
+      "dest": "/presentation/index.html"
+    },
+    {
+      "handle": "filesystem"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/index.html"
+    }
+  ]
+}
