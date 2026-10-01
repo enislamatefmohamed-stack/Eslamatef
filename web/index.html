@@ -1,13 +1,13 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ar" dir="rtl">
 <head>
   <base href="$FLUTTER_BASE_HREF">
 
   <meta charset="UTF-8">
   <meta content="IE=Edge" http-equiv="X-UA-Compatible">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Learn Computer Science, Programming & Artificial Intelligence through practical lessons, problem solving, and real-world projects with Eslam Atef.">
-  <meta name="keywords" content="Computer Science, AI Educator, Programming, Artificial Intelligence, Algorithms, Data Structures, Generative AI, Eslam Atef, Code & AI">
+  <meta name="description" content="Eslam Atef | Code & AI — منصة تعليم علوم الحاسب والبرمجة والذكاء الاصطناعي">
+  <meta name="keywords" content="Computer Science, AI Educator, Programming, Artificial Intelligence, Eslam Atef, Code & AI">
   <meta name="author" content="Eslam Atef">
 
   <!-- Open Graph -->
@@ -23,48 +23,82 @@
   <!-- Favicon -->
   <link rel="icon" type="image/jpeg" href="assets/assets/images/logo.jpeg"/>
 
-  <title>Eslam Atef | Code & AI — Computer Science & AI Educator</title>
+  <title>Eslam Atef | Code & AI</title>
   <link rel="manifest" href="manifest.json">
   <style>
-    body {
+    html, body {
       background-color: #070b14;
       margin: 0;
       padding: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
       color: #f8fafc;
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     }
     #loading-indicator {
+      position: fixed;
+      inset: 0;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      height: 100vh;
-      width: 100vw;
       background: #070b14;
+      z-index: 999999;
+      transition: opacity 0.15s ease-out;
+      pointer-events: none;
     }
-    .spinner {
-      width: 48px;
-      height: 48px;
-      border: 3px solid rgba(56, 189, 248, 0.2);
-      border-top-color: #38bdf8;
-      border-radius: 50%;
-      animation: spin 0.8s linear infinite;
+    .instant-line {
+      width: 140px;
+      height: 3px;
+      background: rgba(0, 229, 255, 0.15);
+      border-radius: 4px;
+      overflow: hidden;
+      position: relative;
     }
-    @keyframes spin {
-      to { transform: rotate(360deg); }
+    .instant-line::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      height: 100%;
+      width: 100%;
+      background: linear-gradient(90deg, transparent, #00E5FF, transparent);
+      animation: fastSweep 0.35s ease-in-out infinite;
+    }
+    @keyframes fastSweep {
+      0% { transform: translateX(-100%); }
+      100% { transform: translateX(100%); }
+    }
+    .brand-hint {
+      margin-top: 14px;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      color: #00E5FF;
+      font-family: -apple-system, sans-serif;
+      opacity: 0.9;
     }
   </style>
 </head>
 <body>
   <div id="loading-indicator">
-    <div class="spinner"></div>
-    <p style="margin-top: 20px; font-size: 14px; color: #94a3b8; font-weight: 500;">Eslam Atef | Code & AI</p>
+    <div class="instant-line"></div>
+    <div class="brand-hint">Eslam Atef</div>
   </div>
   <script>
-    window.addEventListener('flutter-first-frame', function () {
+    function removeLoader() {
       const loader = document.getElementById('loading-indicator');
-      if (loader) loader.remove();
-    });
+      if (loader) {
+        loader.style.opacity = '0';
+        setTimeout(function() {
+          if (loader.parentNode) loader.parentNode.removeChild(loader);
+        }, 150);
+      }
+    }
+    window.addEventListener('flutter-first-frame', removeLoader);
+    // Safety fallback to ensure instant responsiveness under 250ms
+    setTimeout(removeLoader, 250);
   </script>
   <script src="flutter_bootstrap.js" async></script>
 </body>

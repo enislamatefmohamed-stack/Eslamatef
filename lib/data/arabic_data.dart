@@ -1,5 +1,5 @@
 class ArabicData {
-  static const String brandName = "إسلام عاطف";
+  static const String brandName = "Eslam Atef";
   static const String brandSubtitle = "Code & AI";
   static const String phone = "01100665674";
   static const String formattedPhone = "01100665674";
@@ -48,89 +48,114 @@ class ArabicData {
     },
   ];
 
-  // Hero Slider
-  static final List<Map<String, String>> slides = [
+  // Latest Course & Lesson Updates for the Square Carousel
+  static final List<Map<String, dynamic>> latestUpdates = [
     {
-      "badge": "علوم الحاسب والذكاء الاصطناعي",
-      "title": "فكر كمهندس برمجيات.. وابنِ المستقبل مع الذكاء الاصطناعي",
-      "desc": "رحلة تعليمية عملية تركز على الفهم العميق للبرمجة وهندسة النظم بدلاً من مجرد نسخ الأكواد.",
-      "cta": "استكشف الكورسات",
-      "target": "courses",
+      "title": "مسار هياكل البيانات والخوارزميات التأسيسي",
+      "category": "كورس جديد",
+      "type": "course",
+      "route": "/courses",
+      "image": "assets/images/slide1.png",
+      "badge": "تأسيس هندسي",
+      "duration": "36 ساعة",
     },
     {
-      "badge": "تأسيس برمجي صلب",
-      "title": "أتقن الخوارزميات وهياكل البيانات والكود النظيف",
-      "desc": "تعلم كيف تفكر في حل المشكلات، وتحليل الكفاءة، وبناء تطبيقات قوية جاهزة للعمل الحقيقي.",
-      "cta": "شاهد الدروس المجانية",
-      "target": "lessons",
+      "title": "البيانات والمعلومات والمعرفة: المحاضرة التأسيسية",
+      "category": "درس جديد",
+      "type": "lesson",
+      "route": "/lessons",
+      "image": "assets/images/slide2.png",
+      "badge": "ذكاء اصطناعي",
+      "duration": "25 دقيقة",
     },
     {
-      "badge": "عصر الذكاء الاصطناعي",
-      "title": "وظّف الـ AI كشريك ذكي يضاعف إنتاجيتك وسرعتك",
-      "desc": "افهم كيف تعمل النماذج اللغوية (LLMs) وطبق أحدث تقنيات الـ AI في مشاريعك البرمجية.",
-      "cta": "تواصل معنا الآن",
-      "target": "contact",
+      "title": "هندسة الكود النظيف (Clean Code Architecture)",
+      "category": "كورس جديد",
+      "type": "course",
+      "route": "/courses",
+      "image": "assets/images/slide3.png",
+      "badge": "مستوى متقدم",
+      "duration": "28 ساعة",
     },
-  ];
-
-  // Courses
-  static final List<Map<String, dynamic>> courses = [
-    {
-      "title": "أساسيات علوم الحاسب وهياكل البيانات",
-      "level": "من الصفر للمتقدم",
-      "duration": "36 ساعة تدريبية",
-      "desc": "تأسيس هندسي شامل في إدارة الذاكرة، الخوارزميات الأساسية والمتقدمة، وحل المشكلات البرمجية المعقدة.",
-      "tag": "تأسيس شامل",
-    },
-    {
-      "title": "هندسة البرمجيات والتصميم النظيف (Clean Code)",
-      "level": "متوسط إلى متقدم",
-      "duration": "28 ساعة تدريبية",
-      "desc": "تطبيق مبادئ SOLID وأنماط التصميم المعمارية لبناء أنظمة برمجية قابلة للتوسع والصيانة بسهولة.",
-      "tag": "مستوى الشركات",
-    },
-    {
-      "title": "تعلم الآلة وتحليل البيانات التطبيقي (Machine Learning)",
-      "level": "متوسط",
-      "duration": "32 ساعة تدريبية",
-      "desc": "بناء وتدريب ونشر نماذج تعلم الآلة على بيانات حقيقية دون الاعتماد على الصناديق السوداء.",
-      "tag": "تطبيق عملي",
-    },
-    {
-      "title": "الذكاء الاصطناعي التوليدي وأنظمة LLMs & RAG",
-      "level": "متقدم",
-      "duration": "40 ساعة تدريبية",
-      "desc": "تصميم وبناء تطبيقات الذكاء الاصطناعي التوليدي، البحث الدلالي في قواعد البيانات، والوكلاء الذاتيون.",
-      "tag": "أحدث التقنيات",
-    },
-  ];
-
-  // Lessons
-  static final List<Map<String, String>> lessons = [
     {
       "title": "كيف يوزع نظام التشغيل الذاكرة فعلياً تحت الغطاء؟",
+      "category": "درس جديد",
+      "type": "lesson",
+      "route": "/lessons",
+      "image": "assets/images/slide4.png",
+      "badge": "علوم حاسب",
       "duration": "24 دقيقة",
-      "category": "علوم حاسب",
-      "url": youtubeUrl,
     },
     {
-      "title": "بناء نظام RAG متكامل من الصفر دون تعقيد",
-      "duration": "38 دقيقة",
-      "category": "ذكاء اصطناعي",
-      "url": youtubeUrl,
+      "title": "بناء وكلاء الذكاء الاصطناعي وتطبيقات LLM & RAG",
+      "category": "كورس جديد",
+      "type": "course",
+      "route": "/courses",
+      "image": "assets/images/slide5.png",
+      "badge": "أحدث تقنية",
+      "duration": "40 ساعة",
+    },
+  ];
+
+  // Weekly Challenge
+  static const Map<String, dynamic> weeklyChallenge = {
+    "week": "الأسبوع 42",
+    "difficulty": "مستوى: متوسط",
+    "daysLeft": "ينتهي خلال 3 أيام",
+    "title": "خوارزمية تصفية البيانات والتحقق المتقاطع (Cross-checking)",
+    "scenario": "لديك مصفوفة من نتائج درجات الطلاب ومؤشرات التحقق من مصادر متعددة، المطلوب كتابة خوارزمية تستبعد القيم الشاذة وتحسب المتوسط الحقيقي للطلاب المؤهلين للتميز.",
+    "input": "[85, 92, 45, 99, 120, 88]",
+    "output": "Valid Average = 88.5 | Qualified Count = 4",
+    "hint": "تذكر تطبيق شرط التحقق المتقاطع لاستبعاد القيم خارج النطاق المنطقي [0 - 100] أولاً قبل حساب المتوسط.",
+    "participants": 164,
+  };
+
+  // Interactive Quiz Questions for "اختبر نفسك"
+  static final List<Map<String, dynamic>> quizQuestions = [
+    {
+      "question": "ما هو الفرق الجوهري بين البيانات (Data) والمعلومات (Information)؟",
+      "options": [
+        "البيانات تنتج من تحليل وتلخيص المعلومات.",
+        "المعلومات هي بيانات تم إعطاؤها معنى وسياقاً لتفيد في اتخاذ القرار.",
+        "لا يوجد فرق جوهري، هما مجرد مسميات مختلفة لنفس الشيء.",
+        "البيانات رقمية فقط والمعلومات نصوص فقط."
+      ],
+      "correctIndex": 1,
+      "explanation": "المعلومات هي نتاج معالجة البيانات الخام وإكسابها سياقاً ودلالة تتيح للمستلم اتخاذ قرارات صحيحة."
     },
     {
-      "title": "هياكل البيانات التي يجب أن تتقنها قبل تعلم الآلة",
-      "duration": "20 دقيقة",
-      "category": "خوارزميات",
-      "url": youtubeUrl,
+      "question": "خاصية بقاء المعلومات مخزنة وقابلة للاسترجاع والرجوع إليها مع مرور الوقت تُسمى:",
+      "options": [
+        "الانتشار (Propagation)",
+        "الاستمرار (Persistence)",
+        "إعادة الإنتاج (Reproducibility)",
+        "الثقافة الإعلامية (Media Literacy)"
+      ],
+      "correctIndex": 1,
+      "explanation": "خاصية الاستمرار (Persistence) تعني حفظ المعلومة وبقاءها قابلة للاستدعاء عبر الزمن."
     },
     {
-      "title": "تحويل الكود العشوائي إلى Clean Architecture احترافي",
-      "duration": "31 دقيقة",
-      "category": "هندسة برمجيات",
-      "url": youtubeUrl,
+      "question": "المعلومات التي يتم جمعها مباشرة من خلال إجراء تجربة معملية بنفسك تُصنف كـ:",
+      "options": [
+        "معلومات ثانوية (Secondary Information)",
+        "وسائط انتشار (Transmission Media)",
+        "معلومات أولية (Primary Information)",
+        "بيانات تالفة بلا سياق"
+      ],
+      "correctIndex": 2,
+      "explanation": "المعلومات الأولية هي التي يتم الحصول عليها مباشرة من المصدر الأصلي والبحث الميداني والتجربة الشخصية."
     },
+    {
+      "question": "وحدات التخزين الفلاشية USB والأقراص المدمجة DVD تندرج تحت تصنيف:",
+      "options": [
+        "وسائط التعبير (Expression Media)",
+        "وسائط النقل والبث (Transmission Media)",
+        "وسائط التسجيل والتخزين (Recording Media)",
+        "وسائط الاتصال الهاتفي"
+      ],
+      "correctIndex": 2,
+      "explanation": "وسائط التسجيل (Recording Media) هي الأوعية المادية والرقمية المخصصة لتخزين وحفظ البيانات."
+    }
   ];
 
   // Privacy Policy

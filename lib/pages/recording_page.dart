@@ -408,7 +408,7 @@ class RecordingStudioPage extends StatelessWidget {
           child: Column(
             children: [
               Text(
-                "جميع الحقوق محفوظة © 2026 إسلام عاطف | Code & AI",
+                "جميع الحقوق محفوظة © 2026 Eslam Atef | Code & AI",
                 style: GoogleFonts.cairo(fontSize: 13, color: AppColors.textMuted),
               ),
               const SizedBox(height: 12),

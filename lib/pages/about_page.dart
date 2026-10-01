@@ -329,9 +329,9 @@ class AboutPage extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          "م. إسلام عاطف (Eslam Atef)",
+          "Eslam Atef",
           style: GoogleFonts.cairo(
-            fontSize: 22,
+            fontSize: 24,
             fontWeight: FontWeight.w900,
             color: AppColors.textPrimary,
           ),
@@ -402,7 +402,7 @@ class AboutPage extends StatelessWidget {
             ),
             const SizedBox(height: 16),
             Text(
-              "جميع الحقوق محفوظة © 2026 إسلام عاطف | Code & AI",
+              "جميع الحقوق محفوظة © 2026 Eslam Atef | Code & AI",
               style: GoogleFonts.cairo(fontSize: 12, color: AppColors.textMuted),
             ),
           ],

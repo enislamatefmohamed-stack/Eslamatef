@@ -223,7 +223,7 @@ class _ContactPageState extends State<ContactPage> {
               ),
               const SizedBox(height: 12),
               Text(
-                "شكراً لتواصلك معنا. تم إرسال رسالتك مباشرة إلى البريد الإلكتروني:\nen.islam.atef.mohamed@gmail.com\nوسيقوم الأستاذ إسلام عاطف بالرد عليك في أقرب وقت.",
+                "شكراً لتواصلك معنا. تم إرسال رسالتك مباشرة إلى البريد الإلكتروني:\nen.islam.atef.mohamed@gmail.com\nوسيقوم Eslam Atef بالرد عليك في أقرب وقت.",
                 style: GoogleFonts.cairo(
                   fontSize: 14,
                   color: AppColors.textSecondary,
@@ -403,7 +403,7 @@ class _ContactPageState extends State<ContactPage> {
           ),
           const SizedBox(height: 12),
           Text(
-            "يسعدنا استقبال استفساراتك حول الكورسات البرمجية، التدريب الخاص، أو أي استشارة تقنية في هندسة البرمجيات والذكاء الاصطناعي. املأ النموذج أدناه وستصل رسالتك مباشرة للأستاذ إسلام عاطف.",
+            "يسعدنا استقبال استفساراتك حول الكورسات البرمجية، التدريب الخاص، أو أي استشارة تقنية في هندسة البرمجيات والذكاء الاصطناعي. املأ النموذج أدناه وستصل رسالتك مباشرة إلى Eslam Atef.",
             style: GoogleFonts.cairo(
               fontSize: isMobile ? 14 : 16,
               color: AppColors.textSecondary,
@@ -935,7 +935,7 @@ class _ContactPageState extends State<ContactPage> {
                   ),
                   const SizedBox(width: 14),
                   Text(
-                    "جاري إرسال الرسالة إلى الأستاذ إسلام عاطف...",
+                    "جاري إرسال الرسالة إلى Eslam Atef...",
                     style: GoogleFonts.cairo(fontSize: 15, fontWeight: FontWeight.bold, color: Colors.black),
                   ),
                 ],
@@ -1035,8 +1035,8 @@ class _ContactPageState extends State<ContactPage> {
               alignment: WrapAlignment.center,
               children: [
                 _footerLink("الرئيسية", () => Navigator.of(context).pushReplacementNamed('/')),
-                _footerLink("الكورسات", () {}),
-                _footerLink("الدروس", () {}),
+                _footerLink("الكورسات", () => Navigator.of(context).pushNamed('/courses')),
+                _footerLink("الدروس", () => Navigator.of(context).pushNamed('/lessons')),
                 _footerLink("من نحن", () => Navigator.of(context).pushNamed('/about')),
                 _footerLink("سياسة الاستخدام والخصوصية", () => Navigator.of(context).pushNamed('/privacy')),
               ],
@@ -1050,7 +1050,7 @@ class _ContactPageState extends State<ContactPage> {
             ),
             const SizedBox(height: 16),
             Text(
-              "جميع الحقوق محفوظة © 2026 إسلام عاطف | Code & AI",
+              "جميع الحقوق محفوظة © 2026 Eslam Atef | Code & AI",
               style: GoogleFonts.cairo(fontSize: 12, color: AppColors.textMuted),
             ),
           ],
