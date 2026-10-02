@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:file_picker/file_picker.dart';
 
 import '../theme/app_theme.dart';
 import '../data/arabic_data.dart';
 import '../services/site_data_service.dart';
 import '../services/auth_service.dart';
+import '../services/user_service.dart';
 
 class WeeklyChallengePage extends StatefulWidget {
   const WeeklyChallengePage({super.key});
@@ -73,93 +76,232 @@ class _WeeklyChallengePageState extends State<WeeklyChallengePage> {
   }
 
   void _openSubmitChallengeDialog(Map<String, dynamic> challenge, bool isDark) {
-    final nameCtrl = TextEditingController();
-    final emailCtrl = TextEditingController();
-    final whatsappCtrl = TextEditingController();
+    final user = AuthService.instance.currentUser;
+    final nameCtrl = TextEditingController(text: user?.displayName ?? '');
+    final emailCtrl = TextEditingController(text: user?.email ?? '');
+    final gradeCtrl = TextEditingController();
+    final weekRaw = challenge['week']?.toString() ?? '1';
+    final weekNum = RegExp(r'\d+').firstMatch(weekRaw)?.group(0) ?? '1';
+    final challengeNumCtrl = TextEditingController(text: weekNum);
     final projectUrlCtrl = TextEditingController();
-    final notesCtrl = TextEditingController(text: _codeController.text);
+    final fileUrlCtrl = TextEditingController();
+    final messageCtrl = TextEditingController(text: _codeController.text.isNotEmpty ? "كود الحل المكتوب:\n${_codeController.text}" : "");
+    String? pickedFileName;
 
     showDialog(
       context: context,
-      builder: (ctx) => AlertDialog(
-        backgroundColor: isDark ? AppColors.cardDark : Colors.white,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: Row(
-          children: [
-            const Icon(Icons.send_rounded, color: Color(0xFF00E5FF), size: 24),
-            const SizedBox(width: 10),
-            Text(
-              "📩 إرسال حل التحدي",
-              style: GoogleFonts.cairo(
-                fontWeight: FontWeight.bold,
-                fontSize: 18,
-                color: isDark ? Colors.white : AppColors.textPrimaryLight,
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setDialogState) => AlertDialog(
+          backgroundColor: isDark ? AppColors.cardDark : Colors.white,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          title: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF8B5CF6).withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: const Icon(Icons.send_rounded, color: Color(0xFF8B5CF6), size: 22),
               ),
+              const SizedBox(width: 10),
+              Text(
+                "📩 أرسل التحدي للمدرس",
+                style: GoogleFonts.cairo(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 18,
+                  color: isDark ? Colors.white : AppColors.textPrimaryLight,
+                ),
+              ),
+            ],
+          ),
+          content: SizedBox(
+            width: 520,
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(12),
+                    margin: const EdgeInsets.only(bottom: 14),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF0284C7).withValues(alpha: 0.08),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: const Color(0xFF0284C7).withValues(alpha: 0.25)),
+                    ),
+                    child: Text(
+                      "تحدي: ${challenge['title'] ?? ''}",
+                      style: GoogleFonts.cairo(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 13,
+                        color: const Color(0xFF0284C7),
+                      ),
+                    ),
+                  ),
+                  _buildFormField("الاسم بالكامل *", nameCtrl, isDark),
+                  _buildFormField("البريد الإلكتروني *", emailCtrl, isDark),
+                  _buildFormField("الصف الدراسي (مثال: الصف الثاني الثانوي) *", gradeCtrl, isDark),
+                  _buildFormField("رقم التحدي *", challengeNumCtrl, isDark),
+                  _buildFormField("رابط المشروع GitHub / Drive *", projectUrlCtrl, isDark),
+                  
+                  // File upload optional
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 12),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text("رفع ملف الحل — اختياري", style: GoogleFonts.cairo(fontSize: 12, fontWeight: FontWeight.bold, color: isDark ? Colors.white70 : Colors.black87)),
+                        const SizedBox(height: 6),
+                        Row(
+                          children: [
+                            OutlinedButton.icon(
+                              onPressed: () async {
+                                final result = await FilePicker.pickFiles(type: FileType.any);
+                                if (result.isNotEmpty) {
+                                  final name = result.first.name;
+                                  setDialogState(() {
+                                    pickedFileName = name;
+                                    fileUrlCtrl.text = "ملف مرفق: $name";
+                                  });
+                                }
+                              },
+                              icon: const Icon(Icons.attach_file_rounded, size: 16),
+                              label: Text(pickedFileName != null ? "تغيير الملف" : "اختر ملف الحل", style: GoogleFonts.cairo(fontSize: 12)),
+                              style: OutlinedButton.styleFrom(
+                                foregroundColor: const Color(0xFF8B5CF6),
+                                side: const BorderSide(color: Color(0xFF8B5CF6)),
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                pickedFileName ?? "أو الصق رابط الملف أدناه",
+                                style: GoogleFonts.cairo(fontSize: 11, color: isDark ? Colors.white60 : Colors.black54),
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 6),
+                        TextField(
+                          controller: fileUrlCtrl,
+                          style: GoogleFonts.cairo(fontSize: 12, color: isDark ? Colors.white : Colors.black),
+                          decoration: InputDecoration(
+                            hintText: "رابط ملف إضافي (Google Drive أو غيره)",
+                            filled: true,
+                            fillColor: isDark ? const Color(0xFF070B14) : const Color(0xFFF8FAFC),
+                            contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                            border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: isDark ? Colors.white12 : Colors.black12)),
+                            enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: isDark ? Colors.white12 : Colors.black12)),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  _buildFormField("رسالة للمدرس (ملاحظاتك، استفسارك، أو كود الحل)", messageCtrl, isDark, maxLines: 3),
+                ],
+              ),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: Text("إلغاء", style: GoogleFonts.cairo(color: Colors.grey)),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                final studentName = nameCtrl.text.trim();
+                final studentEmail = emailCtrl.text.trim();
+                final studentGrade = gradeCtrl.text.trim();
+                final challengeNum = challengeNumCtrl.text.trim();
+                final projectUrl = projectUrlCtrl.text.trim();
+                final fileUrl = fileUrlCtrl.text.trim();
+                final teacherMessage = messageCtrl.text.trim();
+
+                if (studentName.isEmpty || studentEmail.isEmpty) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text("يرجى إدخال الاسم والبريد الإلكتروني")),
+                  );
+                  return;
+                }
+
+                Navigator.pop(ctx);
+
+                // 1. Record submission in local / Firebase
+                final submissionData = {
+                  'challengeId': challenge['id'] ?? 'chall_w$challengeNum',
+                  'challengeTitle': challenge['title'] ?? 'تحدي الأسبوع $challengeNum',
+                  'challengeNum': challengeNum,
+                  'studentName': studentName,
+                  'email': studentEmail,
+                  'grade': studentGrade,
+                  'projectUrl': projectUrl,
+                  'fileUrl': fileUrl,
+                  'message': teacherMessage,
+                  'date': "${DateTime.now().year}-${DateTime.now().month.toString().padLeft(2, '0')}-${DateTime.now().day.toString().padLeft(2, '0')}",
+                  'status': 'جديد',
+                };
+
+                await _dataService.addChallengeSubmission(submissionData);
+                if (user != null) {
+                  await UserService.instance.recordChallengeSubmission(user.uid, submissionData);
+                }
+
+                // 2. Open email client with full submission details
+                const teacherEmail = "en.islam.atef.mohamed@gmail.com";
+                final subject = Uri.encodeComponent("حل تحدي الأسبوع $challengeNum - $studentName");
+                final body = Uri.encodeComponent("""
+السلام عليكم ورحمة الله،
+أستاذ إسلام عاطف، تم إرسال حل تحدي الأسبوع عبر المنصة:
+
+• اسم الطالب: $studentName
+• البريد الإلكتروني: $studentEmail
+• الصف الدراسي: $studentGrade
+• رقم التحدي: $challengeNum
+• عنوان التحدي: ${challenge['title'] ?? ''}
+
+• رابط المشروع (GitHub / Drive):
+$projectUrl
+
+• ملف الحل:
+$fileUrl
+
+• رسالة الطالب للمدرس:
+$teacherMessage
+""");
+
+                final mailtoUri = Uri.parse("mailto:$teacherEmail?subject=$subject&body=$body");
+                try {
+                  if (await canLaunchUrl(mailtoUri)) {
+                    await launchUrl(mailtoUri);
+                  }
+                } catch (e) {
+                  debugPrint("Error opening mail client: $e");
+                }
+
+                if (!mounted) return;
+                setState(() => _isSubmitted = true);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text("🎉 تم تسجيل وإرسال حلك بنجاح! سيتم مراجعته والتواصل معك."),
+                    backgroundColor: Color(0xFF10B981),
+                  ),
+                );
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF8B5CF6),
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 12),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+              ),
+              child: Text("[ إرسال الحل 🚀 ]", style: GoogleFonts.cairo(fontWeight: FontWeight.bold, fontSize: 14)),
             ),
           ],
         ),
-        content: SizedBox(
-          width: 500,
-          child: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  "تحدي: ${challenge['title'] ?? ''}",
-                  style: GoogleFonts.cairo(fontWeight: FontWeight.bold, fontSize: 13, color: const Color(0xFF00E5FF)),
-                ),
-                const SizedBox(height: 12),
-                _buildFormField("اسم الطالب بالكامل *", nameCtrl, isDark),
-                _buildFormField("البريد الإلكتروني *", emailCtrl, isDark),
-                _buildFormField("رقم واتساب *", whatsappCtrl, isDark),
-                _buildFormField("رابط المشروع أو الكود (GitHub / CodePen) *", projectUrlCtrl, isDark),
-                _buildFormField("الكود أو ملاحظات إضافية على الحل", notesCtrl, isDark, maxLines: 4),
-              ],
-            ),
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: Text("إلغاء", style: GoogleFonts.cairo(color: Colors.grey)),
-          ),
-          ElevatedButton(
-            onPressed: () async {
-              if (nameCtrl.text.trim().isEmpty || emailCtrl.text.trim().isEmpty) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text("يرجى ملء جميع الحقول المطلوبة")),
-                );
-                return;
-              }
-              Navigator.pop(ctx);
-              await _dataService.addChallengeSubmission({
-                'challengeId': challenge['id'] ?? 'chall_active',
-                'challengeTitle': challenge['title'] ?? 'تحدي الأسبوع',
-                'studentName': nameCtrl.text.trim(),
-                'email': emailCtrl.text.trim(),
-                'whatsapp': whatsappCtrl.text.trim(),
-                'projectUrl': projectUrlCtrl.text.trim(),
-                'notes': notesCtrl.text.trim(),
-                'date': "${DateTime.now().year}-${DateTime.now().month.toString().padLeft(2, '0')}-${DateTime.now().day.toString().padLeft(2, '0')}",
-                'status': 'جديد',
-              });
-              if (!mounted) return;
-              setState(() => _isSubmitted = true);
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text("🎉 تم تسليم حلك بنجاح! سيتم مراجعته والتواصل معك."),
-                  backgroundColor: Color(0xFF10B981),
-                ),
-              );
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF00E5FF),
-              foregroundColor: Colors.black,
-            ),
-            child: Text("إرسال الحل الآن", style: GoogleFonts.cairo(fontWeight: FontWeight.bold)),
-          ),
-        ],
       ),
     );
   }
@@ -279,6 +421,8 @@ class _WeeklyChallengePageState extends State<WeeklyChallengePage> {
     final difficulty = challenge['difficulty'] ?? 'متوسط 🟡';
     final daysLeft = challenge['daysLeft'] ?? 'متبقي 3 أيام';
     final scenario = challenge['scenario'] ?? '';
+    final requirements = challenge['requirements'] ?? '';
+    final conditions = challenge['conditions'] ?? '';
     final input = challenge['input'] ?? '';
     final output = challenge['output'] ?? '';
     final hint = challenge['hint'] ?? '';
@@ -291,6 +435,40 @@ class _WeeklyChallengePageState extends State<WeeklyChallengePage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            // Friday transition banner if today is Friday
+            if (_dataService.isFridayTransitionDay()) ...[
+              Container(
+                margin: const EdgeInsets.only(bottom: 20),
+                padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [
+                      const Color(0xFF8B5CF6).withValues(alpha: 0.15),
+                      const Color(0xFF0284C7).withValues(alpha: 0.15),
+                    ],
+                  ),
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: const Color(0xFF8B5CF6).withValues(alpha: 0.3)),
+                ),
+                child: Row(
+                  children: [
+                    const Icon(Icons.hourglass_top_rounded, color: Color(0xFF8B5CF6), size: 24),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        "⏳ اليوم الجمعة: فترة انتقالية وتحضيرية — التحدي الجديد القادم ينطلق تلقائياً صباح غد السبت بإذن الله!",
+                        style: GoogleFonts.cairo(
+                          fontSize: 13,
+                          fontWeight: FontWeight.bold,
+                          color: isDark ? Colors.white : const Color(0xFF1E293B),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+
             // Top Badge & Meta Header
             Center(
               child: Container(
@@ -375,7 +553,7 @@ class _WeeklyChallengePageState extends State<WeeklyChallengePage> {
                       ),
                       const SizedBox(width: 14),
                       Text(
-                        "وصف وسيناريو التحدي",
+                        "وصف المشكلة والسيناريو",
                         style: GoogleFonts.cairo(
                           fontSize: 18,
                           fontWeight: FontWeight.w800,
@@ -397,6 +575,116 @@ class _WeeklyChallengePageState extends State<WeeklyChallengePage> {
               ),
             ),
             const SizedBox(height: 24),
+
+            // Requirements Card if present
+            if (requirements.isNotEmpty) ...[
+              Container(
+                padding: EdgeInsets.all(isMobile ? 20 : 28),
+                decoration: BoxDecoration(
+                  color: isDark ? AppColors.cardDark : Colors.white,
+                  borderRadius: BorderRadius.circular(22),
+                  border: Border.all(color: isDark ? AppColors.borderDark : AppColors.borderLight),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.05),
+                      blurRadius: 20,
+                      offset: const Offset(0, 6),
+                    ),
+                  ],
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(10),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF0284C7).withValues(alpha: 0.15),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: const Icon(Icons.task_alt_rounded, color: Color(0xFF0284C7), size: 22),
+                        ),
+                        const SizedBox(width: 14),
+                        Text(
+                          "المطلوب",
+                          style: GoogleFonts.cairo(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w800,
+                            color: isDark ? AppColors.textPrimary : AppColors.textPrimaryLight,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 18),
+                    Text(
+                      requirements,
+                      style: GoogleFonts.cairo(
+                        fontSize: 15,
+                        color: isDark ? const Color(0xFFE2E8F0) : const Color(0xFF334155),
+                        height: 1.8,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 24),
+            ],
+
+            // Conditions Card if present
+            if (conditions.isNotEmpty) ...[
+              Container(
+                padding: EdgeInsets.all(isMobile ? 20 : 28),
+                decoration: BoxDecoration(
+                  color: isDark ? AppColors.cardDark : Colors.white,
+                  borderRadius: BorderRadius.circular(22),
+                  border: Border.all(color: isDark ? AppColors.borderDark : AppColors.borderLight),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.05),
+                      blurRadius: 20,
+                      offset: const Offset(0, 6),
+                    ),
+                  ],
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(10),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF8B5CF6).withValues(alpha: 0.15),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: const Icon(Icons.rule_folder_rounded, color: Color(0xFF8B5CF6), size: 22),
+                        ),
+                        const SizedBox(width: 14),
+                        Text(
+                          "شروط التحدي",
+                          style: GoogleFonts.cairo(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w800,
+                            color: isDark ? AppColors.textPrimary : AppColors.textPrimaryLight,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 18),
+                    Text(
+                      conditions,
+                      style: GoogleFonts.cairo(
+                        fontSize: 15,
+                        color: isDark ? const Color(0xFFE2E8F0) : const Color(0xFF334155),
+                        height: 1.8,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 24),
+            ],
 
             // Input / Output Grid
             if (input.isNotEmpty || output.isNotEmpty)

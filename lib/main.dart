@@ -19,6 +19,7 @@ import 'pages/student_profile_page.dart';
 import 'widgets/auth_modal.dart';
 import 'services/site_data_service.dart';
 import 'services/auth_service.dart';
+import 'services/user_service.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 
@@ -1533,14 +1534,194 @@ class _HomePageState extends State<HomePage> {
   // -------------------------------------------------------------
   // 4. اختبر نفسك (Test Yourself Quiz Summary Card)
   // -------------------------------------------------------------
+  void _handleQuizCardTap(BuildContext context) {
+    final user = AuthService.instance.currentUser;
+    if (user == null) {
+      // لو مش عضو يحولو علي تسجيل الدخول
+      AuthModal.show(context);
+      return;
+    }
+
+    // لو عضو يفتح جدول اكتب اسمك ثلاثي ورقم الهاتف مع كود الدوله
+    _showStudentQuizEntryDialog(context, user);
+  }
+
+  void _showStudentQuizEntryDialog(BuildContext context, dynamic user) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final nameCtrl = TextEditingController(text: user.displayName ?? '');
+    final phoneCtrl = TextEditingController();
+    String selectedCountry = 'مصر';
+    String? nameError;
+    String? phoneError;
+
+    final countries = [
+      'مصر (+20)', 'السعودية (+966)', 'الإمارات (+971)', 'الكويت (+965)',
+      'قطر (+974)', 'الأردن (+962)', 'العراق (+964)', 'عمان (+968)',
+      'البحرين (+973)', 'تونس (+216)', 'الجزائر (+213)', 'المغرب (+212)',
+      'فلسطين (+970)', 'سوريا (+963)', 'لبنان (+961)', 'ليبيا (+218)',
+      'السودان (+249)', 'اليمن (+967)', 'دولة أخرى'
+    ];
+
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setDlgState) => AlertDialog(
+          backgroundColor: isDark ? const Color(0xFF0F172A) : Colors.white,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          title: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(color: const Color(0xFFA855F7).withOpacity(0.12), borderRadius: BorderRadius.circular(10)),
+                child: const Icon(Icons.psychology_rounded, color: Color(0xFFA855F7), size: 24),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text("بيانات الطالب لدخول الاختبار", style: GoogleFonts.cairo(fontWeight: FontWeight.bold, fontSize: 16, color: isDark ? Colors.white : const Color(0xFF0F172A))),
+                    Text("سجل بياناتك بدقة لتسجيل النتيجة رسمياً باسمك", style: GoogleFonts.cairo(fontSize: 11, color: Colors.grey)),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          content: SizedBox(
+            width: 480,
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Divider(height: 16),
+                  Text("الاسم ثلاثي *", style: GoogleFonts.cairo(fontWeight: FontWeight.bold, fontSize: 13, color: isDark ? Colors.white70 : const Color(0xFF1E293B))),
+                  const SizedBox(height: 6),
+                  TextField(
+                    controller: nameCtrl,
+                    style: GoogleFonts.cairo(fontSize: 13, color: isDark ? Colors.white : Colors.black),
+                    decoration: InputDecoration(
+                      hintText: "مثال: أحمد محمد علي",
+                      errorText: nameError,
+                      hintStyle: GoogleFonts.cairo(fontSize: 12, color: Colors.grey),
+                      filled: true,
+                      fillColor: isDark ? const Color(0xFF1E293B) : const Color(0xFFF8FAFC),
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: const BorderSide(color: Color(0xFFE2E8F0))),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+
+                  Text("رقم الهاتف مع كود الدولة *", style: GoogleFonts.cairo(fontWeight: FontWeight.bold, fontSize: 13, color: isDark ? Colors.white70 : const Color(0xFF1E293B))),
+                  const SizedBox(height: 6),
+                  TextField(
+                    controller: phoneCtrl,
+                    keyboardType: TextInputType.phone,
+                    textDirection: TextDirection.ltr,
+                    style: GoogleFonts.cairo(fontSize: 13, color: isDark ? Colors.white : Colors.black),
+                    decoration: InputDecoration(
+                      hintText: "+20 1012345678",
+                      errorText: phoneError,
+                      hintStyle: GoogleFonts.cairo(fontSize: 12, color: Colors.grey),
+                      prefixIcon: const Icon(Icons.phone_android_rounded, size: 18, color: Color(0xFFA855F7)),
+                      filled: true,
+                      fillColor: isDark ? const Color(0xFF1E293B) : const Color(0xFFF8FAFC),
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: const BorderSide(color: Color(0xFFE2E8F0))),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+
+                  Text("الدولة", style: GoogleFonts.cairo(fontWeight: FontWeight.bold, fontSize: 13, color: isDark ? Colors.white70 : const Color(0xFF1E293B))),
+                  const SizedBox(height: 6),
+                  DropdownButtonFormField<String>(
+                    value: selectedCountry,
+                    decoration: InputDecoration(
+                      filled: true,
+                      fillColor: isDark ? const Color(0xFF1E293B) : const Color(0xFFF8FAFC),
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: const BorderSide(color: Color(0xFFE2E8F0))),
+                    ),
+                    items: countries.map((c) => DropdownMenuItem(value: c.split(' ').first, child: Text(c, style: GoogleFonts.cairo(fontSize: 13)))).toList(),
+                    onChanged: (v) => setDlgState(() => selectedCountry = v ?? 'مصر'),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: Text("إلغاء", style: GoogleFonts.cairo(color: Colors.grey)),
+            ),
+            ElevatedButton.icon(
+              onPressed: () async {
+                final name = nameCtrl.text.trim();
+                final phone = phoneCtrl.text.trim();
+
+                // Validation
+                final parts = name.split(RegExp(r'\s+')).where((p) => p.isNotEmpty).toList();
+                bool hasErr = false;
+                if (parts.length < 3) {
+                  setDlgState(() => nameError = "يرجى كتابة الاسم ثلاثياً على الأقل");
+                  hasErr = true;
+                } else {
+                  setDlgState(() => nameError = null);
+                }
+
+                if (phone.isEmpty || phone.length < 8) {
+                  setDlgState(() => phoneError = "يرجى كتابة رقم الهاتف مع كود الدولة بشكل صحيح");
+                  hasErr = true;
+                } else {
+                  setDlgState(() => phoneError = null);
+                }
+
+                if (hasErr) return;
+
+                // Save to Firebase
+                try {
+                  await UserService.instance.updateUserProfile(user.uid, {
+                    'name': name,
+                    'displayName': name,
+                    'phone': phone,
+                    'country': selectedCountry,
+                  });
+                } catch (e) {
+                  debugPrint("Profile save warning: $e");
+                }
+
+                if (context.mounted) {
+                  Navigator.pop(ctx);
+                  Navigator.of(context).pushNamed('/quiz');
+                }
+              },
+              icon: const Icon(Icons.play_arrow_rounded, size: 18),
+              label: Text("دخول الاختبار الآن 🚀", style: GoogleFonts.cairo(fontWeight: FontWeight.bold)),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFFA855F7),
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _buildTestYourselfSection(bool isMobile, double screenWidth) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final questions = SiteDataService.instance.quizQuestions;
+    final interactiveQuizzes = SiteDataService.instance.interactiveQuizzes;
 
-    // If no questions: hide section completely
-    if (questions.isEmpty) {
+    // Show if there are questions OR interactive HTML quizzes created
+    if (questions.isEmpty && interactiveQuizzes.isEmpty) {
       return const SizedBox.shrink();
     }
+
+    final totalCount = questions.length + (interactiveQuizzes.fold(0, (sum, q) => sum + ((q['questionsCount'] as int?) ?? 10)));
 
     return Center(
       child: Container(
@@ -1549,7 +1730,7 @@ class _HomePageState extends State<HomePage> {
         child: MouseRegion(
           cursor: SystemMouseCursors.click,
           child: GestureDetector(
-            onTap: () => Navigator.of(context).pushNamed('/quiz'),
+            onTap: () => _handleQuizCardTap(context),
             child: Container(
               padding: EdgeInsets.all(isMobile ? 22 : 32),
               decoration: BoxDecoration(
@@ -1626,7 +1807,7 @@ class _HomePageState extends State<HomePage> {
                               borderRadius: BorderRadius.circular(8),
                             ),
                             child: Text(
-                              "🎯 ${questions.length} أسئلة مختارة بدقة",
+                              "🎯 $totalCount أسئلة تفاعلية ومحاكاة",
                               style: GoogleFonts.cairo(
                                 fontSize: 12,
                                 fontWeight: FontWeight.bold,
@@ -1678,7 +1859,7 @@ class _HomePageState extends State<HomePage> {
                               crossAxisAlignment: CrossAxisAlignment.stretch,
                               children: [
                                 ElevatedButton.icon(
-                                  onPressed: () => Navigator.of(context).pushNamed('/quiz'),
+                                  onPressed: () => _handleQuizCardTap(context),
                                   icon: const Icon(Icons.play_arrow_rounded, size: 20),
                                   label: Text(
                                     "ابدأ الاختبار الآن 🚀",
@@ -1711,7 +1892,7 @@ class _HomePageState extends State<HomePage> {
                                   ],
                                 ),
                                 ElevatedButton.icon(
-                                  onPressed: () => Navigator.of(context).pushNamed('/quiz'),
+                                  onPressed: () => _handleQuizCardTap(context),
                                   icon: const Icon(Icons.arrow_forward_rounded, size: 18),
                                   label: Text(
                                     "ابدأ الاختبار الآن 🚀",

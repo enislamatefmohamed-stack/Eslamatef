@@ -121,6 +121,41 @@ class UserService extends ChangeNotifier {
     return _usersCol.orderBy('createdAt', descending: true).snapshots();
   }
 
+  /// Update user role (admin <-> student)
+  Future<void> updateUserRole(String uid, String newRole) async {
+    try {
+      await _usersCol.doc(uid).update({
+        'role': newRole,
+        'updatedAt': FieldValue.serverTimestamp(),
+      });
+      notifyListeners();
+    } catch (e) {
+      debugPrint("Error updating user role: $e");
+      rethrow;
+    }
+  }
+
+  /// Delete user from Firestore
+  Future<void> deleteUser(String uid) async {
+    try {
+      await _usersCol.doc(uid).delete();
+      notifyListeners();
+    } catch (e) {
+      debugPrint("Error deleting user: $e");
+      rethrow;
+    }
+  }
+
+  /// Send password reset email to member
+  Future<void> sendPasswordReset(String email) async {
+    try {
+      await FirebaseAuth.instance.sendPasswordResetEmail(email: email.trim());
+    } catch (e) {
+      debugPrint("Error sending password reset email: $e");
+      rethrow;
+    }
+  }
+
   /// Record a quiz attempt for the student
   Future<void> recordQuizSubmission(String uid, Map<String, dynamic> submission) async {
     try {

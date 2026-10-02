@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../data/fifty_challenges_data.dart';
 
 class SiteDataService extends ChangeNotifier {
   static final SiteDataService instance = SiteDataService._internal();
@@ -8,6 +9,7 @@ class SiteDataService extends ChangeNotifier {
 
   List<Map<String, dynamic>> _courses = [];
   List<Map<String, dynamic>> _lessons = [];
+  List<Map<String, dynamic>> _lessonPlaylists = [];
   List<Map<String, dynamic>> _latestUpdates = [];
   Map<String, dynamic>? _weeklyChallenge;
   List<Map<String, dynamic>> _quizQuestions = [];
@@ -24,6 +26,7 @@ class SiteDataService extends ChangeNotifier {
 
   List<Map<String, dynamic>> get courses => _courses;
   List<Map<String, dynamic>> get lessons => _lessons;
+  List<Map<String, dynamic>> get lessonPlaylists => _lessonPlaylists;
   List<Map<String, dynamic>> get latestUpdates => _latestUpdates;
   Map<String, dynamic>? get weeklyChallenge => _weeklyChallenge;
   List<Map<String, dynamic>> get quizQuestions => _quizQuestions;
@@ -52,6 +55,32 @@ class SiteDataService extends ChangeNotifier {
         _lessons = List<Map<String, dynamic>>.from(jsonDecode(lessonsStr));
       } else {
         _lessons = [];
+      }
+
+      final playlistsStr = prefs.getString('site_lesson_playlists');
+      if (playlistsStr != null) {
+        _lessonPlaylists = List<Map<String, dynamic>>.from(jsonDecode(playlistsStr));
+      } else {
+        _lessonPlaylists = [
+          {
+            'id': 'pl_basics',
+            'title': 'أساسيات البرمجة والتفكير المنطقي',
+            'description': 'سلسلة شاملة لتعلم المفاهيم البرمجية الأساسية وحل المشكلات.',
+            'status': 'منشور',
+          },
+          {
+            'id': 'pl_python_ai',
+            'title': 'بايثون وهندسة الذكاء الاصطناعي',
+            'description': 'دروس وتطبيقات عملية في لغة بايثون وخوارزميات تعلم الآلة.',
+            'status': 'منشور',
+          },
+          {
+            'id': 'pl_web_flutter',
+            'title': 'تطوير تطبيقات الويب والهواتف الذكية',
+            'description': 'بناء منصات متكاملة واجهات تفاعلية.',
+            'status': 'منشور',
+          },
+        ];
       }
 
       final updatesStr = prefs.getString('site_latest_updates');
@@ -196,41 +225,16 @@ class SiteDataService extends ChangeNotifier {
         ];
       }
 
-      // 3. Weekly Challenges (50 Challenges Scheduler)
+      // 3. Weekly Challenges (50 Challenges System)
       final wChallStr = prefs.getString('site_weekly_challenges');
       if (wChallStr != null) {
         _weeklyChallenges = List<Map<String, dynamic>>.from(jsonDecode(wChallStr));
       } else {
-        _weeklyChallenges = [
-          {
-            'id': 'chall_w01',
-            'weekNumber': 1,
-            'title': 'تحدي الأسبوع 01: خوارزمية البحث الثنائي Binary Search',
-            'imageUrl': 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=600',
-            'difficulty': 'متوسط',
-            'startDate': '2026-10-03',
-            'endDate': '2026-10-08',
-            'status': 'نشط',
-            'editorType': 'visual',
-            'problemDesc': 'قم ببناء دالة تأخذ مصفوفة أرقام مرتبة وقيمة بحث، وترجع مؤشر العنصر بتعقيد زمني O(log n).',
-            'requirements': '- لا تستخدم دوال البحث الجاهزة.\n- تعامل مع حالة عدم وجود العنصر بإرجاع -1.\n- كتابة حالات اختبار دقيقة.',
-            'htmlCode': '',
-          },
-          {
-            'id': 'chall_w02',
-            'weekNumber': 2,
-            'title': 'تحدي الأسبوع 02: معالجة النصوص وبناء محلل المشاعر NLP',
-            'imageUrl': 'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=600',
-            'difficulty': 'متقدم',
-            'startDate': '2026-10-10',
-            'endDate': '2026-10-15',
-            'status': 'مجدول',
-            'editorType': 'visual',
-            'problemDesc': 'بناء نموذج خفيف يقوم بتصنيف المراجعات إلى إيجابية أو سلبية بناءً على الكلمات المفتاحية.',
-            'requirements': '- استخراج الكلمات المفتاحية.\n- تنظيف النص من علامات الترقيم.\n- حساب نسبة الثقة.',
-            'htmlCode': '',
-          },
-        ];
+        _weeklyChallenges = [];
+      }
+      if (_weeklyChallenges.length < 50) {
+        _weeklyChallenges = FiftyChallengesData.getAllChallenges();
+        await prefs.setString('site_weekly_challenges', jsonEncode(_weeklyChallenges));
       }
 
       // 4. Challenge Submissions (Student Solutions)
@@ -409,6 +413,34 @@ class SiteDataService extends ChangeNotifier {
     await prefs.setString('site_lessons', jsonEncode(_lessons));
   }
 
+  // --- Lesson Playlists CRUD ---
+  Future<void> addLessonPlaylist(Map<String, dynamic> playlist) async {
+    playlist['id'] = 'pl_${DateTime.now().millisecondsSinceEpoch}';
+    _lessonPlaylists.add(playlist);
+    await _saveLessonPlaylists();
+    notifyListeners();
+  }
+
+  Future<void> updateLessonPlaylist(String id, Map<String, dynamic> updated) async {
+    final idx = _lessonPlaylists.indexWhere((p) => p['id'] == id);
+    if (idx != -1) {
+      _lessonPlaylists[idx] = updated;
+      await _saveLessonPlaylists();
+      notifyListeners();
+    }
+  }
+
+  Future<void> deleteLessonPlaylist(String id) async {
+    _lessonPlaylists.removeWhere((p) => p['id'] == id);
+    await _saveLessonPlaylists();
+    notifyListeners();
+  }
+
+  Future<void> _saveLessonPlaylists() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('site_lesson_playlists', jsonEncode(_lessonPlaylists));
+  }
+
   // --- Latest Updates CRUD ---
   Future<void> addLatestUpdate(Map<String, dynamic> update) async {
     update['id'] = DateTime.now().millisecondsSinceEpoch.toString();
@@ -538,11 +570,28 @@ class SiteDataService extends ChangeNotifier {
     await prefs.setString('site_weekly_challenges', jsonEncode(_weeklyChallenges));
   }
 
+  bool isFridayTransitionDay() {
+    return DateTime.now().weekday == DateTime.friday;
+  }
+
   Map<String, dynamic>? getActiveChallenge() {
     final explicitActive = _weeklyChallenges.where((c) => c['status'] == 'نشط').toList();
     if (explicitActive.isNotEmpty) return explicitActive.first;
+
+    // Auto rotate every Saturday to Thursday
+    final now = DateTime.now();
+    final anchor = DateTime(2026, 10, 3); // Saturday
+    int diffWeeks = 0;
+    if (now.isAfter(anchor)) {
+      diffWeeks = now.difference(anchor).inDays ~/ 7;
+    }
+    final currentWeekNum = (diffWeeks % 50) + 1;
+    final match = _weeklyChallenges.firstWhere(
+      (c) => c['weekNumber'] == currentWeekNum,
+      orElse: () => _weeklyChallenges.isNotEmpty ? _weeklyChallenges.first : {},
+    );
+    if (match.isNotEmpty) return match;
     if (_weeklyChallenge != null) return _weeklyChallenge;
-    if (_weeklyChallenges.isNotEmpty) return _weeklyChallenges.first;
     return null;
   }
 
