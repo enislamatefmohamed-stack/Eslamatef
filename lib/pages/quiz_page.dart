@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../theme/app_theme.dart';
 import '../data/arabic_data.dart';
 import '../services/site_data_service.dart';
+import '../services/auth_service.dart';
 
 class QuizPage extends StatefulWidget {
   const QuizPage({super.key});
@@ -337,16 +338,17 @@ class _QuizPageState extends State<QuizPage> {
                     padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                   ),
                 ),
-                OutlinedButton.icon(
-                  onPressed: () => Navigator.of(context).pushNamed('/admin'),
-                  icon: const Icon(Icons.add_circle_outline, size: 18),
-                  label: Text("إضافة أسئلة من لوحة التحكم", style: GoogleFonts.cairo(fontWeight: FontWeight.bold)),
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: isDark ? Colors.white : AppColors.textPrimaryLight,
-                    side: BorderSide(color: isDark ? AppColors.borderLightDark : AppColors.borderLightStrong),
-                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                if (AuthService.instance.isAdmin)
+                  OutlinedButton.icon(
+                    onPressed: () => Navigator.of(context).pushNamed('/admin'),
+                    icon: const Icon(Icons.add_circle_outline, size: 18),
+                    label: Text("إضافة أسئلة من لوحة التحكم", style: GoogleFonts.cairo(fontWeight: FontWeight.bold)),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: isDark ? Colors.white : AppColors.textPrimaryLight,
+                      side: BorderSide(color: isDark ? AppColors.borderLightDark : AppColors.borderLightStrong),
+                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                    ),
                   ),
-                ),
               ],
             ),
           ],
@@ -799,7 +801,6 @@ class _QuizPageState extends State<QuizPage> {
                   _footerLink("الكورسات", () => Navigator.of(context).pushNamed('/courses'), isDark),
                   _footerLink("الدروس", () => Navigator.of(context).pushNamed('/lessons'), isDark),
                   _footerLink("تحدي الأسبوع 🏆", () => Navigator.of(context).pushNamed('/challenge'), isDark),
-                  _footerLink("لوحة التحكم ⚙️", () => Navigator.of(context).pushNamed('/admin'), isDark),
                 ],
               ),
               const SizedBox(height: 18),

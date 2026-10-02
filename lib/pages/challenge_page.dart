@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../theme/app_theme.dart';
 import '../data/arabic_data.dart';
 import '../services/site_data_service.dart';
+import '../services/auth_service.dart';
 
 class WeeklyChallengePage extends StatefulWidget {
   const WeeklyChallengePage({super.key});
@@ -253,16 +254,17 @@ class _WeeklyChallengePageState extends State<WeeklyChallengePage> {
                     padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                   ),
                 ),
-                OutlinedButton.icon(
-                  onPressed: () => Navigator.of(context).pushNamed('/admin'),
-                  icon: const Icon(Icons.settings_outlined, size: 18),
-                  label: Text("إضافة تحدي من لوحة التحكم", style: GoogleFonts.cairo(fontWeight: FontWeight.bold)),
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: isDark ? Colors.white : AppColors.textPrimaryLight,
-                    side: BorderSide(color: isDark ? AppColors.borderLightDark : AppColors.borderLightStrong),
-                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                if (AuthService.instance.isAdmin)
+                  OutlinedButton.icon(
+                    onPressed: () => Navigator.of(context).pushNamed('/admin'),
+                    icon: const Icon(Icons.settings_outlined, size: 18),
+                    label: Text("إضافة تحدي من لوحة التحكم", style: GoogleFonts.cairo(fontWeight: FontWeight.bold)),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: isDark ? Colors.white : AppColors.textPrimaryLight,
+                      side: BorderSide(color: isDark ? AppColors.borderLightDark : AppColors.borderLightStrong),
+                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                    ),
                   ),
-                ),
               ],
             ),
           ],
@@ -768,7 +770,6 @@ class _WeeklyChallengePageState extends State<WeeklyChallengePage> {
                   _footerLink("الكورسات", () => Navigator.of(context).pushNamed('/courses'), isDark),
                   _footerLink("الدروس", () => Navigator.of(context).pushNamed('/lessons'), isDark),
                   _footerLink("اختبر نفسك 🧠", () => Navigator.of(context).pushNamed('/quiz'), isDark),
-                  _footerLink("لوحة التحكم ⚙️", () => Navigator.of(context).pushNamed('/admin'), isDark),
                 ],
               ),
               const SizedBox(height: 18),

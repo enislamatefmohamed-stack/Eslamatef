@@ -1,3 +1,4 @@
+// ignore_for_file: deprecated_member_use
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -14,10 +15,23 @@ import 'pages/lessons_page.dart';
 import 'pages/admin_dashboard_page.dart';
 import 'pages/challenge_page.dart';
 import 'pages/quiz_page.dart';
+import 'pages/student_profile_page.dart';
+import 'widgets/auth_modal.dart';
 import 'services/site_data_service.dart';
+import 'services/auth_service.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  try {
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+    AuthService.instance.init();
+  } catch (e) {
+    debugPrint("Firebase init status: $e");
+  }
   await SiteDataService.instance.init();
   runApp(const EslamAtefApp());
 }
@@ -77,6 +91,10 @@ class EslamAtefApp extends StatelessWidget {
             '/admin': (context) => const Directionality(
                   textDirection: TextDirection.rtl,
                   child: AdminDashboardPage(),
+                ),
+            '/profile': (context) => const Directionality(
+                  textDirection: TextDirection.rtl,
+                  child: StudentProfilePage(),
                 ),
           },
         );
@@ -386,10 +404,85 @@ class _HomePageState extends State<HomePage> {
                   ],
                 ),
 
-              // Theme Toggle & Social Icons / Mobile Menu Button
+              // Theme Toggle & Social Icons & Auth / Mobile Menu Button
               if (!isMobile)
                 Row(
                   children: [
+                    // Auth / Profile Button
+                    ListenableBuilder(
+                      listenable: AuthService.instance,
+                      builder: (ctx, _) {
+                        final user = AuthService.instance.currentUser;
+                        if (user != null) {
+                          return Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              if (AuthService.instance.isAdmin)
+                                Padding(
+                                  padding: const EdgeInsets.only(left: 8),
+                                  child: ElevatedButton.icon(
+                                    onPressed: () => Navigator.of(context).pushNamed('/admin'),
+                                    icon: const Icon(Icons.admin_panel_settings_rounded, size: 16),
+                                    label: Text("لوحة التحكم", style: GoogleFonts.cairo(fontSize: 12, fontWeight: FontWeight.bold)),
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: const Color(0xFF0284C7),
+                                      foregroundColor: Colors.white,
+                                      elevation: 0,
+                                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                                    ),
+                                  ),
+                                ),
+                              Padding(
+                                padding: const EdgeInsets.only(left: 8),
+                                child: InkWell(
+                                  onTap: () => Navigator.of(context).pushNamed('/profile'),
+                                  borderRadius: BorderRadius.circular(20),
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                                    decoration: BoxDecoration(
+                                      color: const Color(0xFF8B5CF6).withOpacity(0.12),
+                                      borderRadius: BorderRadius.circular(20),
+                                      border: Border.all(color: const Color(0xFF8B5CF6).withOpacity(0.3)),
+                                    ),
+                                    child: Row(
+                                      children: [
+                                        CircleAvatar(
+                                          radius: 12,
+                                          backgroundColor: const Color(0xFF8B5CF6),
+                                          backgroundImage: (user.photoURL != null && user.photoURL!.isNotEmpty) ? NetworkImage(user.photoURL!) : null,
+                                          child: (user.photoURL == null || user.photoURL!.isEmpty)
+                                              ? Text((user.displayName ?? 'ط')[0], style: const TextStyle(fontSize: 10, color: Colors.white, fontWeight: FontWeight.bold))
+                                              : null,
+                                        ),
+                                        const SizedBox(width: 6),
+                                        Text(AuthService.instance.isAdmin ? "الأدمن" : "حسابي", style: GoogleFonts.cairo(fontSize: 12, fontWeight: FontWeight.bold, color: const Color(0xFF8B5CF6))),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          );
+                        }
+
+                        return Padding(
+                          padding: const EdgeInsets.only(left: 8),
+                          child: ElevatedButton.icon(
+                            onPressed: () => AuthModal.show(context),
+                            icon: const Icon(Icons.person_outline_rounded, size: 16),
+                            label: Text("تسجيل الدخول", style: GoogleFonts.cairo(fontSize: 12, fontWeight: FontWeight.bold)),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(0xFF0284C7),
+                              foregroundColor: Colors.white,
+                              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                    const SizedBox(width: 4),
                     IconButton(
                       icon: Icon(
                         isDark ? Icons.light_mode_rounded : Icons.dark_mode_rounded,
@@ -411,6 +504,41 @@ class _HomePageState extends State<HomePage> {
               else
                 Row(
                   children: [
+                    ListenableBuilder(
+                      listenable: AuthService.instance,
+                      builder: (ctx, _) {
+                        final user = AuthService.instance.currentUser;
+                        return Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            if (AuthService.instance.isAdmin)
+                              IconButton(
+                                icon: const Icon(
+                                  Icons.admin_panel_settings_rounded,
+                                  color: Color(0xFF0284C7),
+                                  size: 24,
+                                ),
+                                tooltip: "لوحة التحكم",
+                                onPressed: () => Navigator.of(context).pushNamed('/admin'),
+                              ),
+                            IconButton(
+                              icon: Icon(
+                                user != null ? Icons.account_circle_rounded : Icons.person_outline_rounded,
+                                color: const Color(0xFF8B5CF6),
+                                size: 24,
+                              ),
+                              onPressed: () {
+                                if (user != null) {
+                                  Navigator.of(context).pushNamed('/profile');
+                                } else {
+                                  AuthModal.show(context);
+                                }
+                              },
+                            ),
+                          ],
+                        );
+                      },
+                    ),
                     IconButton(
                       icon: Icon(
                         isDark ? Icons.light_mode_rounded : Icons.dark_mode_rounded,
@@ -545,14 +673,15 @@ class _HomePageState extends State<HomePage> {
                 Navigator.of(context).pushNamed('/contact');
               },
             ),
-            ListTile(
-              leading: const Icon(Icons.admin_panel_settings_outlined, color: Color(0xFF00E5FF)),
-              title: Text("لوحة التحكم", style: GoogleFonts.cairo(fontWeight: FontWeight.w600, color: const Color(0xFF00E5FF))),
-              onTap: () {
-                Navigator.pop(context);
-                Navigator.of(context).pushNamed('/admin');
-              },
-            ),
+            if (AuthService.instance.isAdmin)
+              ListTile(
+                leading: const Icon(Icons.admin_panel_settings_outlined, color: Color(0xFF0284C7)),
+                title: Text("لوحة التحكم", style: GoogleFonts.cairo(fontWeight: FontWeight.bold, color: const Color(0xFF0284C7))),
+                onTap: () {
+                  Navigator.pop(context);
+                  Navigator.of(context).pushNamed('/admin');
+                },
+              ),
             ListTile(
               leading: Icon(
                 isDark ? Icons.light_mode_rounded : Icons.dark_mode_rounded,
@@ -1813,7 +1942,6 @@ class _HomePageState extends State<HomePage> {
                         _footerLink("من نحن", () => Navigator.of(context).pushNamed('/about')),
                         _footerLink("سياسة الاستخدام والخصوصية", () => Navigator.of(context).pushNamed('/privacy')),
                         _footerLink("تواصل معنا", () => Navigator.of(context).pushNamed('/contact')),
-                        _footerLink("لوحة التحكم ⚙️", () => Navigator.of(context).pushNamed('/admin')),
                       ],
                     ),
 
@@ -1857,7 +1985,6 @@ class _HomePageState extends State<HomePage> {
                         _footerLink("من نحن", () => Navigator.of(context).pushNamed('/about')),
                         _footerLink("سياسة الاستخدام والخصوصية", () => Navigator.of(context).pushNamed('/privacy')),
                         _footerLink("تواصل معنا", () => Navigator.of(context).pushNamed('/contact')),
-                        _footerLink("لوحة التحكم ⚙️", () => Navigator.of(context).pushNamed('/admin')),
                       ],
                     ),
                     const SizedBox(height: 14),

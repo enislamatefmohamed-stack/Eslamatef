@@ -1,0 +1,147 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ==============================================================
+    // 1. الدوال المساعدة للتحقق والأمان (Security Helper Functions)
+    // ==============================================================
+
+    // التحقق من تسجيل دخول المستخدم
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    // التحقق من أن المستخدم يطلب مستنده الخاص به
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    // التحقق الصارم من رتبة الأدمن بالاعتماد الحصري على Firebase Custom Claims
+    // (لا يعتمد نهائياً على حقل role في Firestore لمنع أي تحايل عبر المستندات)
+    function isAdmin() {
+      return isAuthenticated() &&
+        (request.auth.token.admin == true || request.auth.token.role == 'admin');
+    }
+
+    // القائمة البيضاء الدقيقة للحقول المسموح للطالب بتحديثها في ملفه الشخصي
+    // يُمنع تعديل أي حقل آخر، وبالأخص: role, uid, email, createdAt, quizzesCount, challengesCount
+    function isAllowedStudentProfileUpdate() {
+      let changedKeys = request.resource.data.diff(resource.data).affectedKeys();
+      let allowedKeys = ['name', 'photoUrl', 'phone', 'whatsapp', 'country', 'lastLogin', 'lastActive', 'updatedAt'];
+      return changedKeys.hasOnly(allowedKeys) &&
+             (!changedKeys.hasAny(['name']) || (request.resource.data.name is string && request.resource.data.name.size() > 0 && request.resource.data.name.size() <= 100)) &&
+             (!changedKeys.hasAny(['phone']) || request.resource.data.phone is string) &&
+             (!changedKeys.hasAny(['whatsapp']) || request.resource.data.whatsapp is string) &&
+             (!changedKeys.hasAny(['country']) || request.resource.data.country is string);
+    }
+
+    // فحص سلامة هيكل ونوع بيانات تسليم الاختبار لمنع الدرجات الوهمية أو الحقول الدخيلة
+    function isValidQuizSubmissionData() {
+      let data = request.resource.data;
+      let allowedFields = ['uid', 'quizId', 'quizTitle', 'score', 'totalQuestions', 'percentage', 'createdAt'];
+      return data.keys().hasOnly(allowedFields) &&
+             data.uid == request.auth.uid &&
+             data.quizId is string && data.quizId.size() > 0 && data.quizId.size() <= 100 &&
+             data.quizTitle is string && data.quizTitle.size() > 0 && data.quizTitle.size() <= 200 &&
+             data.score is int && data.score >= 0 &&
+             data.totalQuestions is int && data.totalQuestions > 0 &&
+             data.score <= data.totalQuestions &&
+             data.percentage is number && data.percentage >= 0 && data.percentage <= 100;
+    }
+
+    // فحص سلامة هيكل بيانات تسليم التحدي الأسبوعي
+    function isValidChallengeSubmissionData() {
+      let data = request.resource.data;
+      let allowedFields = ['uid', 'challengeId', 'challengeTitle', 'solutionUrl', 'codeSnippet', 'notes', 'createdAt'];
+      return data.keys().hasOnly(allowedFields) &&
+             data.uid == request.auth.uid &&
+             data.challengeId is string && data.challengeId.size() > 0 &&
+             data.challengeTitle is string && data.challengeTitle.size() > 0;
+    }
+
+    // ==============================================================
+    // 2. مجموعة الطلاب والمستخدمين (users)
+    // ==============================================================
+    match /users/{userId} {
+      // القراءة: الطالب يقرأ ملفه فقط، والأدمن يقرأ جميع الملفات
+      allow read: if isOwner(userId) || isAdmin();
+      
+      // التسجيل الجديد: ينشئ الطالب حسابه بشرط تطابق UID وكون الرتبة student والعدادات صفرية
+      allow create: if isOwner(userId) &&
+                       request.resource.data.keys().hasOnly(['uid', 'name', 'email', 'photoUrl', 'phone', 'whatsapp', 'country', 'role', 'createdAt', 'lastLogin', 'quizzesCount', 'challengesCount']) &&
+                       request.resource.data.role == 'student' &&
+                       request.resource.data.quizzesCount == 0 &&
+                       request.resource.data.challengesCount == 0 &&
+                       request.resource.data.uid == request.auth.uid;
+      
+      // التعديل: الطالب يعدل فقط الحقول الشخصية المسموحة بالقائمة البيضاء، ولا يملك حق لمس الرتبة أو العدادات
+      allow update: if (isOwner(userId) && isAllowedStudentProfileUpdate()) || isAdmin();
+
+      // الحذف: محصور حصراً بالأدمن
+      allow delete: if isAdmin();
+
+      // المجموعات الفرعية لاختبارات الطالب داخل ملفه
+      match /quizzes/{quizId} {
+        allow read: if isOwner(userId) || isAdmin();
+        // يسجل المحاولة لنفسه فقط مع التحقق من الحقول المسموحة، ولا يمكن الكتابة فوق محاولة سابقة
+        allow create: if isOwner(userId) && isValidQuizSubmissionData() && !exists(/databases/$(database)/documents/users/$(userId)/quizzes/$(quizId));
+        // ممنوع التعديل أو الحذف بعد التسجيل نهائياً إلا للأدمن
+        allow update, delete: if isAdmin();
+      }
+
+      // المجموعات الفرعية لتحديات الطالب داخل ملفه
+      match /challenges/{challId} {
+        allow read: if isOwner(userId) || isAdmin();
+        allow create: if isOwner(userId) && isValidChallengeSubmissionData() && !exists(/databases/$(database)/documents/users/$(userId)/challenges/$(challId));
+        allow update, delete: if isAdmin();
+      }
+    }
+
+    // ==============================================================
+    // 3. سجل تسليمات الاختبارات العام (quiz_submissions)
+    // ==============================================================
+    match /quiz_submissions/{subId} {
+      // الطالب يسجل إجابته بشرط تطابق UID وصحة أنواع البيانات وعدم وجود المستند مسبقاً
+      allow create: if isAuthenticated() && isValidQuizSubmissionData() && !exists(/databases/$(database)/documents/quiz_submissions/$(subId));
+      // القراءة: الطالب يرى تسليماته فقط، والأدمن يرى الجميع
+      allow read: if isAdmin() || (isAuthenticated() && resource.data.uid == request.auth.uid);
+      // الحذف والتعديل للأدمن فقط لمنع الطالب من التلاعب بنتيجته المسجلة
+      allow update, delete: if isAdmin();
+    }
+
+    // ==============================================================
+    // 4. سجل تسليمات التحديات العام (challenge_submissions)
+    // ==============================================================
+    match /challenge_submissions/{subId} {
+      allow create: if isAuthenticated() && isValidChallengeSubmissionData() && !exists(/databases/$(database)/documents/challenge_submissions/$(subId));
+      allow read: if isAdmin() || (isAuthenticated() && resource.data.uid == request.auth.uid);
+      allow update, delete: if isAdmin();
+    }
+
+    // ==============================================================
+    // 5. المحتوى التعليمي العام (الكورسات والدروس والتحديات)
+    // ==============================================================
+    match /courses/{courseId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /lessons/{lessonId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /weekly_challenges/{challId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // ==============================================================
+    // 6. حظر أي مجموعة أو مسار غير مذكور صراحة (Catch-All Deny)
+    // ==============================================================
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

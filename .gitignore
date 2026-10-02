@@ -47,3 +47,4 @@ app.*.map.json
 # Vercel & CI temporary folders
 _flutter/
 .vercel/
+scratch/

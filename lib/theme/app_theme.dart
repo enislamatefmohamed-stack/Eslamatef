@@ -43,7 +43,7 @@ class AppColors {
 }
 
 class AppThemeManager {
-  static final ValueNotifier<ThemeMode> themeModeNotifier = ValueNotifier(ThemeMode.dark);
+  static final ValueNotifier<ThemeMode> themeModeNotifier = ValueNotifier(ThemeMode.light);
 
   static bool get isDark => themeModeNotifier.value == ThemeMode.dark;
 

@@ -138,9 +138,9 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
     return Container(
       width: width,
       decoration: const BoxDecoration(
-        color: Color(0xFF1D2327), // Classic WordPress Dark Navy Sidebar
+        color: Colors.white,
         border: Border(
-          left: BorderSide(color: Color(0xFF2C3338), width: 1),
+          left: BorderSide(color: Color(0xFFE2E8F0), width: 1),
         ),
       ),
       child: Column(
@@ -149,7 +149,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
             decoration: const BoxDecoration(
-              border: Border(bottom: BorderSide(color: Color(0xFF2C3338))),
+              border: Border(bottom: BorderSide(color: Color(0xFFE2E8F0))),
             ),
             child: Row(
               children: [
@@ -173,7 +173,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                         Text(
                           "Eslam Atef",
                           style: GoogleFonts.cairo(
-                            color: Colors.white,
+                            color: const Color(0xFF0F172A),
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
                           ),
@@ -182,7 +182,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                         Text(
                           "Code & AI — لوحة الإدارة",
                           style: GoogleFonts.cairo(
-                            color: const Color(0xFF94A3B8),
+                            color: const Color(0xFF64748B),
                             fontSize: 11,
                           ),
                           overflow: TextOverflow.ellipsis,
@@ -207,7 +207,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                 _buildNavItem(4, "تحدي الأسبوع", Icons.emoji_events_rounded, isDrawer, count: _dataService.weeklyChallenges.length),
                 _buildNavItem(5, "جلسات التصوير", Icons.videocam_rounded, isDrawer, count: _dataService.recordingLessons.length),
                 _buildNavItem(6, "الأعضاء", Icons.group_rounded, isDrawer, count: _dataService.members.length),
-                const Divider(color: Color(0xFF2C3338), height: 24),
+                const Divider(color: Color(0xFFE2E8F0), height: 24),
                 _buildWebsiteLinkItem(isDrawer),
               ],
             ),
@@ -220,21 +220,21 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                 decoration: const BoxDecoration(
-                  border: Border(top: BorderSide(color: Color(0xFF2C3338))),
+                  border: Border(top: BorderSide(color: Color(0xFFE2E8F0))),
                 ),
                 child: Row(
                   mainAxisAlignment: _isSidebarCollapsed ? MainAxisAlignment.center : MainAxisAlignment.start,
                   children: [
                     Icon(
                       _isSidebarCollapsed ? Icons.arrow_back_ios_new_rounded : Icons.arrow_forward_ios_rounded,
-                      color: const Color(0xFF94A3B8),
+                      color: const Color(0xFF64748B),
                       size: 16,
                     ),
                     if (!_isSidebarCollapsed) ...[
                       const SizedBox(width: 12),
                       Text(
                         "تصغير القائمة",
-                        style: GoogleFonts.cairo(color: const Color(0xFF94A3B8), fontSize: 13),
+                        style: GoogleFonts.cairo(color: const Color(0xFF64748B), fontSize: 13),
                       ),
                     ],
                   ],
@@ -267,7 +267,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
         dense: true,
         leading: Icon(
           icon,
-          color: isSelected ? Colors.white : const Color(0xFF94A3B8),
+          color: isSelected ? Colors.white : const Color(0xFF64748B),
           size: 20,
         ),
         title: isCollapsed
@@ -275,9 +275,9 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
             : Text(
                 title,
                 style: GoogleFonts.cairo(
-                  color: isSelected ? Colors.white : const Color(0xFFE2E8F0),
+                  color: isSelected ? Colors.white : const Color(0xFF1E293B),
                   fontSize: 14,
-                  fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+                  fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
                 ),
               ),
         trailing: (isCollapsed || count == null || count == 0)
@@ -285,13 +285,13 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
             : Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                 decoration: BoxDecoration(
-                  color: isSelected ? Colors.white.withOpacity(0.2) : const Color(0xFF2C3338),
+                  color: isSelected ? Colors.white.withOpacity(0.2) : const Color(0xFFF1F5F9),
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: Text(
                   "$count",
                   style: GoogleFonts.cairo(
-                    color: isSelected ? Colors.white : const Color(0xFF94A3B8),
+                    color: isSelected ? Colors.white : const Color(0xFF475569),
                     fontSize: 11,
                     fontWeight: FontWeight.bold,
                   ),
@@ -309,20 +309,20 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
       decoration: BoxDecoration(
-        color: const Color(0xFF0284C7).withOpacity(0.12),
+        color: const Color(0xFF8B5CF6).withOpacity(0.08),
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: const Color(0xFF0284C7).withOpacity(0.3)),
+        border: Border.all(color: const Color(0xFF8B5CF6).withOpacity(0.25)),
       ),
       child: ListTile(
         onTap: _openWebsiteExternal,
         dense: true,
-        leading: const Icon(Icons.open_in_new_rounded, color: Color(0xFF38BDF8), size: 18),
+        leading: const Icon(Icons.open_in_new_rounded, color: Color(0xFF8B5CF6), size: 18),
         title: isCollapsed
             ? null
             : Text(
                 "زيارة الموقع 🌐",
                 style: GoogleFonts.cairo(
-                  color: const Color(0xFF38BDF8),
+                  color: const Color(0xFF8B5CF6),
                   fontSize: 13,
                   fontWeight: FontWeight.bold,
                 ),
@@ -455,15 +455,12 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
         Container(
           padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
-            gradient: const LinearGradient(
-              colors: [Color(0xFF0F172A), Color(0xFF1E293B)],
-              begin: Alignment.topRight,
-              end: Alignment.bottomLeft,
-            ),
+            color: Colors.white,
             borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: const Color(0xFFE2E8F0)),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.06),
+                color: Colors.black.withOpacity(0.03),
                 blurRadius: 16,
                 offset: const Offset(0, 4),
               ),
@@ -477,12 +474,12 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                   children: [
                     Text(
                       "مرحباً بك في لوحة تحكم Eslam Atef 👋",
-                      style: GoogleFonts.cairo(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
+                      style: GoogleFonts.cairo(color: const Color(0xFF0F172A), fontSize: 18, fontWeight: FontWeight.bold),
                     ),
                     const SizedBox(height: 4),
                     Text(
                       "إدارة متكاملة للكورسات، المحاضرات، بنك الاختبارات، وتحديات البرمجة الأسبوعية.",
-                      style: GoogleFonts.cairo(color: const Color(0xFF94A3B8), fontSize: 13),
+                      style: GoogleFonts.cairo(color: const Color(0xFF64748B), fontSize: 13),
                     ),
                   ],
                 ),
@@ -506,7 +503,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                     icon: const Icon(Icons.add, size: 18),
                     label: Text("+ درس جديد", style: GoogleFonts.cairo(fontWeight: FontWeight.bold)),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF10B981),
+                      backgroundColor: const Color(0xFF8B5CF6),
                       foregroundColor: Colors.white,
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                     ),
@@ -516,7 +513,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                     icon: const Icon(Icons.add, size: 18),
                     label: Text("+ تحدٍ جديد", style: GoogleFonts.cairo(fontWeight: FontWeight.bold)),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFFF59E0B),
+                      backgroundColor: const Color(0xFF0284C7),
                       foregroundColor: Colors.white,
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                     ),
@@ -1264,7 +1261,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
               icon: const Icon(Icons.add, size: 18),
               label: Text("+ إضافة درس جديد", style: GoogleFonts.cairo(fontWeight: FontWeight.bold)),
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF10B981),
+                backgroundColor: const Color(0xFF8B5CF6),
                 foregroundColor: Colors.white,
                 padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
@@ -1279,7 +1276,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
           Container(
             padding: const EdgeInsets.all(48),
             decoration: BoxDecoration(
-              color: const Color(0xFFF8FAFC),
+              color: Colors.white,
               borderRadius: BorderRadius.circular(16),
               border: Border.all(color: const Color(0xFFE2E8F0)),
             ),
@@ -1292,7 +1289,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                   const SizedBox(height: 8),
                   ElevatedButton(
                     onPressed: () => _openCreateLessonDialog(),
-                    style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF10B981)),
+                    style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF8B5CF6)),
                     child: Text("إضافة درس جديد الآن", style: GoogleFonts.cairo(color: Colors.white)),
                   ),
                 ],
@@ -1731,7 +1728,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                   icon: const Icon(Icons.add, size: 18),
                   label: Text("+ إضافة تحدٍ جديد", style: GoogleFonts.cairo(fontWeight: FontWeight.bold)),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFFD97706),
+                    backgroundColor: const Color(0xFF0284C7),
                     foregroundColor: Colors.white,
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                   ),
@@ -2061,7 +2058,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                 icon: const Icon(Icons.add, size: 18),
                 label: Text("+ إضافة جلسة تصوير جديدة", style: GoogleFonts.cairo(fontWeight: FontWeight.bold)),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF16A34A),
+                  backgroundColor: const Color(0xFF8B5CF6),
                   foregroundColor: Colors.white,
                   padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
@@ -2133,7 +2130,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                       icon: const Icon(Icons.play_circle_fill_rounded, size: 16),
                       label: Text("تشغيل الاستوديو 🎬", style: GoogleFonts.cairo(fontWeight: FontWeight.bold, fontSize: 12)),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF0F172A),
+                        backgroundColor: const Color(0xFF0284C7),
                         foregroundColor: Colors.white,
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                       ),
@@ -2786,7 +2783,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                   _showSnackBar("تمت إضافة التحدي إلى الجدول بنجاح");
                 }
               },
-              style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFD97706)),
+              style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF8B5CF6)),
               child: Text("حفظ التحدي", style: GoogleFonts.cairo(color: Colors.white, fontWeight: FontWeight.bold)),
             ),
           ],
@@ -2851,7 +2848,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
 </section>''',
               }, isNew: true);
             },
-            style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF16A34A)),
+            style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF0284C7)),
             child: Text("متابعة لمحرر الأكواد ➔", style: GoogleFonts.cairo(color: Colors.white, fontWeight: FontWeight.bold)),
           ),
         ],
@@ -2883,7 +2880,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                   decoration: InputDecoration(
                     border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
                     filled: true,
-                    fillColor: const Color(0xFF0F172A),
+                    fillColor: const Color(0xFFF8FAFC),
                   ),
                 ),
               ],
@@ -2904,7 +2901,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                 _showSnackBar("تم حفظ كود الجلسة بنجاح");
               }
             },
-            style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF16A34A)),
+            style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF8B5CF6)),
             child: Text("حفظ الجلسة", style: GoogleFonts.cairo(color: Colors.white, fontWeight: FontWeight.bold)),
           ),
         ],
@@ -3172,7 +3169,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
               Navigator.pop(ctx);
               onConfirm();
             },
-            style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFEF4444)),
+            style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF8B5CF6)),
             child: Text("نعم، احذف", style: GoogleFonts.cairo(color: Colors.white, fontWeight: FontWeight.bold)),
           ),
         ],
