@@ -12,6 +12,8 @@ import 'pages/recording_page.dart';
 import 'pages/courses_page.dart';
 import 'pages/lessons_page.dart';
 import 'pages/admin_dashboard_page.dart';
+import 'pages/challenge_page.dart';
+import 'pages/quiz_page.dart';
 import 'services/site_data_service.dart';
 
 void main() async {
@@ -47,6 +49,14 @@ class EslamAtefApp extends StatelessWidget {
             '/lessons': (context) => const Directionality(
                   textDirection: TextDirection.rtl,
                   child: LessonsPage(),
+                ),
+            '/challenge': (context) => const Directionality(
+                  textDirection: TextDirection.rtl,
+                  child: WeeklyChallengePage(),
+                ),
+            '/quiz': (context) => const Directionality(
+                  textDirection: TextDirection.rtl,
+                  child: QuizPage(),
                 ),
             '/about': (context) => const Directionality(
                   textDirection: TextDirection.rtl,
@@ -87,22 +97,52 @@ class _HomePageState extends State<HomePage> {
   Timer? _sliderTimer;
   final PageController _pageController = PageController();
   final ScrollController _newsScrollController = ScrollController();
-  bool _showChallengeHint = false;
-  int _quizCurrentIndex = 0;
-  int? _quizSelectedOption;
-  bool _quizAnswered = false;
-  int _quizScore = 0;
-  bool _quizCompleted = false;
 
   @override
   void initState() {
     super.initState();
     _startAutoSlide();
     SiteDataService.instance.addListener(_onDataChanged);
+    AppThemeManager.themeModeNotifier.addListener(_onDataChanged);
   }
 
   void _onDataChanged() {
     if (mounted) setState(() {});
+  }
+
+  List<Map<String, dynamic>> _getCombinedLatestItems() {
+    final List<Map<String, dynamic>> items = [];
+
+    // 1. Explicit updates from dashboard
+    items.addAll(SiteDataService.instance.latestUpdates);
+
+    // 2. All courses added in dashboard
+    for (final c in SiteDataService.instance.courses) {
+      items.add({
+        'type': 'course',
+        'title': c['title'] ?? 'كورس جديد',
+        'category': c['category'] ?? 'كورس',
+        'badge': c['level'] ?? 'كورس متميز',
+        'duration': c['price'] ?? 'مجاني',
+        'image': c['image'] ?? 'assets/images/slide1.png',
+        'route': '/courses',
+      });
+    }
+
+    // 3. All lessons added in dashboard
+    for (final l in SiteDataService.instance.lessons) {
+      items.add({
+        'type': 'lesson',
+        'title': l['title'] ?? 'درس جديد',
+        'category': l['subject'] ?? 'درس',
+        'badge': 'درس جديد',
+        'duration': l['duration'] ?? '15 دقيقة',
+        'image': l['image'] ?? 'assets/images/slide2.png',
+        'route': '/lessons',
+      });
+    }
+
+    return items;
   }
 
   void _startAutoSlide() {
@@ -142,6 +182,7 @@ class _HomePageState extends State<HomePage> {
     _pageController.dispose();
     _newsScrollController.dispose();
     SiteDataService.instance.removeListener(_onDataChanged);
+    AppThemeManager.themeModeNotifier.removeListener(_onDataChanged);
     super.dispose();
   }
 
@@ -229,14 +270,28 @@ class _HomePageState extends State<HomePage> {
   // 1. Header Widget
   // -------------------------------------------------------------
   Widget _buildHeader(bool isMobile) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Container(
       height: 72,
       padding: const EdgeInsets.symmetric(horizontal: 24),
-      decoration: const BoxDecoration(
-        color: AppColors.surfaceDark,
+      decoration: BoxDecoration(
+        color: isDark ? AppColors.surfaceDark : Colors.white,
         border: Border(
-          bottom: BorderSide(color: AppColors.borderDark, width: 1),
+          bottom: BorderSide(
+            color: isDark ? AppColors.borderDark : AppColors.borderLight,
+            width: 1,
+          ),
         ),
+        boxShadow: isDark
+            ? []
+            : [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.04),
+                  blurRadius: 10,
+                  offset: const Offset(0, 2),
+                ),
+              ],
       ),
       child: Center(
         child: Container(
@@ -284,7 +339,7 @@ class _HomePageState extends State<HomePage> {
                             style: GoogleFonts.inter(
                               fontSize: 18,
                               fontWeight: FontWeight.w800,
-                              color: AppColors.textPrimary,
+                              color: isDark ? AppColors.textPrimary : AppColors.textPrimaryLight,
                               height: 1.2,
                               letterSpacing: 0.5,
                             ),
@@ -294,7 +349,7 @@ class _HomePageState extends State<HomePage> {
                             style: GoogleFonts.inter(
                               fontSize: 11,
                               fontWeight: FontWeight.w700,
-                              color: AppColors.primaryLight,
+                              color: isDark ? AppColors.primaryLight : AppColors.primary,
                             ),
                           ),
                         ],
@@ -308,11 +363,12 @@ class _HomePageState extends State<HomePage> {
               if (!isMobile)
                 Row(
                   children: [
-                    _navItem("الكورسات", () => Navigator.of(context).pushNamed('/courses')),
-                    _navItem("الدروس", () => Navigator.of(context).pushNamed('/lessons')),
-                    _navItem("من نحن", () => Navigator.of(context).pushNamed('/about')),
-                    _navItem("سياسة الاستخدام والخصوصية", () => Navigator.of(context).pushNamed('/privacy')),
-                    _navItem("تواصل معنا", () => Navigator.of(context).pushNamed('/contact')),
+                    _navItem("الكورسات", () => Navigator.of(context).pushNamed('/courses'), isDark),
+                    _navItem("الدروس", () => Navigator.of(context).pushNamed('/lessons'), isDark),
+                    _navItem("تحدي الأسبوع", () => Navigator.of(context).pushNamed('/challenge'), isDark),
+                    _navItem("اختبر نفسك", () => Navigator.of(context).pushNamed('/quiz'), isDark),
+                    _navItem("من نحن", () => Navigator.of(context).pushNamed('/about'), isDark),
+                    _navItem("تواصل معنا", () => Navigator.of(context).pushNamed('/contact'), isDark),
                   ],
                 ),
 
@@ -322,17 +378,11 @@ class _HomePageState extends State<HomePage> {
                   children: [
                     IconButton(
                       icon: Icon(
-                        Theme.of(context).brightness == Brightness.dark
-                            ? Icons.light_mode_rounded
-                            : Icons.dark_mode_rounded,
-                        color: Theme.of(context).brightness == Brightness.dark
-                            ? const Color(0xFFFFB300)
-                            : const Color(0xFF1E293B),
+                        isDark ? Icons.light_mode_rounded : Icons.dark_mode_rounded,
+                        color: isDark ? const Color(0xFFFFB300) : const Color(0xFF1E293B),
                         size: 22,
                       ),
-                      tooltip: Theme.of(context).brightness == Brightness.dark
-                          ? "تفعيل الوضع النهاري"
-                          : "تفعيل الوضع الليلي",
+                      tooltip: isDark ? "تفعيل الوضع النهاري" : "تفعيل الوضع الليلي",
                       onPressed: () => AppThemeManager.toggleTheme(),
                     ),
                     const SizedBox(width: 8),
@@ -349,12 +399,8 @@ class _HomePageState extends State<HomePage> {
                   children: [
                     IconButton(
                       icon: Icon(
-                        Theme.of(context).brightness == Brightness.dark
-                            ? Icons.light_mode_rounded
-                            : Icons.dark_mode_rounded,
-                        color: Theme.of(context).brightness == Brightness.dark
-                            ? const Color(0xFFFFB300)
-                            : const Color(0xFF1E293B),
+                        isDark ? Icons.light_mode_rounded : Icons.dark_mode_rounded,
+                        color: isDark ? const Color(0xFFFFB300) : const Color(0xFF1E293B),
                         size: 22,
                       ),
                       onPressed: () => AppThemeManager.toggleTheme(),
@@ -374,9 +420,9 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _navItem(String title, VoidCallback onTap) {
+  Widget _navItem(String title, VoidCallback onTap, bool isDark) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 14),
+      padding: const EdgeInsets.symmetric(horizontal: 10),
       child: MouseRegion(
         cursor: SystemMouseCursors.click,
         child: GestureDetector(
@@ -384,9 +430,9 @@ class _HomePageState extends State<HomePage> {
           child: Text(
             title,
             style: GoogleFonts.cairo(
-              fontSize: 15,
+              fontSize: 14,
               fontWeight: FontWeight.w600,
-              color: AppColors.textPrimary,
+              color: isDark ? AppColors.textPrimary : AppColors.textPrimaryLight,
             ),
           ),
         ),
@@ -841,79 +887,11 @@ class _HomePageState extends State<HomePage> {
   // -------------------------------------------------------------
   Widget _buildLatestNewsSection(bool isMobile, double screenWidth) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final updates = SiteDataService.instance.latestUpdates;
+    final updates = _getCombinedLatestItems();
 
-    // If empty: Show clean placeholder with NO fake data
+    // If empty: disappear completely with NO placeholder as requested
     if (updates.isEmpty) {
-      return Center(
-        child: Container(
-          constraints: const BoxConstraints(maxWidth: 1200),
-          padding: EdgeInsets.symmetric(horizontal: isMobile ? 16 : 24),
-          child: Container(
-            padding: EdgeInsets.symmetric(horizontal: 24, vertical: isMobile ? 22 : 30),
-            decoration: BoxDecoration(
-              color: isDark ? const Color(0xFF0F172A) : Colors.white,
-              borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0)),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.05),
-                  blurRadius: 16,
-                  offset: const Offset(0, 4),
-                ),
-              ],
-            ),
-            child: Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF00E5FF).withValues(alpha: 0.12),
-                    borderRadius: BorderRadius.circular(14),
-                  ),
-                  child: const Icon(Icons.auto_awesome_rounded, color: Color(0xFF00E5FF), size: 28),
-                ),
-                const SizedBox(width: 18),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        "أحدث الإضافات والتحديثات",
-                        style: GoogleFonts.cairo(
-                          fontSize: isMobile ? 16 : 18,
-                          fontWeight: FontWeight.bold,
-                          color: isDark ? AppColors.textPrimary : AppColors.textPrimaryLight,
-                        ),
-                      ),
-                      Text(
-                        "شريط الإضافات خالي من البيانات الوهمية — يمكنك إضافة الكورسات والدروس من لوحة التحكم لتظهر هنا مباشرة.",
-                        style: GoogleFonts.cairo(
-                          fontSize: 13,
-                          color: isDark ? AppColors.textSecondary : AppColors.textSecondaryLight,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                if (!isMobile) ...[
-                  const SizedBox(width: 16),
-                  ElevatedButton.icon(
-                    onPressed: () => Navigator.of(context).pushNamed('/admin'),
-                    icon: const Icon(Icons.add, size: 16),
-                    label: Text("إضافة تحديث", style: GoogleFonts.cairo(fontWeight: FontWeight.bold)),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF00E5FF),
-                      foregroundColor: Colors.black,
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                    ),
-                  ),
-                ],
-              ],
-            ),
-          ),
-        ),
-      );
+      return const SizedBox.shrink();
     }
 
     return Center(
@@ -951,7 +929,7 @@ class _HomePageState extends State<HomePage> {
                             ),
                             const SizedBox(width: 8),
                             Text(
-                              "محتوى متجدد أسبوعياً",
+                              "✨ جديدنا",
                               style: GoogleFonts.cairo(
                                 fontSize: 12,
                                 fontWeight: FontWeight.bold,
@@ -963,7 +941,7 @@ class _HomePageState extends State<HomePage> {
                       ),
                       const SizedBox(height: 10),
                       Text(
-                        "أحدث الإضافات والتحديثات",
+                        "جديدنا على المنصة",
                         style: GoogleFonts.cairo(
                           fontSize: isMobile ? 24 : 32,
                           fontWeight: FontWeight.w900,
@@ -1054,452 +1032,223 @@ class _HomePageState extends State<HomePage> {
   }
 
   // -------------------------------------------------------------
-  // 2. تحدي الأسبوع (Weekly Coding Challenge)
+  // 2. تحدي الأسبوع (Weekly Coding Challenge Summary Card)
   // -------------------------------------------------------------
   Widget _buildWeeklyChallengeSection(bool isMobile, double screenWidth) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final challenge = SiteDataService.instance.weeklyChallenge;
 
-    // If no challenge active: Show clean placeholder with NO fake data
+    // If no challenge active: hide section completely
     if (challenge == null || challenge['active'] == false) {
-      return Center(
-        child: Container(
-          constraints: const BoxConstraints(maxWidth: 1200),
-          padding: EdgeInsets.symmetric(horizontal: isMobile ? 16 : 24),
-          child: Container(
-            padding: EdgeInsets.symmetric(horizontal: 24, vertical: isMobile ? 22 : 30),
-            decoration: BoxDecoration(
-              color: isDark ? const Color(0xFF0F172A) : Colors.white,
-              borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0)),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.05),
-                  blurRadius: 16,
-                  offset: const Offset(0, 4),
-                ),
-              ],
-            ),
-            child: Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFFFB300).withValues(alpha: 0.12),
-                    borderRadius: BorderRadius.circular(14),
-                  ),
-                  child: const Icon(Icons.code_rounded, color: Color(0xFFFFB300), size: 28),
-                ),
-                const SizedBox(width: 18),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        "تحدي الأسبوع البرمجي",
-                        style: GoogleFonts.cairo(
-                          fontSize: isMobile ? 16 : 18,
-                          fontWeight: FontWeight.bold,
-                          color: isDark ? AppColors.textPrimary : AppColors.textPrimaryLight,
-                        ),
-                      ),
-                      Text(
-                        "تم إفراغ المسائل الوهمية — سيتم إطلاق التحدي القادم قريباً! يمكنك كتابة وتفعيل التحدي الجديد من لوحة التحكم.",
-                        style: GoogleFonts.cairo(
-                          fontSize: 13,
-                          color: isDark ? AppColors.textSecondary : AppColors.textSecondaryLight,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                if (!isMobile) ...[
-                  const SizedBox(width: 16),
-                  ElevatedButton.icon(
-                    onPressed: () => Navigator.of(context).pushNamed('/admin'),
-                    icon: const Icon(Icons.settings, size: 16),
-                    label: Text("إدارة التحدي", style: GoogleFonts.cairo(fontWeight: FontWeight.bold)),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFFFFB300),
-                      foregroundColor: Colors.black,
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                    ),
-                  ),
-                ],
-              ],
-            ),
-          ),
-        ),
-      );
+      return const SizedBox.shrink();
     }
+
+    final title = challenge['title'] ?? 'تحدي الأسبوع البرمجي';
+    final difficulty = challenge['difficulty'] ?? 'متوسط';
+    final participants = challenge['participants']?.toString() ?? '142';
+    final description = challenge['description'] ??
+        'اختبر مهاراتك البرمجية في حل مشكلات واقعية بكود نظيف وخوارزميات فعالة.';
 
     return Center(
       child: Container(
         constraints: const BoxConstraints(maxWidth: 1200),
         padding: EdgeInsets.symmetric(horizontal: isMobile ? 16 : 24),
-        child: Column(
-          children: [
-            // Section Badge
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+        child: MouseRegion(
+          cursor: SystemMouseCursors.click,
+          child: GestureDetector(
+            onTap: () => Navigator.of(context).pushNamed('/challenge'),
+            child: Container(
+              padding: EdgeInsets.all(isMobile ? 22 : 32),
               decoration: BoxDecoration(
-                color: const Color(0xFFFFB300).withValues(alpha: 0.12),
-                borderRadius: BorderRadius.circular(30),
-                border: Border.all(color: const Color(0xFFFFB300).withValues(alpha: 0.4)),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Icon(Icons.code_rounded, color: Color(0xFFFFB300), size: 17),
-                  const SizedBox(width: 8),
-                  Text(
-                    "تحدي الأسبوع البرمجي",
-                    style: GoogleFonts.cairo(
-                      fontSize: 13,
-                      fontWeight: FontWeight.bold,
-                      color: const Color(0xFFFFB300),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 12),
-
-            Text(
-              "تحدي الأسبوع: حلل، فكّر، وطبق",
-              style: GoogleFonts.cairo(
-                fontSize: isMobile ? 26 : 34,
-                fontWeight: FontWeight.w900,
-                color: isDark ? AppColors.textPrimary : AppColors.textPrimaryLight,
-              ),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 6),
-            Text(
-              "مسألة برمجية أسبوعية حقيقية لتنمية التفكير المنطقي وهندسة الخوارزميات",
-              style: GoogleFonts.cairo(
-                fontSize: isMobile ? 13 : 15,
-                color: isDark ? AppColors.textSecondary : AppColors.textSecondaryLight,
-              ),
-              textAlign: TextAlign.center,
-            ),
-            SizedBox(height: isMobile ? 20 : 32),
-
-            // High-Tech IDE / Terminal Mockup Card
-            Container(
-              decoration: BoxDecoration(
-                color: isDark ? const Color(0xFF0A0F1D) : Colors.white,
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0), width: 1.4),
+                color: isDark ? const Color(0xFF0F172A) : Colors.white,
+                borderRadius: BorderRadius.circular(24),
+                border: Border.all(
+                  color: isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0),
+                  width: 1.2,
+                ),
                 boxShadow: [
                   BoxShadow(
-                    color: const Color(0xFF00E5FF).withValues(alpha: 0.08),
-                    blurRadius: 30,
-                    offset: const Offset(0, 10),
+                    color: const Color(0xFFFFB300).withValues(alpha: isDark ? 0.08 : 0.05),
+                    blurRadius: 28,
+                    offset: const Offset(0, 8),
+                  ),
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: isDark ? 0.35 : 0.04),
+                    blurRadius: 16,
+                    offset: const Offset(0, 4),
                   ),
                 ],
               ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
+              child: Stack(
                 children: [
-                  // IDE Top Bar
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
-                    decoration: BoxDecoration(
-                      color: isDark ? const Color(0xFF0D1424) : const Color(0xFFF1F5F9),
-                      borderRadius: const BorderRadius.vertical(top: Radius.circular(19)),
-                      border: Border(bottom: BorderSide(color: isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0))),
-                    ),
-                    child: Row(
-                      children: [
-                        // macOS Window Dots
-                        Row(
-                          children: [
-                            Container(width: 12, height: 12, decoration: const BoxDecoration(color: Color(0xFFFF5F56), shape: BoxShape.circle)),
-                            const SizedBox(width: 8),
-                            Container(width: 12, height: 12, decoration: const BoxDecoration(color: Color(0xFFFFBD2E), shape: BoxShape.circle)),
-                            const SizedBox(width: 8),
-                            Container(width: 12, height: 12, decoration: const BoxDecoration(color: Color(0xFF27C93F), shape: BoxShape.circle)),
-                          ],
-                        ),
-                        const SizedBox(width: 18),
-                        Text(
-                          "challenge_active.py",
-                          style: GoogleFonts.firaCode(fontSize: 13, color: AppColors.textMuted),
-                        ),
-                        const Spacer(),
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFF27C93F).withValues(alpha: 0.15),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Row(
-                            children: [
-                              Container(width: 6, height: 6, decoration: const BoxDecoration(color: Color(0xFF27C93F), shape: BoxShape.circle)),
-                              const SizedBox(width: 6),
-                              Text(
-                                "تحدي نشط",
-                                style: GoogleFonts.cairo(fontSize: 11, fontWeight: FontWeight.bold, color: const Color(0xFF27C93F)),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
+                  Positioned(
+                    top: -40,
+                    left: -40,
+                    child: Container(
+                      width: 160,
+                      height: 160,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: const Color(0xFFFFB300).withValues(alpha: isDark ? 0.08 : 0.04),
+                      ),
                     ),
                   ),
-
-                  // IDE Body
-                  Padding(
-                    padding: EdgeInsets.all(isMobile ? 18 : 28),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // Meta Row
-                        Wrap(
-                          spacing: 12,
-                          runSpacing: 8,
-                          children: [
-                            if ((challenge['week'] ?? '').isNotEmpty)
-                              _challengeChip(Icons.calendar_today_rounded, challenge['week'], const Color(0xFF00E5FF)),
-                            if ((challenge['difficulty'] ?? '').isNotEmpty)
-                              _challengeChip(Icons.speed_rounded, challenge['difficulty'], const Color(0xFFFFB300)),
-                            if ((challenge['daysLeft'] ?? '').isNotEmpty)
-                              _challengeChip(Icons.timer_outlined, challenge['daysLeft'], const Color(0xFFFF5252)),
-                            if ((challenge['participants'] ?? 0) > 0)
-                              _challengeChip(Icons.groups_outlined, "${challenge['participants']} مشارك", const Color(0xFF69F0AE)),
-                          ],
-                        ),
-                        const SizedBox(height: 18),
-
-                        // Title
-                        Text(
-                          challenge['title'] ?? '',
-                          style: GoogleFonts.cairo(
-                            fontSize: isMobile ? 18 : 22,
-                            fontWeight: FontWeight.w800,
-                            color: isDark ? AppColors.textPrimary : AppColors.textPrimaryLight,
-                          ),
-                        ),
-                        const SizedBox(height: 10),
-
-                        // Scenario
-                        Container(
-                          padding: const EdgeInsets.all(16),
-                          decoration: BoxDecoration(
-                            color: isDark ? const Color(0xFF131D33) : const Color(0xFFF8FAFC),
-                            borderRadius: BorderRadius.circular(12),
-                            border: const Border(
-                              right: BorderSide(color: Color(0xFF00E5FF), width: 3.5),
-                            ),
-                          ),
-                          child: Text(
-                            challenge['scenario'] ?? '',
-                            style: GoogleFonts.cairo(
-                              fontSize: isMobile ? 13.5 : 15,
-                              color: isDark ? AppColors.textSecondary : AppColors.textSecondaryLight,
-                              height: 1.6,
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 18),
-
-                        // Test Case Terminal Box
-                        if ((challenge['input'] ?? '').isNotEmpty || (challenge['output'] ?? '').isNotEmpty) ...[
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Wrap(
+                        spacing: 10,
+                        runSpacing: 8,
+                        crossAxisAlignment: WrapCrossAlignment.center,
+                        children: [
                           Container(
-                            padding: const EdgeInsets.all(16),
+                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                             decoration: BoxDecoration(
-                              color: const Color(0xFF060911),
-                              borderRadius: BorderRadius.circular(12),
-                              border: Border.all(color: const Color(0xFF1E293B)),
+                              color: const Color(0xFFFFB300).withValues(alpha: 0.14),
+                              borderRadius: BorderRadius.circular(20),
+                              border: Border.all(
+                                color: const Color(0xFFFFB300).withValues(alpha: 0.4),
+                              ),
                             ),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                const Icon(Icons.bolt_rounded, color: Color(0xFFFFB300), size: 16),
+                                const SizedBox(width: 6),
+                                Text(
+                                  "🔥 تحدي الأسبوع البرمجي",
+                                  style: GoogleFonts.cairo(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.bold,
+                                    color: const Color(0xFFFFB300),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                            decoration: BoxDecoration(
+                              color: isDark ? Colors.white.withValues(alpha: 0.06) : const Color(0xFFF1F5F9),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Text(
+                              "المستوى: $difficulty",
+                              style: GoogleFonts.cairo(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w600,
+                                color: isDark ? AppColors.textSecondary : AppColors.textSecondaryLight,
+                              ),
+                            ),
+                          ),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFF10B981).withValues(alpha: 0.12),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                const Icon(Icons.people_alt_outlined, color: Color(0xFF10B981), size: 14),
+                                const SizedBox(width: 6),
+                                Text(
+                                  "$participants مشارك نشط",
+                                  style: GoogleFonts.cairo(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.bold,
+                                    color: const Color(0xFF10B981),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 18),
+                      Text(
+                        title,
+                        style: GoogleFonts.cairo(
+                          fontSize: isMobile ? 20 : 26,
+                          fontWeight: FontWeight.w900,
+                          color: isDark ? AppColors.textPrimary : AppColors.textPrimaryLight,
+                          height: 1.3,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        description,
+                        style: GoogleFonts.cairo(
+                          fontSize: isMobile ? 13 : 15,
+                          color: isDark ? AppColors.textSecondary : AppColors.textSecondaryLight,
+                          height: 1.6,
+                        ),
+                        maxLines: 3,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: 22),
+                      isMobile
+                          ? Column(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: [
+                                ElevatedButton.icon(
+                                  onPressed: () => Navigator.of(context).pushNamed('/challenge'),
+                                  icon: const Icon(Icons.code_rounded, size: 18),
+                                  label: Text(
+                                    "خوض التحدي وتسليم الحل 🚀",
+                                    style: GoogleFonts.cairo(fontSize: 14, fontWeight: FontWeight.bold),
+                                  ),
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: const Color(0xFFFFB300),
+                                    foregroundColor: Colors.black,
+                                    padding: const EdgeInsets.symmetric(vertical: 14),
+                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                  ),
+                                ),
+                              ],
+                            )
+                          : Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 Row(
                                   children: [
-                                    const Icon(Icons.terminal_rounded, size: 18, color: Color(0xFF00E5FF)),
+                                    const Icon(Icons.emoji_events_outlined, color: Color(0xFFFFB300), size: 18),
                                     const SizedBox(width: 8),
                                     Text(
-                                      "Test Case Preview",
-                                      style: GoogleFonts.firaCode(fontSize: 12, color: const Color(0xFF00E5FF), fontWeight: FontWeight.bold),
+                                      "تسليم الكود ومراجعته ونيل تقييم مباشر على الحل",
+                                      style: GoogleFonts.cairo(
+                                        fontSize: 13,
+                                        fontWeight: FontWeight.w600,
+                                        color: isDark ? AppColors.textSecondary : AppColors.textSecondaryLight,
+                                      ),
                                     ),
                                   ],
                                 ),
-                                if ((challenge['input'] ?? '').isNotEmpty) ...[
-                                  const SizedBox(height: 10),
-                                  Text(
-                                    ">>> Input:  ${challenge['input']}",
-                                    style: GoogleFonts.firaCode(fontSize: 13, color: const Color(0xFFFFBD2E)),
+                                ElevatedButton.icon(
+                                  onPressed: () => Navigator.of(context).pushNamed('/challenge'),
+                                  icon: const Icon(Icons.arrow_forward_rounded, size: 18),
+                                  label: Text(
+                                    "خوض التحدي الآن 🚀",
+                                    style: GoogleFonts.cairo(fontSize: 14, fontWeight: FontWeight.bold),
                                   ),
-                                ],
-                                if ((challenge['output'] ?? '').isNotEmpty) ...[
-                                  const SizedBox(height: 6),
-                                  Text(
-                                    ">>> Output: ${challenge['output']}",
-                                    style: GoogleFonts.firaCode(fontSize: 13, color: const Color(0xFF27C93F)),
-                                  ),
-                                ],
-                              ],
-                            ),
-                          ),
-                        ],
-
-                        // Hint Container (Collapsible)
-                        if (_showChallengeHint && (challenge['hint'] ?? '').isNotEmpty) ...[
-                          const SizedBox(height: 14),
-                          Container(
-                            padding: const EdgeInsets.all(14),
-                            decoration: BoxDecoration(
-                              color: const Color(0xFFFFB300).withValues(alpha: 0.1),
-                              borderRadius: BorderRadius.circular(12),
-                              border: Border.all(color: const Color(0xFFFFB300).withValues(alpha: 0.3)),
-                            ),
-                            child: Row(
-                              children: [
-                                const Icon(Icons.lightbulb_rounded, color: Color(0xFFFFB300), size: 20),
-                                const SizedBox(width: 12),
-                                Expanded(
-                                  child: Text(
-                                    challenge['hint'],
-                                    style: GoogleFonts.cairo(
-                                      fontSize: 13,
-                                      color: const Color(0xFFFFE082),
-                                      fontWeight: FontWeight.w600,
-                                    ),
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: const Color(0xFFFFB300),
+                                    foregroundColor: Colors.black,
+                                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                    elevation: 0,
                                   ),
                                 ),
                               ],
                             ),
-                          ),
-                        ],
-                        const SizedBox(height: 22),
-
-                        // Actions Row
-                        Wrap(
-                          spacing: 14,
-                          runSpacing: 10,
-                          crossAxisAlignment: WrapCrossAlignment.center,
-                          children: [
-                            ElevatedButton.icon(
-                              onPressed: () => _showChallengeSubmitDialog(challenge['title'] ?? ''),
-                              icon: const Icon(Icons.rocket_launch_rounded, size: 18),
-                              label: Text(
-                                "إرسال الحل والتقييم 🚀",
-                                style: GoogleFonts.cairo(fontWeight: FontWeight.w800, fontSize: 14),
-                              ),
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: const Color(0xFF00E5FF),
-                                foregroundColor: const Color(0xFF040812),
-                                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                                elevation: 0,
-                              ),
-                            ),
-                            if ((challenge['hint'] ?? '').isNotEmpty)
-                              OutlinedButton.icon(
-                                onPressed: () => setState(() => _showChallengeHint = !_showChallengeHint),
-                                icon: Icon(
-                                  _showChallengeHint ? Icons.visibility_off_outlined : Icons.lightbulb_outline_rounded,
-                                  size: 18,
-                                ),
-                                label: Text(
-                                  _showChallengeHint ? "إخفاء التلميح" : "عرض تلميح الخوارزمية",
-                                  style: GoogleFonts.cairo(fontWeight: FontWeight.bold, fontSize: 13),
-                                ),
-                                style: OutlinedButton.styleFrom(
-                                  foregroundColor: const Color(0xFFFFB300),
-                                  side: const BorderSide(color: Color(0xFFFFB300)),
-                                  padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
-                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                                ),
-                              ),
-                          ],
-                        ),
-                      ],
-                    ),
+                    ],
                   ),
                 ],
               ),
             ),
-          ],
+          ),
         ),
       ),
-    );
-  }
-
-  Widget _challengeChip(IconData icon, String label, Color color) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: color.withValues(alpha: 0.25)),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, size: 14, color: color),
-          const SizedBox(width: 6),
-          Text(
-            label,
-            style: GoogleFonts.cairo(fontSize: 12, fontWeight: FontWeight.bold, color: color),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _showChallengeSubmitDialog(String title) {
-    showDialog(
-      context: context,
-      builder: (ctx) {
-        return Directionality(
-          textDirection: TextDirection.rtl,
-          child: AlertDialog(
-            backgroundColor: const Color(0xFF0F172A),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(20),
-              side: const BorderSide(color: Color(0xFF00E5FF), width: 1.2),
-            ),
-            title: Row(
-              children: [
-                const Icon(Icons.rocket_launch_rounded, color: Color(0xFF00E5FF)),
-                const SizedBox(width: 10),
-                Text(
-                  "تسليم حل تحدي الأسبوع",
-                  style: GoogleFonts.cairo(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
-                ),
-              ],
-            ),
-            content: Text(
-              "أرسل كود الحل الخاص بك مباشرة للأستاذ إسلام عاطف لمراجعته وتقييم الخوارزمية، وسيتم إعلان أسماء المتفوقين في لوحة شرف الأسبوع!",
-              style: GoogleFonts.cairo(fontSize: 14, color: AppColors.textSecondary, height: 1.6),
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(ctx),
-                child: Text("إلغاء", style: GoogleFonts.cairo(color: AppColors.textMuted)),
-              ),
-              ElevatedButton.icon(
-                onPressed: () {
-                  Navigator.pop(ctx);
-                  launchWebUrl(
-                    "${ArabicData.whatsappUrl}?text=${Uri.encodeComponent('مرحباً أستاذ إسلام عاطف، أود تسليم حل تحدي الأسبوع البرمجي ($title):\n[ضع كود الحل هنا]')}",
-                  );
-                },
-                icon: const Icon(Icons.send_rounded, size: 16),
-                label: Text("إرسال عبر واتساب", style: GoogleFonts.cairo(fontWeight: FontWeight.bold)),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF25D366),
-                  foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                ),
-              ),
-            ],
-          ),
-        );
-      },
     );
   }
 
@@ -1639,481 +1388,207 @@ class _HomePageState extends State<HomePage> {
   }
 
   // -------------------------------------------------------------
-  // 4. اختبر نفسك (Interactive Quiz Component)
+  // 4. اختبر نفسك (Test Yourself Quiz Summary Card)
   // -------------------------------------------------------------
   Widget _buildTestYourselfSection(bool isMobile, double screenWidth) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final questions = SiteDataService.instance.quizQuestions;
 
-    // If no questions: Show clean placeholder with NO fake data
+    // If no questions: hide section completely
     if (questions.isEmpty) {
-      return Center(
-        child: Container(
-          constraints: const BoxConstraints(maxWidth: 900),
-          padding: EdgeInsets.symmetric(horizontal: isMobile ? 16 : 24),
-          child: Container(
-            padding: EdgeInsets.symmetric(horizontal: 24, vertical: isMobile ? 22 : 30),
-            decoration: BoxDecoration(
-              color: isDark ? const Color(0xFF0F172A) : Colors.white,
-              borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0)),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.05),
-                  blurRadius: 16,
-                  offset: const Offset(0, 4),
-                ),
-              ],
-            ),
-            child: Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF10B981).withValues(alpha: 0.12),
-                    borderRadius: BorderRadius.circular(14),
-                  ),
-                  child: const Icon(Icons.quiz_rounded, color: Color(0xFF10B981), size: 28),
-                ),
-                const SizedBox(width: 18),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        "اختبر نفسك",
-                        style: GoogleFonts.cairo(
-                          fontSize: isMobile ? 16 : 18,
-                          fontWeight: FontWeight.bold,
-                          color: isDark ? AppColors.textPrimary : AppColors.textPrimaryLight,
-                        ),
-                      ),
-                      Text(
-                        "تم مسح الأسئلة الوهمية — سيتم طرح أسئلة اختبارية جديدة قريباً! يمكنك إضافة وإدارة أسئلتك الفعلية من لوحة التحكم.",
-                        style: GoogleFonts.cairo(
-                          fontSize: 13,
-                          color: isDark ? AppColors.textSecondary : AppColors.textSecondaryLight,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                if (!isMobile) ...[
-                  const SizedBox(width: 16),
-                  ElevatedButton.icon(
-                    onPressed: () => Navigator.of(context).pushNamed('/admin'),
-                    icon: const Icon(Icons.add, size: 16),
-                    label: Text("إضافة أسئلة", style: GoogleFonts.cairo(fontWeight: FontWeight.bold)),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF10B981),
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                    ),
-                  ),
-                ],
-              ],
-            ),
-          ),
-        ),
-      );
+      return const SizedBox.shrink();
     }
-
-    if (_quizCompleted) {
-      return _buildQuizCompletedView(isMobile, questions.length);
-    }
-
-    if (_quizCurrentIndex >= questions.length) {
-      _quizCurrentIndex = 0;
-    }
-
-    final currentQ = questions[_quizCurrentIndex];
 
     return Center(
       child: Container(
-        constraints: const BoxConstraints(maxWidth: 900),
+        constraints: const BoxConstraints(maxWidth: 1200),
         padding: EdgeInsets.symmetric(horizontal: isMobile ? 16 : 24),
-        child: Column(
-          children: [
-            // Badge
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
-              decoration: BoxDecoration(
-                color: const Color(0xFF10B981).withValues(alpha: 0.12),
-                borderRadius: BorderRadius.circular(30),
-                border: Border.all(color: const Color(0xFF10B981).withValues(alpha: 0.35)),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Icon(Icons.quiz_rounded, color: Color(0xFF10B981), size: 16),
-                  const SizedBox(width: 8),
-                  Text(
-                    "تطبيق عملي فوري",
-                    style: GoogleFonts.cairo(
-                      fontSize: 13,
-                      fontWeight: FontWeight.bold,
-                      color: const Color(0xFF10B981),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 12),
-
-            Text(
-              "اختبر نفسك",
-              style: GoogleFonts.cairo(
-                fontSize: isMobile ? 26 : 34,
-                fontWeight: FontWeight.w900,
-                color: isDark ? AppColors.textPrimary : AppColors.textPrimaryLight,
-              ),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 6),
-            Text(
-              "أسئلة ذكية وسريعة لقياس فهمك لمفاهيم علوم الحاسب والبرمجة والذكاء الاصطناعي",
-              style: GoogleFonts.cairo(
-                fontSize: isMobile ? 13 : 15,
-                color: isDark ? AppColors.textSecondary : AppColors.textSecondaryLight,
-              ),
-              textAlign: TextAlign.center,
-            ),
-            SizedBox(height: isMobile ? 20 : 30),
-
-            // Quiz Container Card
-            Container(
+        child: MouseRegion(
+          cursor: SystemMouseCursors.click,
+          child: GestureDetector(
+            onTap: () => Navigator.of(context).pushNamed('/quiz'),
+            child: Container(
+              padding: EdgeInsets.all(isMobile ? 22 : 32),
               decoration: BoxDecoration(
                 color: isDark ? const Color(0xFF0F172A) : Colors.white,
-                borderRadius: BorderRadius.circular(22),
-                border: Border.all(color: isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0), width: 1.5),
+                borderRadius: BorderRadius.circular(24),
+                border: Border.all(
+                  color: isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0),
+                  width: 1.2,
+                ),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withValues(alpha: isDark ? 0.4 : 0.06),
+                    color: const Color(0xFFA855F7).withValues(alpha: isDark ? 0.08 : 0.05),
                     blurRadius: 28,
                     offset: const Offset(0, 8),
                   ),
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: isDark ? 0.35 : 0.04),
+                    blurRadius: 16,
+                    offset: const Offset(0, 4),
+                  ),
                 ],
               ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
+              child: Stack(
                 children: [
-                  // Progress Top Bar
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 14),
-                    decoration: BoxDecoration(
-                      color: isDark ? const Color(0xFF0B1120) : const Color(0xFFF8FAFC),
-                      borderRadius: const BorderRadius.vertical(top: Radius.circular(21)),
-                      border: Border(bottom: BorderSide(color: isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0))),
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          "السؤال ${_quizCurrentIndex + 1} من ${questions.length}",
-                          style: GoogleFonts.cairo(
-                            fontSize: 13,
-                            fontWeight: FontWeight.bold,
-                            color: const Color(0xFF00E5FF),
-                          ),
-                        ),
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFF10B981).withValues(alpha: 0.15),
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: Text(
-                            "النقاط: $_quizScore",
-                            style: GoogleFonts.cairo(
-                              fontSize: 12,
-                              fontWeight: FontWeight.bold,
-                              color: const Color(0xFF10B981),
-                            ),
-                          ),
-                        ),
-                      ],
+                  Positioned(
+                    top: -40,
+                    right: -40,
+                    child: Container(
+                      width: 160,
+                      height: 160,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: const Color(0xFFA855F7).withValues(alpha: isDark ? 0.08 : 0.04),
+                      ),
                     ),
                   ),
-
-                  // Question Body
-                  Padding(
-                    padding: EdgeInsets.all(isMobile ? 18 : 28),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        // Question Text
-                        Text(
-                          currentQ['question'] ?? '',
-                          style: GoogleFonts.cairo(
-                            fontSize: isMobile ? 16 : 19,
-                            fontWeight: FontWeight.w800,
-                            color: isDark ? AppColors.textPrimary : AppColors.textPrimaryLight,
-                            height: 1.5,
-                          ),
-                        ),
-                        const SizedBox(height: 20),
-
-                        // Options
-                        ...((currentQ['options'] as List<dynamic>? ?? []).cast<String>()).asMap().entries.map((entry) {
-                          final optIdx = entry.key;
-                          final optText = entry.value;
-                          final isSelected = _quizSelectedOption == optIdx;
-                          final isCorrect = optIdx == currentQ['correctIndex'];
-
-                          Color cardBg = isDark ? const Color(0xFF131D33) : const Color(0xFFF1F5F9);
-                          Color borderColor = isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0);
-                          Color textColor = isDark ? AppColors.textPrimary : AppColors.textPrimaryLight;
-                          IconData? trailingIcon;
-
-                          if (_quizAnswered) {
-                            if (isCorrect) {
-                              cardBg = const Color(0xFF064E3B);
-                              borderColor = const Color(0xFF10B981);
-                              textColor = Colors.white;
-                              trailingIcon = Icons.check_circle_rounded;
-                            } else if (isSelected && !isCorrect) {
-                              cardBg = const Color(0xFF7F1D1D);
-                              borderColor = const Color(0xFFEF4444);
-                              textColor = Colors.white;
-                              trailingIcon = Icons.cancel_rounded;
-                            } else {
-                              cardBg = (isDark ? const Color(0xFF0F172A) : const Color(0xFFF8FAFC)).withValues(alpha: 0.5);
-                              textColor = AppColors.textMuted;
-                            }
-                          }
-
-                          return Padding(
-                            padding: const EdgeInsets.only(bottom: 12),
-                            child: MouseRegion(
-                              cursor: _quizAnswered ? SystemMouseCursors.basic : SystemMouseCursors.click,
-                              child: GestureDetector(
-                                onTap: _quizAnswered
-                                    ? null
-                                    : () {
-                                        setState(() {
-                                          _quizSelectedOption = optIdx;
-                                          _quizAnswered = true;
-                                          if (isCorrect) {
-                                            _quizScore += 25;
-                                          }
-                                        });
-                                      },
-                                child: AnimatedContainer(
-                                  duration: const Duration(milliseconds: 200),
-                                  padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
-                                  decoration: BoxDecoration(
-                                    color: cardBg,
-                                    borderRadius: BorderRadius.circular(14),
-                                    border: Border.all(color: borderColor, width: 1.4),
-                                  ),
-                                  child: Row(
-                                    children: [
-                                      Container(
-                                        width: 28,
-                                        height: 28,
-                                        decoration: BoxDecoration(
-                                          shape: BoxShape.circle,
-                                          color: isSelected
-                                              ? const Color(0xFF00E5FF)
-                                              : (isDark ? Colors.white.withValues(alpha: 0.08) : Colors.black.withValues(alpha: 0.06)),
-                                        ),
-                                        child: Center(
-                                          child: Text(
-                                            "${optIdx + 1}",
-                                            style: TextStyle(
-                                              fontSize: 12,
-                                              fontWeight: FontWeight.bold,
-                                              color: isSelected ? Colors.black : (isDark ? Colors.white70 : Colors.black87),
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                      const SizedBox(width: 14),
-                                      Expanded(
-                                        child: Text(
-                                          optText,
-                                          style: GoogleFonts.cairo(
-                                            fontSize: isMobile ? 13.5 : 15,
-                                            fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
-                                            color: textColor,
-                                            height: 1.4,
-                                          ),
-                                        ),
-                                      ),
-                                      if (trailingIcon != null) ...[
-                                        const SizedBox(width: 10),
-                                        Icon(
-                                          trailingIcon,
-                                          color: isCorrect ? const Color(0xFF10B981) : const Color(0xFFEF4444),
-                                          size: 22,
-                                        ),
-                                      ],
-                                    ],
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Wrap(
+                        spacing: 10,
+                        runSpacing: 8,
+                        crossAxisAlignment: WrapCrossAlignment.center,
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFA855F7).withValues(alpha: 0.14),
+                              borderRadius: BorderRadius.circular(20),
+                              border: Border.all(
+                                color: const Color(0xFFA855F7).withValues(alpha: 0.4),
+                              ),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                const Icon(Icons.psychology_rounded, color: Color(0xFFA855F7), size: 16),
+                                const SizedBox(width: 6),
+                                Text(
+                                  "🧠 اختبر نفسك الآن",
+                                  style: GoogleFonts.cairo(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.bold,
+                                    color: const Color(0xFFA855F7),
                                   ),
                                 ),
+                              ],
+                            ),
+                          ),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFF00E5FF).withValues(alpha: 0.12),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Text(
+                              "🎯 ${questions.length} أسئلة مختارة بدقة",
+                              style: GoogleFonts.cairo(
+                                fontSize: 12,
+                                fontWeight: FontWeight.bold,
+                                color: const Color(0xFF00E5FF),
                               ),
                             ),
-                          );
-                        }),
-
-                        // Explanation & Next Button (when answered)
-                        if (_quizAnswered) ...[
-                          if ((currentQ['explanation'] ?? '').isNotEmpty) ...[
-                            const SizedBox(height: 16),
-                            Container(
-                              padding: const EdgeInsets.all(16),
-                              decoration: BoxDecoration(
-                                color: const Color(0xFF0284C7).withValues(alpha: 0.12),
-                                borderRadius: BorderRadius.circular(12),
-                                border: Border.all(color: const Color(0xFF0284C7).withValues(alpha: 0.3)),
-                              ),
-                              child: Row(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  const Icon(Icons.info_outline_rounded, color: Color(0xFF38BDF8), size: 20),
-                                  const SizedBox(width: 12),
-                                  Expanded(
-                                    child: Text(
-                                      currentQ['explanation'],
-                                      style: GoogleFonts.cairo(
-                                        fontSize: 13,
-                                        color: isDark ? const Color(0xFFE0F2FE) : const Color(0xFF0369A1),
-                                        height: 1.5,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
+                          ),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                            decoration: BoxDecoration(
+                              color: isDark ? Colors.white.withValues(alpha: 0.06) : const Color(0xFFF1F5F9),
+                              borderRadius: BorderRadius.circular(8),
                             ),
-                          ],
-                          const SizedBox(height: 20),
-                          Align(
-                            alignment: Alignment.centerLeft,
-                            child: ElevatedButton.icon(
-                              onPressed: () {
-                                setState(() {
-                                  if (_quizCurrentIndex + 1 < questions.length) {
-                                    _quizCurrentIndex++;
-                                    _quizSelectedOption = null;
-                                    _quizAnswered = false;
-                                  } else {
-                                    _quizCompleted = true;
-                                  }
-                                });
-                              },
-                              icon: const Icon(Icons.arrow_back_rounded, size: 16),
-                              label: Text(
-                                _quizCurrentIndex + 1 < questions.length ? "السؤال التالي" : "عرض النتيجة النهائية",
-                                style: GoogleFonts.cairo(fontWeight: FontWeight.bold, fontSize: 14),
-                              ),
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: const Color(0xFF00E5FF),
-                                foregroundColor: Colors.black,
-                                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                            child: Text(
+                              "⚡ تصحيح وشرح علمي فوري",
+                              style: GoogleFonts.cairo(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w600,
+                                color: isDark ? AppColors.textSecondary : AppColors.textSecondaryLight,
                               ),
                             ),
                           ),
                         ],
-                      ],
-                    ),
+                      ),
+                      const SizedBox(height: 18),
+                      Text(
+                        "تحدّ معلوماتك في البرمجة وهندسة الذكاء الاصطناعي",
+                        style: GoogleFonts.cairo(
+                          fontSize: isMobile ? 20 : 26,
+                          fontWeight: FontWeight.w900,
+                          color: isDark ? AppColors.textPrimary : AppColors.textPrimaryLight,
+                          height: 1.3,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        "اختبار تفاعلي سريع ومدروس لقياس عمق فهمك لمفاهيم علوم الحاسب والذكاء الاصطناعي وهندسة البرمجيات، مع شرح تعليمي وتفسير دقيق لكل إجابة.",
+                        style: GoogleFonts.cairo(
+                          fontSize: isMobile ? 13 : 15,
+                          color: isDark ? AppColors.textSecondary : AppColors.textSecondaryLight,
+                          height: 1.6,
+                        ),
+                        maxLines: 3,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: 22),
+                      isMobile
+                          ? Column(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: [
+                                ElevatedButton.icon(
+                                  onPressed: () => Navigator.of(context).pushNamed('/quiz'),
+                                  icon: const Icon(Icons.play_arrow_rounded, size: 20),
+                                  label: Text(
+                                    "ابدأ الاختبار الآن 🚀",
+                                    style: GoogleFonts.cairo(fontSize: 14, fontWeight: FontWeight.bold),
+                                  ),
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: const Color(0xFFA855F7),
+                                    foregroundColor: Colors.white,
+                                    padding: const EdgeInsets.symmetric(vertical: 14),
+                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                  ),
+                                ),
+                              ],
+                            )
+                          : Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Row(
+                                  children: [
+                                    const Icon(Icons.workspace_premium_rounded, color: Color(0xFFA855F7), size: 18),
+                                    const SizedBox(width: 8),
+                                    Text(
+                                      "احصل على تقييم فوري لمستواك ونصائح لتطوير فهمك البرمجي",
+                                      style: GoogleFonts.cairo(
+                                        fontSize: 13,
+                                        fontWeight: FontWeight.w600,
+                                        color: isDark ? AppColors.textSecondary : AppColors.textSecondaryLight,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                ElevatedButton.icon(
+                                  onPressed: () => Navigator.of(context).pushNamed('/quiz'),
+                                  icon: const Icon(Icons.arrow_forward_rounded, size: 18),
+                                  label: Text(
+                                    "ابدأ الاختبار الآن 🚀",
+                                    style: GoogleFonts.cairo(fontSize: 14, fontWeight: FontWeight.bold),
+                                  ),
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: const Color(0xFFA855F7),
+                                    foregroundColor: Colors.white,
+                                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                    elevation: 0,
+                                  ),
+                                ),
+                              ],
+                            ),
+                    ],
                   ),
                 ],
               ),
             ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildQuizCompletedView(bool isMobile, int totalQuestions) {
-    final maxScore = totalQuestions * 25;
-    final percentage = maxScore > 0 ? ((_quizScore / maxScore) * 100).toInt() : 0;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-
-    return Center(
-      child: Container(
-        constraints: const BoxConstraints(maxWidth: 700),
-        padding: EdgeInsets.symmetric(horizontal: isMobile ? 16 : 24),
-        child: Container(
-          padding: EdgeInsets.all(isMobile ? 24 : 36),
-          decoration: BoxDecoration(
-            color: isDark ? const Color(0xFF0F172A) : Colors.white,
-            borderRadius: BorderRadius.circular(24),
-            border: Border.all(color: const Color(0xFF10B981), width: 1.5),
-            boxShadow: [
-              BoxShadow(
-                color: const Color(0xFF10B981).withValues(alpha: 0.15),
-                blurRadius: 30,
-                offset: const Offset(0, 10),
-              ),
-            ],
-          ),
-          child: Column(
-            children: [
-              Container(
-                width: 72,
-                height: 72,
-                decoration: BoxDecoration(
-                  color: const Color(0xFF10B981).withValues(alpha: 0.15),
-                  shape: BoxShape.circle,
-                  border: Border.all(color: const Color(0xFF10B981), width: 2),
-                ),
-                child: const Icon(Icons.emoji_events_rounded, color: Color(0xFF10B981), size: 36),
-              ),
-              const SizedBox(height: 18),
-              Text(
-                "أحسنت! أتممت الاختبار بنجاح 🎉",
-                style: GoogleFonts.cairo(
-                  fontSize: isMobile ? 20 : 26,
-                  fontWeight: FontWeight.w900,
-                  color: isDark ? AppColors.textPrimary : AppColors.textPrimaryLight,
-                ),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 8),
-              Text(
-                "النتيجة: $_quizScore من $maxScore نقطة ($percentage%)",
-                style: GoogleFonts.cairo(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  color: const Color(0xFF00E5FF),
-                ),
-              ),
-              const SizedBox(height: 12),
-              Text(
-                percentage >= 75
-                    ? "مستوى استيعاب ممتاز! أنت تمتلك أساساً علمياً متيناً للانطلاق في تطبيقات الذكاء الاصطناعي وهندسة البرمجيات."
-                    : "محاولة جيدة جداً! ننصحك بمراجعة محتوى المحاضرة التأسيسية لتعزيز فهم المفاهيم بشكل أعمق.",
-                style: GoogleFonts.cairo(
-                  fontSize: 14,
-                  color: isDark ? AppColors.textSecondary : AppColors.textSecondaryLight,
-                  height: 1.6,
-                ),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 24),
-              ElevatedButton.icon(
-                onPressed: () {
-                  setState(() {
-                    _quizCurrentIndex = 0;
-                    _quizSelectedOption = null;
-                    _quizAnswered = false;
-                    _quizScore = 0;
-                    _quizCompleted = false;
-                  });
-                },
-                icon: const Icon(Icons.refresh_rounded, size: 18),
-                label: Text("إعادة الاختبار", style: GoogleFonts.cairo(fontWeight: FontWeight.bold)),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF00E5FF),
-                  foregroundColor: Colors.black,
-                  padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 14),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                ),
-              ),
-            ],
           ),
         ),
       ),
@@ -2474,6 +1949,7 @@ class _SquareNewsCardState extends State<_SquareNewsCard> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final isCourse = widget.item['type'] == 'course';
     final accentColor = isCourse ? const Color(0xFF00E5FF) : const Color(0xFFFFB300);
 
@@ -2492,15 +1968,19 @@ class _SquareNewsCardState extends State<_SquareNewsCard> {
           height: widget.isMobile ? 260 : 280,
           transform: Matrix4.translationValues(0.0, _isHovered ? -6.0 : 0.0, 0.0),
           decoration: BoxDecoration(
-            color: const Color(0xFF0F172A),
+            color: isDark ? const Color(0xFF0F172A) : Colors.white,
             borderRadius: BorderRadius.circular(20),
             border: Border.all(
-              color: _isHovered ? accentColor : const Color(0xFF1E293B),
+              color: _isHovered
+                  ? accentColor
+                  : (isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0)),
               width: _isHovered ? 1.5 : 1.0,
             ),
             boxShadow: [
               BoxShadow(
-                color: _isHovered ? accentColor.withValues(alpha: 0.22) : Colors.black.withValues(alpha: 0.4),
+                color: _isHovered
+                    ? accentColor.withValues(alpha: 0.22)
+                    : Colors.black.withValues(alpha: isDark ? 0.4 : 0.06),
                 blurRadius: _isHovered ? 24 : 12,
                 offset: Offset(0, _isHovered ? 8 : 4),
               ),
@@ -2515,21 +1995,29 @@ class _SquareNewsCardState extends State<_SquareNewsCard> {
                   child: Image.asset(
                     widget.item['image'] ?? 'assets/images/slide1.png',
                     fit: BoxFit.cover,
-                    errorBuilder: (ctx, err, stack) => Container(color: const Color(0xFF0A0F1D)),
+                    errorBuilder: (ctx, err, stack) => Container(
+                      color: isDark ? const Color(0xFF0A0F1D) : const Color(0xFFF1F5F9),
+                    ),
                   ),
                 ),
-                // Deep dark cyber gradient
+                // Gradient overlay tailored for Light & Dark mode
                 Positioned.fill(
                   child: Container(
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
                         begin: Alignment.topCenter,
                         end: Alignment.bottomCenter,
-                        colors: [
-                          const Color(0xFF070B14).withValues(alpha: 0.65),
-                          const Color(0xFF070B14).withValues(alpha: 0.92),
-                          const Color(0xFF070B14),
-                        ],
+                        colors: isDark
+                            ? [
+                                const Color(0xFF070B14).withValues(alpha: 0.65),
+                                const Color(0xFF070B14).withValues(alpha: 0.92),
+                                const Color(0xFF070B14),
+                              ]
+                            : [
+                                Colors.white.withValues(alpha: 0.70),
+                                Colors.white.withValues(alpha: 0.93),
+                                Colors.white,
+                              ],
                         stops: const [0.0, 0.55, 1.0],
                       ),
                     ),
@@ -2549,9 +2037,11 @@ class _SquareNewsCardState extends State<_SquareNewsCard> {
                           Container(
                             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                             decoration: BoxDecoration(
-                              color: accentColor.withValues(alpha: 0.18),
+                              color: accentColor.withValues(alpha: isDark ? 0.18 : 0.12),
                               borderRadius: BorderRadius.circular(8),
-                              border: Border.all(color: accentColor.withValues(alpha: 0.5)),
+                              border: Border.all(
+                                color: accentColor.withValues(alpha: isDark ? 0.5 : 0.4),
+                              ),
                             ),
                             child: Text(
                               widget.item['category'] ?? '',
@@ -2566,16 +2056,28 @@ class _SquareNewsCardState extends State<_SquareNewsCard> {
                             Container(
                               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                               decoration: BoxDecoration(
-                                color: Colors.black.withValues(alpha: 0.5),
+                                color: isDark
+                                    ? Colors.black.withValues(alpha: 0.5)
+                                    : const Color(0xFFF1F5F9),
                                 borderRadius: BorderRadius.circular(6),
                               ),
                               child: Row(
                                 children: [
-                                  const Icon(Icons.schedule, size: 12, color: AppColors.textMuted),
+                                  Icon(
+                                    Icons.schedule,
+                                    size: 12,
+                                    color: isDark ? AppColors.textMuted : AppColors.textMutedLight,
+                                  ),
                                   const SizedBox(width: 4),
                                   Text(
                                     widget.item['duration'],
-                                    style: GoogleFonts.cairo(fontSize: 11, color: AppColors.textSecondary),
+                                    style: GoogleFonts.cairo(
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.w600,
+                                      color: isDark
+                                          ? AppColors.textSecondary
+                                          : AppColors.textSecondaryLight,
+                                    ),
                                   ),
                                 ],
                               ),
@@ -2603,7 +2105,7 @@ class _SquareNewsCardState extends State<_SquareNewsCard> {
                             style: GoogleFonts.cairo(
                               fontSize: 15,
                               fontWeight: FontWeight.w800,
-                              color: AppColors.textPrimary,
+                              color: isDark ? AppColors.textPrimary : AppColors.textPrimaryLight,
                               height: 1.35,
                             ),
                             maxLines: 2,
