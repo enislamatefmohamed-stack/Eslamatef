@@ -20,6 +20,13 @@ class _QuizPageState extends State<QuizPage> {
   int _score = 0;
   bool _isFinished = false;
 
+  bool _isStudentRegistered = false;
+  final TextEditingController _studentNameCtrl = TextEditingController();
+  final TextEditingController _studentPhoneCtrl = TextEditingController();
+  final TextEditingController _studentWhatsappCtrl = TextEditingController();
+  String _studentCountry = 'مصر';
+  DateTime? _startTime;
+
   @override
   void initState() {
     super.initState();
@@ -35,6 +42,9 @@ class _QuizPageState extends State<QuizPage> {
   void dispose() {
     _dataService.removeListener(_onDataChanged);
     AppThemeManager.themeModeNotifier.removeListener(_onDataChanged);
+    _studentNameCtrl.dispose();
+    _studentPhoneCtrl.dispose();
+    _studentWhatsappCtrl.dispose();
     super.dispose();
   }
 
@@ -60,6 +70,20 @@ class _QuizPageState extends State<QuizPage> {
       setState(() {
         _isFinished = true;
       });
+      final endTime = DateTime.now();
+      _dataService.addQuizSubmission({
+        'quizId': 'quiz_general',
+        'quizTitle': 'اختبار قياس المستوى البرمجي',
+        'studentName': _studentNameCtrl.text.trim().isNotEmpty ? _studentNameCtrl.text.trim() : 'طالب زائر',
+        'phone': _studentPhoneCtrl.text.trim(),
+        'whatsapp': _studentWhatsappCtrl.text.trim(),
+        'country': _studentCountry,
+        'score': _score,
+        'totalQuestions': totalQuestions,
+        'startTime': _startTime != null ? "${_startTime!.hour.toString().padLeft(2, '0')}:${_startTime!.minute.toString().padLeft(2, '0')}" : "10:00",
+        'endTime': "${endTime.hour.toString().padLeft(2, '0')}:${endTime.minute.toString().padLeft(2, '0')}",
+        'date': "${DateTime.now().year}-${DateTime.now().month.toString().padLeft(2, '0')}-${DateTime.now().day.toString().padLeft(2, '0')}",
+      });
     }
   }
 
@@ -70,6 +94,7 @@ class _QuizPageState extends State<QuizPage> {
       _answered = false;
       _score = 0;
       _isFinished = false;
+      _startTime = DateTime.now();
     });
   }
 
@@ -93,6 +118,8 @@ class _QuizPageState extends State<QuizPage> {
                     const SizedBox(height: 30),
                     if (questions.isEmpty)
                       _buildEmptyState(isMobile, isDark)
+                    else if (!_isStudentRegistered)
+                      _buildStudentRegistrationCard(isMobile, isDark)
                     else if (_isFinished)
                       _buildResultState(questions.length, isMobile, isDark)
                     else
@@ -105,6 +132,142 @@ class _QuizPageState extends State<QuizPage> {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildStudentRegistrationCard(bool isMobile, bool isDark) {
+    final countries = [
+      'مصر', 'السعودية', 'الإمارات', 'الكويت', 'قطر', 'الأردن',
+      'العراق', 'عمان', 'البحرين', 'تونس', 'الجزائر', 'المغرب',
+      'فلسطين', 'سوريا', 'لبنان', 'ليبيا', 'السودان', 'اليمن', 'أخرى'
+    ];
+
+    return Center(
+      child: Container(
+        constraints: const BoxConstraints(maxWidth: 600),
+        margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 30),
+        padding: const EdgeInsets.all(32),
+        decoration: BoxDecoration(
+          color: isDark ? AppColors.cardDark : Colors.white,
+          borderRadius: BorderRadius.circular(24),
+          border: Border.all(color: isDark ? AppColors.borderDark : AppColors.borderLight),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.05),
+              blurRadius: 20,
+              offset: const Offset(0, 6),
+            ),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Center(
+              child: Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF10B981).withValues(alpha: 0.15),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(Icons.person_pin_rounded, size: 40, color: Color(0xFF10B981)),
+              ),
+            ),
+            const SizedBox(height: 16),
+            Center(
+              child: Text(
+                "تسجيل بيانات الطالب قبل بدء الاختبار 📝",
+                style: GoogleFonts.cairo(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: isDark ? Colors.white : AppColors.textPrimaryLight,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ),
+            Center(
+              child: Text(
+                "يرجى تسجيل بياناتك لحفظ نتيجتك وشهادتك في لوحة المتصدرين",
+                style: GoogleFonts.cairo(fontSize: 12, color: Colors.grey),
+                textAlign: TextAlign.center,
+              ),
+            ),
+            const SizedBox(height: 24),
+            _buildField("الاسم بالكامل *", _studentNameCtrl, isDark),
+            _buildField("رقم الهاتف *", _studentPhoneCtrl, isDark),
+            _buildField("رقم واتساب *", _studentWhatsappCtrl, isDark),
+            const SizedBox(height: 8),
+            Text("الدولة *", style: GoogleFonts.cairo(fontSize: 12, fontWeight: FontWeight.bold, color: isDark ? Colors.white70 : Colors.black87)),
+            const SizedBox(height: 4),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 14),
+              decoration: BoxDecoration(
+                color: isDark ? const Color(0xFF070B14) : const Color(0xFFF8FAFC),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: isDark ? Colors.white12 : Colors.black12),
+              ),
+              child: DropdownButtonHideUnderline(
+                child: DropdownButton<String>(
+                  value: _studentCountry,
+                  isExpanded: true,
+                  dropdownColor: isDark ? const Color(0xFF1E293B) : Colors.white,
+                  items: countries.map((c) => DropdownMenuItem(value: c, child: Text(c, style: GoogleFonts.cairo()))).toList(),
+                  onChanged: (val) => setState(() => _studentCountry = val ?? 'مصر'),
+                ),
+              ),
+            ),
+            const SizedBox(height: 28),
+            SizedBox(
+              width: double.infinity,
+              height: 50,
+              child: ElevatedButton.icon(
+                onPressed: () {
+                  if (_studentNameCtrl.text.trim().isEmpty || _studentPhoneCtrl.text.trim().isEmpty) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text("يرجى إدخال الاسم ورقم الهاتف للمتابعة")),
+                    );
+                    return;
+                  }
+                  setState(() {
+                    _isStudentRegistered = true;
+                    _startTime = DateTime.now();
+                  });
+                },
+                icon: const Icon(Icons.play_arrow_rounded, size: 24),
+                label: Text("بدء الاختبار الآن 🚀", style: GoogleFonts.cairo(fontSize: 15, fontWeight: FontWeight.bold)),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF10B981),
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildField(String label, TextEditingController ctrl, bool isDark) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 14),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(label, style: GoogleFonts.cairo(fontSize: 12, fontWeight: FontWeight.bold, color: isDark ? Colors.white70 : Colors.black87)),
+          const SizedBox(height: 4),
+          TextField(
+            controller: ctrl,
+            style: GoogleFonts.cairo(fontSize: 13, color: isDark ? Colors.white : Colors.black),
+            decoration: InputDecoration(
+              filled: true,
+              fillColor: isDark ? const Color(0xFF070B14) : const Color(0xFFF8FAFC),
+              contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: isDark ? Colors.white12 : Colors.black12)),
+              enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: isDark ? Colors.white12 : Colors.black12)),
+            ),
+          ),
+        ],
       ),
     );
   }
