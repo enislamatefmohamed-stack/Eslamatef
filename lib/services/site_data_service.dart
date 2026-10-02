@@ -11,6 +11,7 @@ class SiteDataService extends ChangeNotifier {
   List<Map<String, dynamic>> _latestUpdates = [];
   Map<String, dynamic>? _weeklyChallenge;
   List<Map<String, dynamic>> _quizQuestions = [];
+  List<Map<String, dynamic>> _recordingLessons = [];
 
   bool _isInitialized = false;
 
@@ -19,6 +20,7 @@ class SiteDataService extends ChangeNotifier {
   List<Map<String, dynamic>> get latestUpdates => _latestUpdates;
   Map<String, dynamic>? get weeklyChallenge => _weeklyChallenge;
   List<Map<String, dynamic>> get quizQuestions => _quizQuestions;
+  List<Map<String, dynamic>> get recordingLessons => _recordingLessons;
   bool get isInitialized => _isInitialized;
 
   Future<void> init() async {
@@ -44,7 +46,6 @@ class SiteDataService extends ChangeNotifier {
       if (updatesStr != null) {
         _latestUpdates = List<Map<String, dynamic>>.from(jsonDecode(updatesStr));
       } else {
-        // Empty by default as requested (no dummy data)
         _latestUpdates = [];
       }
 
@@ -52,7 +53,6 @@ class SiteDataService extends ChangeNotifier {
       if (challengeStr != null) {
         _weeklyChallenge = Map<String, dynamic>.from(jsonDecode(challengeStr));
       } else {
-        // No dummy challenge by default
         _weeklyChallenge = null;
       }
 
@@ -60,8 +60,30 @@ class SiteDataService extends ChangeNotifier {
       if (quizStr != null) {
         _quizQuestions = List<Map<String, dynamic>>.from(jsonDecode(quizStr));
       } else {
-        // No dummy quiz questions by default
         _quizQuestions = [];
+      }
+
+      final recordingStr = prefs.getString('site_recording_lessons');
+      if (recordingStr != null) {
+        _recordingLessons = List<Map<String, dynamic>>.from(jsonDecode(recordingStr));
+      } else {
+        _recordingLessons = [
+          {
+            'id': 'rec_default_1',
+            'title': 'المحاضرة الأولى: البيانات والمعلومات والمعرفة',
+            'subject': 'الصف الأول الثانوي — مادة البرمجة والذكاء الاصطناعي',
+            'date': '2026',
+            'url': 'presentation/index.html',
+            'code': '''<!-- قالب الشريحة التقنية -->
+<section class="slide">
+  <div class="tech-card">
+    <div class="card-badge">01</div>
+    <h3 class="card-title">البيانات والمعلومات</h3>
+    <p class="card-desc">فهم الحقائق الخام وتحويلها إلى قيمة معرفية برمجية.</p>
+  </div>
+</section>''',
+          }
+        ];
       }
     } catch (e) {
       debugPrint("Error initializing SiteDataService: $e");
@@ -71,9 +93,12 @@ class SiteDataService extends ChangeNotifier {
     }
   }
 
-  // --- Courses CRUD ---
+  // --- Courses CRUD (Course Folder) ---
   Future<void> addCourse(Map<String, dynamic> course) async {
     course['id'] = DateTime.now().millisecondsSinceEpoch.toString();
+    if (course['lessons'] == null) {
+      course['lessons'] = <Map<String, dynamic>>[];
+    }
     _courses.add(course);
     await _saveCourses();
     notifyListeners();
@@ -82,6 +107,10 @@ class SiteDataService extends ChangeNotifier {
   Future<void> updateCourse(String id, Map<String, dynamic> updated) async {
     final idx = _courses.indexWhere((c) => c['id'] == id);
     if (idx != -1) {
+      // Preserve lessons if not explicitly replaced
+      if (updated['lessons'] == null && _courses[idx]['lessons'] != null) {
+        updated['lessons'] = _courses[idx]['lessons'];
+      }
       _courses[idx] = updated;
       await _saveCourses();
       notifyListeners();
@@ -94,12 +123,50 @@ class SiteDataService extends ChangeNotifier {
     notifyListeners();
   }
 
+  // Nested Lessons inside Course Folder
+  Future<void> addLessonToCourse(String courseId, Map<String, dynamic> lesson) async {
+    final idx = _courses.indexWhere((c) => c['id'] == courseId);
+    if (idx != -1) {
+      lesson['id'] = DateTime.now().millisecondsSinceEpoch.toString();
+      final lessonsList = List<Map<String, dynamic>>.from(_courses[idx]['lessons'] ?? []);
+      lessonsList.add(lesson);
+      _courses[idx]['lessons'] = lessonsList;
+      await _saveCourses();
+      notifyListeners();
+    }
+  }
+
+  Future<void> updateLessonInCourse(String courseId, String lessonId, Map<String, dynamic> updated) async {
+    final cIdx = _courses.indexWhere((c) => c['id'] == courseId);
+    if (cIdx != -1) {
+      final lessonsList = List<Map<String, dynamic>>.from(_courses[cIdx]['lessons'] ?? []);
+      final lIdx = lessonsList.indexWhere((l) => l['id'] == lessonId);
+      if (lIdx != -1) {
+        lessonsList[lIdx] = updated;
+        _courses[cIdx]['lessons'] = lessonsList;
+        await _saveCourses();
+        notifyListeners();
+      }
+    }
+  }
+
+  Future<void> deleteLessonFromCourse(String courseId, String lessonId) async {
+    final cIdx = _courses.indexWhere((c) => c['id'] == courseId);
+    if (cIdx != -1) {
+      final lessonsList = List<Map<String, dynamic>>.from(_courses[cIdx]['lessons'] ?? []);
+      lessonsList.removeWhere((l) => l['id'] == lessonId);
+      _courses[cIdx]['lessons'] = lessonsList;
+      await _saveCourses();
+      notifyListeners();
+    }
+  }
+
   Future<void> _saveCourses() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('site_courses', jsonEncode(_courses));
   }
 
-  // --- Lessons CRUD ---
+  // --- General Lessons CRUD ---
   Future<void> addLesson(Map<String, dynamic> lesson) async {
     lesson['id'] = DateTime.now().millisecondsSinceEpoch.toString();
     _lessons.add(lesson);
@@ -193,5 +260,33 @@ class SiteDataService extends ChangeNotifier {
   Future<void> _saveQuizQuestions() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('site_quiz_questions', jsonEncode(_quizQuestions));
+  }
+
+  // --- Recording Lessons CRUD (استوديو التصوير) ---
+  Future<void> addRecordingLesson(Map<String, dynamic> lesson) async {
+    lesson['id'] = DateTime.now().millisecondsSinceEpoch.toString();
+    _recordingLessons.add(lesson);
+    await _saveRecordingLessons();
+    notifyListeners();
+  }
+
+  Future<void> updateRecordingLesson(String id, Map<String, dynamic> updated) async {
+    final idx = _recordingLessons.indexWhere((r) => r['id'] == id);
+    if (idx != -1) {
+      _recordingLessons[idx] = updated;
+      await _saveRecordingLessons();
+      notifyListeners();
+    }
+  }
+
+  Future<void> deleteRecordingLesson(String id) async {
+    _recordingLessons.removeWhere((r) => r['id'] == id);
+    await _saveRecordingLessons();
+    notifyListeners();
+  }
+
+  Future<void> _saveRecordingLessons() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('site_recording_lessons', jsonEncode(_recordingLessons));
   }
 }

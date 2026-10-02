@@ -127,9 +127,23 @@ class _HomePageState extends State<HomePage> {
         'image': c['image'] ?? 'assets/images/slide1.png',
         'route': '/courses',
       });
+
+      // Lessons inside this course folder
+      final courseLessons = List<Map<String, dynamic>>.from(c['lessons'] ?? []);
+      for (final l in courseLessons) {
+        items.add({
+          'type': 'lesson',
+          'title': l['title'] ?? 'درس جديد',
+          'category': c['title'] ?? 'درس',
+          'badge': 'درس جديد',
+          'duration': 'فيديو يوتيوب',
+          'image': l['image'] ?? c['image'] ?? 'assets/images/slide2.png',
+          'route': '/courses',
+        });
+      }
     }
 
-    // 3. All lessons added in dashboard
+    // 3. All standalone lessons added in dashboard
     for (final l in SiteDataService.instance.lessons) {
       items.add({
         'type': 'lesson',
@@ -1799,7 +1813,6 @@ class _HomePageState extends State<HomePage> {
                         _footerLink("من نحن", () => Navigator.of(context).pushNamed('/about')),
                         _footerLink("سياسة الاستخدام والخصوصية", () => Navigator.of(context).pushNamed('/privacy')),
                         _footerLink("تواصل معنا", () => Navigator.of(context).pushNamed('/contact')),
-                        _footerLink("استوديو التصوير 🎬", () => Navigator.of(context).pushNamed('/recording')),
                         _footerLink("لوحة التحكم ⚙️", () => Navigator.of(context).pushNamed('/admin')),
                       ],
                     ),
@@ -1844,7 +1857,6 @@ class _HomePageState extends State<HomePage> {
                         _footerLink("من نحن", () => Navigator.of(context).pushNamed('/about')),
                         _footerLink("سياسة الاستخدام والخصوصية", () => Navigator.of(context).pushNamed('/privacy')),
                         _footerLink("تواصل معنا", () => Navigator.of(context).pushNamed('/contact')),
-                        _footerLink("استوديو التصوير 🎬", () => Navigator.of(context).pushNamed('/recording')),
                         _footerLink("لوحة التحكم ⚙️", () => Navigator.of(context).pushNamed('/admin')),
                       ],
                     ),

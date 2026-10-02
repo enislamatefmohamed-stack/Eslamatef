@@ -5,6 +5,7 @@ import '../data/arabic_data.dart';
 import '../widgets/social_icons.dart';
 import '../services/site_data_service.dart';
 import '../widgets/article_content_renderer.dart';
+import '../widgets/youtube_embedded_player.dart';
 
 class CoursesPage extends StatefulWidget {
   const CoursesPage({super.key});
@@ -15,8 +16,8 @@ class CoursesPage extends StatefulWidget {
 
 class _CoursesPageState extends State<CoursesPage> {
   final _dataService = SiteDataService.instance;
-  String _selectedCategory = "الكل";
-  String _searchQuery = "";
+  Map<String, dynamic>? _activeCourse; // null = Folders list, non-null = Course details & lessons
+  Map<String, dynamic>? _activeLesson; // Currently playing lesson/video
 
   @override
   void initState() {
@@ -47,7 +48,7 @@ class _CoursesPageState extends State<CoursesPage> {
         body: SafeArea(
           child: Column(
             children: [
-              // Top Nav Header
+              // Top Nav
               _buildPageHeader(context, isMobile, isDark),
 
               // Main Content Area
@@ -55,8 +56,12 @@ class _CoursesPageState extends State<CoursesPage> {
                 child: SingleChildScrollView(
                   child: Column(
                     children: [
-                      const SizedBox(height: 32),
-                      _buildCoursesBlogContent(context, isMobile, isDark, screenWidth),
+                      const SizedBox(height: 28),
+                      _activeLesson != null
+                          ? _buildLessonVideoPlayerView(context, isMobile, isDark)
+                          : _activeCourse != null
+                              ? _buildCourseInsideView(context, isMobile, isDark)
+                              : _buildCourseFoldersCatalog(context, isMobile, isDark),
                       const SizedBox(height: 60),
                       _buildPageFooter(context, isMobile, isDark),
                     ],
@@ -95,12 +100,7 @@ class _CoursesPageState extends State<CoursesPage> {
               Row(
                 children: [
                   ClipOval(
-                    child: Image.asset(
-                      'assets/images/logo.jpeg',
-                      width: 42,
-                      height: 42,
-                      fit: BoxFit.cover,
-                    ),
+                    child: Image.asset('assets/images/logo.jpeg', width: 42, height: 42, fit: BoxFit.cover),
                   ),
                   const SizedBox(width: 12),
                   Column(
@@ -116,7 +116,7 @@ class _CoursesPageState extends State<CoursesPage> {
                         ),
                       ),
                       Text(
-                        "مدونة الكورسات والمسارات",
+                        "الكورسات والمسارات البرمجية",
                         style: GoogleFonts.cairo(
                           fontSize: 11,
                           fontWeight: FontWeight.w700,
@@ -128,7 +128,7 @@ class _CoursesPageState extends State<CoursesPage> {
                 ],
               ),
 
-              // Theme Toggle & Back to Home Button
+              // Theme Toggle & Navigation
               Row(
                 children: [
                   IconButton(
@@ -136,17 +136,13 @@ class _CoursesPageState extends State<CoursesPage> {
                       isDark ? Icons.light_mode_rounded : Icons.dark_mode_rounded,
                       color: isDark ? const Color(0xFFFFB300) : const Color(0xFF1E293B),
                     ),
-                    tooltip: isDark ? "الوضع النهاري" : "الوضع الليلي",
                     onPressed: () => AppThemeManager.toggleTheme(),
                   ),
                   const SizedBox(width: 10),
                   ElevatedButton.icon(
                     onPressed: () => Navigator.of(context).pushReplacementNamed('/'),
                     icon: const Icon(Icons.arrow_forward_rounded, size: 18),
-                    label: Text(
-                      "الرئيسية",
-                      style: GoogleFonts.cairo(fontWeight: FontWeight.bold),
-                    ),
+                    label: Text("الرئيسية", style: GoogleFonts.cairo(fontWeight: FontWeight.bold)),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: isDark ? AppColors.cardDark : Colors.white,
                       foregroundColor: const Color(0xFF00E5FF),
@@ -164,26 +160,11 @@ class _CoursesPageState extends State<CoursesPage> {
     );
   }
 
-  Widget _buildCoursesBlogContent(BuildContext context, bool isMobile, bool isDark, double screenWidth) {
-    final allCourses = _dataService.courses;
-
-    // Filter categories dynamically
-    final categories = ["الكل"];
-    for (final c in allCourses) {
-      final cat = c['category'] ?? c['subject'] ?? 'عام';
-      if (!categories.contains(cat)) categories.add(cat);
-    }
-
-    // Filtered list
-    final filtered = allCourses.where((c) {
-      final cat = c['category'] ?? c['subject'] ?? 'عام';
-      final matchesCategory = _selectedCategory == "الكل" || cat == _selectedCategory;
-      final title = (c['title'] ?? '').toString().toLowerCase();
-      final summary = (c['summary'] ?? c['description'] ?? '').toString().toLowerCase();
-      final q = _searchQuery.toLowerCase().trim();
-      final matchesQuery = q.isEmpty || title.contains(q) || summary.contains(q);
-      return matchesCategory && matchesQuery;
-    }).toList();
+  // ==========================================
+  // VIEW 1: Course Folders Catalog
+  // ==========================================
+  Widget _buildCourseFoldersCatalog(BuildContext context, bool isMobile, bool isDark) {
+    final courses = _dataService.courses;
 
     return Container(
       constraints: const BoxConstraints(maxWidth: 1200),
@@ -191,26 +172,17 @@ class _CoursesPageState extends State<CoursesPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // Magazine Hero Header
+          // Banner
           Container(
             padding: EdgeInsets.all(isMobile ? 22 : 36),
             decoration: BoxDecoration(
               gradient: LinearGradient(
-                begin: Alignment.topRight,
-                end: Alignment.bottomLeft,
                 colors: isDark
                     ? [const Color(0xFF131D33), const Color(0xFF0F172A)]
                     : [Colors.white, const Color(0xFFF8FAFC)],
               ),
               borderRadius: BorderRadius.circular(24),
               border: Border.all(color: isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0)),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: isDark ? 0.35 : 0.05),
-                  blurRadius: 20,
-                  offset: const Offset(0, 6),
-                ),
-              ],
             ),
             child: Column(
               children: [
@@ -219,122 +191,90 @@ class _CoursesPageState extends State<CoursesPage> {
                   decoration: BoxDecoration(
                     color: const Color(0xFF00E5FF).withValues(alpha: 0.14),
                     borderRadius: BorderRadius.circular(30),
-                    border: Border.all(color: const Color(0xFF00E5FF).withValues(alpha: 0.35)),
                   ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const Icon(Icons.school_rounded, color: Color(0xFF00E5FF), size: 16),
-                      const SizedBox(width: 8),
-                      Text(
-                        "مدونة الكورسات والمسارات الشاملة",
-                        style: GoogleFonts.cairo(
-                          fontSize: 12.5,
-                          fontWeight: FontWeight.bold,
-                          color: const Color(0xFF00E5FF),
-                        ),
-                      ),
-                    ],
+                  child: Text(
+                    "مسارات برمجية كاملة مقسمة إلى دروس وفيديوهات",
+                    style: GoogleFonts.cairo(fontSize: 12.5, fontWeight: FontWeight.bold, color: const Color(0xFF00E5FF)),
                   ),
                 ),
                 const SizedBox(height: 14),
                 Text(
-                  "تعلّم البرمجة والذكاء الاصطناعي بمقالات هندسية متكاملة",
-                  style: GoogleFonts.cairo(
-                    fontSize: isMobile ? 22 : 32,
-                    fontWeight: FontWeight.w900,
-                    color: isDark ? AppColors.textPrimary : AppColors.textPrimaryLight,
-                    height: 1.3,
-                  ),
+                  "اختر المسار وافتح ملف الكورس لمشاهدة الدروس والاختبارات",
+                  style: GoogleFonts.cairo(fontSize: isMobile ? 22 : 32, fontWeight: FontWeight.w900),
                   textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 10),
-                Text(
-                  "مسارات دراسية ومقالات تأسيسية تغطي الخوارزميات، Clean Architecture، Flutter، ونماذج الذكاء الاصطناعي.",
-                  style: GoogleFonts.cairo(
-                    fontSize: isMobile ? 13 : 15,
-                    color: isDark ? AppColors.textSecondary : AppColors.textSecondaryLight,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 24),
-
-                // Search Bar
-                Container(
-                  constraints: const BoxConstraints(maxWidth: 600),
-                  child: TextField(
-                    onChanged: (val) => setState(() => _searchQuery = val),
-                    style: GoogleFonts.cairo(fontSize: 14),
-                    decoration: InputDecoration(
-                      hintText: "ابحث في مقالات وكورسات المنصة بالاسم أو المفهوم...",
-                      prefixIcon: const Icon(Icons.search_rounded, color: Color(0xFF00E5FF)),
-                      filled: true,
-                      fillColor: isDark ? const Color(0xFF070B14) : const Color(0xFFF1F5F9),
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(16),
-                        borderSide: BorderSide(color: isDark ? const Color(0xFF1E293B) : const Color(0xFFCBD5E1)),
-                      ),
-                    ),
-                  ),
                 ),
               ],
             ),
           ),
-          const SizedBox(height: 28),
-
-          // Category Chips Row
-          SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: Row(
-              children: categories.map((cat) {
-                final isSelected = _selectedCategory == cat;
-                return Padding(
-                  padding: const EdgeInsets.only(left: 10),
-                  child: FilterChip(
-                    label: Text(cat, style: GoogleFonts.cairo(fontWeight: FontWeight.bold, fontSize: 13)),
-                    selected: isSelected,
-                    selectedColor: const Color(0xFF00E5FF),
-                    backgroundColor: isDark ? const Color(0xFF0F172A) : Colors.white,
-                    labelStyle: TextStyle(
-                      color: isSelected ? Colors.black : (isDark ? Colors.white : Colors.black87),
-                    ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      side: BorderSide(
-                        color: isSelected ? const Color(0xFF00E5FF) : (isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0)),
-                      ),
-                    ),
-                    onSelected: (val) => setState(() => _selectedCategory = cat),
-                  ),
-                );
-              }).toList(),
-            ),
-          ),
           const SizedBox(height: 32),
 
-          // Courses Grid
-          if (filtered.isEmpty)
-            _buildEmptyState(isDark)
+          if (courses.isEmpty)
+            _buildEmptyState("لا توجد كورسات مضافة بعد", "يمكنك إنشاء ملفات الكورسات وإضافة الفيديوهات والشروحات من لوحة التحكم.", isDark)
           else
             LayoutBuilder(
-              builder: (context, constraints) {
-                int crossAxisCount = 3;
-                if (constraints.maxWidth < 650) {
-                  crossAxisCount = 1;
-                } else if (constraints.maxWidth < 980) {
-                  crossAxisCount = 2;
-                }
-
-                final itemWidth = (constraints.maxWidth - (crossAxisCount - 1) * 20) / crossAxisCount;
+              builder: (ctx, constraints) {
+                int cols = constraints.maxWidth < 650 ? 1 : (constraints.maxWidth < 980 ? 2 : 3);
+                final width = (constraints.maxWidth - (cols - 1) * 20) / cols;
 
                 return Wrap(
                   spacing: 20,
                   runSpacing: 22,
-                  children: filtered.map((course) {
+                  children: courses.map((course) {
+                    final lessons = (course['lessons'] as List?) ?? [];
+                    final image = course['image'] ?? 'assets/images/slide1.png';
+
                     return SizedBox(
-                      width: itemWidth,
-                      child: _buildBloggerCard(course, isDark),
+                      width: width,
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: isDark ? const Color(0xFF0F172A) : Colors.white,
+                          borderRadius: BorderRadius.circular(20),
+                          border: Border.all(color: isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0)),
+                        ),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(19),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              SizedBox(
+                                height: 180,
+                                child: image.startsWith('http')
+                                    ? Image.network(image, fit: BoxFit.cover, errorBuilder: (ctx, err, stack) => Container(color: Colors.grey))
+                                    : Image.asset(image, fit: BoxFit.cover, errorBuilder: (ctx, err, stack) => Container(color: Colors.grey)),
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.all(18),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(course['category'] ?? 'كورس', style: GoogleFonts.cairo(color: const Color(0xFF00E5FF), fontWeight: FontWeight.bold, fontSize: 12)),
+                                    const SizedBox(height: 6),
+                                    Text(course['title'] ?? '', style: GoogleFonts.cairo(fontSize: 17, fontWeight: FontWeight.w900), maxLines: 2),
+                                    const SizedBox(height: 6),
+                                    Text(course['description'] ?? 'مسار تدريبي شامل وتطبيقي.', style: GoogleFonts.cairo(fontSize: 13, color: Colors.grey), maxLines: 2),
+                                    const SizedBox(height: 16),
+                                    Row(
+                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Container(
+                                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                                          decoration: BoxDecoration(color: Colors.white10, borderRadius: BorderRadius.circular(6)),
+                                          child: Text("📂 ${lessons.length} درس وفيديو", style: GoogleFonts.cairo(fontSize: 12, fontWeight: FontWeight.bold)),
+                                        ),
+                                        ElevatedButton(
+                                          onPressed: () => setState(() => _activeCourse = course),
+                                          style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF00E5FF), foregroundColor: Colors.black),
+                                          child: Text("فتح الكورس ➔", style: GoogleFonts.cairo(fontSize: 12, fontWeight: FontWeight.bold)),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
                     );
                   }).toList(),
                 );
@@ -346,303 +286,271 @@ class _CoursesPageState extends State<CoursesPage> {
   }
 
   // ==========================================
-  // Blogger / Magazine Card
+  // VIEW 2: Inside Course Folder (Playlist of lessons/videos)
   // ==========================================
-  Widget _buildBloggerCard(Map<String, dynamic> course, bool isDark) {
-    final title = course['title'] ?? 'كورس جديد';
-    final category = course['category'] ?? course['subject'] ?? 'كورس';
-    final image = course['image'] ?? 'assets/images/slide1.png';
-    final isNetwork = image.startsWith('http');
-    final summary = course['summary'] ?? course['description'] ?? 'مسار تدريبي شامل يغطي أهم المبادئ البرمجية.';
-    final date = course['date'] ?? '2026';
-    final duration = course['readTime'] ?? course['duration'] ?? course['price'] ?? 'شامل';
-    final author = course['author'] ?? 'Eslam Atef';
+  Widget _buildCourseInsideView(BuildContext context, bool isMobile, bool isDark) {
+    final course = _activeCourse!;
+    final lessons = List<Map<String, dynamic>>.from(course['lessons'] ?? []);
 
     return Container(
-      decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF0F172A) : Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0)),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.05),
-            blurRadius: 14,
-            offset: const Offset(0, 4),
+      constraints: const BoxConstraints(maxWidth: 1200),
+      padding: EdgeInsets.symmetric(horizontal: isMobile ? 18 : 28),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Row(
+            children: [
+              OutlinedButton.icon(
+                onPressed: () => setState(() => _activeCourse = null),
+                icon: const Icon(Icons.arrow_forward_rounded, size: 16),
+                label: Text("العودة لكافة الكورسات", style: GoogleFonts.cairo(fontWeight: FontWeight.bold)),
+                style: OutlinedButton.styleFrom(foregroundColor: const Color(0xFF00E5FF)),
+              ),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Text(course['title'] ?? '', style: GoogleFonts.cairo(fontSize: 22, fontWeight: FontWeight.bold), overflow: TextOverflow.ellipsis),
+              ),
+            ],
           ),
-        ],
-      ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(19),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            // Cover Image
-            Stack(
-              children: [
-                SizedBox(
-                  height: 190,
-                  width: double.infinity,
-                  child: isNetwork
-                      ? Image.network(image, fit: BoxFit.cover, errorBuilder: (ctx, err, stack) => Container(color: Colors.grey.shade900))
-                      : Image.asset(image, fit: BoxFit.cover, errorBuilder: (ctx, err, stack) => Container(color: Colors.grey.shade900)),
+          const SizedBox(height: 24),
+
+          if (lessons.isEmpty)
+            _buildEmptyState("لا توجد دروس أو فيديوهات داخل هذا الكورس بعد", "يمكنك إضافة دروس جديدة لهذا الكورس عبر لوحة التحكم.", isDark)
+          else
+            ...lessons.asMap().entries.map((entry) {
+              final idx = entry.key;
+              final lesson = entry.value;
+              final image = lesson['image'] ?? 'assets/images/slide1.png';
+              final hasYoutube = (lesson['youtubeUrl'] ?? '').toString().isNotEmpty;
+              final hasQuiz = lesson['hasQuiz'] == true;
+
+              return Container(
+                margin: const EdgeInsets.only(bottom: 16),
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: isDark ? const Color(0xFF0F172A) : Colors.white,
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0)),
                 ),
-                Positioned(
-                  top: 12,
-                  right: 12,
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                    decoration: BoxDecoration(
-                      color: Colors.black.withValues(alpha: 0.75),
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: const Color(0xFF00E5FF).withValues(alpha: 0.4)),
-                    ),
-                    child: Text(
-                      category,
-                      style: GoogleFonts.cairo(
-                        fontSize: 11,
-                        fontWeight: FontWeight.bold,
-                        color: const Color(0xFF00E5FF),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 36,
+                      height: 36,
+                      decoration: const BoxDecoration(color: Color(0xFF00E5FF), shape: BoxShape.circle),
+                      child: Center(
+                        child: Text("${idx + 1}", style: GoogleFonts.inter(fontWeight: FontWeight.bold, color: Colors.black)),
                       ),
                     ),
-                  ),
-                ),
-                Positioned(
-                  bottom: 12,
-                  left: 12,
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                    decoration: BoxDecoration(
-                      color: Colors.black.withValues(alpha: 0.75),
-                      borderRadius: BorderRadius.circular(6),
+                    const SizedBox(width: 16),
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(10),
+                      child: SizedBox(
+                        width: 90,
+                        height: 65,
+                        child: image.startsWith('http')
+                            ? Image.network(image, fit: BoxFit.cover, errorBuilder: (ctx, err, stack) => Container(color: Colors.grey))
+                            : Image.asset(image, fit: BoxFit.cover, errorBuilder: (ctx, err, stack) => Container(color: Colors.grey)),
+                      ),
                     ),
-                    child: Text(
-                      duration,
-                      style: GoogleFonts.cairo(fontSize: 11, color: Colors.white, fontWeight: FontWeight.w600),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-
-            // Card Body
-            Padding(
-              padding: const EdgeInsets.all(18),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: GoogleFonts.cairo(
-                      fontSize: 16.5,
-                      fontWeight: FontWeight.w900,
-                      color: isDark ? AppColors.textPrimary : AppColors.textPrimaryLight,
-                      height: 1.35,
-                    ),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    summary,
-                    style: GoogleFonts.cairo(
-                      fontSize: 13,
-                      color: isDark ? AppColors.textSecondary : AppColors.textSecondaryLight,
-                      height: 1.5,
-                    ),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  const SizedBox(height: 16),
-                  const Divider(height: 1),
-                  const SizedBox(height: 12),
-
-                  // Author & Read Button
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Row(
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          CircleAvatar(
-                            radius: 13,
-                            backgroundImage: const AssetImage('assets/images/islam.png'),
-                            backgroundColor: const Color(0xFF00E5FF).withValues(alpha: 0.2),
-                          ),
-                          const SizedBox(width: 8),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
+                          Text(lesson['title'] ?? '', style: GoogleFonts.cairo(fontSize: 16, fontWeight: FontWeight.bold)),
+                          Row(
                             children: [
-                              Text(author, style: GoogleFonts.inter(fontSize: 11.5, fontWeight: FontWeight.bold)),
-                              Text(date, style: GoogleFonts.cairo(fontSize: 10, color: Colors.grey)),
+                              if (hasYoutube)
+                                Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                  decoration: BoxDecoration(color: Colors.red.withValues(alpha: 0.15), borderRadius: BorderRadius.circular(4)),
+                                  child: Text("▶ فيديو يوتيوب مدمج", style: GoogleFonts.cairo(fontSize: 11, color: Colors.red, fontWeight: FontWeight.bold)),
+                                ),
+                              if (hasQuiz) ...[
+                                const SizedBox(width: 8),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                  decoration: BoxDecoration(color: const Color(0xFF10B981).withValues(alpha: 0.15), borderRadius: BorderRadius.circular(4)),
+                                  child: Text("📝 اختبار متاح", style: GoogleFonts.cairo(fontSize: 11, color: const Color(0xFF10B981), fontWeight: FontWeight.bold)),
+                                ),
+                              ],
                             ],
                           ),
                         ],
                       ),
-                      ElevatedButton(
-                        onPressed: () => _openArticleReader(context, course, isDark),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF00E5FF),
-                          foregroundColor: Colors.black,
-                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                          elevation: 0,
-                        ),
-                        child: Text("عرض الكورس ➔", style: GoogleFonts.cairo(fontSize: 12, fontWeight: FontWeight.bold)),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
+                    ),
+                    ElevatedButton.icon(
+                      onPressed: () => setState(() => _activeLesson = lesson),
+                      icon: const Icon(Icons.play_arrow_rounded, size: 20),
+                      label: Text("مشاهدة الدرس ➔", style: GoogleFonts.cairo(fontWeight: FontWeight.bold, fontSize: 13)),
+                      style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF00E5FF), foregroundColor: Colors.black),
+                    ),
+                  ],
+                ),
+              );
+            }),
+        ],
       ),
     );
   }
 
   // ==========================================
-  // Full Article Reader View
+  // VIEW 3: Dedicated Lesson & YouTube Video Player View
+  // "كل فديو هيبقي فيه صوره و الفديو لينك من اليوتيوب بس يشتغل علي الموقع وفيه كلام شرح الدرس وفيه اختبار هيبقي زر"
   // ==========================================
-  void _openArticleReader(BuildContext context, Map<String, dynamic> course, bool isDark) {
-    final title = course['title'] ?? 'كورس جديد';
-    final category = course['category'] ?? course['subject'] ?? 'كورس';
-    final image = course['image'] ?? 'assets/images/slide1.png';
-    final isNetwork = image.startsWith('http');
-    final date = course['date'] ?? '2026';
-    final author = course['author'] ?? 'Eslam Atef';
-    final content = course['content'] ?? course['summary'] ?? course['description'] ?? '';
+  Widget _buildLessonVideoPlayerView(BuildContext context, bool isMobile, bool isDark) {
+    final lesson = _activeLesson!;
+    final title = lesson['title'] ?? 'درس جديد';
+    final youtubeUrl = lesson['youtubeUrl'] ?? '';
+    final content = lesson['content'] ?? '';
+    final hasQuiz = lesson['hasQuiz'] == true;
+    final quizTitle = lesson['quizTitle'] ?? 'اختبار فهم الدرس';
+
+    return Container(
+      constraints: const BoxConstraints(maxWidth: 1100),
+      padding: EdgeInsets.symmetric(horizontal: isMobile ? 18 : 28),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          // Back button
+          Align(
+            alignment: Alignment.centerRight,
+            child: OutlinedButton.icon(
+              onPressed: () => setState(() => _activeLesson = null),
+              icon: const Icon(Icons.arrow_forward_rounded, size: 16),
+              label: Text("العودة لقائمة دروس الكورس", style: GoogleFonts.cairo(fontWeight: FontWeight.bold)),
+              style: OutlinedButton.styleFrom(foregroundColor: const Color(0xFF00E5FF)),
+            ),
+          ),
+          const SizedBox(height: 16),
+
+          // Lesson Title
+          Text(title, style: GoogleFonts.cairo(fontSize: 24, fontWeight: FontWeight.w900)),
+          const SizedBox(height: 18),
+
+          // YouTube Player (plays directly on the site)
+          if (youtubeUrl.isNotEmpty) ...[
+            YouTubeEmbeddedPlayer(youtubeUrl: youtubeUrl, height: isMobile ? 240 : 480),
+            const SizedBox(height: 24),
+          ],
+
+          // Lesson Explanation & HTML Content
+          Container(
+            padding: const EdgeInsets.all(24),
+            decoration: BoxDecoration(
+              color: isDark ? const Color(0xFF0F172A) : Colors.white,
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(color: isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0)),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Text("شرح وتفاصيل الدرس:", style: GoogleFonts.cairo(fontSize: 18, fontWeight: FontWeight.bold, color: const Color(0xFF00E5FF))),
+                const Divider(),
+                const SizedBox(height: 8),
+                ArticleContentRenderer(content: content, isDark: isDark),
+
+                // Lesson Quiz Button if active
+                if (hasQuiz) ...[
+                  const SizedBox(height: 32),
+                  const Divider(),
+                  const SizedBox(height: 16),
+                  Center(
+                    child: ElevatedButton.icon(
+                      onPressed: () => _openLessonQuizDialog(context, lesson, isDark),
+                      icon: const Icon(Icons.quiz_rounded, size: 22),
+                      label: Text("$quizTitle 📝", style: GoogleFonts.cairo(fontSize: 16, fontWeight: FontWeight.bold)),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF10B981),
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 14),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      ),
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _openLessonQuizDialog(BuildContext context, Map<String, dynamic> lesson, bool isDark) {
+    int? selectedOption;
+    bool answered = false;
 
     showDialog(
       context: context,
       builder: (ctx) {
-        return Dialog(
-          backgroundColor: isDark ? const Color(0xFF0A0E1A) : Colors.white,
-          insetPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-          child: Container(
-            width: 900,
-            constraints: const BoxConstraints(maxHeight: 850),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                // Reader Top Bar
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
-                  decoration: BoxDecoration(
-                    color: isDark ? const Color(0xFF0F172A) : const Color(0xFFF8FAFC),
-                    borderRadius: const BorderRadius.only(
-                      topLeft: Radius.circular(24),
-                      topRight: Radius.circular(24),
+        return StatefulBuilder(
+          builder: (context, setDlgState) {
+            return AlertDialog(
+              backgroundColor: isDark ? const Color(0xFF0F172A) : Colors.white,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              title: Text(lesson['quizTitle'] ?? 'اختبار الدرس', style: GoogleFonts.cairo(fontWeight: FontWeight.bold)),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Text(lesson['quizQuestion'] ?? 'سؤال الاختبار', style: GoogleFonts.cairo(fontSize: 15, fontWeight: FontWeight.bold)),
+                  const SizedBox(height: 14),
+                  _quizOptionTile(1, lesson['quizOpt1'] ?? 'إجابة 1', selectedOption, answered, false, () {
+                    if (!answered) setDlgState(() { selectedOption = 1; answered = true; });
+                  }),
+                  _quizOptionTile(2, lesson['quizOpt2'] ?? 'إجابة 2 (صحيحة)', selectedOption, answered, true, () {
+                    if (!answered) setDlgState(() { selectedOption = 2; answered = true; });
+                  }),
+                  if (answered) ...[
+                    const SizedBox(height: 14),
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(color: const Color(0xFF10B981).withValues(alpha: 0.15), borderRadius: BorderRadius.circular(8)),
+                      child: Text("💡 ${lesson['quizExplanation'] ?? 'إجابة ممتازة!'}", style: GoogleFonts.cairo(fontSize: 12, fontWeight: FontWeight.bold)),
                     ),
-                    border: Border(bottom: BorderSide(color: isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0))),
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Row(
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                            decoration: BoxDecoration(
-                              color: const Color(0xFF00E5FF).withValues(alpha: 0.14),
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: Text(category, style: GoogleFonts.cairo(fontSize: 12, fontWeight: FontWeight.bold, color: const Color(0xFF00E5FF))),
-                          ),
-                          const SizedBox(width: 10),
-                          Text(
-                            "بقلم: $author • $date",
-                            style: GoogleFonts.cairo(fontSize: 12, color: Colors.grey),
-                          ),
-                        ],
-                      ),
-                      IconButton(
-                        icon: const Icon(Icons.close_rounded),
-                        onPressed: () => Navigator.pop(ctx),
-                      ),
-                    ],
-                  ),
-                ),
-
-                // Scrollable Article Body
-                Expanded(
-                  child: SingleChildScrollView(
-                    padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 24),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        // Cover Image
-                        ClipRRect(
-                          borderRadius: BorderRadius.circular(18),
-                          child: SizedBox(
-                            height: 320,
-                            child: isNetwork
-                                ? Image.network(image, fit: BoxFit.cover, errorBuilder: (ctx, err, stack) => Container(color: Colors.grey.shade900))
-                                : Image.asset(image, fit: BoxFit.cover, errorBuilder: (ctx, err, stack) => Container(color: Colors.grey.shade900)),
-                          ),
-                        ),
-                        const SizedBox(height: 24),
-
-                        // Title
-                        Text(
-                          title,
-                          style: GoogleFonts.cairo(
-                            fontSize: 26,
-                            fontWeight: FontWeight.w900,
-                            color: isDark ? AppColors.textPrimary : AppColors.textPrimaryLight,
-                            height: 1.3,
-                          ),
-                        ),
-                        const SizedBox(height: 20),
-                        const Divider(),
-                        const SizedBox(height: 10),
-
-                        // Rendered HTML & Rich Content
-                        ArticleContentRenderer(content: content, isDark: isDark),
-
-                        const SizedBox(height: 40),
-                        const Divider(),
-                        const SizedBox(height: 16),
-
-                        // WhatsApp Registration Action
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              "هل تود الانضمام ومتابعة هذا المسار؟",
-                              style: GoogleFonts.cairo(fontSize: 14, fontWeight: FontWeight.bold),
-                            ),
-                            ElevatedButton.icon(
-                              onPressed: () {
-                                launchWebUrl(
-                                  "${ArabicData.whatsappUrl}?text=${Uri.encodeComponent('مرحباً أستاذ إسلام عاطف، أود الانضمام لكورس ($title)')}",
-                                );
-                              },
-                              icon: const Icon(Icons.send_rounded, size: 16),
-                              label: Text("تواصل عبر واتساب 💬", style: GoogleFonts.cairo(fontWeight: FontWeight.bold)),
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: const Color(0xFF25D366),
-                                foregroundColor: Colors.white,
-                                padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
+                  ],
+                ],
+              ),
+              actions: [
+                TextButton(onPressed: () => Navigator.pop(ctx), child: const Text("إغلاق")),
               ],
-            ),
-          ),
+            );
+          },
         );
       },
     );
   }
 
-  Widget _buildEmptyState(bool isDark) {
+  Widget _quizOptionTile(int index, String text, int? selected, bool answered, bool isCorrect, VoidCallback onTap) {
+    Color border = Colors.grey.shade700;
+    Color bg = Colors.transparent;
+
+    if (answered) {
+      if (isCorrect) {
+        border = const Color(0xFF10B981);
+        bg = const Color(0xFF10B981).withValues(alpha: 0.15);
+      } else if (selected == index) {
+        border = Colors.redAccent;
+        bg = Colors.redAccent.withValues(alpha: 0.15);
+      }
+    }
+
+    return InkWell(
+      onTap: onTap,
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 8),
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(color: bg, border: Border.all(color: border), borderRadius: BorderRadius.circular(8)),
+        child: Text(text, style: GoogleFonts.cairo(fontSize: 13, fontWeight: FontWeight.w600)),
+      ),
+    );
+  }
+
+  Widget _buildEmptyState(String title, String subtitle, bool isDark) {
     return Container(
-      padding: const EdgeInsets.all(40),
+      padding: const EdgeInsets.all(36),
       decoration: BoxDecoration(
         color: isDark ? const Color(0xFF0F172A) : Colors.white,
         borderRadius: BorderRadius.circular(20),
@@ -651,24 +559,11 @@ class _CoursesPageState extends State<CoursesPage> {
       child: Center(
         child: Column(
           children: [
-            const Icon(Icons.auto_stories_outlined, size: 52, color: Color(0xFF64748B)),
+            const Icon(Icons.video_library_outlined, size: 52, color: Color(0xFF64748B)),
             const SizedBox(height: 14),
-            Text(
-              "لم يتم نشر مقالات أو كورسات في هذا التصنيف بعد",
-              style: GoogleFonts.cairo(fontSize: 16, fontWeight: FontWeight.bold),
-            ),
+            Text(title, style: GoogleFonts.cairo(fontSize: 16, fontWeight: FontWeight.bold)),
             const SizedBox(height: 6),
-            Text(
-              "يمكنك إضافة كورسات ومسارات برمجية جديدة بكل سهولة من لوحة التحكم.",
-              style: GoogleFonts.cairo(fontSize: 13, color: const Color(0xFF64748B)),
-            ),
-            const SizedBox(height: 20),
-            ElevatedButton.icon(
-              onPressed: () => Navigator.of(context).pushNamed('/admin'),
-              icon: const Icon(Icons.admin_panel_settings_rounded, size: 16),
-              label: Text("فتح لوحة التحكم", style: GoogleFonts.cairo(fontWeight: FontWeight.bold)),
-              style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF00E5FF), foregroundColor: Colors.black),
-            ),
+            Text(subtitle, style: GoogleFonts.cairo(fontSize: 13, color: const Color(0xFF64748B)), textAlign: TextAlign.center),
           ],
         ),
       ),
