@@ -151,41 +151,13 @@ class SiteDataService extends ChangeNotifier {
         ];
       }
 
-      // 1. Interactive Quizzes
+      // 1. Interactive Quizzes (يبدأ فارغاً تماماً ولا يظهر في الموقع إلا عند قيام الأدمن بإنشاء ونشر اختبار)
       final iQuizStr = prefs.getString('site_interactive_quizzes');
       if (iQuizStr != null) {
-        _interactiveQuizzes = List<Map<String, dynamic>>.from(jsonDecode(iQuizStr));
+        final list = List<Map<String, dynamic>>.from(jsonDecode(iQuizStr));
+        _interactiveQuizzes = list.where((q) => q['id'] != 'quiz_ai_bac' && q['id'] != 'quiz_kids').toList();
       } else {
-        _interactiveQuizzes = [
-          {
-            'id': 'quiz_ai_bac',
-            'title': 'اختبار البكالوريا والبرمجة والذكاء الاصطناعي',
-            'description': 'اختبار قياس فهم مفاهيم البرمجة الكينونية OOP وخوارزميات الذكاء الاصطناعي وتعلم الآلة.',
-            'category': 'ثانوي وعام',
-            'questionsCount': 10,
-            'status': 'منشور',
-            'date': '2026-10-01',
-            'editorType': 'html',
-            'htmlCode': '''<div class="quiz-container">
-  <h3>اختبار مفاهيم البرمجة والذكاء الاصطناعي</h3>
-  <p>أجب عن الأسئلة بدقة لتحديد مستواك البرمجي.</p>
-</div>''',
-          },
-          {
-            'id': 'quiz_kids',
-            'title': 'اختبار البرمجة والذكاء الاصطناعي للأطفال',
-            'description': 'اختبار ممتع وتفاعلي لتقييم أساسيات التفكير المنطقي والبرمجة الصورية للأطفال والناشئين.',
-            'category': 'الأطفال والناشئين',
-            'questionsCount': 8,
-            'status': 'منشور',
-            'date': '2026-10-01',
-            'editorType': 'html',
-            'htmlCode': '''<div class="quiz-container">
-  <h3>رحلة الأبطال الصغار في عالم الكود</h3>
-  <p>اختبار ممتع لاكتشاف المبرمج الصغير بداخلك!</p>
-</div>''',
-          },
-        ];
+        _interactiveQuizzes = [];
       }
 
       // 2. Quiz Submissions (Student Results)

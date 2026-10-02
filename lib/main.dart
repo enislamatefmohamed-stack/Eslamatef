@@ -271,16 +271,12 @@ class _HomePageState extends State<HomePage> {
                     _buildLatestNewsSection(isMobile, screenWidth),
                     SizedBox(height: isMobile ? 44 : 70),
 
-                    // 3. تحدي الاسبوع (Weekly Challenge)
+                    // 3. تحدي الاسبوع واختبر نفسك (Weekly Challenge & Interactive Quiz)
                     _buildWeeklyChallengeSection(isMobile, screenWidth),
                     SizedBox(height: isMobile ? 44 : 70),
 
                     // 4. رحله التعلم (Learning Journey - Redesigned)
                     _buildLearningJourneySection(isMobile, screenWidth),
-                    SizedBox(height: isMobile ? 44 : 70),
-
-                    // 5. اختبر نفسك (Test Yourself / Interactive Quiz)
-                    _buildTestYourselfSection(isMobile, screenWidth),
                     SizedBox(height: isMobile ? 44 : 70),
 
                     // 6. اتعلم معانا (Learn with Us - Redesigned Display Only)
@@ -1176,220 +1172,196 @@ class _HomePageState extends State<HomePage> {
   }
 
   // -------------------------------------------------------------
-  // 2. تحدي الأسبوع (Weekly Coding Challenge Summary Card)
+  // 2. تحدي الأسبوع واختبر نفسك (Weekly Challenge & Interactive Quiz)
   // -------------------------------------------------------------
   Widget _buildWeeklyChallengeSection(bool isMobile, double screenWidth) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final challenge = SiteDataService.instance.weeklyChallenge;
+    final dataService = SiteDataService.instance;
+    final challenge = dataService.getActiveChallenge() ?? dataService.weeklyChallenge;
+    final hasChallenge = challenge != null && challenge['status'] != 'مسودة';
 
-    // If no challenge active: hide section completely
-    if (challenge == null || challenge['active'] == false) {
+    // يظهر كرت اختبر نفسك فقط إذا قام الأدمن بإنشاء ونشر اختبار تفاعلي
+    final activeQuizzes = dataService.interactiveQuizzes.where((q) => q['status'] == 'منشور').toList();
+    final hasActiveQuiz = activeQuizzes.isNotEmpty;
+
+    if (!hasChallenge && !hasActiveQuiz) {
       return const SizedBox.shrink();
     }
 
-    final title = challenge['title'] ?? 'تحدي الأسبوع البرمجي';
-    final difficulty = challenge['difficulty'] ?? 'متوسط';
-    final participants = challenge['participants']?.toString() ?? '142';
-    final description = challenge['description'] ??
-        'اختبر مهاراتك البرمجية في حل مشكلات واقعية بكود نظيف وخوارزميات فعالة.';
+    final isStacked = isMobile || screenWidth < 850;
 
+    // حالة 1: كلاهما موجود (يظهران جنباً إلى جنب بمقاس متناسق وجميل)
+    if (hasChallenge && hasActiveQuiz) {
+      return Center(
+        child: Container(
+          constraints: const BoxConstraints(maxWidth: 1050),
+          padding: EdgeInsets.symmetric(horizontal: isMobile ? 16 : 24),
+          child: isStacked
+              ? Column(
+                  children: [
+                    _buildFeatureBannerCard(
+                      imageAsset: 'assets/images/Weekly.png',
+                      buttonText: 'خوض تحدي الأسبوع 🚀',
+                      accentColor: const Color(0xFF0284C7),
+                      onTap: () => Navigator.of(context).pushNamed('/challenge'),
+                      isDark: isDark,
+                      isMobile: isMobile,
+                    ),
+                    const SizedBox(height: 24),
+                    _buildFeatureBannerCard(
+                      imageAsset: 'assets/images/qu.png',
+                      buttonText: 'ابدأ الاختبار التفاعلي 🧠',
+                      accentColor: const Color(0xFF8B5CF6),
+                      onTap: () => _handleQuizCardTap(context),
+                      isDark: isDark,
+                      isMobile: isMobile,
+                    ),
+                  ],
+                )
+              : Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      child: _buildFeatureBannerCard(
+                        imageAsset: 'assets/images/Weekly.png',
+                        buttonText: 'خوض تحدي الأسبوع 🚀',
+                        accentColor: const Color(0xFF0284C7),
+                        onTap: () => Navigator.of(context).pushNamed('/challenge'),
+                        isDark: isDark,
+                        isMobile: isMobile,
+                      ),
+                    ),
+                    const SizedBox(width: 28),
+                    Expanded(
+                      child: _buildFeatureBannerCard(
+                        imageAsset: 'assets/images/qu.png',
+                        buttonText: 'ابدأ الاختبار التفاعلي 🧠',
+                        accentColor: const Color(0xFF8B5CF6),
+                        onTap: () => _handleQuizCardTap(context),
+                        isDark: isDark,
+                        isMobile: isMobile,
+                      ),
+                    ),
+                  ],
+                ),
+        ),
+      );
+    }
+
+    // حالة 2: تحدي الأسبوع فقط (لأن لا يوجد اختبار تفاعلي منشور بعد)
+    if (hasChallenge) {
+      return Center(
+        child: Container(
+          constraints: const BoxConstraints(maxWidth: 520),
+          padding: EdgeInsets.symmetric(horizontal: isMobile ? 16 : 24),
+          child: _buildFeatureBannerCard(
+            imageAsset: 'assets/images/Weekly.png',
+            buttonText: 'خوض تحدي الأسبوع 🚀',
+            accentColor: const Color(0xFF0284C7),
+            onTap: () => Navigator.of(context).pushNamed('/challenge'),
+            isDark: isDark,
+            isMobile: isMobile,
+          ),
+        ),
+      );
+    }
+
+    // حالة 3: اختبار تفاعلي فقط
     return Center(
       child: Container(
-        constraints: const BoxConstraints(maxWidth: 1200),
+        constraints: const BoxConstraints(maxWidth: 520),
         padding: EdgeInsets.symmetric(horizontal: isMobile ? 16 : 24),
-        child: MouseRegion(
-          cursor: SystemMouseCursors.click,
-          child: GestureDetector(
-            onTap: () => Navigator.of(context).pushNamed('/challenge'),
-            child: Container(
-              padding: EdgeInsets.all(isMobile ? 22 : 32),
-              decoration: BoxDecoration(
-                color: isDark ? const Color(0xFF0F172A) : Colors.white,
-                borderRadius: BorderRadius.circular(24),
-                border: Border.all(
-                  color: isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0),
-                  width: 1.2,
-                ),
-                boxShadow: [
-                  BoxShadow(
-                    color: const Color(0xFFFFB300).withValues(alpha: isDark ? 0.08 : 0.05),
-                    blurRadius: 28,
-                    offset: const Offset(0, 8),
-                  ),
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: isDark ? 0.35 : 0.04),
-                    blurRadius: 16,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
+        child: _buildFeatureBannerCard(
+          imageAsset: 'assets/images/qu.png',
+          buttonText: 'ابدأ الاختبار التفاعلي 🧠',
+          accentColor: const Color(0xFF8B5CF6),
+          onTap: () => _handleQuizCardTap(context),
+          isDark: isDark,
+          isMobile: isMobile,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildFeatureBannerCard({
+    required String imageAsset,
+    required String buttonText,
+    required Color accentColor,
+    required VoidCallback onTap,
+    required bool isDark,
+    required bool isMobile,
+  }) {
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      child: GestureDetector(
+        onTap: onTap,
+        child: Container(
+          decoration: BoxDecoration(
+            color: isDark ? const Color(0xFF0F172A) : Colors.white,
+            borderRadius: BorderRadius.circular(24),
+            border: Border.all(
+              color: isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0),
+              width: 1.5,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: accentColor.withValues(alpha: isDark ? 0.15 : 0.08),
+                blurRadius: 24,
+                offset: const Offset(0, 8),
               ),
-              child: Stack(
-                children: [
-                  Positioned(
-                    top: -40,
-                    left: -40,
-                    child: Container(
-                      width: 160,
-                      height: 160,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: const Color(0xFFFFB300).withValues(alpha: isDark ? 0.08 : 0.04),
+              BoxShadow(
+                color: Colors.black.withValues(alpha: isDark ? 0.35 : 0.04),
+                blurRadius: 14,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              ClipRRect(
+                borderRadius: const BorderRadius.vertical(top: Radius.circular(22)),
+                child: AspectRatio(
+                  aspectRatio: 1.0,
+                  child: Image.asset(
+                    imageAsset,
+                    fit: BoxFit.cover,
+                    errorBuilder: (ctx, err, stack) => Container(
+                      color: isDark ? const Color(0xFF1E293B) : const Color(0xFFF1F5F9),
+                      child: Center(
+                        child: Icon(Icons.image_outlined, size: 48, color: accentColor),
                       ),
                     ),
                   ),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                child: ElevatedButton(
+                  onPressed: onTap,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: accentColor,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                    elevation: 0,
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Wrap(
-                        spacing: 10,
-                        runSpacing: 8,
-                        crossAxisAlignment: WrapCrossAlignment.center,
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                            decoration: BoxDecoration(
-                              color: const Color(0xFFFFB300).withValues(alpha: 0.14),
-                              borderRadius: BorderRadius.circular(20),
-                              border: Border.all(
-                                color: const Color(0xFFFFB300).withValues(alpha: 0.4),
-                              ),
-                            ),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                const Icon(Icons.bolt_rounded, color: Color(0xFFFFB300), size: 16),
-                                const SizedBox(width: 6),
-                                Text(
-                                  "🔥 تحدي الأسبوع البرمجي",
-                                  style: GoogleFonts.cairo(
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.bold,
-                                    color: const Color(0xFFFFB300),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                            decoration: BoxDecoration(
-                              color: isDark ? Colors.white.withValues(alpha: 0.06) : const Color(0xFFF1F5F9),
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: Text(
-                              "المستوى: $difficulty",
-                              style: GoogleFonts.cairo(
-                                fontSize: 12,
-                                fontWeight: FontWeight.w600,
-                                color: isDark ? AppColors.textSecondary : AppColors.textSecondaryLight,
-                              ),
-                            ),
-                          ),
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                            decoration: BoxDecoration(
-                              color: const Color(0xFF10B981).withValues(alpha: 0.12),
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                const Icon(Icons.people_alt_outlined, color: Color(0xFF10B981), size: 14),
-                                const SizedBox(width: 6),
-                                Text(
-                                  "$participants مشارك نشط",
-                                  style: GoogleFonts.cairo(
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.bold,
-                                    color: const Color(0xFF10B981),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 18),
                       Text(
-                        title,
+                        buttonText,
                         style: GoogleFonts.cairo(
-                          fontSize: isMobile ? 20 : 26,
-                          fontWeight: FontWeight.w900,
-                          color: isDark ? AppColors.textPrimary : AppColors.textPrimaryLight,
-                          height: 1.3,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w800,
                         ),
                       ),
-                      const SizedBox(height: 8),
-                      Text(
-                        description,
-                        style: GoogleFonts.cairo(
-                          fontSize: isMobile ? 13 : 15,
-                          color: isDark ? AppColors.textSecondary : AppColors.textSecondaryLight,
-                          height: 1.6,
-                        ),
-                        maxLines: 3,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      const SizedBox(height: 22),
-                      isMobile
-                          ? Column(
-                              crossAxisAlignment: CrossAxisAlignment.stretch,
-                              children: [
-                                ElevatedButton.icon(
-                                  onPressed: () => Navigator.of(context).pushNamed('/challenge'),
-                                  icon: const Icon(Icons.code_rounded, size: 18),
-                                  label: Text(
-                                    "خوض التحدي وتسليم الحل 🚀",
-                                    style: GoogleFonts.cairo(fontSize: 14, fontWeight: FontWeight.bold),
-                                  ),
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: const Color(0xFFFFB300),
-                                    foregroundColor: Colors.black,
-                                    padding: const EdgeInsets.symmetric(vertical: 14),
-                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                                  ),
-                                ),
-                              ],
-                            )
-                          : Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Row(
-                                  children: [
-                                    const Icon(Icons.emoji_events_outlined, color: Color(0xFFFFB300), size: 18),
-                                    const SizedBox(width: 8),
-                                    Text(
-                                      "تسليم الكود ومراجعته ونيل تقييم مباشر على الحل",
-                                      style: GoogleFonts.cairo(
-                                        fontSize: 13,
-                                        fontWeight: FontWeight.w600,
-                                        color: isDark ? AppColors.textSecondary : AppColors.textSecondaryLight,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                ElevatedButton.icon(
-                                  onPressed: () => Navigator.of(context).pushNamed('/challenge'),
-                                  icon: const Icon(Icons.arrow_forward_rounded, size: 18),
-                                  label: Text(
-                                    "خوض التحدي الآن 🚀",
-                                    style: GoogleFonts.cairo(fontSize: 14, fontWeight: FontWeight.bold),
-                                  ),
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: const Color(0xFFFFB300),
-                                    foregroundColor: Colors.black,
-                                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
-                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                                    elevation: 0,
-                                  ),
-                                ),
-                              ],
-                            ),
                     ],
                   ),
-                ],
+                ),
               ),
-            ),
+            ],
           ),
         ),
       ),
@@ -1711,215 +1683,7 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _buildTestYourselfSection(bool isMobile, double screenWidth) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final questions = SiteDataService.instance.quizQuestions;
-    final interactiveQuizzes = SiteDataService.instance.interactiveQuizzes;
 
-    // Show if there are questions OR interactive HTML quizzes created
-    if (questions.isEmpty && interactiveQuizzes.isEmpty) {
-      return const SizedBox.shrink();
-    }
-
-    final totalCount = questions.length + (interactiveQuizzes.fold(0, (sum, q) => sum + ((q['questionsCount'] as int?) ?? 10)));
-
-    return Center(
-      child: Container(
-        constraints: const BoxConstraints(maxWidth: 1200),
-        padding: EdgeInsets.symmetric(horizontal: isMobile ? 16 : 24),
-        child: MouseRegion(
-          cursor: SystemMouseCursors.click,
-          child: GestureDetector(
-            onTap: () => _handleQuizCardTap(context),
-            child: Container(
-              padding: EdgeInsets.all(isMobile ? 22 : 32),
-              decoration: BoxDecoration(
-                color: isDark ? const Color(0xFF0F172A) : Colors.white,
-                borderRadius: BorderRadius.circular(24),
-                border: Border.all(
-                  color: isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0),
-                  width: 1.2,
-                ),
-                boxShadow: [
-                  BoxShadow(
-                    color: const Color(0xFFA855F7).withValues(alpha: isDark ? 0.08 : 0.05),
-                    blurRadius: 28,
-                    offset: const Offset(0, 8),
-                  ),
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: isDark ? 0.35 : 0.04),
-                    blurRadius: 16,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
-              ),
-              child: Stack(
-                children: [
-                  Positioned(
-                    top: -40,
-                    right: -40,
-                    child: Container(
-                      width: 160,
-                      height: 160,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: const Color(0xFFA855F7).withValues(alpha: isDark ? 0.08 : 0.04),
-                      ),
-                    ),
-                  ),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Wrap(
-                        spacing: 10,
-                        runSpacing: 8,
-                        crossAxisAlignment: WrapCrossAlignment.center,
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                            decoration: BoxDecoration(
-                              color: const Color(0xFFA855F7).withValues(alpha: 0.14),
-                              borderRadius: BorderRadius.circular(20),
-                              border: Border.all(
-                                color: const Color(0xFFA855F7).withValues(alpha: 0.4),
-                              ),
-                            ),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                const Icon(Icons.psychology_rounded, color: Color(0xFFA855F7), size: 16),
-                                const SizedBox(width: 6),
-                                Text(
-                                  "🧠 اختبر نفسك الآن",
-                                  style: GoogleFonts.cairo(
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.bold,
-                                    color: const Color(0xFFA855F7),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                            decoration: BoxDecoration(
-                              color: const Color(0xFF00E5FF).withValues(alpha: 0.12),
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: Text(
-                              "🎯 $totalCount أسئلة تفاعلية ومحاكاة",
-                              style: GoogleFonts.cairo(
-                                fontSize: 12,
-                                fontWeight: FontWeight.bold,
-                                color: const Color(0xFF00E5FF),
-                              ),
-                            ),
-                          ),
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                            decoration: BoxDecoration(
-                              color: isDark ? Colors.white.withValues(alpha: 0.06) : const Color(0xFFF1F5F9),
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: Text(
-                              "⚡ تصحيح وشرح علمي فوري",
-                              style: GoogleFonts.cairo(
-                                fontSize: 12,
-                                fontWeight: FontWeight.w600,
-                                color: isDark ? AppColors.textSecondary : AppColors.textSecondaryLight,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 18),
-                      Text(
-                        "تحدّ معلوماتك في البرمجة وهندسة الذكاء الاصطناعي",
-                        style: GoogleFonts.cairo(
-                          fontSize: isMobile ? 20 : 26,
-                          fontWeight: FontWeight.w900,
-                          color: isDark ? AppColors.textPrimary : AppColors.textPrimaryLight,
-                          height: 1.3,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        "اختبار تفاعلي سريع ومدروس لقياس عمق فهمك لمفاهيم علوم الحاسب والذكاء الاصطناعي وهندسة البرمجيات، مع شرح تعليمي وتفسير دقيق لكل إجابة.",
-                        style: GoogleFonts.cairo(
-                          fontSize: isMobile ? 13 : 15,
-                          color: isDark ? AppColors.textSecondary : AppColors.textSecondaryLight,
-                          height: 1.6,
-                        ),
-                        maxLines: 3,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      const SizedBox(height: 22),
-                      isMobile
-                          ? Column(
-                              crossAxisAlignment: CrossAxisAlignment.stretch,
-                              children: [
-                                ElevatedButton.icon(
-                                  onPressed: () => _handleQuizCardTap(context),
-                                  icon: const Icon(Icons.play_arrow_rounded, size: 20),
-                                  label: Text(
-                                    "ابدأ الاختبار الآن 🚀",
-                                    style: GoogleFonts.cairo(fontSize: 14, fontWeight: FontWeight.bold),
-                                  ),
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: const Color(0xFFA855F7),
-                                    foregroundColor: Colors.white,
-                                    padding: const EdgeInsets.symmetric(vertical: 14),
-                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                                  ),
-                                ),
-                              ],
-                            )
-                          : Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Row(
-                                  children: [
-                                    const Icon(Icons.workspace_premium_rounded, color: Color(0xFFA855F7), size: 18),
-                                    const SizedBox(width: 8),
-                                    Text(
-                                      "احصل على تقييم فوري لمستواك ونصائح لتطوير فهمك البرمجي",
-                                      style: GoogleFonts.cairo(
-                                        fontSize: 13,
-                                        fontWeight: FontWeight.w600,
-                                        color: isDark ? AppColors.textSecondary : AppColors.textSecondaryLight,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                ElevatedButton.icon(
-                                  onPressed: () => _handleQuizCardTap(context),
-                                  icon: const Icon(Icons.arrow_forward_rounded, size: 18),
-                                  label: Text(
-                                    "ابدأ الاختبار الآن 🚀",
-                                    style: GoogleFonts.cairo(fontSize: 14, fontWeight: FontWeight.bold),
-                                  ),
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: const Color(0xFFA855F7),
-                                    foregroundColor: Colors.white,
-                                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
-                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                                    elevation: 0,
-                                  ),
-                                ),
-                              ],
-                            ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  // -------------------------------------------------------------
   // 5. اتعلم معانا (Fixed Dimensions - No Bottom Overflow Bar)
   // -------------------------------------------------------------
   Widget _buildLearnWithUsSection(bool isMobile, double screenWidth) {
