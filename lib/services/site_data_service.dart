@@ -15,6 +15,10 @@ class SiteDataService extends ChangeNotifier {
   List<Map<String, dynamic>> _quizQuestions = [];
   List<Map<String, dynamic>> _recordingLessons = [];
 
+  // Independent Categories: Course Categories vs Lesson Categories
+  List<String> _courseCategories = [];
+  List<String> _lessonCategories = [];
+
   // New modules for comprehensive Admin & Student systems
   List<Map<String, dynamic>> _interactiveQuizzes = [];
   List<Map<String, dynamic>> _quizSubmissions = [];
@@ -31,6 +35,8 @@ class SiteDataService extends ChangeNotifier {
   Map<String, dynamic>? get weeklyChallenge => _weeklyChallenge;
   List<Map<String, dynamic>> get quizQuestions => _quizQuestions;
   List<Map<String, dynamic>> get recordingLessons => _recordingLessons;
+  List<String> get courseCategories => _courseCategories;
+  List<String> get lessonCategories => _lessonCategories;
   List<Map<String, dynamic>> get interactiveQuizzes => _interactiveQuizzes;
   List<Map<String, dynamic>> get quizSubmissions => _quizSubmissions;
   List<Map<String, dynamic>> get weeklyChallenges => _weeklyChallenges;
@@ -55,6 +61,31 @@ class SiteDataService extends ChangeNotifier {
         _lessons = List<Map<String, dynamic>>.from(jsonDecode(lessonsStr));
       } else {
         _lessons = [];
+      }
+
+      final courseCatStr = prefs.getString('site_course_categories');
+      if (courseCatStr != null) {
+        _courseCategories = List<String>.from(jsonDecode(courseCatStr));
+      } else {
+        _courseCategories = ['مسارات البرمجة', 'الذكاء الاصطناعي', 'تطوير الويب', 'تطبيقات الهواتف', 'علوم الحاسب'];
+      }
+
+      final lessonCatStr = prefs.getString('site_lesson_categories');
+      if (lessonCatStr != null) {
+        _lessonCategories = List<String>.from(jsonDecode(lessonCatStr));
+      } else {
+        _lessonCategories = ['أساسيات البرمجة', 'بايثون', 'خوارزميات وتفكير منطقي', 'فلاتر ودارت', 'حل مشكلات برمجية'];
+      }
+
+      // Normalize all lessons
+      for (final l in _lessons) {
+        _normalizeLesson(l);
+      }
+      for (final c in _courses) {
+        final cl = List<Map<String, dynamic>>.from(c['lessons'] ?? []);
+        for (final l in cl) {
+          _normalizeLesson(l);
+        }
       }
 
       final playlistsStr = prefs.getString('site_lesson_playlists');
@@ -333,6 +364,7 @@ class SiteDataService extends ChangeNotifier {
   Future<void> addLessonToCourse(String courseId, Map<String, dynamic> lesson) async {
     final idx = _courses.indexWhere((c) => c['id'] == courseId);
     if (idx != -1) {
+      _normalizeLesson(lesson);
       lesson['id'] = DateTime.now().millisecondsSinceEpoch.toString();
       final lessonsList = List<Map<String, dynamic>>.from(_courses[idx]['lessons'] ?? []);
       lessonsList.add(lesson);
@@ -348,6 +380,7 @@ class SiteDataService extends ChangeNotifier {
       final lessonsList = List<Map<String, dynamic>>.from(_courses[cIdx]['lessons'] ?? []);
       final lIdx = lessonsList.indexWhere((l) => l['id'] == lessonId);
       if (lIdx != -1) {
+        _normalizeLesson(updated);
         lessonsList[lIdx] = updated;
         _courses[cIdx]['lessons'] = lessonsList;
         await _saveCourses();
@@ -372,9 +405,104 @@ class SiteDataService extends ChangeNotifier {
     await prefs.setString('site_courses', jsonEncode(_courses));
   }
 
+  void _normalizeLesson(Map<String, dynamic> lesson) {
+    if (lesson['imageUrl'] != null && (lesson['image'] == null || lesson['image'].toString().isEmpty)) {
+      lesson['image'] = lesson['imageUrl'];
+    }
+    if (lesson['image'] != null && (lesson['imageUrl'] == null || lesson['imageUrl'].toString().isEmpty)) {
+      lesson['imageUrl'] = lesson['image'];
+    }
+    if (lesson['videoUrl'] != null && (lesson['youtubeUrl'] == null || lesson['youtubeUrl'].toString().isEmpty)) {
+      lesson['youtubeUrl'] = lesson['videoUrl'];
+    }
+    if (lesson['youtubeUrl'] != null && (lesson['videoUrl'] == null || lesson['videoUrl'].toString().isEmpty)) {
+      lesson['videoUrl'] = lesson['youtubeUrl'];
+    }
+    if (lesson['category'] != null && (lesson['subject'] == null || lesson['subject'].toString().isEmpty)) {
+      lesson['subject'] = lesson['category'];
+    }
+    if (lesson['subject'] != null && (lesson['category'] == null || lesson['category'].toString().isEmpty)) {
+      lesson['category'] = lesson['subject'];
+    }
+  }
+
+  // --- Course Categories CRUD ---
+  Future<void> addCourseCategory(String category) async {
+    final cat = category.trim();
+    if (cat.isNotEmpty && !_courseCategories.contains(cat)) {
+      _courseCategories.add(cat);
+      await _saveCourseCategories();
+      notifyListeners();
+    }
+  }
+
+  Future<void> updateCourseCategory(String oldCat, String newCat) async {
+    final idx = _courseCategories.indexOf(oldCat);
+    if (idx != -1 && newCat.trim().isNotEmpty) {
+      _courseCategories[idx] = newCat.trim();
+      for (final c in _courses) {
+        if (c['category'] == oldCat) {
+          c['category'] = newCat.trim();
+        }
+      }
+      await _saveCourses();
+      await _saveCourseCategories();
+      notifyListeners();
+    }
+  }
+
+  Future<void> deleteCourseCategory(String category) async {
+    _courseCategories.remove(category);
+    await _saveCourseCategories();
+    notifyListeners();
+  }
+
+  Future<void> _saveCourseCategories() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('site_course_categories', jsonEncode(_courseCategories));
+  }
+
+  // --- Lesson Categories CRUD ---
+  Future<void> addLessonCategory(String category) async {
+    final cat = category.trim();
+    if (cat.isNotEmpty && !_lessonCategories.contains(cat)) {
+      _lessonCategories.add(cat);
+      await _saveLessonCategories();
+      notifyListeners();
+    }
+  }
+
+  Future<void> updateLessonCategory(String oldCat, String newCat) async {
+    final idx = _lessonCategories.indexOf(oldCat);
+    if (idx != -1 && newCat.trim().isNotEmpty) {
+      _lessonCategories[idx] = newCat.trim();
+      for (final l in _lessons) {
+        if (l['category'] == oldCat || l['subject'] == oldCat) {
+          l['category'] = newCat.trim();
+          l['subject'] = newCat.trim();
+        }
+      }
+      await _saveLessons();
+      await _saveLessonCategories();
+      notifyListeners();
+    }
+  }
+
+  Future<void> deleteLessonCategory(String category) async {
+    _lessonCategories.remove(category);
+    await _saveLessonCategories();
+    notifyListeners();
+  }
+
+  Future<void> _saveLessonCategories() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('site_lesson_categories', jsonEncode(_lessonCategories));
+  }
+
   // --- Independent Lessons CRUD ---
   Future<void> addLesson(Map<String, dynamic> lesson) async {
     lesson['id'] = DateTime.now().millisecondsSinceEpoch.toString();
+    _normalizeLesson(lesson);
     _lessons.add(lesson);
     await _saveLessons();
     notifyListeners();
@@ -383,6 +511,7 @@ class SiteDataService extends ChangeNotifier {
   Future<void> updateLesson(String id, Map<String, dynamic> updated) async {
     final idx = _lessons.indexWhere((l) => l['id'] == id);
     if (idx != -1) {
+      _normalizeLesson(updated);
       _lessons[idx] = updated;
       await _saveLessons();
       notifyListeners();

@@ -34,26 +34,51 @@ class _YouTubeEmbeddedPlayerState extends State<YouTubeEmbeddedPlayer> {
     }
   }
 
+  @override
+  void didUpdateWidget(YouTubeEmbeddedPlayer oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.youtubeUrl != widget.youtubeUrl) {
+      _videoId = _extractVideoId(widget.youtubeUrl);
+      _viewId = 'yt_player_${DateTime.now().millisecondsSinceEpoch}_${_videoId ?? 'video'}';
+      if (kIsWeb && _videoId != null) {
+        yt_platform.registerIframeViewFactory(_viewId, _videoId!);
+      }
+      setState(() {});
+    }
+  }
+
   String? _extractVideoId(String url) {
     if (url.trim().isEmpty) return null;
     final trimmed = url.trim();
 
+    // 1. If iframe tag pasted: extract src
+    final iframeSrcMatch = RegExp('src=["\']([^"\']+)["\']').firstMatch(trimmed);
+    final targetUrl = iframeSrcMatch != null ? iframeSrcMatch.group(1)! : trimmed;
+
     // Direct ID (11 chars)
-    if (RegExp(r'^[a-zA-Z0-9_-]{11}$').hasMatch(trimmed)) {
-      return trimmed;
+    if (RegExp(r'^[a-zA-Z0-9_-]{11}$').hasMatch(targetUrl)) {
+      return targetUrl;
     }
 
     // youtu.be/<id>
-    final shortMatch = RegExp(r'youtu\.be\/([a-zA-Z0-9_-]{11})').firstMatch(trimmed);
+    final shortMatch = RegExp(r'youtu\.be\/([a-zA-Z0-9_-]{11})').firstMatch(targetUrl);
     if (shortMatch != null) return shortMatch.group(1);
 
-    // youtube.com/watch?v=<id>
-    final watchMatch = RegExp(r'v=([a-zA-Z0-9_-]{11})').firstMatch(trimmed);
+    // youtube.com/watch?v=<id> or &v=<id>
+    final watchMatch = RegExp(r'[?&]v=([a-zA-Z0-9_-]{11})').firstMatch(targetUrl);
     if (watchMatch != null) return watchMatch.group(1);
 
     // youtube.com/embed/<id>
-    final embedMatch = RegExp(r'embed\/([a-zA-Z0-9_-]{11})').firstMatch(trimmed);
+    final embedMatch = RegExp(r'embed\/([a-zA-Z0-9_-]{11})').firstMatch(targetUrl);
     if (embedMatch != null) return embedMatch.group(1);
+
+    // youtube.com/shorts/<id>
+    final shortsMatch = RegExp(r'shorts\/([a-zA-Z0-9_-]{11})').firstMatch(targetUrl);
+    if (shortsMatch != null) return shortsMatch.group(1);
+
+    // youtube.com/live/<id>
+    final liveMatch = RegExp(r'live\/([a-zA-Z0-9_-]{11})').firstMatch(targetUrl);
+    if (liveMatch != null) return liveMatch.group(1);
 
     return null;
   }

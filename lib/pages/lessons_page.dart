@@ -220,9 +220,10 @@ class _LessonsPageState extends State<LessonsPage> {
                   spacing: 20,
                   runSpacing: 22,
                   children: allLessons.map((lesson) {
-                    final image = lesson['image'] ?? 'assets/images/slide2.png';
-                    final courseTitle = lesson['courseTitle'] ?? lesson['subject'] ?? 'درس';
-                    final hasYoutube = (lesson['youtubeUrl'] ?? '').toString().isNotEmpty;
+                    final image = (lesson['image'] ?? lesson['imageUrl'] ?? 'assets/images/slide2.png').toString();
+                    final courseTitle = lesson['courseTitle'] ?? lesson['playlistTitle'] ?? lesson['category'] ?? lesson['subject'] ?? 'درس';
+                    final youtubeUrl = (lesson['youtubeUrl'] ?? lesson['videoUrl'] ?? '').toString();
+                    final hasYoutube = youtubeUrl.isNotEmpty;
 
                     return SizedBox(
                       width: width,
@@ -299,13 +300,19 @@ class _LessonsPageState extends State<LessonsPage> {
   }
 
   // ==========================================
-  // Dedicated Lesson View with YouTube Player & Quiz
+  // Dedicated Lesson View with YouTube Player, Image & HTML Content
   // ==========================================
   Widget _buildLessonDetailView(BuildContext context, bool isMobile, bool isDark) {
     final lesson = _selectedLesson!;
     final title = lesson['title'] ?? 'درس جديد';
-    final youtubeUrl = lesson['youtubeUrl'] ?? '';
-    final content = lesson['content'] ?? '';
+    final youtubeUrl = (lesson['youtubeUrl'] ?? lesson['videoUrl'] ?? '').toString();
+    final image = (lesson['image'] ?? lesson['imageUrl'] ?? '').toString();
+    final content = (lesson['content'] ?? '').toString();
+    final htmlCode = (lesson['htmlCode'] ?? '').toString();
+    final editorType = lesson['editorType'] ?? 'visual';
+    final displayContent = (editorType == 'html' && htmlCode.isNotEmpty)
+        ? htmlCode
+        : (content.isNotEmpty ? content : htmlCode);
     final hasQuiz = lesson['hasQuiz'] == true;
     final quizTitle = lesson['quizTitle'] ?? 'اختبار فهم الدرس';
 
@@ -329,13 +336,31 @@ class _LessonsPageState extends State<LessonsPage> {
           Text(title, style: GoogleFonts.cairo(fontSize: 24, fontWeight: FontWeight.w900)),
           const SizedBox(height: 18),
 
-          // YouTube Player
+          // 1. YouTube Video Player
           if (youtubeUrl.isNotEmpty) ...[
             YouTubeEmbeddedPlayer(youtubeUrl: youtubeUrl, height: isMobile ? 240 : 480),
             const SizedBox(height: 24),
           ],
 
-          // Content Box
+          // 2. Image Cover (if present)
+          if (image.isNotEmpty) ...[
+            ClipRRect(
+              borderRadius: BorderRadius.circular(16),
+              child: Container(
+                height: isMobile ? 200 : 340,
+                width: double.infinity,
+                decoration: BoxDecoration(
+                  color: isDark ? const Color(0xFF1E293B) : const Color(0xFFF1F5F9),
+                ),
+                child: image.startsWith('http')
+                    ? Image.network(image, fit: BoxFit.cover, errorBuilder: (ctx, err, stack) => const SizedBox.shrink())
+                    : Image.asset(image, fit: BoxFit.cover, errorBuilder: (ctx, err, stack) => const SizedBox.shrink()),
+              ),
+            ),
+            const SizedBox(height: 24),
+          ],
+
+          // 3. Content Box (Supports Markdown & HTML)
           Container(
             padding: const EdgeInsets.all(24),
             decoration: BoxDecoration(
@@ -349,7 +374,18 @@ class _LessonsPageState extends State<LessonsPage> {
                 Text("شرح وتفاصيل الدرس:", style: GoogleFonts.cairo(fontSize: 18, fontWeight: FontWeight.bold, color: const Color(0xFF3B82F6))),
                 const Divider(),
                 const SizedBox(height: 8),
-                ArticleContentRenderer(content: content, isDark: isDark),
+                if (displayContent.isNotEmpty)
+                  ArticleContentRenderer(content: displayContent, isDark: isDark)
+                else
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 20),
+                    child: Center(
+                      child: Text(
+                        "لا يوجد محتوى نصي إضافي لهذا الدرس، يمكنك مشاهدة الفيديو بالأعلى.",
+                        style: GoogleFonts.cairo(color: Colors.grey, fontSize: 13),
+                      ),
+                    ),
+                  ),
 
                 // Quiz button
                 if (hasQuiz) ...[

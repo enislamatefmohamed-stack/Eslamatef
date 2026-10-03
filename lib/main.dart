@@ -137,26 +137,28 @@ class _HomePageState extends State<HomePage> {
 
     // 2. All courses added in dashboard
     for (final c in SiteDataService.instance.courses) {
+      final courseImg = (c['image'] ?? c['imageUrl'] ?? '').toString();
       items.add({
         'type': 'course',
         'title': c['title'] ?? 'كورس جديد',
         'category': c['category'] ?? 'كورس',
         'badge': c['level'] ?? 'كورس متميز',
         'duration': c['price'] ?? 'مجاني',
-        'image': c['image'] ?? 'assets/images/slide1.png',
+        'image': courseImg.isNotEmpty ? courseImg : 'assets/images/slide1.png',
         'route': '/courses',
       });
 
       // Lessons inside this course folder
       final courseLessons = List<Map<String, dynamic>>.from(c['lessons'] ?? []);
       for (final l in courseLessons) {
+        final lessonImg = (l['image'] ?? l['imageUrl'] ?? '').toString();
         items.add({
           'type': 'lesson',
           'title': l['title'] ?? 'درس جديد',
           'category': c['title'] ?? 'درس',
-          'badge': 'درس جديد',
+          'badge': 'محاضرة جديدة',
           'duration': 'فيديو يوتيوب',
-          'image': l['image'] ?? c['image'] ?? 'assets/images/slide2.png',
+          'image': lessonImg.isNotEmpty ? lessonImg : (courseImg.isNotEmpty ? courseImg : 'assets/images/slide2.png'),
           'route': '/courses',
         });
       }
@@ -164,13 +166,15 @@ class _HomePageState extends State<HomePage> {
 
     // 3. All standalone lessons added in dashboard
     for (final l in SiteDataService.instance.lessons) {
+      final lessonImg = (l['image'] ?? l['imageUrl'] ?? '').toString();
+      final cat = (l['category'] ?? l['subject'] ?? 'درس').toString();
       items.add({
         'type': 'lesson',
         'title': l['title'] ?? 'درس جديد',
-        'category': l['subject'] ?? 'درس',
+        'category': cat,
         'badge': 'درس جديد',
         'duration': l['duration'] ?? '15 دقيقة',
-        'image': l['image'] ?? 'assets/images/slide2.png',
+        'image': lessonImg.isNotEmpty ? lessonImg : 'assets/images/slide2.png',
         'route': '/lessons',
       });
     }
