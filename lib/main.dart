@@ -20,6 +20,7 @@ import 'widgets/auth_modal.dart';
 import 'services/site_data_service.dart';
 import 'services/auth_service.dart';
 import 'services/user_service.dart';
+import 'widgets/live_text_ticker_bar.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 
@@ -256,12 +257,16 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     final isMobile = screenWidth < 850;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    return Scaffold(
-      endDrawer: isMobile ? _buildMobileDrawer() : null,
-      floatingActionButton: _buildFloatingWhatsApp(),
-      body: SafeArea(
-        child: Column(
+    return Directionality(
+      textDirection: TextDirection.rtl,
+      child: Scaffold(
+        endDrawer: isMobile ? _buildMobileDrawer() : null,
+        floatingActionButton: _buildFloatingWhatsApp(),
+        body: SelectionArea(
+          child: SafeArea(
+            child: Column(
           children: [
             // 1. Header (اللوجو، الأقسام، السوشيال)
             _buildHeader(isMobile),
@@ -276,9 +281,12 @@ class _HomePageState extends State<HomePage> {
                     _buildWidescreenSlider(isMobile, screenWidth),
                     SizedBox(height: isMobile ? 36 : 60),
 
-                    // 2. شريط الاخبار (Latest News/Updates - Square Carousel)
-                    _buildLatestNewsSection(isMobile, screenWidth),
-                    SizedBox(height: isMobile ? 44 : 70),
+                    // 2. شريط جديدنا المتحرك (Live Animated Text Ticker Bar)
+                    LiveTextTickerBar(
+                      items: _getCombinedLatestItems(),
+                      isDark: isDark,
+                    ),
+                    SizedBox(height: isMobile ? 32 : 55),
 
                     // 3. تحدي الاسبوع واختبر نفسك (Weekly Challenge & Interactive Quiz)
                     _buildWeeklyChallengeSection(isMobile, screenWidth),
@@ -301,7 +309,9 @@ class _HomePageState extends State<HomePage> {
           ],
         ),
       ),
-    );
+    ),
+  ),
+);
   }
 
   // -------------------------------------------------------------
@@ -1034,6 +1044,7 @@ class _HomePageState extends State<HomePage> {
   // -------------------------------------------------------------
   // 1. شريط الإضافات والأخبار (Square Carousel - Courses & Lessons)
   // -------------------------------------------------------------
+  // ignore: unused_element
   Widget _buildLatestNewsSection(bool isMobile, double screenWidth) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final updates = _getCombinedLatestItems();

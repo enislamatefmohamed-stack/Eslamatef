@@ -57,6 +57,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
 
   int _quizSubNav = 0; // 0: محرر كود الاختبار (HTML فقط), 1: نتائج الطلاب
   final _quizHtmlEditorCtrl = TextEditingController();
+  final _quizTitleEditorCtrl = TextEditingController(text: 'اختبار تقييم المستوى');
   Map<String, dynamic>? _editingQuiz;
 
   String _challengesSearch = '';
@@ -303,13 +304,12 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
               padding: const EdgeInsets.symmetric(vertical: 12),
               children: [
                 _buildNavItem(0, "الرئيسية", Icons.home_rounded, isDrawer),
-                _buildNavItem(1, "جديدنا ✨", Icons.auto_awesome_rounded, isDrawer, count: _dataService.latestUpdates.length),
-                _buildNavItem(2, "الكورسات", Icons.menu_book_rounded, isDrawer, count: _dataService.courses.length),
-                _buildNavItem(3, "الدروس", Icons.school_rounded, isDrawer, count: _dataService.lessons.length),
-                _buildNavItem(4, "اختبر نفسك", Icons.psychology_rounded, isDrawer, count: _dataService.interactiveQuizzes.length),
-                _buildNavItem(5, "تحدي الأسبوع", Icons.emoji_events_rounded, isDrawer, count: _dataService.weeklyChallenges.length),
-                _buildNavItem(6, "جلسات التصوير", Icons.videocam_rounded, isDrawer, count: _dataService.recordingLessons.length),
-                _buildNavItem(7, "الأعضاء", Icons.group_rounded, isDrawer, count: _dataService.members.length),
+                _buildNavItem(1, "الكورسات", Icons.menu_book_rounded, isDrawer, count: _dataService.courses.length),
+                _buildNavItem(2, "الدروس", Icons.school_rounded, isDrawer, count: _dataService.lessons.length),
+                _buildNavItem(3, "اختبر نفسك", Icons.psychology_rounded, isDrawer, count: _dataService.interactiveQuizzes.length),
+                _buildNavItem(4, "تحدي الأسبوع", Icons.emoji_events_rounded, isDrawer, count: _dataService.weeklyChallenges.length),
+                _buildNavItem(5, "جلسات التصوير", Icons.videocam_rounded, isDrawer, count: _dataService.recordingLessons.length),
+                _buildNavItem(6, "الأعضاء", Icons.group_rounded, isDrawer, count: _dataService.members.length),
                 const Divider(color: Color(0xFFE2E8F0), height: 24),
                 _buildWebsiteLinkItem(isDrawer),
               ],
@@ -442,7 +442,6 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
   Widget _buildTopHeader(bool isMobile) {
     final titles = [
       "لوحة التحكم الرئيسية",
-      "إدارة جديدنا وشريط الأخبار ✨",
       "إدارة الكورسات والمسارات",
       "إدارة الدروس المستقلة",
       "إدارة اختبارات اختبر نفسك",
@@ -531,18 +530,16 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
       case 0:
         return _buildHomeSection();
       case 1:
-        return _buildNewsSection();
-      case 2:
         return _buildCoursesSection();
-      case 3:
+      case 2:
         return _buildLessonsSection();
-      case 4:
+      case 3:
         return _buildQuizzesSection();
-      case 5:
+      case 4:
         return _buildChallengesSection();
-      case 6:
+      case 5:
         return _buildRecordingStudioSection();
-      case 7:
+      case 6:
         return _buildMembersSection();
       default:
         return _buildHomeSection();
@@ -2501,6 +2498,1477 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
   }
 
   // =========================================================================
+  // THE 4-CARD SYSTEM (الأربع كروت المركزية لإدارة الكورسات والدروس)
+  // =========================================================================
+
+  Widget _buildFourActionCards({required bool isCourse}) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 24),
+      child: LayoutBuilder(
+        builder: (ctx, constraints) {
+          final w = constraints.maxWidth;
+          int cols = w < 650 ? 1 : (w < 1100 ? 2 : 4);
+          final itemWidth = (w - (cols - 1) * 16) / cols;
+
+          return Wrap(
+            spacing: 16,
+            runSpacing: 16,
+            children: [
+              // Card 1: إنشاء صنف
+              _buildActionCard(
+                width: itemWidth,
+                num: "1",
+                title: "إنشاء صنف",
+                subtitle: isCourse
+                    ? "إدارة تصنيفات الكورسات وإضافة صنف بمربع كتابة مباشر"
+                    : "إدارة تصنيفات الدروس وإضافة صنف بمربع كتابة مباشر",
+                badge: "الأصناف",
+                icon: Icons.category_rounded,
+                color: const Color(0xFF0284C7),
+                btnText: "إدارة الأصناف 🏷️",
+                onTap: () => _openCategoryManagerModal(isCourse: isCourse),
+              ),
+              // Card 2: قوائم التشغيل
+              _buildActionCard(
+                width: itemWidth,
+                num: "2",
+                title: "قوائم التشغيل",
+                subtitle: isCourse
+                    ? "إنشاء كورس / مسار كامل (اسم، صورة، وصف، مجاني/مدفوع)"
+                    : "إنشاء منهج / قائمة تشغيل (اسم، صورة، وصف، مجاني/مدفوع)",
+                badge: isCourse ? "الكورسات" : "المناهج",
+                icon: Icons.playlist_play_rounded,
+                color: const Color(0xFF8B5CF6),
+                btnText: isCourse ? "إنشاء كورس 📂" : "إنشاء قائمة 📑",
+                onTap: () => _openPlaylistManagerModal(isCourse: isCourse),
+              ),
+              // Card 3: إضافة فيديو / إضافة درس
+              _buildActionCard(
+                width: itemWidth,
+                num: "3",
+                title: isCourse ? "إضافة فيديو للكورس" : "إضافة درس",
+                subtitle: "تحديد القائمة + العنوان + محرر عادي مثل بلوجر ومحرر HTML",
+                badge: "محرر مزدوج",
+                icon: isCourse ? Icons.video_call_rounded : Icons.post_add_rounded,
+                color: const Color(0xFF10B981),
+                btnText: isCourse ? "+ إضافة فيديو 🎬" : "+ إضافة درس 📝",
+                onTap: () => _openAddLectureOrLessonModal(isCourse: isCourse),
+              ),
+              // Card 4: اختبار
+              _buildActionCard(
+                width: itemWidth,
+                num: "4",
+                title: "اختبار (Quiz)",
+                subtitle: "تحديد القائمة والدرس + محرر كود HTML فقط للاختبار",
+                badge: "HTML فقط",
+                icon: Icons.quiz_rounded,
+                color: const Color(0xFFF59E0B),
+                btnText: "+ إضافة اختبار 🧠",
+                onTap: () => _openAddQuizToLectureOrLessonModal(isCourse: isCourse),
+              ),
+            ],
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildActionCard({
+    required double width,
+    required String num,
+    required String title,
+    required String subtitle,
+    required String badge,
+    required IconData icon,
+    required Color color,
+    required String btnText,
+    required VoidCallback onTap,
+  }) {
+    return SizedBox(
+      width: width,
+      child: Container(
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: color.withOpacity(0.25), width: 1.5),
+          boxShadow: [
+            BoxShadow(
+              color: color.withOpacity(0.06),
+              blurRadius: 14,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: color.withOpacity(0.12),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Icon(icon, color: color, size: 24),
+                ),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: color.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Text(
+                    "كارت $num | $badge",
+                    style: GoogleFonts.cairo(
+                      fontSize: 11,
+                      fontWeight: FontWeight.bold,
+                      color: color,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 14),
+            Text(
+              title,
+              style: GoogleFonts.cairo(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: const Color(0xFF0F172A),
+              ),
+            ),
+            const SizedBox(height: 6),
+            Text(
+              subtitle,
+              style: GoogleFonts.cairo(
+                fontSize: 12,
+                color: const Color(0xFF64748B),
+                height: 1.5,
+              ),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            ),
+            const SizedBox(height: 16),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: onTap,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: color,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 10),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                  elevation: 0,
+                ),
+                child: Text(
+                  btnText,
+                  style: GoogleFonts.cairo(fontSize: 12, fontWeight: FontWeight.bold),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // ----------------------------------------------------
+  // Card 1: إنشاء صنف (Category Manager Modal)
+  // ----------------------------------------------------
+  void _openCategoryManagerModal({required bool isCourse}) {
+    final newCatCtrl = TextEditingController();
+    showDialog(
+      context: context,
+      builder: (ctx) {
+        return StatefulBuilder(
+          builder: (dialogCtx, setDlgState) {
+            final cats = isCourse ? _dataService.courseCategories : _dataService.lessonCategories;
+
+            return AlertDialog(
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+              title: Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(color: const Color(0xFF0284C7).withOpacity(0.1), borderRadius: BorderRadius.circular(10)),
+                    child: const Icon(Icons.category_rounded, color: Color(0xFF0284C7), size: 22),
+                  ),
+                  const SizedBox(width: 12),
+                  Text(
+                    isCourse ? "إدارة أصناف الكورسات 🏷️" : "إدارة أصناف الدروس 🏷️",
+                    style: GoogleFonts.cairo(fontWeight: FontWeight.bold, fontSize: 18),
+                  ),
+                ],
+              ),
+              content: SizedBox(
+                width: 520,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "اكتب اسم الصنف فقط بمربع الكتابة واضغط إضافة ليتم حفظه فوراً في Firebase:",
+                      style: GoogleFonts.cairo(fontSize: 13, color: const Color(0xFF64748B)),
+                    ),
+                    const SizedBox(height: 16),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: TextField(
+                            controller: newCatCtrl,
+                            decoration: InputDecoration(
+                              hintText: "اكتب اسم الصنف هنا (مربع كتابة الصنف)...",
+                              hintStyle: GoogleFonts.cairo(fontSize: 13, color: Colors.grey),
+                              filled: true,
+                              fillColor: const Color(0xFFF8FAFC),
+                              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                              border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: const BorderSide(color: Color(0xFFE2E8F0))),
+                              enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: const BorderSide(color: Color(0xFFE2E8F0))),
+                            ),
+                            onSubmitted: (val) async {
+                              final cat = val.trim();
+                              if (cat.isEmpty) return;
+                              if (isCourse) {
+                                await _dataService.addCourseCategory(cat);
+                              } else {
+                                await _dataService.addLessonCategory(cat);
+                              }
+                              newCatCtrl.clear();
+                              setDlgState(() {});
+                              setState(() {});
+                            },
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        ElevatedButton.icon(
+                          onPressed: () async {
+                            final cat = newCatCtrl.text.trim();
+                            if (cat.isEmpty) {
+                              _showSnackBar("يرجى كتابة اسم الصنف أولاً", isError: true);
+                              return;
+                            }
+                            if (isCourse) {
+                              await _dataService.addCourseCategory(cat);
+                            } else {
+                              await _dataService.addLessonCategory(cat);
+                            }
+                            newCatCtrl.clear();
+                            setDlgState(() {});
+                            setState(() {});
+                            _showSnackBar("تمت إضافة الصنف وحفظه بنجاح في Firebase");
+                          },
+                          icon: const Icon(Icons.add, size: 18),
+                          label: Text("إضافة الصنف", style: GoogleFonts.cairo(fontWeight: FontWeight.bold, fontSize: 13)),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF0284C7),
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 24),
+                    Text(
+                      "الأصناف المتاحة حالياً (${cats.length}):",
+                      style: GoogleFonts.cairo(fontWeight: FontWeight.bold, fontSize: 14),
+                    ),
+                    const SizedBox(height: 12),
+                    ConstrainedBox(
+                      constraints: const BoxConstraints(maxHeight: 220),
+                      child: cats.isEmpty
+                          ? Center(
+                              child: Padding(
+                                padding: const EdgeInsets.all(20),
+                                child: Text("لا توجد أصناف مضافة حتى الآن", style: GoogleFonts.cairo(color: Colors.grey)),
+                              ),
+                            )
+                          : ListView.separated(
+                              shrinkWrap: true,
+                              itemCount: cats.length,
+                              separatorBuilder: (c, i) => const SizedBox(height: 8),
+                              itemBuilder: (c, i) {
+                                final cat = cats[i];
+                                return Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFFF8FAFC),
+                                    borderRadius: BorderRadius.circular(10),
+                                    border: Border.all(color: const Color(0xFFE2E8F0)),
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      const Icon(Icons.label_important_outline_rounded, size: 18, color: Color(0xFF0284C7)),
+                                      const SizedBox(width: 10),
+                                      Expanded(
+                                        child: Text(cat, style: GoogleFonts.cairo(fontWeight: FontWeight.w600, fontSize: 13)),
+                                      ),
+                                      IconButton(
+                                        icon: const Icon(Icons.delete_outline_rounded, size: 18, color: Color(0xFFEF4444)),
+                                        tooltip: "حذف الصنف",
+                                        onPressed: () async {
+                                          if (isCourse) {
+                                            await _dataService.deleteCourseCategory(cat);
+                                          } else {
+                                            await _dataService.deleteLessonCategory(cat);
+                                          }
+                                          setDlgState(() {});
+                                          setState(() {});
+                                          _showSnackBar("تم حذف الصنف من Firebase");
+                                        },
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              },
+                            ),
+                    ),
+                  ],
+                ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(ctx),
+                  child: Text("إغلاق", style: GoogleFonts.cairo(fontWeight: FontWeight.bold, color: const Color(0xFF64748B))),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
+
+  // ----------------------------------------------------
+  // Card 2: قوائم التشغيل (Playlist Manager Modal)
+  // ----------------------------------------------------
+  void _openPlaylistManagerModal({required bool isCourse}) {
+    final titleCtrl = TextEditingController();
+    final imgCtrl = TextEditingController();
+    final descCtrl = TextEditingController();
+    final cats = isCourse ? _dataService.courseCategories : _dataService.lessonCategories;
+    String selectedCat = cats.isNotEmpty ? cats.first : 'عام';
+    bool isPaid = false;
+
+    showDialog(
+      context: context,
+      builder: (ctx) {
+        return StatefulBuilder(
+          builder: (dialogCtx, setDlgState) {
+            final playlists = isCourse ? _dataService.courses : _dataService.lessonPlaylists;
+
+            return AlertDialog(
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+              title: Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(color: const Color(0xFF8B5CF6).withOpacity(0.1), borderRadius: BorderRadius.circular(10)),
+                    child: const Icon(Icons.playlist_play_rounded, color: Color(0xFF8B5CF6), size: 24),
+                  ),
+                  const SizedBox(width: 12),
+                  Text(
+                    isCourse ? "قوائم التشغيل (إنشاء وإدارة الكورسات) 📚" : "قوائم التشغيل (إنشاء وإدارة المناهج) 📑",
+                    style: GoogleFonts.cairo(fontWeight: FontWeight.bold, fontSize: 18),
+                  ),
+                ],
+              ),
+              content: SizedBox(
+                width: 600,
+                child: SingleChildScrollView(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFF5F3FF),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: const Color(0xFFDDD6FE)),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              isCourse ? "+ إنشاء كورس / مسار جديد:" : "+ إنشاء منهج / قائمة جديدة:",
+                              style: GoogleFonts.cairo(fontWeight: FontWeight.bold, color: const Color(0xFF6D28D9)),
+                            ),
+                            const SizedBox(height: 12),
+                            TextField(
+                              controller: titleCtrl,
+                              decoration: _inputDecoration(isCourse ? "اسم الكورس / القائمة *" : "اسم المنهج / القائمة *"),
+                            ),
+                            const SizedBox(height: 10),
+                            TextField(
+                              controller: imgCtrl,
+                              decoration: _inputDecoration("رابط صورة غلاف القائمة (URL)"),
+                            ),
+                            const SizedBox(height: 10),
+                            TextField(
+                              controller: descCtrl,
+                              maxLines: 2,
+                              decoration: _inputDecoration("وصف مختصر للقائمة *"),
+                            ),
+                            const SizedBox(height: 10),
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: DropdownButtonFormField<String>(
+                                    value: (cats.contains(selectedCat)) ? selectedCat : (cats.isNotEmpty ? cats.first : null),
+                                    decoration: _inputDecoration("التصنيف"),
+                                    items: cats.map((c) => DropdownMenuItem(value: c, child: Text(c, style: GoogleFonts.cairo(fontSize: 13)))).toList(),
+                                    onChanged: (v) => setDlgState(() => selectedCat = v ?? selectedCat),
+                                  ),
+                                ),
+                                const SizedBox(width: 12),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                                  decoration: BoxDecoration(
+                                    color: isPaid ? const Color(0xFFFEF2F2) : const Color(0xFFF0FDF4),
+                                    borderRadius: BorderRadius.circular(10),
+                                    border: Border.all(color: isPaid ? const Color(0xFFFECACA) : const Color(0xFFBBF7D0)),
+                                  ),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Text(
+                                        isPaid ? "🔒 مدفوع" : "🟢 مجاني",
+                                        style: GoogleFonts.cairo(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 12,
+                                          color: isPaid ? const Color(0xFFDC2626) : const Color(0xFF16A34A),
+                                        ),
+                                      ),
+                                      const SizedBox(width: 8),
+                                      Switch(
+                                        value: isPaid,
+                                        activeColor: const Color(0xFFDC2626),
+                                        onChanged: (v) => setDlgState(() => isPaid = v),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 14),
+                            Align(
+                              alignment: Alignment.centerLeft,
+                              child: ElevatedButton.icon(
+                                onPressed: () async {
+                                  final title = titleCtrl.text.trim();
+                                  if (title.isEmpty) {
+                                    _showSnackBar("يرجى كتابة اسم القائمة", isError: true);
+                                    return;
+                                  }
+                                  final img = imgCtrl.text.trim().isNotEmpty
+                                      ? imgCtrl.text.trim()
+                                      : 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=600';
+                                  final desc = descCtrl.text.trim();
+
+                                  if (isCourse) {
+                                    await _dataService.createCourse({
+                                      'title': title,
+                                      'imageUrl': img,
+                                      'image': img,
+                                      'description': desc,
+                                      'category': selectedCat,
+                                      'isPaid': isPaid,
+                                      'status': 'منشور',
+                                      'lessons': [],
+                                    });
+                                  } else {
+                                    await _dataService.createLessonPlaylist({
+                                      'title': title,
+                                      'imageUrl': img,
+                                      'image': img,
+                                      'description': desc,
+                                      'category': selectedCat,
+                                      'isPaid': isPaid,
+                                      'status': 'منشور',
+                                    });
+                                  }
+                                  titleCtrl.clear();
+                                  imgCtrl.clear();
+                                  descCtrl.clear();
+                                  setDlgState(() {});
+                                  setState(() {});
+                                  _showSnackBar("تم حفظ القائمة بنجاح في Firebase 🚀");
+                                },
+                                icon: const Icon(Icons.cloud_upload_rounded, size: 18),
+                                label: Text("حفظ القائمة في Firebase", style: GoogleFonts.cairo(fontWeight: FontWeight.bold)),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: const Color(0xFF8B5CF6),
+                                  foregroundColor: Colors.white,
+                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 24),
+                      Text("القوائم الحالية (${playlists.length}):", style: GoogleFonts.cairo(fontWeight: FontWeight.bold, fontSize: 14)),
+                      const SizedBox(height: 12),
+                      ConstrainedBox(
+                        constraints: const BoxConstraints(maxHeight: 250),
+                        child: playlists.isEmpty
+                            ? Center(child: Padding(padding: const EdgeInsets.all(20), child: Text("لا توجد قوائم منشأة بعد", style: GoogleFonts.cairo(color: Colors.grey))))
+                            : ListView.separated(
+                                shrinkWrap: true,
+                                itemCount: playlists.length,
+                                separatorBuilder: (c, i) => const SizedBox(height: 8),
+                                itemBuilder: (c, i) {
+                                  final item = playlists[i];
+                                  final paid = item['isPaid'] == true;
+                                  return Container(
+                                    padding: const EdgeInsets.all(12),
+                                    decoration: BoxDecoration(
+                                      color: const Color(0xFFF8FAFC),
+                                      borderRadius: BorderRadius.circular(10),
+                                      border: Border.all(color: const Color(0xFFE2E8F0)),
+                                    ),
+                                    child: Row(
+                                      children: [
+                                        ClipRRect(
+                                          borderRadius: BorderRadius.circular(8),
+                                          child: SizedBox(
+                                            width: 50,
+                                            height: 40,
+                                            child: Image.network(
+                                              item['imageUrl'] ?? item['image'] ?? '',
+                                              fit: BoxFit.cover,
+                                              errorBuilder: (ctx, err, stack) => Container(color: Colors.grey.shade200, child: const Icon(Icons.image, size: 18, color: Colors.grey)),
+                                            ),
+                                          ),
+                                        ),
+                                        const SizedBox(width: 12),
+                                        Expanded(
+                                          child: Column(
+                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            children: [
+                                              Text(item['title'] ?? '', style: GoogleFonts.cairo(fontWeight: FontWeight.bold, fontSize: 13)),
+                                              Text(item['category'] ?? '', style: GoogleFonts.cairo(fontSize: 11, color: Colors.grey)),
+                                            ],
+                                          ),
+                                        ),
+                                        Container(
+                                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                                          decoration: BoxDecoration(
+                                            color: paid ? const Color(0xFFFEF2F2) : const Color(0xFFF0FDF4),
+                                            borderRadius: BorderRadius.circular(6),
+                                          ),
+                                          child: Text(
+                                            paid ? "🔒 مدفوع" : "🟢 مجاني",
+                                            style: GoogleFonts.cairo(fontSize: 10, fontWeight: FontWeight.bold, color: paid ? const Color(0xFFDC2626) : const Color(0xFF16A34A)),
+                                          ),
+                                        ),
+                                        IconButton(
+                                          icon: const Icon(Icons.delete_outline_rounded, size: 18, color: Color(0xFFEF4444)),
+                                          tooltip: "حذف القائمة",
+                                          onPressed: () async {
+                                            if (isCourse) {
+                                              await _dataService.deleteCourse(item['id']);
+                                            } else {
+                                              await _dataService.deleteLessonPlaylist(item['id']);
+                                            }
+                                            setDlgState(() {});
+                                            setState(() {});
+                                            _showSnackBar("تم حذف القائمة من Firebase");
+                                          },
+                                        ),
+                                      ],
+                                    ),
+                                  );
+                                },
+                              ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(ctx),
+                  child: Text("إغلاق", style: GoogleFonts.cairo(fontWeight: FontWeight.bold, color: const Color(0xFF64748B))),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
+
+  // ----------------------------------------------------
+  // Card 3: إضافة فيديو / درس (Dual Editor Workspace)
+  // ----------------------------------------------------
+  void _openAddLectureOrLessonModal({required bool isCourse}) {
+    final titleCtrl = TextEditingController();
+    final imgCtrl = TextEditingController(text: 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=600');
+    final videoUrlCtrl = TextEditingController();
+    final contentCtrl = TextEditingController();
+    final htmlCtrl = TextEditingController();
+    bool isPaid = false;
+    int editorTab = 0; // 0: محرر بلوجر العادي, 1: محرر كود HTML
+
+    final playlists = isCourse ? _dataService.courses : _dataService.lessonPlaylists;
+    String selectedPlaylistId = playlists.isNotEmpty ? playlists.first['id'].toString() : '';
+
+    showDialog(
+      context: context,
+      builder: (ctx) {
+        return StatefulBuilder(
+          builder: (dialogCtx, setDlgState) {
+            return AlertDialog(
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+              title: Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(color: const Color(0xFF10B981).withOpacity(0.1), borderRadius: BorderRadius.circular(10)),
+                    child: Icon(isCourse ? Icons.video_call_rounded : Icons.post_add_rounded, color: const Color(0xFF10B981), size: 24),
+                  ),
+                  const SizedBox(width: 12),
+                  Text(
+                    isCourse ? "إضافة فيديو جديد للكورس 🎬" : "إضافة درس جديد 📝",
+                    style: GoogleFonts.cairo(fontWeight: FontWeight.bold, fontSize: 18),
+                  ),
+                ],
+              ),
+              content: SizedBox(
+                width: 780,
+                child: SingleChildScrollView(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // 1. Playlist selector & Free/Paid toggle
+                      Row(
+                        children: [
+                          Expanded(
+                            flex: 3,
+                            child: playlists.isEmpty
+                                ? Container(
+                                    padding: const EdgeInsets.all(12),
+                                    decoration: BoxDecoration(color: const Color(0xFFFEF2F2), borderRadius: BorderRadius.circular(8)),
+                                    child: Text(
+                                      isCourse ? "لا توجد كورسات مضافة. يرجى إنشاء كورس أولاً من كارت 2." : "لا توجد قوائم تشغيل. يرجى إنشاء قائمة أولاً من كارت 2.",
+                                      style: GoogleFonts.cairo(fontSize: 12, color: const Color(0xFFDC2626)),
+                                    ),
+                                  )
+                                : DropdownButtonFormField<String>(
+                                    value: playlists.any((p) => p['id'].toString() == selectedPlaylistId)
+                                        ? selectedPlaylistId
+                                        : playlists.first['id'].toString(),
+                                    decoration: _inputDecoration(isCourse ? "اختر الكورس التابع له *" : "اختر قائمة التشغيل / المنهج *"),
+                                    items: playlists.map((p) => DropdownMenuItem(value: p['id'].toString(), child: Text(p['title'] ?? '', style: GoogleFonts.cairo(fontSize: 13)))).toList(),
+                                    onChanged: (v) => setDlgState(() => selectedPlaylistId = v ?? ''),
+                                  ),
+                          ),
+                          const SizedBox(width: 14),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                            decoration: BoxDecoration(
+                              color: isPaid ? const Color(0xFFFEF2F2) : const Color(0xFFF0FDF4),
+                              borderRadius: BorderRadius.circular(10),
+                              border: Border.all(color: isPaid ? const Color(0xFFFECACA) : const Color(0xFFBBF7D0)),
+                            ),
+                            child: Row(
+                              children: [
+                                Text(
+                                  isPaid ? "🔒 مدفوع" : "🟢 مجاني",
+                                  style: GoogleFonts.cairo(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 12,
+                                    color: isPaid ? const Color(0xFFDC2626) : const Color(0xFF16A34A),
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                Switch(
+                                  value: isPaid,
+                                  activeColor: const Color(0xFFDC2626),
+                                  onChanged: (v) => setDlgState(() => isPaid = v),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 14),
+
+                      // 2. Title
+                      TextField(
+                        controller: titleCtrl,
+                        decoration: _inputDecoration(isCourse ? "عنوان الفيديو / المحاضرة *" : "عنوان الدرس *"),
+                      ),
+                      const SizedBox(height: 12),
+
+                      // 3. Image URL & Video URL
+                      Row(
+                        children: [
+                          Expanded(
+                            child: TextField(
+                              controller: imgCtrl,
+                              decoration: _inputDecoration("رابط صورة الغلاف (URL)"),
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: TextField(
+                              controller: videoUrlCtrl,
+                              decoration: _inputDecoration("رابط الفيديو (YouTube / MP4)"),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 20),
+
+                      // 4. Dual Editor Tabs Switcher
+                      Container(
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFF1F5F9),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        padding: const EdgeInsets.all(4),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: InkWell(
+                                onTap: () => setDlgState(() => editorTab = 0),
+                                borderRadius: BorderRadius.circular(8),
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(vertical: 8),
+                                  decoration: BoxDecoration(
+                                    color: editorTab == 0 ? Colors.white : Colors.transparent,
+                                    borderRadius: BorderRadius.circular(8),
+                                    boxShadow: editorTab == 0 ? [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 4)] : [],
+                                  ),
+                                  child: Center(
+                                    child: Text(
+                                      "✍️ المحرر العادي (زي مدونة بلوجر)",
+                                      style: GoogleFonts.cairo(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 13,
+                                        color: editorTab == 0 ? const Color(0xFF0284C7) : const Color(0xFF64748B),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            Expanded(
+                              child: InkWell(
+                                onTap: () => setDlgState(() => editorTab = 1),
+                                borderRadius: BorderRadius.circular(8),
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(vertical: 8),
+                                  decoration: BoxDecoration(
+                                    color: editorTab == 1 ? Colors.white : Colors.transparent,
+                                    borderRadius: BorderRadius.circular(8),
+                                    boxShadow: editorTab == 1 ? [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 4)] : [],
+                                  ),
+                                  child: Center(
+                                    child: Text(
+                                      "💻 محرر كود HTML (كامل)",
+                                      style: GoogleFonts.cairo(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 13,
+                                        color: editorTab == 1 ? const Color(0xFF8B5CF6) : const Color(0xFF64748B),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+
+                      // Editor 1: Blogger Visual Editor
+                      if (editorTab == 0) ...[
+                        _buildBloggerRibbonToolbar(contentCtrl, () => setDlgState(() {})),
+                        const SizedBox(height: 8),
+                        TextField(
+                          controller: contentCtrl,
+                          maxLines: 9,
+                          decoration: InputDecoration(
+                            hintText: "اكتب محتوى الدرس وشرحه هنا... يمكنك استخدام شريط الأدوات بالأعلى لتنسيق الخطوط وإضافة الصور والفيديوهات والكود والملاحظات مثل بلوجر تماماً.",
+                            hintStyle: GoogleFonts.cairo(fontSize: 13, color: Colors.grey),
+                            filled: true,
+                            fillColor: const Color(0xFFF8FAFC),
+                            border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: const BorderSide(color: Color(0xFFE2E8F0))),
+                          ),
+                        ),
+                      ] else ...[
+                        // Editor 2: Full HTML Code Editor
+                        Container(
+                          decoration: BoxDecoration(color: const Color(0xFF0F172A), borderRadius: BorderRadius.circular(10)),
+                          padding: const EdgeInsets.all(12),
+                          child: TextField(
+                            controller: htmlCtrl,
+                            maxLines: 10,
+                            style: const TextStyle(fontFamily: 'monospace', fontSize: 13, color: Color(0xFF38BDF8)),
+                            decoration: const InputDecoration(
+                              border: InputBorder.none,
+                              hintText: "<div class=\"lesson-content\">\n  <!-- أدخل كود HTML بالكامل هنا مع التنسيقات والأكواد التفاعلية -->\n</div>",
+                              hintStyle: TextStyle(color: Colors.white24, fontFamily: 'monospace'),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(ctx),
+                  child: Text("إلغاء", style: GoogleFonts.cairo(color: Colors.grey, fontWeight: FontWeight.bold)),
+                ),
+                ElevatedButton.icon(
+                  onPressed: () async {
+                    final title = titleCtrl.text.trim();
+                    if (title.isEmpty) {
+                      _showSnackBar("يرجى كتابة عنوان المحتوى", isError: true);
+                      return;
+                    }
+                    if (playlists.isEmpty || selectedPlaylistId.isEmpty) {
+                      _showSnackBar("يرجى اختيار قائمة التشغيل", isError: true);
+                      return;
+                    }
+
+                    final img = imgCtrl.text.trim();
+                    final video = videoUrlCtrl.text.trim();
+                    final content = contentCtrl.text.trim();
+                    final htmlCode = htmlCtrl.text.trim();
+
+                    if (isCourse) {
+                      // Append to course's lessons list
+                      final courseIdx = _dataService.courses.indexWhere((c) => c['id'].toString() == selectedPlaylistId);
+                      if (courseIdx >= 0) {
+                        final course = _dataService.courses[courseIdx];
+                        final lessonsList = List<Map<String, dynamic>>.from(course['lessons'] ?? []);
+                        lessonsList.add({
+                          'id': 'lec_${DateTime.now().millisecondsSinceEpoch}',
+                          'title': title,
+                          'imageUrl': img,
+                          'image': img,
+                          'videoUrl': video,
+                          'youtubeUrl': video,
+                          'isPaid': isPaid,
+                          'editorType': editorTab == 0 ? 'visual' : 'html',
+                          'content': content,
+                          'htmlCode': htmlCode,
+                        });
+                        await _dataService.updateCourse(course['id'], {'lessons': lessonsList});
+                      }
+                    } else {
+                      // Add standalone lesson
+                      final targetPlaylist = _dataService.lessonPlaylists.firstWhere(
+                        (p) => p['id'].toString() == selectedPlaylistId,
+                        orElse: () => <String, dynamic>{},
+                      );
+
+                      await _dataService.addLesson({
+                        'title': title,
+                        'playlistId': selectedPlaylistId,
+                        'playlistTitle': targetPlaylist['title'] ?? 'قائمة الدروس',
+                        'category': targetPlaylist['category'] ?? 'عام',
+                        'imageUrl': img,
+                        'image': img,
+                        'videoUrl': video,
+                        'youtubeUrl': video,
+                        'isPaid': isPaid,
+                        'editorType': editorTab == 0 ? 'visual' : 'html',
+                        'content': content,
+                        'htmlCode': htmlCode,
+                        'status': 'منشور',
+                      });
+                    }
+
+                    Navigator.pop(ctx);
+                    setState(() {});
+                    _showSnackBar("تم حفظ ونشر المحتوى بنجاح في Firebase 🚀");
+                  },
+                  icon: const Icon(Icons.check_rounded, size: 18),
+                  label: Text("حفظ ونشر في Firebase", style: GoogleFonts.cairo(fontWeight: FontWeight.bold)),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF10B981),
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                  ),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
+
+  // ----------------------------------------------------
+  // Card 4: اختبار (Quiz Modal - HTML Editor Only)
+  // ----------------------------------------------------
+  void _openAddQuizToLectureOrLessonModal({required bool isCourse}) {
+    final quizTitleCtrl = TextEditingController(text: "اختبار قياس الفهم");
+    final quizHtmlCtrl = TextEditingController();
+    final playlists = isCourse ? _dataService.courses : _dataService.lessonPlaylists;
+    String selectedPlaylistId = playlists.isNotEmpty ? playlists.first['id'].toString() : '';
+    String selectedLessonId = '';
+
+    showDialog(
+      context: context,
+      builder: (ctx) {
+        return StatefulBuilder(
+          builder: (dialogCtx, setDlgState) {
+            // Available lessons/lectures depending on the selected playlist
+            List<Map<String, dynamic>> targetLessons = [];
+            if (isCourse) {
+              final course = _dataService.courses.firstWhere(
+                (c) => c['id'].toString() == selectedPlaylistId,
+                orElse: () => <String, dynamic>{},
+              );
+              targetLessons = List<Map<String, dynamic>>.from(course['lessons'] ?? []);
+            } else {
+              targetLessons = _dataService.lessons.where((l) => l['playlistId'].toString() == selectedPlaylistId).toList();
+            }
+
+            if (selectedLessonId.isEmpty && targetLessons.isNotEmpty) {
+              selectedLessonId = targetLessons.first['id'].toString();
+            }
+
+            return AlertDialog(
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+              title: Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(color: const Color(0xFFF59E0B).withOpacity(0.1), borderRadius: BorderRadius.circular(10)),
+                    child: const Icon(Icons.quiz_rounded, color: Color(0xFFF59E0B), size: 24),
+                  ),
+                  const SizedBox(width: 12),
+                  Text("إضافة اختبار للدرس أو الفيديو 🧠", style: GoogleFonts.cairo(fontWeight: FontWeight.bold, fontSize: 18)),
+                ],
+              ),
+              content: SizedBox(
+                width: 720,
+                child: SingleChildScrollView(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // 1. Select Playlist
+                      DropdownButtonFormField<String>(
+                        value: playlists.any((p) => p['id'].toString() == selectedPlaylistId)
+                            ? selectedPlaylistId
+                            : (playlists.isNotEmpty ? playlists.first['id'].toString() : null),
+                        decoration: _inputDecoration(isCourse ? "اختر الكورس *" : "اختر قائمة التشغيل *"),
+                        items: playlists.map((p) => DropdownMenuItem(value: p['id'].toString(), child: Text(p['title'] ?? '', style: GoogleFonts.cairo(fontSize: 13)))).toList(),
+                        onChanged: (v) {
+                          setDlgState(() {
+                            selectedPlaylistId = v ?? '';
+                            selectedLessonId = '';
+                          });
+                        },
+                      ),
+                      const SizedBox(height: 12),
+
+                      // 2. Select Lesson / Lecture
+                      if (targetLessons.isEmpty)
+                        Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(color: const Color(0xFFFEF2F2), borderRadius: BorderRadius.circular(8)),
+                          child: Text("لا توجد دروس أو فيديوهات مضافة بعد داخل هذه القائمة.", style: GoogleFonts.cairo(fontSize: 12, color: const Color(0xFFDC2626))),
+                        )
+                      else
+                        DropdownButtonFormField<String>(
+                          value: targetLessons.any((l) => l['id'].toString() == selectedLessonId)
+                              ? selectedLessonId
+                              : targetLessons.first['id'].toString(),
+                          decoration: _inputDecoration("اختر الدرس أو الفيديو المستهدف *"),
+                          items: targetLessons.map((l) => DropdownMenuItem(value: l['id'].toString(), child: Text(l['title'] ?? '', style: GoogleFonts.cairo(fontSize: 13)))).toList(),
+                          onChanged: (v) => setDlgState(() => selectedLessonId = v ?? ''),
+                        ),
+                      const SizedBox(height: 12),
+
+                      // 3. Quiz Title
+                      TextField(
+                        controller: quizTitleCtrl,
+                        decoration: _inputDecoration("عنوان الاختبار *"),
+                      ),
+                      const SizedBox(height: 16),
+
+                      // 4. HTML Editor Only
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text("محرر كود HTML فقط للاختبار *", style: GoogleFonts.cairo(fontWeight: FontWeight.bold, fontSize: 13)),
+                          TextButton.icon(
+                            onPressed: () {
+                              quizHtmlCtrl.text = '''
+<div style="font-family: 'Cairo', sans-serif; direction: rtl; padding: 20px; background: #f8fafc; border-radius: 16px; border: 1px solid #e2e8f0;">
+  <h3 style="color: #0284c7; margin-top: 0;">📝 اختبار قياس الفهم والاستيعاب</h3>
+  <p style="color: #64748b;">اختر الإجابة الصحيحة لكل سؤال واضغط على زر التحقق لمعرفة نتيجتك فوراً:</p>
+
+  <div style="background: #ffffff; padding: 18px; border-radius: 12px; margin-bottom: 16px; border: 1px solid #cbd5e1;">
+    <h4 style="margin: 0 0 12px; color: #1e293b;">السؤال الأول: ما هي لغة البرمجة الأساسية لبناء تطبيقات Flutter؟</h4>
+    <label style="display: block; margin-bottom: 8px; cursor: pointer;"><input type="radio" name="q1" value="wrong"> JavaScript</label>
+    <label style="display: block; margin-bottom: 8px; cursor: pointer;"><input type="radio" name="q1" value="correct"> Dart</label>
+    <label style="display: block; margin-bottom: 8px; cursor: pointer;"><input type="radio" name="q1" value="wrong"> Python</label>
+  </div>
+
+  <button onclick="checkScore()" style="background: #0284c7; color: #ffffff; border: none; padding: 12px 24px; border-radius: 8px; font-weight: bold; cursor: pointer;">تحقق من النتيجة ✅</button>
+  <div id="quiz-result" style="margin-top: 14px; font-weight: bold; color: #16a34a;"></div>
+</div>
+
+<script>
+function checkScore() {
+  var q1 = document.querySelector('input[name="q1"]:checked');
+  var res = document.getElementById('quiz-result');
+  if(!q1) { res.innerText = "يرجى اختيار إجابة أولاً!"; res.style.color="#dc2626"; return; }
+  if(q1.value === "correct") {
+    res.innerText = "🎉 إجابة ممتازة وصحيحة! نتيجتك 100%";
+    res.style.color="#16a34a";
+  } else {
+    res.innerText = "❌ إجابة غير صحيحة، حاول مجدداً!";
+    res.style.color="#dc2626";
+  }
+}
+</script>
+''';
+                              setDlgState(() {});
+                            },
+                            icon: const Icon(Icons.auto_fix_high_rounded, size: 16, color: Color(0xFFF59E0B)),
+                            label: Text("إدراج قالب اختبار تفاعلي جاهز 🪄", style: GoogleFonts.cairo(fontSize: 12, color: const Color(0xFFD97706), fontWeight: FontWeight.bold)),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 8),
+                      Container(
+                        decoration: BoxDecoration(color: const Color(0xFF0F172A), borderRadius: BorderRadius.circular(10)),
+                        padding: const EdgeInsets.all(12),
+                        child: TextField(
+                          controller: quizHtmlCtrl,
+                          maxLines: 10,
+                          style: const TextStyle(fontFamily: 'monospace', fontSize: 13, color: Color(0xFF38BDF8)),
+                          decoration: const InputDecoration(
+                            border: InputBorder.none,
+                            hintText: "<div class=\"quiz-box\">\n  <!-- أدخل كود HTML للاختبار فقط هنا -->\n</div>",
+                            hintStyle: TextStyle(color: Colors.white24, fontFamily: 'monospace'),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(ctx),
+                  child: Text("إلغاء", style: GoogleFonts.cairo(color: Colors.grey, fontWeight: FontWeight.bold)),
+                ),
+                ElevatedButton.icon(
+                  onPressed: () async {
+                    final qTitle = quizTitleCtrl.text.trim();
+                    final qHtml = quizHtmlCtrl.text.trim();
+
+                    if (selectedLessonId.isEmpty) {
+                      _showSnackBar("يرجى اختيار الدرس أو الفيديو المستهدف", isError: true);
+                      return;
+                    }
+                    if (qHtml.isEmpty) {
+                      _showSnackBar("يرجى إدخال كود HTML للاختبار", isError: true);
+                      return;
+                    }
+
+                    if (isCourse) {
+                      final courseIdx = _dataService.courses.indexWhere((c) => c['id'].toString() == selectedPlaylistId);
+                      if (courseIdx >= 0) {
+                        final course = _dataService.courses[courseIdx];
+                        final lessonsList = List<Map<String, dynamic>>.from(course['lessons'] ?? []);
+                        final lecIdx = lessonsList.indexWhere((l) => l['id'].toString() == selectedLessonId);
+                        if (lecIdx >= 0) {
+                          lessonsList[lecIdx]['hasQuiz'] = true;
+                          lessonsList[lecIdx]['quizTitle'] = qTitle;
+                          lessonsList[lecIdx]['quizHtml'] = qHtml;
+                          await _dataService.updateCourse(course['id'], {'lessons': lessonsList});
+                        }
+                      }
+                    } else {
+                      await _dataService.updateLesson(selectedLessonId, {
+                        'hasQuiz': true,
+                        'quizTitle': qTitle,
+                        'quizHtml': qHtml,
+                      });
+                    }
+
+                    // Also save to interactiveQuizzes collection
+                    await _dataService.addInteractiveQuiz({
+                      'title': qTitle,
+                      'htmlContent': qHtml,
+                      'htmlCode': qHtml,
+                    });
+
+                    Navigator.pop(ctx);
+                    setState(() {});
+                    _showSnackBar("تم ربط الاختبار بالدرس وحفظه بنجاح في Firebase 🧠");
+                  },
+                  icon: const Icon(Icons.check_rounded, size: 18),
+                  label: Text("حفظ الاختبار في Firebase", style: GoogleFonts.cairo(fontWeight: FontWeight.bold)),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFFF59E0B),
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                  ),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
+
+  // ----------------------------------------------------
+  // Blogger Ribbon Toolbar Helper
+  // ----------------------------------------------------
+  Widget _buildBloggerRibbonToolbar(TextEditingController ctrl, VoidCallback onUpdate) {
+    void wrapSelection(String open, String close) {
+      final text = ctrl.text;
+      final sel = ctrl.selection;
+      if (sel.isValid && sel.start >= 0 && sel.end >= 0 && sel.start != sel.end) {
+        final before = text.substring(0, sel.start);
+        final selected = text.substring(sel.start, sel.end);
+        final after = text.substring(sel.end);
+        ctrl.text = '$before$open$selected$close$after';
+        ctrl.selection = TextSelection(baseOffset: sel.start + open.length, extentOffset: sel.start + open.length + selected.length);
+      } else {
+        final pos = sel.isValid && sel.baseOffset >= 0 ? sel.baseOffset : text.length;
+        final before = text.substring(0, pos);
+        final after = text.substring(pos);
+        ctrl.text = '$before$open$close$after';
+        ctrl.selection = TextSelection.collapsed(offset: pos + open.length);
+      }
+      onUpdate();
+    }
+
+    void insertSnippet(String snippet) {
+      final text = ctrl.text;
+      final sel = ctrl.selection;
+      final pos = sel.isValid && sel.baseOffset >= 0 ? sel.baseOffset : text.length;
+      final before = text.substring(0, pos);
+      final after = text.substring(pos);
+      ctrl.text = '$before\n$snippet\n$after';
+      ctrl.selection = TextSelection.collapsed(offset: pos + snippet.length + 2);
+      onUpdate();
+    }
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF1F5F9),
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: const Color(0xFFCBD5E1)),
+      ),
+      child: Wrap(
+        spacing: 6,
+        runSpacing: 6,
+        crossAxisAlignment: WrapCrossAlignment.center,
+        children: [
+          _toolbarBtn("B", "عريض", () => wrapSelection("<b>", "</b>"), isBold: true),
+          _toolbarBtn("I", "مائل", () => wrapSelection("<i>", "</i>"), isItalic: true),
+          _toolbarBtn("U", "مسطر", () => wrapSelection("<u>", "</u>"), isUnderline: true),
+          const SizedBox(height: 18, child: VerticalDivider(color: Color(0xFF94A3B8))),
+          _toolbarBtn("H1", "عنوان رئيسي", () => wrapSelection("<h1 style=\"color:#0284c7; border-bottom: 2px solid #e2e8f0; padding-bottom: 8px;\">", "</h1>")),
+          _toolbarBtn("H2", "عنوان فرعي", () => wrapSelection("<h2 style=\"color:#334155; margin-top: 18px;\">", "</h2>")),
+          _toolbarBtn("H3", "عنوان قسم", () => wrapSelection("<h3 style=\"color:#64748b;\">", "</h3>")),
+          const SizedBox(height: 18, child: VerticalDivider(color: Color(0xFF94A3B8))),
+          _toolbarIconBtn(Icons.image_rounded, "إضافة صورة", () {
+            _promptForUrlAndInsert(
+              title: "إضافة صورة في المقال",
+              hint: "رابط الصورة (URL)",
+              onConfirm: (url) {
+                insertSnippet('<div style="text-align: center; margin: 20px 0;">\n  <img src="$url" style="max-width: 100%; border-radius: 12px; box-shadow: 0 4px 16px rgba(0,0,0,0.1);" alt="صورة المقال"/>\n</div>');
+              },
+            );
+          }),
+          _toolbarIconBtn(Icons.video_library_rounded, "إضافة فيديو يوتيوب", () {
+            _promptForUrlAndInsert(
+              title: "إضافة فيديو يوتيوب",
+              hint: "رابط فيديو يوتيوب (https://www.youtube.com/watch?v=...)",
+              onConfirm: (url) {
+                final id = _extractYoutubeId(url);
+                insertSnippet('<div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; border-radius: 12px; margin: 20px 0;">\n  <iframe src="https://www.youtube.com/embed/$id" style="position: absolute; top:0; left: 0; width: 100%; height: 100%; border:0;" allowfullscreen></iframe>\n</div>');
+              },
+            );
+          }),
+          _toolbarIconBtn(Icons.terminal_rounded, "إضافة كود برمجي", () {
+            insertSnippet('<pre style="background: #0f172a; color: #38bdf8; padding: 16px; border-radius: 10px; font-family: monospace; direction: ltr; text-align: left; overflow-x: auto;">\n<code>// اكتب الكود البرمجي هنا\nvoid main() {\n  print("Hello World!");\n}\n</code></pre>');
+          }),
+          _toolbarIconBtn(Icons.lightbulb_outline_rounded, "صندوق ملاحظة / تنبيه", () {
+            insertSnippet('<div style="background: #f0fdf4; border-right: 4px solid #22c55e; padding: 14px 18px; border-radius: 8px; color: #15803d; margin: 16px 0;">\n  <strong>💡 معلومة هامة:</strong> اكتب الملاحظة أو التنبيه هنا...\n</div>');
+          }),
+          _toolbarIconBtn(Icons.link_rounded, "إضافة رابط", () {
+            _promptForUrlAndInsert(
+              title: "إضافة رابط خارجي",
+              hint: "الرابط (URL)",
+              onConfirm: (url) {
+                wrapSelection('<a href="$url" target="_blank" style="color: #0284c7; text-decoration: underline; font-weight: bold;">', '</a>');
+              },
+            );
+          }),
+          _toolbarIconBtn(Icons.format_list_bulleted_rounded, "قائمة نقطية", () {
+            insertSnippet('<ul style="line-height: 2; margin: 14px 0;">\n  <li>العنصر الأول</li>\n  <li>العنصر الثاني</li>\n  <li>العنصر الثالث</li>\n</ul>');
+          }),
+        ],
+      ),
+    );
+  }
+
+  Widget _toolbarBtn(String label, String tooltip, VoidCallback onTap, {bool isBold = false, bool isItalic = false, bool isUnderline = false}) {
+    return Tooltip(
+      message: tooltip,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(6),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+          decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(6), border: Border.all(color: const Color(0xFFCBD5E1))),
+          child: Text(
+            label,
+            style: TextStyle(
+              fontWeight: isBold ? FontWeight.bold : FontWeight.w600,
+              fontStyle: isItalic ? FontStyle.italic : FontStyle.normal,
+              decoration: isUnderline ? TextDecoration.underline : TextDecoration.none,
+              fontSize: 12,
+              color: const Color(0xFF1E293B),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _toolbarIconBtn(IconData icon, String tooltip, VoidCallback onTap) {
+    return Tooltip(
+      message: tooltip,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(6),
+        child: Container(
+          padding: const EdgeInsets.all(6),
+          decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(6), border: Border.all(color: const Color(0xFFCBD5E1))),
+          child: Icon(icon, size: 16, color: const Color(0xFF475569)),
+        ),
+      ),
+    );
+  }
+
+  void _promptForUrlAndInsert({required String title, required String hint, required Function(String) onConfirm}) {
+    final urlCtrl = TextEditingController();
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(title, style: GoogleFonts.cairo(fontWeight: FontWeight.bold, fontSize: 16)),
+        content: TextField(
+          controller: urlCtrl,
+          decoration: InputDecoration(
+            hintText: hint,
+            hintStyle: GoogleFonts.cairo(fontSize: 12, color: Colors.grey),
+            filled: true,
+            fillColor: const Color(0xFFF8FAFC),
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+          ),
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text("إلغاء")),
+          ElevatedButton(
+            onPressed: () {
+              final val = urlCtrl.text.trim();
+              if (val.isNotEmpty) {
+                onConfirm(val);
+              }
+              Navigator.pop(ctx);
+            },
+            child: const Text("تأكيد وإدراج"),
+          ),
+        ],
+      ),
+    );
+  }
+
+  String _extractYoutubeId(String url) {
+    final regExp = RegExp(r'(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))([\w-]{11})');
+    final match = regExp.firstMatch(url);
+    return match != null ? match.group(1)! : url;
+  }
+
+  // ----------------------------------------------------
+  // Members Permissions Manager Dialog
+  // ----------------------------------------------------
+  void _openMemberPermissionsDialog(Map<String, dynamic> member) {
+    final uid = member['uid'] ?? '';
+    final name = member['name'] ?? member['displayName'] ?? 'عضو';
+    final email = member['email'] ?? '';
+    final List<String> allowedCourses = List<String>.from(member['allowedCourses'] ?? []);
+    final List<String> allowedLessons = List<String>.from(member['allowedLessons'] ?? []);
+
+    final paidCourses = _dataService.courses.where((c) => c['isPaid'] == true).toList();
+    final paidLessons = _dataService.lessons.where((l) => l['isPaid'] == true).toList();
+
+    showDialog(
+      context: context,
+      builder: (ctx) {
+        return StatefulBuilder(
+          builder: (dialogCtx, setDlgState) {
+            return AlertDialog(
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+              title: Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(color: const Color(0xFFF59E0B).withOpacity(0.12), borderRadius: BorderRadius.circular(10)),
+                    child: const Icon(Icons.vpn_key_rounded, color: Color(0xFFD97706), size: 24),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text("إدارة صلاحيات المحتوى المدفوع 🔑", style: GoogleFonts.cairo(fontWeight: FontWeight.bold, fontSize: 18)),
+                        Text("للعضو: $name ($email)", style: GoogleFonts.cairo(fontSize: 12, color: const Color(0xFF64748B))),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              content: SizedBox(
+                width: 600,
+                child: SingleChildScrollView(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(color: const Color(0xFFFEF3C7), borderRadius: BorderRadius.circular(10)),
+                        child: Row(
+                          children: [
+                            const Icon(Icons.info_outline_rounded, color: Color(0xFFB45309), size: 18),
+                            const SizedBox(width: 10),
+                            Expanded(
+                              child: Text(
+                                "حدد الكورسات والدروس المدفوعة المصرح لهذا العضو بالدخول إليها ومتابعتها:",
+                                style: GoogleFonts.cairo(fontSize: 12, fontWeight: FontWeight.bold, color: const Color(0xFF92400E)),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+
+                      // Section 1: Paid Courses
+                      Text("الكورسات المدفوعة 📚 (${paidCourses.length}):", style: GoogleFonts.cairo(fontWeight: FontWeight.bold, fontSize: 14)),
+                      const SizedBox(height: 8),
+                      if (paidCourses.isEmpty)
+                        Padding(
+                          padding: const EdgeInsets.all(10),
+                          child: Text("لا توجد كورسات محددة كـ 'مدفوعة' حتى الآن.", style: GoogleFonts.cairo(color: Colors.grey, fontSize: 12)),
+                        )
+                      else
+                        ...paidCourses.map((c) {
+                          final cId = c['id'].toString();
+                          final isAllowed = allowedCourses.contains(cId);
+                          return CheckboxListTile(
+                            dense: true,
+                            title: Text(c['title'] ?? '', style: GoogleFonts.cairo(fontWeight: FontWeight.bold, fontSize: 13)),
+                            subtitle: Text("التصنيف: ${c['category'] ?? 'عام'}", style: GoogleFonts.cairo(fontSize: 11)),
+                            value: isAllowed,
+                            activeColor: const Color(0xFF0284C7),
+                            onChanged: (val) {
+                              setDlgState(() {
+                                if (val == true) {
+                                  allowedCourses.add(cId);
+                                } else {
+                                  allowedCourses.remove(cId);
+                                }
+                              });
+                            },
+                          );
+                        }),
+
+                      const Divider(height: 28),
+
+                      // Section 2: Paid Lessons
+                      Text("الدروس المستقلة المدفوعة 📝 (${paidLessons.length}):", style: GoogleFonts.cairo(fontWeight: FontWeight.bold, fontSize: 14)),
+                      const SizedBox(height: 8),
+                      if (paidLessons.isEmpty)
+                        Padding(
+                          padding: const EdgeInsets.all(10),
+                          child: Text("لا توجد دروس محددة كـ 'مدفوعة' حتى الآن.", style: GoogleFonts.cairo(color: Colors.grey, fontSize: 12)),
+                        )
+                      else
+                        ...paidLessons.map((l) {
+                          final lId = l['id'].toString();
+                          final isAllowed = allowedLessons.contains(lId);
+                          return CheckboxListTile(
+                            dense: true,
+                            title: Text(l['title'] ?? '', style: GoogleFonts.cairo(fontWeight: FontWeight.bold, fontSize: 13)),
+                            subtitle: Text("القائمة: ${l['playlistTitle'] ?? l['category'] ?? 'عام'}", style: GoogleFonts.cairo(fontSize: 11)),
+                            value: isAllowed,
+                            activeColor: const Color(0xFF8B5CF6),
+                            onChanged: (val) {
+                              setDlgState(() {
+                                if (val == true) {
+                                  allowedLessons.add(lId);
+                                } else {
+                                  allowedLessons.remove(lId);
+                                }
+                              });
+                            },
+                          );
+                        }),
+                    ],
+                  ),
+                ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(ctx),
+                  child: Text("إلغاء", style: GoogleFonts.cairo(color: Colors.grey, fontWeight: FontWeight.bold)),
+                ),
+                ElevatedButton.icon(
+                  onPressed: () async {
+                    await UserService.instance.updateMemberPermissions(
+                      uid,
+                      allowedCourses: allowedCourses,
+                      allowedLessons: allowedLessons,
+                    );
+                    Navigator.pop(ctx);
+                    _showSnackBar("تم حفظ وتحديث صلاحيات العضو في Firebase بنجاح 🔑");
+                  },
+                  icon: const Icon(Icons.check_rounded, size: 18),
+                  label: Text("حفظ الصلاحيات في Firebase", style: GoogleFonts.cairo(fontWeight: FontWeight.bold)),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF0284C7),
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                  ),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
+
+  // =========================================================================
   // 2. الكورسات (COURSES 📚)
   // =========================================================================
   Widget _buildCoursesSection() {
@@ -2516,6 +3984,8 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        // 4 Action Cards for Courses
+        _buildFourActionCards(isCourse: true),
         _buildSubTabHeader(
           tabs: [
             _SubTabItem("الكورسات التعليمية", Icons.menu_book_rounded, count: _dataService.courses.length),
@@ -3131,6 +4601,8 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        // 4 Action Cards for Lessons
+        _buildFourActionCards(isCourse: false),
         _buildSubTabHeader(
           tabs: [
             _SubTabItem("جميع الدروس", Icons.school_rounded, count: _dataService.lessons.length),
@@ -3586,6 +5058,14 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                 ),
                 const Divider(height: 32, color: Color(0xFFE2E8F0)),
 
+                Text("عنوان الاختبار *", style: GoogleFonts.cairo(fontSize: 13, fontWeight: FontWeight.bold)),
+                const SizedBox(height: 8),
+                TextField(
+                  controller: _quizTitleEditorCtrl,
+                  decoration: _inputDecoration("اكتب عنوان الاختبار التفاعلي..."),
+                ),
+                const SizedBox(height: 18),
+
                 Text("كود HTML للاختبار *", style: GoogleFonts.cairo(fontSize: 13, fontWeight: FontWeight.bold)),
                 const SizedBox(height: 8),
                 Container(
@@ -3665,6 +5145,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                       onPressed: () {
                         setState(() {
                           _editingQuiz = q;
+                          _quizTitleEditorCtrl.text = q['title'] ?? 'اختبار تفاعلي';
                           _quizHtmlEditorCtrl.text = q['htmlCode'] ?? '';
                         });
                         _showSnackBar("تم تحميل كود الاختبار في المحرر للتعديل");
@@ -3774,9 +5255,13 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
       _showSnackBar("يرجى إدخال كود HTML للاختبار", isError: true);
       return;
     }
+    final title = _quizTitleEditorCtrl.text.trim().isNotEmpty
+        ? _quizTitleEditorCtrl.text.trim()
+        : 'اختبار تفاعلي HTML';
+
     final quizData = {
       'id': _editingQuiz?['id'] ?? 'quiz_html_${DateTime.now().millisecondsSinceEpoch}',
-      'title': 'اختبار تفاعلي HTML',
+      'title': title,
       'description': 'اختبار تفاعلي مباشر مبني بكود HTML',
       'category': 'عام',
       'questionsCount': 10,
@@ -4418,21 +5903,27 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                     DataColumn(label: Text("اسم العضو", style: GoogleFonts.cairo(fontWeight: FontWeight.bold))),
                     DataColumn(label: Text("البريد الإلكتروني", style: GoogleFonts.cairo(fontWeight: FontWeight.bold))),
                     DataColumn(label: Text("الهاتف", style: GoogleFonts.cairo(fontWeight: FontWeight.bold))),
-                    DataColumn(label: Text("الرتبة / الصلاحية", style: GoogleFonts.cairo(fontWeight: FontWeight.bold))),
+                    DataColumn(label: Text("واتساب 💬", style: GoogleFonts.cairo(fontWeight: FontWeight.bold))),
                     DataColumn(label: Text("الدولة", style: GoogleFonts.cairo(fontWeight: FontWeight.bold))),
-                    DataColumn(label: Text("تغيير الرتبة (أدمن / طالب)", style: GoogleFonts.cairo(fontWeight: FontWeight.bold))),
+                    DataColumn(label: Text("الرتبة", style: GoogleFonts.cairo(fontWeight: FontWeight.bold))),
+                    DataColumn(label: Text("إدارة الصلاحيات 🔑", style: GoogleFonts.cairo(fontWeight: FontWeight.bold, color: const Color(0xFFD97706)))),
+                    DataColumn(label: Text("تغيير الرتبة", style: GoogleFonts.cairo(fontWeight: FontWeight.bold))),
                     DataColumn(label: Text("تغيير الرقم السري", style: GoogleFonts.cairo(fontWeight: FontWeight.bold))),
                     DataColumn(label: Text("إزالة العضو", style: GoogleFonts.cairo(fontWeight: FontWeight.bold))),
                   ],
                   rows: filteredDocs.map((doc) {
                     final data = doc.data();
                     final uid = doc.id;
+                    final memberData = {...data, 'uid': uid};
                     final name = data['name'] ?? data['displayName'] ?? 'طالب بدون اسم';
                     final email = data['email'] ?? '—';
                     final phone = data['phone'] ?? '—';
+                    final whatsapp = data['whatsapp'] ?? data['phone'] ?? '';
                     final country = data['country'] ?? 'مصر';
                     final role = (data['role'] ?? 'student').toString().toLowerCase();
                     final isAdmin = role == 'admin';
+                    final allowedCourses = (data['allowedCourses'] as List?)?.length ?? 0;
+                    final allowedLessons = (data['allowedLessons'] as List?)?.length ?? 0;
 
                     return DataRow(cells: [
                       // Name + Avatar
@@ -4460,6 +5951,31 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                       DataCell(Text(email, textDirection: TextDirection.ltr, style: GoogleFonts.cairo(fontSize: 12))),
                       // Phone
                       DataCell(Text(phone, textDirection: TextDirection.ltr, style: GoogleFonts.cairo(fontSize: 12))),
+                      // WhatsApp
+                      DataCell(
+                        whatsapp.isNotEmpty
+                            ? InkWell(
+                                onTap: () {
+                                  final cleanNum = whatsapp.replaceAll(RegExp(r'\D'), '');
+                                  launchUrl(Uri.parse('https://wa.me/$cleanNum'), mode: LaunchMode.externalApplication);
+                                },
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                  decoration: BoxDecoration(color: const Color(0xFFDCFCE7), borderRadius: BorderRadius.circular(6)),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      const Icon(Icons.chat_bubble_rounded, size: 12, color: Color(0xFF16A34A)),
+                                      const SizedBox(width: 4),
+                                      Text(whatsapp, textDirection: TextDirection.ltr, style: GoogleFonts.cairo(fontSize: 11, color: const Color(0xFF15803D), fontWeight: FontWeight.bold)),
+                                    ],
+                                  ),
+                                ),
+                              )
+                            : const Text("—"),
+                      ),
+                      // Country
+                      DataCell(Text(country, style: GoogleFonts.cairo())),
                       // Role Badge
                       DataCell(
                         Container(
@@ -4478,8 +5994,20 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                           ),
                         ),
                       ),
-                      // Country
-                      DataCell(Text(country, style: GoogleFonts.cairo())),
+                      // Action: Manage Permissions (صلاحيات المحتوى المدفوع)
+                      DataCell(
+                        ElevatedButton.icon(
+                          onPressed: () => _openMemberPermissionsDialog(memberData),
+                          icon: const Icon(Icons.vpn_key_rounded, size: 14),
+                          label: Text("صلاحيات ($allowedCourses كورس | $allowedLessons درس)", style: GoogleFonts.cairo(fontSize: 11, fontWeight: FontWeight.bold)),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFFF59E0B),
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
+                          ),
+                        ),
+                      ),
                       // Action 1: Role Toggle (من طالب إلى أدمن أو العكس)
                       DataCell(
                         ElevatedButton(

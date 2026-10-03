@@ -5,6 +5,7 @@ import '../theme/app_theme.dart';
 import '../data/arabic_data.dart';
 import '../services/site_data_service.dart';
 import '../services/auth_service.dart';
+import '../widgets/article_content_renderer.dart';
 
 class QuizPage extends StatefulWidget {
   const QuizPage({super.key});
@@ -20,6 +21,10 @@ class _QuizPageState extends State<QuizPage> {
   bool _answered = false;
   int _score = 0;
   bool _isFinished = false;
+
+  Map<String, dynamic>? _selectedInteractiveQuiz;
+  final TextEditingController _htmlStudentScoreCtrl = TextEditingController(text: '10');
+  bool _htmlQuizSubmitted = false;
 
   bool _isStudentRegistered = false;
   final TextEditingController _studentNameCtrl = TextEditingController();
@@ -46,6 +51,7 @@ class _QuizPageState extends State<QuizPage> {
     _studentNameCtrl.dispose();
     _studentPhoneCtrl.dispose();
     _studentWhatsappCtrl.dispose();
+    _htmlStudentScoreCtrl.dispose();
     super.dispose();
   }
 
@@ -104,35 +110,375 @@ class _QuizPageState extends State<QuizPage> {
     final screenWidth = MediaQuery.of(context).size.width;
     final isMobile = screenWidth < 850;
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final interactiveQuizzes = _dataService.interactiveQuizzes;
     final questions = _dataService.quizQuestions;
 
-    return Scaffold(
-      backgroundColor: isDark ? AppColors.bgDark : AppColors.bgLight,
-      body: SafeArea(
-        child: Column(
-          children: [
-            _buildPageHeader(context, isMobile, isDark),
-            Expanded(
-              child: SingleChildScrollView(
-                child: Column(
+    return Directionality(
+      textDirection: TextDirection.rtl,
+      child: Scaffold(
+        backgroundColor: isDark ? AppColors.bgDark : AppColors.bgLight,
+        body: SelectionArea(
+          child: SafeArea(
+            child: Column(
+              children: [
+                _buildPageHeader(context, isMobile, isDark),
+                Expanded(
+                  child: SingleChildScrollView(
+                    child: Column(
+                      children: [
+                        const SizedBox(height: 30),
+                        if (interactiveQuizzes.isNotEmpty)
+                          _selectedInteractiveQuiz != null
+                              ? _buildInteractiveHtmlQuizView(_selectedInteractiveQuiz!, isMobile, isDark)
+                              : _buildInteractiveQuizzesCatalog(interactiveQuizzes, isMobile, isDark)
+                        else if (questions.isEmpty)
+                          _buildEmptyState(isMobile, isDark)
+                        else if (!_isStudentRegistered)
+                          _buildStudentRegistrationCard(isMobile, isDark)
+                        else if (_isFinished)
+                          _buildResultState(questions.length, isMobile, isDark)
+                        else
+                          _buildQuizContent(questions, isMobile, isDark),
+                        const SizedBox(height: 60),
+                        _buildPageFooter(context, isMobile, isDark),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildInteractiveQuizzesCatalog(List<Map<String, dynamic>> quizzes, bool isMobile, bool isDark) {
+    return Container(
+      constraints: const BoxConstraints(maxWidth: 1100),
+      padding: EdgeInsets.symmetric(horizontal: isMobile ? 18 : 28),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          // Banner
+          Container(
+            padding: EdgeInsets.all(isMobile ? 22 : 36),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: isDark
+                    ? [const Color(0xFF131D33), const Color(0xFF0F172A)]
+                    : [Colors.white, const Color(0xFFF8FAFC)],
+              ),
+              borderRadius: BorderRadius.circular(24),
+              border: Border.all(color: isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0)),
+            ),
+            child: Column(
+              children: [
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF8B5CF6).withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(30),
+                  ),
+                  child: Text(
+                    "اختبارات تفاعلية ذكية وشاملة 🧠",
+                    style: GoogleFonts.cairo(fontSize: 12.5, fontWeight: FontWeight.bold, color: const Color(0xFF8B5CF6)),
+                  ),
+                ),
+                const SizedBox(height: 14),
+                Text(
+                  "اختبر نفسك برمجياً مع تصحيح فوري وتسجيل نتيجتك",
+                  style: GoogleFonts.cairo(fontSize: isMobile ? 22 : 30, fontWeight: FontWeight.w900),
+                  textAlign: TextAlign.center,
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 32),
+
+          LayoutBuilder(
+            builder: (ctx, constraints) {
+              int cols = constraints.maxWidth < 650 ? 1 : 2;
+              final width = (constraints.maxWidth - (cols - 1) * 20) / cols;
+
+              return Wrap(
+                spacing: 20,
+                runSpacing: 20,
+                children: quizzes.map((q) {
+                  final title = q['title'] ?? 'اختبار تفاعلي HTML';
+
+                  return SizedBox(
+                    width: width,
+                    child: Container(
+                      padding: const EdgeInsets.all(24),
+                      decoration: BoxDecoration(
+                        color: isDark ? const Color(0xFF0F172A) : Colors.white,
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(color: isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0)),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.all(12),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFF8B5CF6).withValues(alpha: 0.15),
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: const Icon(Icons.psychology_rounded, color: Color(0xFF8B5CF6), size: 28),
+                              ),
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFF10B981).withValues(alpha: 0.15),
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: Text("متاح مجاناً", style: GoogleFonts.cairo(color: const Color(0xFF10B981), fontWeight: FontWeight.bold, fontSize: 11)),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 16),
+                          Text(title, style: GoogleFonts.cairo(fontSize: 18, fontWeight: FontWeight.bold), maxLines: 2),
+                          const SizedBox(height: 6),
+                          Text("اختبار برمجي تفاعلي مع أسئلة وتقييم مباشر للنتيجة.", style: GoogleFonts.cairo(fontSize: 13, color: Colors.grey)),
+                          const SizedBox(height: 20),
+                          SizedBox(
+                            width: double.infinity,
+                            child: ElevatedButton.icon(
+                              onPressed: () {
+                                setState(() {
+                                  _selectedInteractiveQuiz = q;
+                                  _htmlQuizSubmitted = false;
+                                });
+                              },
+                              icon: const Icon(Icons.play_arrow_rounded),
+                              label: Text("بدء الاختبار الآن ➔", style: GoogleFonts.cairo(fontWeight: FontWeight.bold)),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: const Color(0xFF8B5CF6),
+                                foregroundColor: Colors.white,
+                                padding: const EdgeInsets.symmetric(vertical: 12),
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                }).toList(),
+              );
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildInteractiveHtmlQuizView(Map<String, dynamic> quiz, bool isMobile, bool isDark) {
+    final title = quiz['title'] ?? 'اختبار تفاعلي HTML';
+    final htmlCode = (quiz['htmlCode'] ?? '').toString();
+
+    return Container(
+      constraints: const BoxConstraints(maxWidth: 1000),
+      padding: EdgeInsets.symmetric(horizontal: isMobile ? 18 : 28),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              OutlinedButton.icon(
+                onPressed: () => setState(() => _selectedInteractiveQuiz = null),
+                icon: const Icon(Icons.arrow_forward_rounded, size: 16),
+                label: Text("العودة للاختبارات", style: GoogleFonts.cairo(fontWeight: FontWeight.bold)),
+                style: OutlinedButton.styleFrom(foregroundColor: const Color(0xFF8B5CF6)),
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF8B5CF6).withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Text("اختبار تفاعلي HTML", style: GoogleFonts.cairo(fontSize: 12, fontWeight: FontWeight.bold, color: const Color(0xFF8B5CF6))),
+              ),
+            ],
+          ),
+          const SizedBox(height: 18),
+
+          Text(title, style: GoogleFonts.cairo(fontSize: 24, fontWeight: FontWeight.w900)),
+          const SizedBox(height: 18),
+
+          // HTML Container rendered via ArticleContentRenderer
+          Container(
+            padding: const EdgeInsets.all(24),
+            decoration: BoxDecoration(
+              color: isDark ? const Color(0xFF0F172A) : Colors.white,
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(color: isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0)),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.04),
+                  blurRadius: 16,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            child: ArticleContentRenderer(content: htmlCode, isDark: isDark),
+          ),
+          const SizedBox(height: 32),
+
+          // Result submission card
+          Container(
+            padding: const EdgeInsets.all(28),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: isDark
+                    ? [const Color(0xFF131D33), const Color(0xFF0F172A)]
+                    : [const Color(0xFFF0FDF4), Colors.white],
+              ),
+              borderRadius: BorderRadius.circular(24),
+              border: Border.all(color: const Color(0xFF10B981).withValues(alpha: 0.4), width: 1.5),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Row(
                   children: [
-                    const SizedBox(height: 30),
-                    if (questions.isEmpty)
-                      _buildEmptyState(isMobile, isDark)
-                    else if (!_isStudentRegistered)
-                      _buildStudentRegistrationCard(isMobile, isDark)
-                    else if (_isFinished)
-                      _buildResultState(questions.length, isMobile, isDark)
-                    else
-                      _buildQuizContent(questions, isMobile, isDark),
-                    const SizedBox(height: 60),
-                    _buildPageFooter(context, isMobile, isDark),
+                    Container(
+                      padding: const EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF10B981).withValues(alpha: 0.15),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: const Icon(Icons.verified_rounded, color: Color(0xFF10B981), size: 26),
+                    ),
+                    const SizedBox(width: 14),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text("تسجيل نتيجتك في الاختبار وحفظها في المنصة 🎓", style: GoogleFonts.cairo(fontSize: 16, fontWeight: FontWeight.bold)),
+                          Text("سجل بياناتك مع نتيجتك ليتم توثيقها في لوحة التحكم وقاعدة بيانات المنصة.", style: GoogleFonts.cairo(fontSize: 12, color: Colors.grey)),
+                        ],
+                      ),
+                    ),
                   ],
                 ),
-              ),
+                const SizedBox(height: 20),
+
+                if (_htmlQuizSubmitted)
+                  Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF10B981).withValues(alpha: 0.15),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.check_circle_rounded, color: Color(0xFF10B981), size: 28),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Text(
+                            "تم تسجيل نتيجتك بنجاح في قاعدة البيانات! شكراً لمشاركتك 🌟",
+                            style: GoogleFonts.cairo(fontWeight: FontWeight.bold, color: const Color(0xFF10B981)),
+                          ),
+                        ),
+                      ],
+                    ),
+                  )
+                else ...[
+                  Row(
+                    children: [
+                      Expanded(
+                        child: TextField(
+                          controller: _studentNameCtrl,
+                          decoration: InputDecoration(
+                            labelText: "اسم الطالب ثلاثي *",
+                            labelStyle: GoogleFonts.cairo(fontSize: 13),
+                            filled: true,
+                            fillColor: isDark ? Colors.white10 : const Color(0xFFF8FAFC),
+                            border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 14),
+                      Expanded(
+                        child: TextField(
+                          controller: _studentPhoneCtrl,
+                          keyboardType: TextInputType.phone,
+                          decoration: InputDecoration(
+                            labelText: "رقم الهاتف / واتساب *",
+                            labelStyle: GoogleFonts.cairo(fontSize: 13),
+                            filled: true,
+                            fillColor: isDark ? Colors.white10 : const Color(0xFFF8FAFC),
+                            border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 14),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: TextField(
+                          controller: _htmlStudentScoreCtrl,
+                          keyboardType: TextInputType.number,
+                          decoration: InputDecoration(
+                            labelText: "الدرجة / النتيجة المحققة (مثال: 9 من 10) *",
+                            labelStyle: GoogleFonts.cairo(fontSize: 13),
+                            filled: true,
+                            fillColor: isDark ? Colors.white10 : const Color(0xFFF8FAFC),
+                            border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 14),
+                      ElevatedButton.icon(
+                        onPressed: () async {
+                          final name = _studentNameCtrl.text.trim();
+                          final phone = _studentPhoneCtrl.text.trim();
+                          if (name.isEmpty || phone.isEmpty) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text("يرجى كتابة الاسم ورقم الهاتف أولاً")),
+                            );
+                            return;
+                          }
+                          final scoreVal = int.tryParse(_htmlStudentScoreCtrl.text.trim()) ?? 10;
+                          await _dataService.addQuizSubmission({
+                            'quizId': quiz['id'],
+                            'quizTitle': title,
+                            'studentName': name,
+                            'phone': phone,
+                            'whatsapp': phone,
+                            'country': _studentCountry,
+                            'score': scoreVal,
+                            'totalQuestions': 10,
+                            'date': "${DateTime.now().year}-${DateTime.now().month.toString().padLeft(2, '0')}-${DateTime.now().day.toString().padLeft(2, '0')}",
+                          });
+                          setState(() {
+                            _htmlQuizSubmitted = true;
+                          });
+                        },
+                        icon: const Icon(Icons.send_rounded),
+                        label: Text("تسجيل النتيجة 🚀", style: GoogleFonts.cairo(fontWeight: FontWeight.bold)),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF10B981),
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 18),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ],
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

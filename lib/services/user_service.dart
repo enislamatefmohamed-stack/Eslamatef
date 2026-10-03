@@ -146,6 +146,48 @@ class UserService extends ChangeNotifier {
     }
   }
 
+  /// Update user access permissions for paid courses and lessons
+  Future<void> updateMemberPermissions(
+    String uid, {
+    List<String>? allowedCourses,
+    List<String>? allowedLessons,
+  }) async {
+    try {
+      final payload = <String, dynamic>{
+        'updatedAt': FieldValue.serverTimestamp(),
+      };
+      if (allowedCourses != null) payload['allowedCourses'] = allowedCourses;
+      if (allowedLessons != null) payload['allowedLessons'] = allowedLessons;
+      await _usersCol.doc(uid).update(payload);
+      notifyListeners();
+    } catch (e) {
+      debugPrint("Error updating member permissions: $e");
+      rethrow;
+    }
+  }
+
+  /// Check if user has permission to access a specific paid course or lesson
+  Future<bool> hasContentAccess(String uid, {String? courseId, String? lessonId}) async {
+    try {
+      if (await isUserAdmin(uid)) return true;
+      final profile = await getUserProfile(uid);
+      if (profile == null) return false;
+      if (profile['role'] == 'admin') return true;
+
+      if (courseId != null) {
+        final allowed = List<String>.from(profile['allowedCourses'] ?? []);
+        if (allowed.contains(courseId)) return true;
+      }
+      if (lessonId != null) {
+        final allowed = List<String>.from(profile['allowedLessons'] ?? []);
+        if (allowed.contains(lessonId)) return true;
+      }
+      return false;
+    } catch (e) {
+      return false;
+    }
+  }
+
   /// Send password reset email to member
   Future<void> sendPasswordReset(String email) async {
     try {

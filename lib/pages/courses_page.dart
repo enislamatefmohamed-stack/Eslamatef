@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../theme/app_theme.dart';
 import '../data/arabic_data.dart';
 import '../widgets/social_icons.dart';
 import '../services/site_data_service.dart';
 import '../widgets/article_content_renderer.dart';
 import '../widgets/youtube_embedded_player.dart';
+import '../widgets/auth_modal.dart';
 
 class CoursesPage extends StatefulWidget {
   const CoursesPage({super.key});
@@ -35,6 +38,24 @@ class _CoursesPageState extends State<CoursesPage> {
     super.dispose();
   }
 
+  bool _canAccess({String? courseId, String? lessonId, required bool isPaid}) {
+    if (!isPaid) return true;
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) return false;
+    if (user.email == 'islamatef01016834012@gmail.com') return true;
+    final cached = _dataService.members.firstWhere((m) => m['uid'] == user.uid, orElse: () => <String, dynamic>{});
+    if (cached['role'] == 'admin') return true;
+    if (courseId != null) {
+      final allowedCourses = List<String>.from(cached['allowedCourses'] ?? []);
+      if (allowedCourses.contains(courseId)) return true;
+    }
+    if (lessonId != null) {
+      final allowedLessons = List<String>.from(cached['allowedLessons'] ?? []);
+      if (allowedLessons.contains(lessonId)) return true;
+    }
+    return false;
+  }
+
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
@@ -45,30 +66,32 @@ class _CoursesPageState extends State<CoursesPage> {
       textDirection: TextDirection.rtl,
       child: Scaffold(
         backgroundColor: isDark ? AppColors.bgDark : AppColors.bgLight,
-        body: SafeArea(
-          child: Column(
-            children: [
-              // Top Nav
-              _buildPageHeader(context, isMobile, isDark),
+        body: SelectionArea(
+          child: SafeArea(
+            child: Column(
+              children: [
+                // Top Nav
+                _buildPageHeader(context, isMobile, isDark),
 
-              // Main Content Area
-              Expanded(
-                child: SingleChildScrollView(
-                  child: Column(
-                    children: [
-                      const SizedBox(height: 28),
-                      _activeLesson != null
-                          ? _buildLessonVideoPlayerView(context, isMobile, isDark)
-                          : _activeCourse != null
-                              ? _buildCourseInsideView(context, isMobile, isDark)
-                              : _buildCourseFoldersCatalog(context, isMobile, isDark),
-                      const SizedBox(height: 60),
-                      _buildPageFooter(context, isMobile, isDark),
-                    ],
+                // Main Content Area
+                Expanded(
+                  child: SingleChildScrollView(
+                    child: Column(
+                      children: [
+                        const SizedBox(height: 28),
+                        _activeLesson != null
+                            ? _buildLessonVideoPlayerView(context, isMobile, isDark)
+                            : _activeCourse != null
+                                ? _buildCourseInsideView(context, isMobile, isDark)
+                                : _buildCourseFoldersCatalog(context, isMobile, isDark),
+                        const SizedBox(height: 60),
+                        _buildPageFooter(context, isMobile, isDark),
+                      ],
+                    ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
@@ -247,7 +270,24 @@ class _CoursesPageState extends State<CoursesPage> {
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Text(course['category'] ?? 'كورس', style: GoogleFonts.cairo(color: const Color(0xFF00E5FF), fontWeight: FontWeight.bold, fontSize: 12)),
+                                    Row(
+                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Text(course['category'] ?? 'كورس', style: GoogleFonts.cairo(color: const Color(0xFF00E5FF), fontWeight: FontWeight.bold, fontSize: 12)),
+                                        Container(
+                                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                                          decoration: BoxDecoration(
+                                            color: course['isPaid'] == true ? const Color(0xFFDC2626).withValues(alpha: 0.15) : const Color(0xFF16A34A).withValues(alpha: 0.15),
+                                            borderRadius: BorderRadius.circular(6),
+                                            border: Border.all(color: course['isPaid'] == true ? const Color(0xFFDC2626) : const Color(0xFF16A34A), width: 0.8),
+                                          ),
+                                          child: Text(
+                                            course['isPaid'] == true ? "🔒 مدفوع" : "🟢 مجاني",
+                                            style: GoogleFonts.cairo(fontSize: 10, fontWeight: FontWeight.bold, color: course['isPaid'] == true ? const Color(0xFFEF4444) : const Color(0xFF22C55E)),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
                                     const SizedBox(height: 6),
                                     Text(course['title'] ?? '', style: GoogleFonts.cairo(fontSize: 17, fontWeight: FontWeight.w900), maxLines: 2),
                                     const SizedBox(height: 6),
@@ -278,12 +318,12 @@ class _CoursesPageState extends State<CoursesPage> {
                     );
                   }).toList(),
                 );
-              },
-            ),
-        ],
-      ),
-    );
-  }
+                },
+              ),
+          ],
+        ),
+      );
+    }
 
   // ==========================================
   // VIEW 2: Inside Course Folder (Playlist of lessons/videos)
@@ -291,6 +331,18 @@ class _CoursesPageState extends State<CoursesPage> {
   Widget _buildCourseInsideView(BuildContext context, bool isMobile, bool isDark) {
     final course = _activeCourse!;
     final lessons = List<Map<String, dynamic>>.from(course['lessons'] ?? []);
+    final isPaid = course['isPaid'] == true;
+
+    // Check member permissions for paid course
+    if (!_canAccess(courseId: course['id']?.toString(), isPaid: isPaid)) {
+      return _buildLockedScreen(
+        context: context,
+        title: course['title'] ?? 'الكورس',
+        contentType: 'كورس',
+        isDark: isDark,
+        onBack: () => setState(() => _activeCourse = null),
+      );
+    }
 
     return Container(
       constraints: const BoxConstraints(maxWidth: 1200),
@@ -411,6 +463,18 @@ class _CoursesPageState extends State<CoursesPage> {
         : (content.isNotEmpty ? content : '');
     final hasQuiz = lesson['hasQuiz'] == true;
     final quizTitle = lesson['quizTitle'] ?? 'اختبار فهم الدرس';
+    final isPaid = lesson['isPaid'] == true || _activeCourse?['isPaid'] == true;
+
+    // Check permissions for paid lesson
+    if (!_canAccess(courseId: _activeCourse?['id']?.toString(), lessonId: lesson['id']?.toString(), isPaid: isPaid)) {
+      return _buildLockedScreen(
+        context: context,
+        title: title,
+        contentType: 'درس',
+        isDark: isDark,
+        onBack: () => setState(() => _activeLesson = null),
+      );
+    }
 
     return Container(
       constraints: const BoxConstraints(maxWidth: 1100),
@@ -481,7 +545,6 @@ class _CoursesPageState extends State<CoursesPage> {
                     ),
                   ),
 
-
                 // Lesson Quiz Button if active
                 if (hasQuiz) ...[
                   const SizedBox(height: 32),
@@ -509,7 +572,132 @@ class _CoursesPageState extends State<CoursesPage> {
     );
   }
 
+  Widget _buildLockedScreen({
+    required BuildContext context,
+    required String title,
+    required String contentType,
+    required bool isDark,
+    required VoidCallback onBack,
+  }) {
+    final user = FirebaseAuth.instance.currentUser;
+
+    return Center(
+      child: Container(
+        constraints: const BoxConstraints(maxWidth: 650),
+        margin: const EdgeInsets.symmetric(vertical: 40, horizontal: 20),
+        padding: const EdgeInsets.all(32),
+        decoration: BoxDecoration(
+          color: isDark ? const Color(0xFF0F172A) : Colors.white,
+          borderRadius: BorderRadius.circular(24),
+          border: Border.all(color: const Color(0xFFF59E0B).withValues(alpha: 0.4), width: 2),
+          boxShadow: [
+            BoxShadow(
+              color: const Color(0xFFF59E0B).withValues(alpha: 0.08),
+              blurRadius: 24,
+              offset: const Offset(0, 8),
+            ),
+          ],
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(20),
+              decoration: const BoxDecoration(
+                color: Color(0xFFFEF3C7),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(Icons.lock_rounded, size: 48, color: Color(0xFFD97706)),
+            ),
+            const SizedBox(height: 20),
+            Text(
+              "🔒 محتوى مدفوع خاص بالمشتركين",
+              style: GoogleFonts.cairo(
+                fontSize: 22,
+                fontWeight: FontWeight.bold,
+                color: const Color(0xFFD97706),
+              ),
+            ),
+            const SizedBox(height: 10),
+            Text(
+              "هذا الـ$contentType ($title) مخصص للطلاب المشتركين فقط. لا يمكنك الوصول إلى محتواه ومشاهدة الدروس والاختبارات إلا بعد الحصول على تصريح من الإدارة.",
+              style: GoogleFonts.cairo(
+                fontSize: 14,
+                color: isDark ? Colors.white70 : const Color(0xFF475569),
+                height: 1.6,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 24),
+            if (user == null) ...[
+              ElevatedButton.icon(
+                onPressed: () => showDialog(context: context, builder: (c) => const AuthModal()),
+                icon: const Icon(Icons.login_rounded),
+                label: Text("تسجيل الدخول إلى حسابك أولاً", style: GoogleFonts.cairo(fontWeight: FontWeight.bold)),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF0284C7),
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                ),
+              ),
+              const SizedBox(height: 12),
+            ],
+            ElevatedButton.icon(
+              onPressed: () {
+                final email = user?.email ?? 'زائر';
+                final msg = Uri.encodeComponent("مرحباً أستاذ إسلام عاطف، أرغب في تفعيل الاشتراك في $contentType: $title\nالبريد الإلكتروني: $email");
+                launchUrl(Uri.parse("https://wa.me/201016834012?text=$msg"), mode: LaunchMode.externalApplication);
+              },
+              icon: const Icon(Icons.chat_rounded, color: Colors.white),
+              label: Text("تواصل عبر واتساب للتفعيل الفوري 💬", style: GoogleFonts.cairo(fontWeight: FontWeight.bold, fontSize: 14)),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF16A34A),
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+              ),
+            ),
+            const SizedBox(height: 16),
+            TextButton(
+              onPressed: onBack,
+              child: Text("العودة إلى القائمة", style: GoogleFonts.cairo(fontWeight: FontWeight.bold, color: Colors.grey)),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   void _openLessonQuizDialog(BuildContext context, Map<String, dynamic> lesson, bool isDark) {
+    final quizHtml = (lesson['quizHtml'] ?? '').toString().trim();
+
+    if (quizHtml.isNotEmpty) {
+      showDialog(
+        context: context,
+        builder: (ctx) {
+          return AlertDialog(
+            backgroundColor: isDark ? const Color(0xFF0F172A) : Colors.white,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+            title: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(lesson['quizTitle'] ?? 'اختبار فهم الدرس', style: GoogleFonts.cairo(fontWeight: FontWeight.bold)),
+                IconButton(icon: const Icon(Icons.close), onPressed: () => Navigator.pop(ctx)),
+              ],
+            ),
+            content: SizedBox(
+              width: 750,
+              child: SingleChildScrollView(
+                child: ArticleContentRenderer(content: quizHtml, isDark: isDark),
+              ),
+            ),
+          );
+        },
+      );
+      return;
+    }
+
     int? selectedOption;
     bool answered = false;
 

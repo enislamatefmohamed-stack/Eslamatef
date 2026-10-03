@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import '../data/fifty_challenges_data.dart';
 
 class SiteDataService extends ChangeNotifier {
@@ -12,14 +14,14 @@ class SiteDataService extends ChangeNotifier {
   List<Map<String, dynamic>> _lessonPlaylists = [];
   List<Map<String, dynamic>> _latestUpdates = [];
   Map<String, dynamic>? _weeklyChallenge;
-  List<Map<String, dynamic>> _quizQuestions = [];
-  List<Map<String, dynamic>> _recordingLessons = [];
+  final List<Map<String, dynamic>> _quizQuestions = [];
+  final List<Map<String, dynamic>> _recordingLessons = [];
 
   // Independent Categories: Course Categories vs Lesson Categories
   List<String> _courseCategories = [];
   List<String> _lessonCategories = [];
 
-  // New modules for comprehensive Admin & Student systems
+  // Modules for comprehensive Admin & Student systems
   List<Map<String, dynamic>> _interactiveQuizzes = [];
   List<Map<String, dynamic>> _quizSubmissions = [];
   List<Map<String, dynamic>> _weeklyChallenges = [];
@@ -27,6 +29,9 @@ class SiteDataService extends ChangeNotifier {
   List<Map<String, dynamic>> _members = [];
 
   bool _isInitialized = false;
+
+  bool get isFirebaseReady => Firebase.apps.isNotEmpty;
+  FirebaseFirestore get _firestore => FirebaseFirestore.instance;
 
   List<Map<String, dynamic>> get courses => _courses;
   List<Map<String, dynamic>> get lessons => _lessons;
@@ -49,360 +54,216 @@ class SiteDataService extends ChangeNotifier {
     try {
       final prefs = await SharedPreferences.getInstance();
 
+      // 1. Load Local Cache First (Instant startup with zero latency)
       final coursesStr = prefs.getString('site_courses');
       if (coursesStr != null) {
         _courses = List<Map<String, dynamic>>.from(jsonDecode(coursesStr));
-      } else {
-        _courses = [];
+      }
+      for (final c in _courses) {
+        final clist = (c['lessons'] as List?) ?? [];
+        for (final l in clist) {
+          if (l is Map<String, dynamic>) _normalizeLesson(l);
+        }
       }
 
       final lessonsStr = prefs.getString('site_lessons');
       if (lessonsStr != null) {
         _lessons = List<Map<String, dynamic>>.from(jsonDecode(lessonsStr));
-      } else {
-        _lessons = [];
       }
-
-      final courseCatStr = prefs.getString('site_course_categories');
-      if (courseCatStr != null) {
-        _courseCategories = List<String>.from(jsonDecode(courseCatStr));
-      } else {
-        _courseCategories = ['مسارات البرمجة', 'الذكاء الاصطناعي', 'تطوير الويب', 'تطبيقات الهواتف', 'علوم الحاسب'];
-      }
-
-      final lessonCatStr = prefs.getString('site_lesson_categories');
-      if (lessonCatStr != null) {
-        _lessonCategories = List<String>.from(jsonDecode(lessonCatStr));
-      } else {
-        _lessonCategories = ['أساسيات البرمجة', 'بايثون', 'خوارزميات وتفكير منطقي', 'فلاتر ودارت', 'حل مشكلات برمجية'];
-      }
-
-      // Normalize all lessons
       for (final l in _lessons) {
         _normalizeLesson(l);
       }
-      for (final c in _courses) {
-        final cl = List<Map<String, dynamic>>.from(c['lessons'] ?? []);
-        for (final l in cl) {
-          _normalizeLesson(l);
-        }
-      }
 
-      final playlistsStr = prefs.getString('site_lesson_playlists');
-      if (playlistsStr != null) {
-        _lessonPlaylists = List<Map<String, dynamic>>.from(jsonDecode(playlistsStr));
+      final plStr = prefs.getString('site_lesson_playlists');
+      if (plStr != null) {
+        _lessonPlaylists = List<Map<String, dynamic>>.from(jsonDecode(plStr));
       } else {
         _lessonPlaylists = [
-          {
-            'id': 'pl_basics',
-            'title': 'أساسيات البرمجة والتفكير المنطقي',
-            'description': 'سلسلة شاملة لتعلم المفاهيم البرمجية الأساسية وحل المشكلات.',
-            'status': 'منشور',
-          },
-          {
-            'id': 'pl_python_ai',
-            'title': 'بايثون وهندسة الذكاء الاصطناعي',
-            'description': 'دروس وتطبيقات عملية في لغة بايثون وخوارزميات تعلم الآلة.',
-            'status': 'منشور',
-          },
-          {
-            'id': 'pl_web_flutter',
-            'title': 'تطوير تطبيقات الويب والهواتف الذكية',
-            'description': 'بناء منصات متكاملة واجهات تفاعلية.',
-            'status': 'منشور',
-          },
+          {'id': 'pl_1', 'title': 'منهج الصف الأول الثانوي', 'description': 'أساسيات البرمجة والذكاء الاصطناعي', 'imageUrl': 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=600'},
+          {'id': 'pl_2', 'title': 'منهج الصف الثاني الثانوي', 'description': 'هياكل البيانات والبرمجة الكائنية OOP', 'imageUrl': 'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=600'},
         ];
+      }
+
+      final cCatStr = prefs.getString('site_course_categories');
+      if (cCatStr != null) {
+        _courseCategories = List<String>.from(jsonDecode(cCatStr));
+      } else {
+        _courseCategories = ['برمجة الويب Full Stack', 'تطبيقات الهاتف Flutter', 'الذكاء الاصطناعي وتعلم الآلة', 'أساسيات علوم الحاسب CS'];
+      }
+
+      final lCatStr = prefs.getString('site_lesson_categories');
+      if (lCatStr != null) {
+        _lessonCategories = List<String>.from(jsonDecode(lCatStr));
+      } else {
+        _lessonCategories = ['شروحات منهجية', 'تطبيقات عملية ومشاريع', 'خوارزميات وحل مشكلات', 'نصائح ومفاهيم برمجية'];
       }
 
       final updatesStr = prefs.getString('site_latest_updates');
       if (updatesStr != null) {
         _latestUpdates = List<Map<String, dynamic>>.from(jsonDecode(updatesStr));
-      } else {
-        _latestUpdates = [];
       }
 
-      final challengeStr = prefs.getString('site_weekly_challenge');
-      if (challengeStr != null) {
-        _weeklyChallenge = Map<String, dynamic>.from(jsonDecode(challengeStr));
-      } else {
-        _weeklyChallenge = null;
+      final iQuizzesStr = prefs.getString('site_interactive_quizzes');
+      if (iQuizzesStr != null) {
+        _interactiveQuizzes = List<Map<String, dynamic>>.from(jsonDecode(iQuizzesStr));
       }
 
-      final quizStr = prefs.getString('site_quiz_questions');
-      if (quizStr != null) {
-        _quizQuestions = List<Map<String, dynamic>>.from(jsonDecode(quizStr));
-      } else {
-        _quizQuestions = [];
-      }
-
-      final recordingStr = prefs.getString('site_recording_lessons');
-      if (recordingStr != null) {
-        _recordingLessons = List<Map<String, dynamic>>.from(jsonDecode(recordingStr));
-      } else {
-        _recordingLessons = [
-          {
-            'id': 'rec_default_1',
-            'title': 'المحاضرة الأولى: البيانات والمعلومات والمعرفة',
-            'subject': 'الصف الأول الثانوي — مادة البرمجة والذكاء الاصطناعي',
-            'date': '2026',
-            'status': 'منشور',
-            'url': 'presentation/index.html',
-            'code': '''<!-- قالب الشريحة التقنية -->
-<section class="slide">
-  <header class="slide-header">
-    <div class="brand">⚡ KMT AI — Eslam Atef</div>
-    <div class="slide-meta">الدرس 01: مقدمة البرمجة</div>
-  </header>
-  <div class="slide-title-area">
-    <div class="slide-tag">المفاهيم الأساسية</div>
-    <h2 class="slide-main-title">البيانات والمعلومات والمعرفة</h2>
-    <p class="slide-subtitle">تحويل الحقائق الأولية إلى قرارات ذكية برمجياً</p>
-  </div>
-  <div class="slide-body">
-    <div class="card-grid grid-cols-3">
-      <div class="tech-card">
-        <div class="card-icon">📦</div>
-        <div class="card-title">البيانات (Data)</div>
-        <div class="card-desc">حقائق خام مجردة بدون سياق واضح.</div>
-      </div>
-      <div class="tech-card">
-        <div class="card-icon">⚡</div>
-        <div class="card-title">المعلومات (Information)</div>
-        <div class="card-desc">بيانات تمت معالجتها وتنظيمها لتعطي معنى.</div>
-      </div>
-      <div class="tech-card">
-        <div class="card-icon">🧠</div>
-        <div class="card-title">المعرفة (Knowledge)</div>
-        <div class="card-desc">تطبيق الفهم والمعلومات لحل المشكلات المعقدة.</div>
-      </div>
-    </div>
-  </div>
-</section>''',
-          }
-        ];
-      }
-
-      // 1. Interactive Quizzes
-      final iQuizStr = prefs.getString('site_interactive_quizzes');
-      if (iQuizStr != null) {
-        _interactiveQuizzes = List<Map<String, dynamic>>.from(jsonDecode(iQuizStr));
-      }
-      if (_interactiveQuizzes.isEmpty) {
-        _interactiveQuizzes = [
-          {
-            'id': 'quiz_general',
-            'title': 'اختبار قياس المستوى البرمجي التفاعلي',
-            'description': 'اختبار شامل لقياس التفكير المنطقي والمهارات البرمجية الأساسية',
-            'category': 'عام',
-            'questionsCount': 10,
-            'status': 'منشور',
-            'date': '2026-10-03',
-            'editorType': 'html',
-            'htmlCode': '''<div class="quiz-container">
-  <h3>اختبار تحديد المستوى في البرمجة والذكاء الاصطناعي</h3>
-  <p>أجب عن الأسئلة بدقة لتحديد مستواك وتطوير مهاراتك.</p>
-</div>''',
-          }
-        ];
-      }
-
-      // 2. Quiz Submissions (Student Results)
       final qSubStr = prefs.getString('site_quiz_submissions');
       if (qSubStr != null) {
         _quizSubmissions = List<Map<String, dynamic>>.from(jsonDecode(qSubStr));
-      } else {
-        _quizSubmissions = [
-          {
-            'id': 'sub_1',
-            'quizId': 'quiz_ai_bac',
-            'quizTitle': 'اختبار البكالوريا والبرمجة والذكاء الاصطناعي',
-            'studentName': 'أحمد محمد السيد',
-            'phone': '01012345678',
-            'whatsapp': '01012345678',
-            'country': 'مصر',
-            'score': 9,
-            'totalQuestions': 10,
-            'startTime': '2026-10-02 10:15',
-            'endTime': '2026-10-02 10:28',
-            'date': '2026-10-02',
-          },
-          {
-            'id': 'sub_2',
-            'quizId': 'quiz_kids',
-            'quizTitle': 'اختبار البرمجة والذكاء الاصطناعي للأطفال',
-            'studentName': 'سارة عمر خالد',
-            'phone': '0559876543',
-            'whatsapp': '0559876543',
-            'country': 'السعودية',
-            'score': 8,
-            'totalQuestions': 8,
-            'startTime': '2026-10-01 16:30',
-            'endTime': '2026-10-01 16:42',
-            'date': '2026-10-01',
-          },
-        ];
       }
 
-      // 3. Weekly Challenges (50 Challenges System)
       final wChallStr = prefs.getString('site_weekly_challenges');
       if (wChallStr != null) {
         _weeklyChallenges = List<Map<String, dynamic>>.from(jsonDecode(wChallStr));
-      } else {
-        _weeklyChallenges = [];
       }
       if (_weeklyChallenges.length < 50) {
         _weeklyChallenges = FiftyChallengesData.getAllChallenges();
-        await prefs.setString('site_weekly_challenges', jsonEncode(_weeklyChallenges));
       }
 
-      // 4. Challenge Submissions (Student Solutions)
       final cSubStr = prefs.getString('site_challenge_submissions');
       if (cSubStr != null) {
         _challengeSubmissions = List<Map<String, dynamic>>.from(jsonDecode(cSubStr));
-      } else {
-        _challengeSubmissions = [
-          {
-            'id': 'sol_1',
-            'challengeId': 'chall_w01',
-            'challengeTitle': 'تحدي الأسبوع 01: خوارزمية البحث الثنائي Binary Search',
-            'studentName': 'محمود حسن',
-            'email': 'mahmoud@gmail.com',
-            'whatsapp': '01123456789',
-            'projectUrl': 'https://github.com/mahmoud/binary-search-challenge',
-            'notes': 'تم تطبيق الحل بلغة Python مع اختبارات الـ Unit Tests الكاملة.',
-            'date': '2026-10-02',
-            'status': 'جديد',
-          },
-        ];
       }
 
-      // 5. Members System
       final membersStr = prefs.getString('site_members');
       if (membersStr != null) {
         _members = List<Map<String, dynamic>>.from(jsonDecode(membersStr));
-      } else {
-        _members = [
-          {
-            'id': 'mem_1',
-            'name': 'أحمد محمد السيد',
-            'email': 'ahmed.m@example.com',
-            'phone': '01012345678',
-            'country': 'مصر',
-            'registeredDate': '2026-09-20',
-            'status': 'نشط',
-            'quizzesCount': 2,
-            'challengesCount': 1,
-            'lastActive': 'منذ 3 ساعات',
-            'role': 'student',
-          },
-          {
-            'id': 'mem_2',
-            'name': 'سارة عمر خالد',
-            'email': 'sara.khalid@example.com',
-            'phone': '0559876543',
-            'country': 'السعودية',
-            'registeredDate': '2026-09-24',
-            'status': 'نشط',
-            'quizzesCount': 1,
-            'challengesCount': 0,
-            'lastActive': 'أمس',
-            'role': 'student',
-          },
-          {
-            'id': 'mem_3',
-            'name': 'محمود حسن علي',
-            'email': 'mahmoud.ali@example.com',
-            'phone': '01123456789',
-            'country': 'مصر',
-            'registeredDate': '2026-09-28',
-            'status': 'نشط',
-            'quizzesCount': 3,
-            'challengesCount': 1,
-            'lastActive': 'اليوم',
-            'role': 'student',
-          },
-        ];
       }
+
+      _isInitialized = true;
+      notifyListeners();
+
+      // 2. Connect directly to Firebase Cloud Firestore for Live Sync
+      _bindFirestoreListeners();
     } catch (e) {
-      debugPrint("Error initializing SiteDataService: $e");
-    } finally {
+      debugPrint("SiteDataService init warning: $e");
       _isInitialized = true;
       notifyListeners();
     }
   }
 
-  // --- Courses CRUD (Course Folder) ---
-  Future<void> addCourse(Map<String, dynamic> course) async {
-    course['id'] = DateTime.now().millisecondsSinceEpoch.toString();
-    if (course['lessons'] == null) {
-      course['lessons'] = <Map<String, dynamic>>[];
+  void _bindFirestoreListeners() {
+    if (!isFirebaseReady) return;
+    try {
+      // Courses Collection
+      _firestore.collection('courses').snapshots().listen((snapshot) {
+        if (snapshot.docs.isNotEmpty) {
+          _courses = snapshot.docs.map((doc) {
+            final data = doc.data();
+            data['id'] = doc.id;
+            final clist = (data['lessons'] as List?) ?? [];
+            for (final l in clist) {
+              if (l is Map<String, dynamic>) _normalizeLesson(l);
+            }
+            return data;
+          }).toList();
+          _saveCourses();
+          notifyListeners();
+        }
+      }, onError: (e) => debugPrint("Firestore courses listener error: $e"));
+
+      // Lessons Collection
+      _firestore.collection('lessons').snapshots().listen((snapshot) {
+        if (snapshot.docs.isNotEmpty) {
+          _lessons = snapshot.docs.map((doc) {
+            final data = doc.data();
+            data['id'] = doc.id;
+            _normalizeLesson(data);
+            return data;
+          }).toList();
+          _saveLessons();
+          notifyListeners();
+        }
+      }, onError: (e) => debugPrint("Firestore lessons listener error: $e"));
+
+      // Course Categories Collection
+      _firestore.collection('course_categories').snapshots().listen((snapshot) {
+        if (snapshot.docs.isNotEmpty) {
+          _courseCategories = snapshot.docs.map((doc) => (doc.data()['name'] ?? doc.id).toString()).toList();
+          _saveCourseCategories();
+          notifyListeners();
+        }
+      }, onError: (e) => debugPrint("Firestore course_categories error: $e"));
+
+      // Lesson Categories Collection
+      _firestore.collection('lesson_categories').snapshots().listen((snapshot) {
+        if (snapshot.docs.isNotEmpty) {
+          _lessonCategories = snapshot.docs.map((doc) => (doc.data()['name'] ?? doc.id).toString()).toList();
+          _saveLessonCategories();
+          notifyListeners();
+        }
+      }, onError: (e) => debugPrint("Firestore lesson_categories error: $e"));
+
+      // Lesson Playlists Collection
+      _firestore.collection('lesson_playlists').snapshots().listen((snapshot) {
+        if (snapshot.docs.isNotEmpty) {
+          _lessonPlaylists = snapshot.docs.map((doc) {
+            final d = doc.data();
+            d['id'] = doc.id;
+            return d;
+          }).toList();
+          _saveLessonPlaylists();
+          notifyListeners();
+        }
+      }, onError: (e) => debugPrint("Firestore lesson_playlists error: $e"));
+
+      // Interactive Quizzes Collection
+      _firestore.collection('interactive_quizzes').snapshots().listen((snapshot) {
+        if (snapshot.docs.isNotEmpty) {
+          _interactiveQuizzes = snapshot.docs.map((doc) {
+            final d = doc.data();
+            d['id'] = doc.id;
+            return d;
+          }).toList();
+          _saveInteractiveQuizzes();
+          notifyListeners();
+        }
+      }, onError: (e) => debugPrint("Firestore quizzes error: $e"));
+
+      // Quiz Submissions Collection
+      _firestore.collection('quiz_submissions').orderBy('date', descending: true).snapshots().listen((snapshot) {
+        if (snapshot.docs.isNotEmpty) {
+          _quizSubmissions = snapshot.docs.map((doc) {
+            final d = doc.data();
+            d['id'] = doc.id;
+            return d;
+          }).toList();
+          _saveQuizSubmissions();
+          notifyListeners();
+        }
+      }, onError: (e) => debugPrint("Firestore quiz_submissions error: $e"));
+
+      // Users / Members Collection
+      _firestore.collection('users').snapshots().listen((snapshot) {
+        if (snapshot.docs.isNotEmpty) {
+          _members = snapshot.docs.map((doc) {
+            final d = doc.data();
+            d['id'] = doc.id;
+            d['uid'] = doc.id;
+            return d;
+          }).toList();
+          _saveMembers();
+          notifyListeners();
+        }
+      }, onError: (e) => debugPrint("Firestore users error: $e"));
+
+      // Latest Updates Collection
+      _firestore.collection('latest_updates').snapshots().listen((snapshot) {
+        if (snapshot.docs.isNotEmpty) {
+          _latestUpdates = snapshot.docs.map((doc) {
+            final d = doc.data();
+            d['id'] = doc.id;
+            return d;
+          }).toList();
+          _saveLatestUpdates();
+          notifyListeners();
+        }
+      }, onError: (e) => debugPrint("Firestore updates error: $e"));
+
+    } catch (e) {
+      debugPrint("Error binding Firestore listeners: $e");
     }
-    _courses.add(course);
-    await _saveCourses();
-    notifyListeners();
-  }
-
-  Future<void> updateCourse(String id, Map<String, dynamic> updated) async {
-    final idx = _courses.indexWhere((c) => c['id'] == id);
-    if (idx != -1) {
-      if (updated['lessons'] == null && _courses[idx]['lessons'] != null) {
-        updated['lessons'] = _courses[idx]['lessons'];
-      }
-      _courses[idx] = updated;
-      await _saveCourses();
-      notifyListeners();
-    }
-  }
-
-  Future<void> deleteCourse(String id) async {
-    _courses.removeWhere((c) => c['id'] == id);
-    await _saveCourses();
-    notifyListeners();
-  }
-
-  // Nested Lessons inside Course Folder
-  Future<void> addLessonToCourse(String courseId, Map<String, dynamic> lesson) async {
-    final idx = _courses.indexWhere((c) => c['id'] == courseId);
-    if (idx != -1) {
-      _normalizeLesson(lesson);
-      lesson['id'] = DateTime.now().millisecondsSinceEpoch.toString();
-      final lessonsList = List<Map<String, dynamic>>.from(_courses[idx]['lessons'] ?? []);
-      lessonsList.add(lesson);
-      _courses[idx]['lessons'] = lessonsList;
-      await _saveCourses();
-      notifyListeners();
-    }
-  }
-
-  Future<void> updateLessonInCourse(String courseId, String lessonId, Map<String, dynamic> updated) async {
-    final cIdx = _courses.indexWhere((c) => c['id'] == courseId);
-    if (cIdx != -1) {
-      final lessonsList = List<Map<String, dynamic>>.from(_courses[cIdx]['lessons'] ?? []);
-      final lIdx = lessonsList.indexWhere((l) => l['id'] == lessonId);
-      if (lIdx != -1) {
-        _normalizeLesson(updated);
-        lessonsList[lIdx] = updated;
-        _courses[cIdx]['lessons'] = lessonsList;
-        await _saveCourses();
-        notifyListeners();
-      }
-    }
-  }
-
-  Future<void> deleteLessonFromCourse(String courseId, String lessonId) async {
-    final cIdx = _courses.indexWhere((c) => c['id'] == courseId);
-    if (cIdx != -1) {
-      final lessonsList = List<Map<String, dynamic>>.from(_courses[cIdx]['lessons'] ?? []);
-      lessonsList.removeWhere((l) => l['id'] == lessonId);
-      _courses[cIdx]['lessons'] = lessonsList;
-      await _saveCourses();
-      notifyListeners();
-    }
-  }
-
-  Future<void> _saveCourses() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('site_courses', jsonEncode(_courses));
   }
 
   void _normalizeLesson(Map<String, dynamic> lesson) {
@@ -445,13 +306,147 @@ class SiteDataService extends ChangeNotifier {
     }
   }
 
-  // --- Course Categories CRUD ---
+  // =========================================================================
+  // COURSES CRUD (Synced with Firestore 'courses')
+  // =========================================================================
+  Future<void> createCourse(Map<String, dynamic> course) => addCourse(course);
+  Future<void> addCourse(Map<String, dynamic> course) async {
+    final id = course['id']?.toString() ?? 'course_${DateTime.now().millisecondsSinceEpoch}';
+    course['id'] = id;
+    course['isPaid'] = course['isPaid'] == true;
+    _courses.add(course);
+    await _saveCourses();
+    notifyListeners();
+
+    if (isFirebaseReady) {
+      try {
+        await _firestore.collection('courses').doc(id).set(course, SetOptions(merge: true));
+      } catch (e) {
+        debugPrint("Firestore addCourse error: $e");
+      }
+    }
+  }
+
+  Future<void> updateCourse(String id, Map<String, dynamic> updated) async {
+    final idx = _courses.indexWhere((c) => c['id'] == id);
+    if (idx != -1) {
+      updated['id'] = id;
+      updated['isPaid'] = updated['isPaid'] == true;
+      _courses[idx] = updated;
+      await _saveCourses();
+      notifyListeners();
+
+      if (isFirebaseReady) {
+        try {
+          await _firestore.collection('courses').doc(id).set(updated, SetOptions(merge: true));
+        } catch (e) {
+          debugPrint("Firestore updateCourse error: $e");
+        }
+      }
+    }
+  }
+
+  Future<void> deleteCourse(String id) async {
+    _courses.removeWhere((c) => c['id'] == id);
+    await _saveCourses();
+    notifyListeners();
+
+    if (isFirebaseReady) {
+      try {
+        await _firestore.collection('courses').doc(id).delete();
+      } catch (e) {
+        debugPrint("Firestore deleteCourse error: $e");
+      }
+    }
+  }
+
+  Future<void> addLessonToCourse(String courseId, Map<String, dynamic> lesson) async {
+    final idx = _courses.indexWhere((c) => c['id'] == courseId);
+    if (idx != -1) {
+      lesson['id'] = 'lec_${DateTime.now().millisecondsSinceEpoch}';
+      _normalizeLesson(lesson);
+      final list = List<Map<String, dynamic>>.from(_courses[idx]['lessons'] ?? []);
+      list.add(lesson);
+      _courses[idx]['lessons'] = list;
+      await _saveCourses();
+      notifyListeners();
+
+      if (isFirebaseReady) {
+        try {
+          await _firestore.collection('courses').doc(courseId).update({'lessons': list});
+        } catch (e) {
+          debugPrint("Firestore addLessonToCourse error: $e");
+        }
+      }
+    }
+  }
+
+  Future<void> updateLessonInCourse(String courseId, String lessonId, Map<String, dynamic> updatedLesson) async {
+    final idx = _courses.indexWhere((c) => c['id'] == courseId);
+    if (idx != -1) {
+      final list = List<Map<String, dynamic>>.from(_courses[idx]['lessons'] ?? []);
+      final lIdx = list.indexWhere((l) => l['id'] == lessonId);
+      if (lIdx != -1) {
+        updatedLesson['id'] = lessonId;
+        _normalizeLesson(updatedLesson);
+        list[lIdx] = updatedLesson;
+        _courses[idx]['lessons'] = list;
+        await _saveCourses();
+        notifyListeners();
+
+        if (isFirebaseReady) {
+          try {
+            await _firestore.collection('courses').doc(courseId).update({'lessons': list});
+          } catch (e) {
+            debugPrint("Firestore updateLessonInCourse error: $e");
+          }
+        }
+      }
+    }
+  }
+
+  Future<void> deleteLessonFromCourse(String courseId, String lessonId) async {
+    final idx = _courses.indexWhere((c) => c['id'] == courseId);
+    if (idx != -1) {
+      final list = List<Map<String, dynamic>>.from(_courses[idx]['lessons'] ?? []);
+      list.removeWhere((l) => l['id'] == lessonId);
+      _courses[idx]['lessons'] = list;
+      await _saveCourses();
+      notifyListeners();
+
+      if (isFirebaseReady) {
+        try {
+          await _firestore.collection('courses').doc(courseId).update({'lessons': list});
+        } catch (e) {
+          debugPrint("Firestore deleteLessonFromCourse error: $e");
+        }
+      }
+    }
+  }
+
+  Future<void> _saveCourses() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('site_courses', jsonEncode(_courses));
+  }
+
+  // =========================================================================
+  // COURSE CATEGORIES CRUD (Synced with Firestore 'course_categories')
+  // =========================================================================
   Future<void> addCourseCategory(String category) async {
     final cat = category.trim();
     if (cat.isNotEmpty && !_courseCategories.contains(cat)) {
       _courseCategories.add(cat);
       await _saveCourseCategories();
       notifyListeners();
+
+      if (isFirebaseReady) {
+        try {
+          final id = 'ccat_${cat.hashCode.abs()}';
+          await _firestore.collection('course_categories').doc(id).set({'name': cat, 'createdAt': FieldValue.serverTimestamp()});
+        } catch (e) {
+          debugPrint("Firestore addCourseCategory error: $e");
+        }
+      }
     }
   }
 
@@ -467,6 +462,17 @@ class SiteDataService extends ChangeNotifier {
       await _saveCourses();
       await _saveCourseCategories();
       notifyListeners();
+
+      if (isFirebaseReady) {
+        try {
+          final oldId = 'ccat_${oldCat.hashCode.abs()}';
+          final newId = 'ccat_${newCat.trim().hashCode.abs()}';
+          await _firestore.collection('course_categories').doc(oldId).delete();
+          await _firestore.collection('course_categories').doc(newId).set({'name': newCat.trim()});
+        } catch (e) {
+          debugPrint("Firestore updateCourseCategory error: $e");
+        }
+      }
     }
   }
 
@@ -474,6 +480,15 @@ class SiteDataService extends ChangeNotifier {
     _courseCategories.remove(category);
     await _saveCourseCategories();
     notifyListeners();
+
+    if (isFirebaseReady) {
+      try {
+        final id = 'ccat_${category.hashCode.abs()}';
+        await _firestore.collection('course_categories').doc(id).delete();
+      } catch (e) {
+        debugPrint("Firestore deleteCourseCategory error: $e");
+      }
+    }
   }
 
   Future<void> _saveCourseCategories() async {
@@ -481,13 +496,24 @@ class SiteDataService extends ChangeNotifier {
     await prefs.setString('site_course_categories', jsonEncode(_courseCategories));
   }
 
-  // --- Lesson Categories CRUD ---
+  // =========================================================================
+  // LESSON CATEGORIES CRUD (Synced with Firestore 'lesson_categories')
+  // =========================================================================
   Future<void> addLessonCategory(String category) async {
     final cat = category.trim();
     if (cat.isNotEmpty && !_lessonCategories.contains(cat)) {
       _lessonCategories.add(cat);
       await _saveLessonCategories();
       notifyListeners();
+
+      if (isFirebaseReady) {
+        try {
+          final id = 'lcat_${cat.hashCode.abs()}';
+          await _firestore.collection('lesson_categories').doc(id).set({'name': cat, 'createdAt': FieldValue.serverTimestamp()});
+        } catch (e) {
+          debugPrint("Firestore addLessonCategory error: $e");
+        }
+      }
     }
   }
 
@@ -504,6 +530,17 @@ class SiteDataService extends ChangeNotifier {
       await _saveLessons();
       await _saveLessonCategories();
       notifyListeners();
+
+      if (isFirebaseReady) {
+        try {
+          final oldId = 'lcat_${oldCat.hashCode.abs()}';
+          final newId = 'lcat_${newCat.trim().hashCode.abs()}';
+          await _firestore.collection('lesson_categories').doc(oldId).delete();
+          await _firestore.collection('lesson_categories').doc(newId).set({'name': newCat.trim()});
+        } catch (e) {
+          debugPrint("Firestore updateLessonCategory error: $e");
+        }
+      }
     }
   }
 
@@ -511,6 +548,15 @@ class SiteDataService extends ChangeNotifier {
     _lessonCategories.remove(category);
     await _saveLessonCategories();
     notifyListeners();
+
+    if (isFirebaseReady) {
+      try {
+        final id = 'lcat_${category.hashCode.abs()}';
+        await _firestore.collection('lesson_categories').doc(id).delete();
+      } catch (e) {
+        debugPrint("Firestore deleteLessonCategory error: $e");
+      }
+    }
   }
 
   Future<void> _saveLessonCategories() async {
@@ -518,22 +564,44 @@ class SiteDataService extends ChangeNotifier {
     await prefs.setString('site_lesson_categories', jsonEncode(_lessonCategories));
   }
 
-  // --- Independent Lessons CRUD ---
+  // =========================================================================
+  // LESSONS CRUD (Synced with Firestore 'lessons')
+  // =========================================================================
   Future<void> addLesson(Map<String, dynamic> lesson) async {
-    lesson['id'] = DateTime.now().millisecondsSinceEpoch.toString();
+    final id = lesson['id']?.toString() ?? 'lesson_${DateTime.now().millisecondsSinceEpoch}';
+    lesson['id'] = id;
+    lesson['isPaid'] = lesson['isPaid'] == true;
     _normalizeLesson(lesson);
     _lessons.add(lesson);
     await _saveLessons();
     notifyListeners();
+
+    if (isFirebaseReady) {
+      try {
+        await _firestore.collection('lessons').doc(id).set(lesson, SetOptions(merge: true));
+      } catch (e) {
+        debugPrint("Firestore addLesson error: $e");
+      }
+    }
   }
 
   Future<void> updateLesson(String id, Map<String, dynamic> updated) async {
     final idx = _lessons.indexWhere((l) => l['id'] == id);
     if (idx != -1) {
+      updated['id'] = id;
+      updated['isPaid'] = updated['isPaid'] == true;
       _normalizeLesson(updated);
       _lessons[idx] = updated;
       await _saveLessons();
       notifyListeners();
+
+      if (isFirebaseReady) {
+        try {
+          await _firestore.collection('lessons').doc(id).set(updated, SetOptions(merge: true));
+        } catch (e) {
+          debugPrint("Firestore updateLesson error: $e");
+        }
+      }
     }
   }
 
@@ -541,6 +609,14 @@ class SiteDataService extends ChangeNotifier {
     _lessons.removeWhere((l) => l['id'] == id);
     await _saveLessons();
     notifyListeners();
+
+    if (isFirebaseReady) {
+      try {
+        await _firestore.collection('lessons').doc(id).delete();
+      } catch (e) {
+        debugPrint("Firestore deleteLesson error: $e");
+      }
+    }
   }
 
   Future<void> _saveLessons() async {
@@ -548,20 +624,41 @@ class SiteDataService extends ChangeNotifier {
     await prefs.setString('site_lessons', jsonEncode(_lessons));
   }
 
-  // --- Lesson Playlists CRUD ---
+  // =========================================================================
+  // LESSON PLAYLISTS CRUD (Curricula / مناهج)
+  // =========================================================================
+  Future<void> createLessonPlaylist(Map<String, dynamic> playlist) => addLessonPlaylist(playlist);
   Future<void> addLessonPlaylist(Map<String, dynamic> playlist) async {
-    playlist['id'] = 'pl_${DateTime.now().millisecondsSinceEpoch}';
+    final id = playlist['id']?.toString() ?? 'pl_${DateTime.now().millisecondsSinceEpoch}';
+    playlist['id'] = id;
     _lessonPlaylists.add(playlist);
     await _saveLessonPlaylists();
     notifyListeners();
+
+    if (isFirebaseReady) {
+      try {
+        await _firestore.collection('lesson_playlists').doc(id).set(playlist, SetOptions(merge: true));
+      } catch (e) {
+        debugPrint("Firestore addLessonPlaylist error: $e");
+      }
+    }
   }
 
   Future<void> updateLessonPlaylist(String id, Map<String, dynamic> updated) async {
     final idx = _lessonPlaylists.indexWhere((p) => p['id'] == id);
     if (idx != -1) {
+      updated['id'] = id;
       _lessonPlaylists[idx] = updated;
       await _saveLessonPlaylists();
       notifyListeners();
+
+      if (isFirebaseReady) {
+        try {
+          await _firestore.collection('lesson_playlists').doc(id).set(updated, SetOptions(merge: true));
+        } catch (e) {
+          debugPrint("Firestore updateLessonPlaylist error: $e");
+        }
+      }
     }
   }
 
@@ -569,6 +666,14 @@ class SiteDataService extends ChangeNotifier {
     _lessonPlaylists.removeWhere((p) => p['id'] == id);
     await _saveLessonPlaylists();
     notifyListeners();
+
+    if (isFirebaseReady) {
+      try {
+        await _firestore.collection('lesson_playlists').doc(id).delete();
+      } catch (e) {
+        debugPrint("Firestore deleteLessonPlaylist error: $e");
+      }
+    }
   }
 
   Future<void> _saveLessonPlaylists() async {
@@ -576,48 +681,41 @@ class SiteDataService extends ChangeNotifier {
     await prefs.setString('site_lesson_playlists', jsonEncode(_lessonPlaylists));
   }
 
-  // --- Latest Updates CRUD ---
-  Future<void> addLatestUpdate(Map<String, dynamic> update) async {
-    update['id'] = DateTime.now().millisecondsSinceEpoch.toString();
-    _latestUpdates.add(update);
-    await _saveLatestUpdates();
-    notifyListeners();
-  }
-
-  Future<void> updateLatestUpdate(String id, Map<String, dynamic> updated) async {
-    final idx = _latestUpdates.indexWhere((u) => u['id'] == id);
-    if (idx != -1) {
-      _latestUpdates[idx] = updated;
-      await _saveLatestUpdates();
-      notifyListeners();
-    }
-  }
-
-  Future<void> deleteLatestUpdate(String id) async {
-    _latestUpdates.removeWhere((u) => u['id'] == id);
-    await _saveLatestUpdates();
-    notifyListeners();
-  }
-
-  Future<void> _saveLatestUpdates() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('site_latest_updates', jsonEncode(_latestUpdates));
-  }
-
-  // --- Interactive Quizzes CRUD ---
+  // =========================================================================
+  // INTERACTIVE QUIZZES CRUD (اختبر نفسك HTML)
+  // =========================================================================
   Future<void> addInteractiveQuiz(Map<String, dynamic> quiz) async {
-    quiz['id'] = DateTime.now().millisecondsSinceEpoch.toString();
+    final id = quiz['id']?.toString() ?? 'quiz_${DateTime.now().millisecondsSinceEpoch}';
+    quiz['id'] = id;
+    quiz['createdAt'] = DateTime.now().toIso8601String();
     _interactiveQuizzes.add(quiz);
     await _saveInteractiveQuizzes();
     notifyListeners();
+
+    if (isFirebaseReady) {
+      try {
+        await _firestore.collection('interactive_quizzes').doc(id).set(quiz, SetOptions(merge: true));
+      } catch (e) {
+        debugPrint("Firestore addInteractiveQuiz error: $e");
+      }
+    }
   }
 
   Future<void> updateInteractiveQuiz(String id, Map<String, dynamic> updated) async {
     final idx = _interactiveQuizzes.indexWhere((q) => q['id'] == id);
     if (idx != -1) {
+      updated['id'] = id;
       _interactiveQuizzes[idx] = updated;
       await _saveInteractiveQuizzes();
       notifyListeners();
+
+      if (isFirebaseReady) {
+        try {
+          await _firestore.collection('interactive_quizzes').doc(id).set(updated, SetOptions(merge: true));
+        } catch (e) {
+          debugPrint("Firestore updateInteractiveQuiz error: $e");
+        }
+      }
     }
   }
 
@@ -625,6 +723,14 @@ class SiteDataService extends ChangeNotifier {
     _interactiveQuizzes.removeWhere((q) => q['id'] == id);
     await _saveInteractiveQuizzes();
     notifyListeners();
+
+    if (isFirebaseReady) {
+      try {
+        await _firestore.collection('interactive_quizzes').doc(id).delete();
+      } catch (e) {
+        debugPrint("Firestore deleteInteractiveQuiz error: $e");
+      }
+    }
   }
 
   Future<void> _saveInteractiveQuizzes() async {
@@ -632,44 +738,38 @@ class SiteDataService extends ChangeNotifier {
     await prefs.setString('site_interactive_quizzes', jsonEncode(_interactiveQuizzes));
   }
 
-  // --- Quiz Submissions (Student Results) ---
+  // =========================================================================
+  // QUIZ SUBMISSIONS (Student Results)
+  // =========================================================================
   Future<void> addQuizSubmission(Map<String, dynamic> submission) async {
-    submission['id'] = DateTime.now().millisecondsSinceEpoch.toString();
+    final id = submission['id']?.toString() ?? 'sub_${DateTime.now().millisecondsSinceEpoch}';
+    submission['id'] = id;
+    submission['date'] = submission['date'] ?? "${DateTime.now().year}-${DateTime.now().month.toString().padLeft(2, '0')}-${DateTime.now().day.toString().padLeft(2, '0')}";
     _quizSubmissions.insert(0, submission);
     await _saveQuizSubmissions();
+    notifyListeners();
 
-    final phone = submission['phone']?.toString();
-    final name = submission['studentName']?.toString();
-    if (phone != null && phone.isNotEmpty) {
-      final mIdx = _members.indexWhere((m) => m['phone'] == phone);
-      if (mIdx != -1) {
-        _members[mIdx]['quizzesCount'] = (_members[mIdx]['quizzesCount'] ?? 0) + 1;
-        _members[mIdx]['lastActive'] = 'الآن';
-        await _saveMembers();
-      } else if (name != null && name.isNotEmpty) {
-        _members.add({
-          'id': 'mem_${DateTime.now().millisecondsSinceEpoch}',
-          'name': name,
-          'email': '$phone@student.kmt',
-          'phone': phone,
-          'country': submission['country'] ?? 'مصر',
-          'registeredDate': submission['date'] ?? '2026-10-02',
-          'status': 'نشط',
-          'quizzesCount': 1,
-          'challengesCount': 0,
-          'lastActive': 'الآن',
-          'role': 'student',
-        });
-        await _saveMembers();
+    if (isFirebaseReady) {
+      try {
+        await _firestore.collection('quiz_submissions').doc(id).set(submission, SetOptions(merge: true));
+      } catch (e) {
+        debugPrint("Firestore addQuizSubmission error: $e");
       }
     }
-    notifyListeners();
   }
 
   Future<void> deleteQuizSubmission(String id) async {
     _quizSubmissions.removeWhere((s) => s['id'] == id);
     await _saveQuizSubmissions();
     notifyListeners();
+
+    if (isFirebaseReady) {
+      try {
+        await _firestore.collection('quiz_submissions').doc(id).delete();
+      } catch (e) {
+        debugPrint("Firestore deleteQuizSubmission error: $e");
+      }
+    }
   }
 
   Future<void> _saveQuizSubmissions() async {
@@ -677,9 +777,128 @@ class SiteDataService extends ChangeNotifier {
     await prefs.setString('site_quiz_submissions', jsonEncode(_quizSubmissions));
   }
 
-  // --- Weekly Challenges Scheduler & List CRUD ---
+  // =========================================================================
+  // MEMBERS CRUD (Synced with Firestore 'users')
+  // =========================================================================
+  Future<void> addMember(Map<String, dynamic> member) async {
+    final id = member['id']?.toString() ?? 'mem_${DateTime.now().millisecondsSinceEpoch}';
+    member['id'] = id;
+    member['uid'] = id;
+    member['allowedCourses'] = member['allowedCourses'] ?? [];
+    member['allowedLessons'] = member['allowedLessons'] ?? [];
+    _members.add(member);
+    await _saveMembers();
+    notifyListeners();
+
+    if (isFirebaseReady) {
+      try {
+        await _firestore.collection('users').doc(id).set(member, SetOptions(merge: true));
+      } catch (e) {
+        debugPrint("Firestore addMember error: $e");
+      }
+    }
+  }
+
+  Future<void> updateMember(String id, Map<String, dynamic> updated) async {
+    final idx = _members.indexWhere((m) => m['id'] == id || m['uid'] == id);
+    if (idx != -1) {
+      updated['id'] = id;
+      updated['uid'] = id;
+      _members[idx] = updated;
+      await _saveMembers();
+      notifyListeners();
+
+      if (isFirebaseReady) {
+        try {
+          await _firestore.collection('users').doc(id).set(updated, SetOptions(merge: true));
+        } catch (e) {
+          debugPrint("Firestore updateMember error: $e");
+        }
+      }
+    }
+  }
+
+  Future<void> deleteMember(String id) async {
+    _members.removeWhere((m) => m['id'] == id || m['uid'] == id);
+    await _saveMembers();
+    notifyListeners();
+
+    if (isFirebaseReady) {
+      try {
+        await _firestore.collection('users').doc(id).delete();
+      } catch (e) {
+        debugPrint("Firestore deleteMember error: $e");
+      }
+    }
+  }
+
+  Future<void> _saveMembers() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('site_members', jsonEncode(_members));
+  }
+
+  // =========================================================================
+  // LATEST UPDATES (For Live Text Ticker)
+  // =========================================================================
+  Future<void> addLatestUpdate(Map<String, dynamic> update) async {
+    final id = update['id']?.toString() ?? 'up_${DateTime.now().millisecondsSinceEpoch}';
+    update['id'] = id;
+    _latestUpdates.add(update);
+    await _saveLatestUpdates();
+    notifyListeners();
+
+    if (isFirebaseReady) {
+      try {
+        await _firestore.collection('latest_updates').doc(id).set(update, SetOptions(merge: true));
+      } catch (e) {
+        debugPrint("Firestore addLatestUpdate error: $e");
+      }
+    }
+  }
+
+  Future<void> updateLatestUpdate(String id, Map<String, dynamic> updated) async {
+    final idx = _latestUpdates.indexWhere((u) => u['id'] == id);
+    if (idx != -1) {
+      updated['id'] = id;
+      _latestUpdates[idx] = updated;
+      await _saveLatestUpdates();
+      notifyListeners();
+
+      if (isFirebaseReady) {
+        try {
+          await _firestore.collection('latest_updates').doc(id).set(updated, SetOptions(merge: true));
+        } catch (e) {
+          debugPrint("Firestore updateLatestUpdate error: $e");
+        }
+      }
+    }
+  }
+
+  Future<void> deleteLatestUpdate(String id) async {
+    _latestUpdates.removeWhere((u) => u['id'] == id);
+    await _saveLatestUpdates();
+    notifyListeners();
+
+    if (isFirebaseReady) {
+      try {
+        await _firestore.collection('latest_updates').doc(id).delete();
+      } catch (e) {
+        debugPrint("Firestore deleteLatestUpdate error: $e");
+      }
+    }
+  }
+
+  Future<void> _saveLatestUpdates() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('site_latest_updates', jsonEncode(_latestUpdates));
+  }
+
+  // =========================================================================
+  // WEEKLY CHALLENGES
+  // =========================================================================
   Future<void> addWeeklyChallenge(Map<String, dynamic> challenge) async {
-    challenge['id'] = DateTime.now().millisecondsSinceEpoch.toString();
+    final id = challenge['id']?.toString() ?? 'chall_${DateTime.now().millisecondsSinceEpoch}';
+    challenge['id'] = id;
     _weeklyChallenges.add(challenge);
     await _saveWeeklyChallenges();
     notifyListeners();
@@ -688,6 +907,7 @@ class SiteDataService extends ChangeNotifier {
   Future<void> updateWeeklyChallenge(String id, Map<String, dynamic> updated) async {
     final idx = _weeklyChallenges.indexWhere((c) => c['id'] == id);
     if (idx != -1) {
+      updated['id'] = id;
       _weeklyChallenges[idx] = updated;
       await _saveWeeklyChallenges();
       notifyListeners();
@@ -713,9 +933,8 @@ class SiteDataService extends ChangeNotifier {
     final explicitActive = _weeklyChallenges.where((c) => c['status'] == 'نشط').toList();
     if (explicitActive.isNotEmpty) return explicitActive.first;
 
-    // Auto rotate every Saturday to Thursday
     final now = DateTime.now();
-    final anchor = DateTime(2026, 10, 3); // Saturday
+    final anchor = DateTime(2026, 10, 3);
     int diffWeeks = 0;
     if (now.isAfter(anchor)) {
       diffWeeks = now.difference(anchor).inDays ~/ 7;
@@ -730,7 +949,6 @@ class SiteDataService extends ChangeNotifier {
     return null;
   }
 
-  // --- Challenge Submissions (Student Solutions) ---
   Future<void> addChallengeSubmission(Map<String, dynamic> submission) async {
     submission['id'] = DateTime.now().millisecondsSinceEpoch.toString();
     submission['status'] = submission['status'] ?? 'جديد';
@@ -767,34 +985,6 @@ class SiteDataService extends ChangeNotifier {
   Future<void> _saveChallengeSubmissions() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('site_challenge_submissions', jsonEncode(_challengeSubmissions));
-  }
-
-  // --- Members CRUD ---
-  Future<void> addMember(Map<String, dynamic> member) async {
-    member['id'] = DateTime.now().millisecondsSinceEpoch.toString();
-    _members.add(member);
-    await _saveMembers();
-    notifyListeners();
-  }
-
-  Future<void> updateMember(String id, Map<String, dynamic> updated) async {
-    final idx = _members.indexWhere((m) => m['id'] == id);
-    if (idx != -1) {
-      _members[idx] = updated;
-      await _saveMembers();
-      notifyListeners();
-    }
-  }
-
-  Future<void> deleteMember(String id) async {
-    _members.removeWhere((m) => m['id'] == id);
-    await _saveMembers();
-    notifyListeners();
-  }
-
-  Future<void> _saveMembers() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('site_members', jsonEncode(_members));
   }
 
   Future<void> setWeeklyChallenge(Map<String, dynamic>? challenge) async {
