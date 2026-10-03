@@ -9,6 +9,7 @@ import '../services/site_data_service.dart';
 import '../widgets/article_content_renderer.dart';
 import '../widgets/youtube_embedded_player.dart';
 import '../widgets/auth_modal.dart';
+import '../widgets/safe_network_image/safe_network_image.dart';
 
 class LessonsPage extends StatefulWidget {
   const LessonsPage({super.key});
@@ -270,9 +271,12 @@ class _LessonsPageState extends State<LessonsPage> {
                                   SizedBox(
                                     height: 180,
                                     width: double.infinity,
-                                    child: image.startsWith('http')
-                                        ? Image.network(image, fit: BoxFit.cover, errorBuilder: (ctx, err, stack) => Container(color: Colors.grey))
-                                        : Image.asset(image, fit: BoxFit.cover, errorBuilder: (ctx, err, stack) => Container(color: Colors.grey)),
+                                    child: SafeNetworkImage(
+                                      imageUrl: image,
+                                      height: 180,
+                                      width: double.infinity,
+                                      fit: BoxFit.cover,
+                                    ),
                                   ),
                                   if (hasYoutube)
                                     Positioned(
@@ -400,14 +404,14 @@ class _LessonsPageState extends State<LessonsPage> {
           ],
 
           // 2. Image Cover (safely renders without leftover empty box on error)
-          if (image.isNotEmpty && image.startsWith('http')) ...[
+          if (image.isNotEmpty && (image.startsWith('http') || image.contains('http'))) ...[
             ClipRRect(
               borderRadius: BorderRadius.circular(16),
-              child: Image.network(
-                image,
+              child: SafeNetworkImage(
+                imageUrl: image,
                 fit: BoxFit.cover,
                 width: double.infinity,
-                errorBuilder: (ctx, err, stack) => const SizedBox.shrink(),
+                height: 260,
               ),
             ),
             const SizedBox(height: 24),

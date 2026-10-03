@@ -7,6 +7,7 @@ import '../services/site_data_service.dart';
 import '../services/user_service.dart';
 import '../widgets/article_content_renderer.dart';
 import '../widgets/youtube_embedded_player.dart';
+import '../widgets/safe_network_image/safe_network_image.dart';
 
 class _SubTabItem {
   final String title;
@@ -2964,8 +2965,9 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                                     _showSnackBar("يرجى كتابة اسم القائمة", isError: true);
                                     return;
                                   }
-                                  final img = imgCtrl.text.trim().isNotEmpty
-                                      ? imgCtrl.text.trim()
+                                  final rawImg = imgCtrl.text.trim();
+                                  final img = rawImg.isNotEmpty
+                                      ? sanitizeImageUrl(rawImg)
                                       : 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=600';
                                   final desc = descCtrl.text.trim();
 
@@ -3108,8 +3110,6 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
   // ----------------------------------------------------
   void _openAddLectureOrLessonModal({required bool isCourse}) {
     final titleCtrl = TextEditingController();
-    final imgCtrl = TextEditingController(text: 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=600');
-    final videoUrlCtrl = TextEditingController();
     final contentCtrl = TextEditingController();
     final htmlCtrl = TextEditingController();
     bool isPaid = false;
@@ -3205,29 +3205,9 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                         controller: titleCtrl,
                         decoration: _inputDecoration(isCourse ? "عنوان الفيديو / المحاضرة *" : "عنوان الدرس *"),
                       ),
-                      const SizedBox(height: 12),
+                      const SizedBox(height: 16),
 
-                      // 3. Image URL & Video URL
-                      Row(
-                        children: [
-                          Expanded(
-                            child: TextField(
-                              controller: imgCtrl,
-                              decoration: _inputDecoration("رابط صورة الغلاف (URL)"),
-                            ),
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: TextField(
-                              controller: videoUrlCtrl,
-                              decoration: _inputDecoration("رابط الفيديو (YouTube / MP4)"),
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 20),
-
-                      // 4. Dual Editor Tabs Switcher
+                      // 3. Dual Editor Tabs Switcher
                       Container(
                         decoration: BoxDecoration(
                           color: const Color(0xFFF1F5F9),
@@ -3342,10 +3322,23 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                       return;
                     }
 
-                    final img = imgCtrl.text.trim();
-                    final video = videoUrlCtrl.text.trim();
                     final content = contentCtrl.text.trim();
                     final htmlCode = htmlCtrl.text.trim();
+                    final sourceBody = editorTab == 0 ? content : htmlCode;
+
+                    // Automatically extract image cover and video if inserted inside the editor
+                    String img = '';
+                    String video = '';
+
+                    final imgMatch = RegExp(r'<img[^>]+src=["\x27]([^"\x27]+)["\x27]|\[img\]([^\[\]]+)\[\/img\]|!\[[^\]]*\]\(([^)]+)\)').firstMatch(sourceBody);
+                    if (imgMatch != null) {
+                      img = sanitizeImageUrl((imgMatch.group(1) ?? imgMatch.group(2) ?? imgMatch.group(3) ?? '').trim());
+                    }
+
+                    final vidMatch = RegExp(r'(https?://(?:www\.)?(?:youtube\.com/watch\?v=|youtu\.be/|youtube\.com/embed/)[a-zA-Z0-9_\-]+)|<iframe[^>]+src=["\x27]([^"\x27]+)["\x27]').firstMatch(sourceBody);
+                    if (vidMatch != null) {
+                      video = (vidMatch.group(1) ?? vidMatch.group(2) ?? '').trim();
+                    }
 
                     if (isCourse) {
                       // Append to course's lessons list
@@ -3391,6 +3384,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                       });
                     }
 
+                    if (!ctx.mounted) return;
                     Navigator.pop(ctx);
                     setState(() {});
                     _showSnackBar("تم حفظ ونشر المحتوى بنجاح في Firebase 🚀");
@@ -3614,6 +3608,7 @@ function checkScore() {
                       'htmlCode': qHtml,
                     });
 
+                    if (!ctx.mounted) return;
                     Navigator.pop(ctx);
                     setState(() {});
                     _showSnackBar("تم ربط الاختبار بالدرس وحفظه بنجاح في Firebase 🧠");
@@ -3691,9 +3686,10 @@ function checkScore() {
           _toolbarIconBtn(Icons.image_rounded, "إضافة صورة", () {
             _promptForUrlAndInsert(
               title: "إضافة صورة في المقال",
-              hint: "رابط الصورة (URL)",
+              hint: "رابط الصورة (URL أو رابط مباشر)",
               onConfirm: (url) {
-                insertSnippet('<div style="text-align: center; margin: 20px 0;">\n  <img src="$url" style="max-width: 100%; border-radius: 12px; box-shadow: 0 4px 16px rgba(0,0,0,0.1);" alt="صورة المقال"/>\n</div>');
+                final cleanUrl = sanitizeImageUrl(url);
+                insertSnippet('<div style="text-align: center; margin: 20px 0;">\n  <img src="$cleanUrl" style="max-width: 100%; border-radius: 12px; box-shadow: 0 4px 16px rgba(0,0,0,0.1);" alt="صورة المقال"/>\n</div>');
               },
             );
           }),
@@ -3949,6 +3945,7 @@ function checkScore() {
                       allowedCourses: allowedCourses,
                       allowedLessons: allowedLessons,
                     );
+                    if (!ctx.mounted) return;
                     Navigator.pop(ctx);
                     _showSnackBar("تم حفظ وتحديث صلاحيات العضو في Firebase بنجاح 🔑");
                   },

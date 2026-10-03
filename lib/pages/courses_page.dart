@@ -9,6 +9,7 @@ import '../services/site_data_service.dart';
 import '../widgets/article_content_renderer.dart';
 import '../widgets/youtube_embedded_player.dart';
 import '../widgets/auth_modal.dart';
+import '../widgets/safe_network_image/safe_network_image.dart';
 
 class CoursesPage extends StatefulWidget {
   const CoursesPage({super.key});
@@ -261,9 +262,12 @@ class _CoursesPageState extends State<CoursesPage> {
                             children: [
                               SizedBox(
                                 height: 180,
-                                child: image.startsWith('http')
-                                    ? Image.network(image, fit: BoxFit.cover, errorBuilder: (ctx, err, stack) => Container(color: Colors.grey))
-                                    : Image.asset(image, fit: BoxFit.cover, errorBuilder: (ctx, err, stack) => Container(color: Colors.grey)),
+                                child: SafeNetworkImage(
+                                  imageUrl: image,
+                                  height: 180,
+                                  width: double.infinity,
+                                  fit: BoxFit.cover,
+                                ),
                               ),
                               Padding(
                                 padding: const EdgeInsets.all(18),
@@ -401,9 +405,13 @@ class _CoursesPageState extends State<CoursesPage> {
                       child: SizedBox(
                         width: 90,
                         height: 65,
-                        child: image.startsWith('http')
-                            ? Image.network(image, fit: BoxFit.cover, errorBuilder: (ctx, err, stack) => Container(color: Colors.grey))
-                            : Image.asset(image, fit: BoxFit.cover, errorBuilder: (ctx, err, stack) => Container(color: Colors.grey)),
+                        child: SafeNetworkImage(
+                          imageUrl: image,
+                          width: 90,
+                          height: 65,
+                          fit: BoxFit.cover,
+                          borderRadius: BorderRadius.circular(10),
+                        ),
                       ),
                     ),
                     const SizedBox(width: 16),
@@ -505,14 +513,14 @@ class _CoursesPageState extends State<CoursesPage> {
           ],
 
           // 2. Image Cover (safely renders without leftover empty box on error)
-          if (image.isNotEmpty && image.startsWith('http')) ...[
+          if (image.isNotEmpty && (image.startsWith('http') || image.contains('http'))) ...[
             ClipRRect(
               borderRadius: BorderRadius.circular(16),
-              child: Image.network(
-                image,
+              child: SafeNetworkImage(
+                imageUrl: image,
                 fit: BoxFit.cover,
                 width: double.infinity,
-                errorBuilder: (ctx, err, stack) => const SizedBox.shrink(),
+                height: 260,
               ),
             ),
             const SizedBox(height: 24),
