@@ -2,8 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../theme/app_theme.dart';
-import '../data/arabic_data.dart';
-import '../widgets/social_icons.dart';
+import '../widgets/unified_app_bar.dart';
 
 class RecordingStudioPage extends StatelessWidget {
   const RecordingStudioPage({super.key});
@@ -23,101 +22,35 @@ class RecordingStudioPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     final isMobile = screenWidth < 850;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    return Scaffold(
-      body: SafeArea(
-        child: Column(
-          children: [
-            // Top Nav
-            _buildPageHeader(context, isMobile),
-
-            // Main Content
-            Expanded(
-              child: SingleChildScrollView(
-                child: Column(
-                  children: [
-                    const SizedBox(height: 36),
-                    _buildRecordingContent(context, isMobile, screenWidth),
-                    const SizedBox(height: 60),
-                    _buildPageFooter(context, isMobile),
-                  ],
+    return Directionality(
+      textDirection: TextDirection.rtl,
+      child: Scaffold(
+        endDrawer: isMobile ? const UnifiedAppDrawer(currentRoute: '/recording') : null,
+        backgroundColor: isDark ? AppColors.bgDark : AppColors.bgLight,
+        body: SelectionArea(
+          child: SafeArea(
+            child: Column(
+              children: [
+                const UnifiedAppHeader(
+                  currentRoute: '/recording',
+                  pageTitle: 'أستوديو تسجيل الحصص والمحاضرات',
                 ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildPageHeader(BuildContext context, bool isMobile) {
-    return Container(
-      height: 72,
-      padding: const EdgeInsets.symmetric(horizontal: 24),
-      decoration: const BoxDecoration(
-        color: AppColors.surfaceDark,
-        border: Border(bottom: BorderSide(color: AppColors.borderDark)),
-      ),
-      child: Center(
-        child: Container(
-          constraints: const BoxConstraints(maxWidth: 1200),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              // Logo & Title
-              Row(
-                children: [
-                  ClipOval(
-                    child: Image.asset(
-                      'assets/images/logo.jpeg',
-                      width: 42,
-                      height: 42,
-                      fit: BoxFit.cover,
+                Expanded(
+                  child: SingleChildScrollView(
+                    child: Column(
+                      children: [
+                        const SizedBox(height: 36),
+                        _buildRecordingContent(context, isMobile, screenWidth),
+                        const SizedBox(height: 60),
+                        const UnifiedAppFooter(),
+                      ],
                     ),
                   ),
-                  const SizedBox(width: 12),
-                  Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        ArabicData.brandName,
-                        style: GoogleFonts.cairo(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          color: AppColors.textPrimary,
-                        ),
-                      ),
-                      Text(
-                        ArabicData.brandSubtitle,
-                        style: GoogleFonts.inter(
-                          fontSize: 11,
-                          fontWeight: FontWeight.w700,
-                          color: AppColors.primaryLight,
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-
-              // Back to Home Button
-              ElevatedButton.icon(
-                onPressed: () => Navigator.of(context).pushReplacementNamed('/'),
-                icon: const Icon(Icons.arrow_forward_rounded, size: 18),
-                label: Text(
-                  "الرئيسية",
-                  style: GoogleFonts.cairo(fontWeight: FontWeight.bold),
                 ),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.cardDark,
-                  foregroundColor: AppColors.primaryLight,
-                  side: const BorderSide(color: AppColors.borderLightDark),
-                  padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
@@ -394,34 +327,5 @@ class RecordingStudioPage extends StatelessWidget {
       ],
     );
   }
-
-  Widget _buildPageFooter(BuildContext context, bool isMobile) {
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 30, horizontal: 24),
-      decoration: const BoxDecoration(
-        color: AppColors.surfaceDark,
-        border: Border(top: BorderSide(color: AppColors.borderDark)),
-      ),
-      child: Center(
-        child: Container(
-          constraints: const BoxConstraints(maxWidth: 1200),
-          child: Column(
-            children: [
-              Text(
-                "جميع الحقوق محفوظة © 2026 Eslam Atef | Code & AI",
-                style: GoogleFonts.cairo(fontSize: 13, color: AppColors.textMuted),
-              ),
-              const SizedBox(height: 12),
-              const SocialIconsBar(
-                facebookUrl: ArabicData.facebookUrl,
-                youtubeUrl: ArabicData.youtubeUrl,
-                telegramUrl: ArabicData.telegramUrl,
-                linkedinUrl: ArabicData.linkedinUrl,
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
 }
+

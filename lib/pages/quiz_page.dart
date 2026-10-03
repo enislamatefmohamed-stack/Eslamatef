@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../theme/app_theme.dart';
-import '../data/arabic_data.dart';
 import '../services/site_data_service.dart';
 import '../services/auth_service.dart';
 import '../widgets/article_content_renderer.dart';
+import '../widgets/unified_app_bar.dart';
 
 class QuizPage extends StatefulWidget {
   const QuizPage({super.key});
@@ -116,12 +116,19 @@ class _QuizPageState extends State<QuizPage> {
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Scaffold(
+        endDrawer: isMobile ? const UnifiedAppDrawer(currentRoute: '/quiz') : null,
         backgroundColor: isDark ? AppColors.bgDark : AppColors.bgLight,
         body: SelectionArea(
           child: SafeArea(
             child: Column(
               children: [
-                _buildPageHeader(context, isMobile, isDark),
+                UnifiedAppHeader(
+                  currentRoute: '/quiz',
+                  pageTitle: 'اختبر نفسك 🧠 — بنك الأسئلة والاختبارات التفاعلية',
+                  onBack: _selectedInteractiveQuiz != null
+                      ? () => setState(() => _selectedInteractiveQuiz = null)
+                      : null,
+                ),
                 Expanded(
                   child: SingleChildScrollView(
                     child: Column(
@@ -140,7 +147,7 @@ class _QuizPageState extends State<QuizPage> {
                         else
                           _buildQuizContent(questions, isMobile, isDark),
                         const SizedBox(height: 60),
-                        _buildPageFooter(context, isMobile, isDark),
+                        const UnifiedAppFooter(),
                       ],
                     ),
                   ),
@@ -1034,147 +1041,5 @@ class _QuizPageState extends State<QuizPage> {
     );
   }
 
-  // Header
-  Widget _buildPageHeader(BuildContext context, bool isMobile, bool isDark) {
-    return Container(
-      height: 72,
-      padding: const EdgeInsets.symmetric(horizontal: 24),
-      decoration: BoxDecoration(
-        color: isDark ? AppColors.surfaceDark : Colors.white,
-        border: Border(bottom: BorderSide(color: isDark ? AppColors.borderDark : AppColors.borderLight)),
-        boxShadow: isDark
-            ? []
-            : [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.04),
-                  blurRadius: 10,
-                  offset: const Offset(0, 2),
-                ),
-              ],
-      ),
-      child: Center(
-        child: Container(
-          constraints: const BoxConstraints(maxWidth: 1200),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              MouseRegion(
-                cursor: SystemMouseCursors.click,
-                child: GestureDetector(
-                  onTap: () => Navigator.of(context).pushReplacementNamed('/'),
-                  child: Row(
-                    children: [
-                      ClipOval(
-                        child: Image.asset('assets/images/logo.jpeg', width: 40, height: 40, fit: BoxFit.cover),
-                      ),
-                      const SizedBox(width: 12),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            ArabicData.brandName,
-                            style: GoogleFonts.inter(
-                              fontSize: 17,
-                              fontWeight: FontWeight.w800,
-                              color: isDark ? AppColors.textPrimary : AppColors.textPrimaryLight,
-                            ),
-                          ),
-                          Text(
-                            "اختبر نفسك 🧠",
-                            style: GoogleFonts.cairo(
-                              fontSize: 11,
-                              fontWeight: FontWeight.bold,
-                              color: const Color(0xFF10B981),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              Row(
-                children: [
-                  IconButton(
-                    icon: Icon(
-                      isDark ? Icons.light_mode_rounded : Icons.dark_mode_rounded,
-                      color: isDark ? const Color(0xFFFFB300) : const Color(0xFF1E293B),
-                      size: 22,
-                    ),
-                    onPressed: () => AppThemeManager.toggleTheme(),
-                  ),
-                  const SizedBox(width: 8),
-                  ElevatedButton.icon(
-                    onPressed: () => Navigator.of(context).pushReplacementNamed('/'),
-                    icon: const Icon(Icons.home_outlined, size: 16),
-                    label: Text("الرئيسية", style: GoogleFonts.cairo(fontWeight: FontWeight.bold)),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: isDark ? const Color(0xFF1E293B) : const Color(0xFFF1F5F9),
-                      foregroundColor: isDark ? Colors.white : AppColors.textPrimaryLight,
-                      elevation: 0,
-                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  // Footer
-  Widget _buildPageFooter(BuildContext context, bool isMobile, bool isDark) {
-    return Container(
-      decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF070A12) : Colors.white,
-        border: Border(top: BorderSide(color: isDark ? AppColors.borderDark : AppColors.borderLight)),
-      ),
-      padding: EdgeInsets.symmetric(horizontal: isMobile ? 20 : 48, vertical: 32),
-      child: Center(
-        child: Container(
-          constraints: const BoxConstraints(maxWidth: 1200),
-          child: Column(
-            children: [
-              Wrap(
-                spacing: 20,
-                runSpacing: 10,
-                alignment: WrapAlignment.center,
-                children: [
-                  _footerLink("الرئيسية", () => Navigator.of(context).pushReplacementNamed('/'), isDark),
-                  _footerLink("الكورسات", () => Navigator.of(context).pushNamed('/courses'), isDark),
-                  _footerLink("الدروس", () => Navigator.of(context).pushNamed('/lessons'), isDark),
-                  _footerLink("تحدي الأسبوع 🏆", () => Navigator.of(context).pushNamed('/challenge'), isDark),
-                ],
-              ),
-              const SizedBox(height: 18),
-              Text(
-                "© 2026 Eslam Atef | Code & AI — جميع الحقوق محفوظة",
-                style: GoogleFonts.cairo(fontSize: 12, color: AppColors.textMuted),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _footerLink(String label, VoidCallback onTap, bool isDark) {
-    return MouseRegion(
-      cursor: SystemMouseCursors.click,
-      child: GestureDetector(
-        onTap: onTap,
-        child: Text(
-          label,
-          style: GoogleFonts.cairo(
-            fontSize: 13,
-            color: isDark ? AppColors.textSecondary : AppColors.textSecondaryLight,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-      ),
-    );
-  }
 }
+

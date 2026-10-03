@@ -1,4 +1,4 @@
-// ignore_for_file: deprecated_member_use
+// ignore_for_file: deprecated_member_use, unused_element
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -21,6 +21,7 @@ import 'services/site_data_service.dart';
 import 'services/auth_service.dart';
 import 'services/user_service.dart';
 import 'widgets/live_text_ticker_bar.dart';
+import 'widgets/unified_app_bar.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 
@@ -262,14 +263,14 @@ class _HomePageState extends State<HomePage> {
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Scaffold(
-        endDrawer: isMobile ? _buildMobileDrawer() : null,
+        endDrawer: isMobile ? const UnifiedAppDrawer(currentRoute: '/') : null,
         floatingActionButton: _buildFloatingWhatsApp(),
         body: SelectionArea(
           child: SafeArea(
             child: Column(
           children: [
-            // 1. Header (اللوجو، الأقسام، السوشيال)
-            _buildHeader(isMobile),
+            // 1. Header (الموحد في كافة صفحات الموقع)
+            const UnifiedAppHeader(currentRoute: '/'),
 
             // 2. Middle Content + Sections + Footer
             Expanded(
@@ -300,8 +301,8 @@ class _HomePageState extends State<HomePage> {
                     _buildLearnWithUsSection(isMobile, screenWidth),
                     SizedBox(height: isMobile ? 44 : 70),
 
-                    // 7. الفوتر
-                    _buildFooter(isMobile),
+                    // 7. الفوتر الموحد
+                    const UnifiedAppFooter(),
                   ],
                 ),
               ),
@@ -1044,7 +1045,6 @@ class _HomePageState extends State<HomePage> {
   // -------------------------------------------------------------
   // 1. شريط الإضافات والأخبار (Square Carousel - Courses & Lessons)
   // -------------------------------------------------------------
-  // ignore: unused_element
   Widget _buildLatestNewsSection(bool isMobile, double screenWidth) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final updates = _getCombinedLatestItems();

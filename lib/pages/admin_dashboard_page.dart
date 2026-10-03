@@ -8,6 +8,7 @@ import '../services/user_service.dart';
 import '../widgets/article_content_renderer.dart';
 import '../widgets/youtube_embedded_player.dart';
 import '../widgets/safe_network_image/safe_network_image.dart';
+import '../widgets/blogger_post_editor.dart';
 
 class _SubTabItem {
   final String title;
@@ -2103,6 +2104,47 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
   }
 
   Widget _buildLessonFullPageEditor() {
+    return SizedBox(
+      height: 820,
+      child: BloggerPostEditor(
+        initialTitle: _editingLesson?['title'] ?? _lessonTitleCtrl.text,
+        initialHtml: _editingLesson?['htmlCode'] ?? _lessonHtmlCtrl.text,
+        initialContent: _editingLesson?['content'] ?? _lessonContentCtrl.text,
+        initialCategory: _selectedLessonCategory.isNotEmpty
+            ? _selectedLessonCategory
+            : (_editingLesson?['category'] ?? 'عام'),
+        initialStatus: _selectedLessonStatus,
+        initialHasQuiz: _editingLesson?['hasQuiz'] == true,
+        availableCategories: _dataService.lessonCategories,
+        availablePlaylists: _dataService.lessonPlaylists,
+        initialPlaylistId: _selectedLessonPlaylistId,
+        onCancel: () => setState(() {
+          _isCreatingLesson = false;
+          _editingLesson = null;
+        }),
+        onSave: (result) async {
+          final lessonData = {
+            ...result,
+            'playlistId': result['playlistId'] ?? _selectedLessonPlaylistId,
+            'description': result['title'],
+          };
+          if (_editingLesson == null) {
+            await _dataService.addLesson(lessonData);
+            _showSnackBar("تم نشر الدرس بنجاح عبر محرر بلوجر 🚀");
+          } else {
+            await _dataService.updateLesson(_editingLesson!['id'], lessonData);
+            _showSnackBar("تم تحديث الدرس بنجاح عبر محرر بلوجر 🚀");
+          }
+          setState(() {
+            _isCreatingLesson = false;
+            _editingLesson = null;
+          });
+        },
+      ),
+    );
+  }
+
+  Widget _buildLegacyLessonFullPageEditor() {
     final playlists = _dataService.lessonPlaylists;
     final lessonCats = _dataService.lessonCategories;
 
@@ -6227,205 +6269,37 @@ function checkScore() {
     Map<String, dynamic>? existing,
     required Function(Map<String, dynamic>) onSave,
   }) {
-    final titleCtrl = TextEditingController(text: existing?['title'] ?? '');
-    final descCtrl = TextEditingController(text: existing?['description'] ?? '');
-    final ytCtrl = TextEditingController(text: existing?['youtubeUrl'] ?? '');
-    final imgCtrl = TextEditingController(text: existing?['imageUrl'] ?? 'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=600');
-    final catCtrl = TextEditingController(text: existing?['category'] ?? 'عام');
-
-    // Visual Content vs HTML
-    String editorType = existing?['editorType'] ?? 'visual'; // visual, html
-    final visualContentCtrl = TextEditingController(text: existing?['content'] ?? '');
-    final htmlCodeCtrl = TextEditingController(
-      text: existing?['htmlCode'] ??
-          '''<article class="lecture-content">
-  <h2>مقدمة في الدرس</h2>
-  <p>اكتب هنا شرح المحاضرة بالتفصيل مع إمكانية إضافة وسوم HTML كاملة.</p>
-  <pre><code>print("Hello Eslam Atef Code & AI")</code></pre>
-</article>''',
-    );
-
-    // Quiz button options
-    bool hasQuiz = existing?['hasQuiz'] ?? false;
-    final quizTitleCtrl = TextEditingController(text: existing?['quizTitle'] ?? 'ابدأ اختبار فهم الدرس 🧠');
-    final quizQCtrl = TextEditingController(text: existing?['quizQuestion'] ?? 'ما هي المخرجات الأساسية للكود المعروض؟');
-    final quizOpt1Ctrl = TextEditingController(text: existing?['quizOpt1'] ?? 'خطأ في التنفيذ');
-    final quizOpt2Ctrl = TextEditingController(text: existing?['quizOpt2'] ?? 'طباعة النص بنجاح');
-    String status = existing?['status'] ?? 'منشور';
-
     showDialog(
       context: context,
-      builder: (ctx) => StatefulBuilder(
-        builder: (ctx, setDlgState) => AlertDialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-          title: Row(
-            children: [
-              Text(titleText, style: GoogleFonts.cairo(fontWeight: FontWeight.bold, fontSize: 16)),
-              const Spacer(),
-              // Choice Tabs: Visual Editor vs HTML Editor
-              SegmentedButton<String>(
-                segments: const [
-                  ButtonSegment(value: 'visual', label: Text("📝 محرر مرئي"), icon: Icon(Icons.edit_note_rounded)),
-                  ButtonSegment(value: 'html', label: Text("💻 كود HTML"), icon: Icon(Icons.code_rounded)),
-                ],
-                selected: {editorType},
-                onSelectionChanged: (set) => setDlgState(() => editorType = set.first),
-              ),
-            ],
+      barrierDismissible: false,
+      builder: (ctx) => Dialog(
+        insetPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        child: Container(
+          width: 1100,
+          height: 750,
+          constraints: const BoxConstraints(maxWidth: 1200, maxHeight: 850),
+          child: BloggerPostEditor(
+            initialTitle: existing?['title'] ?? '',
+            initialHtml: existing?['htmlCode'] ?? '',
+            initialContent: existing?['content'] ?? '',
+            initialCategory: existing?['category'] ?? 'عام',
+            initialStatus: existing?['status'] ?? 'منشور',
+            initialHasQuiz: existing?['hasQuiz'] == true,
+            availableCategories: _dataService.lessonCategories,
+            availablePlaylists: _dataService.lessonPlaylists,
+            onCancel: () => Navigator.pop(ctx),
+            onSave: (result) {
+              Navigator.pop(ctx);
+              final lessonData = {
+                if (existing != null) 'id': existing['id'],
+                ...result,
+                'description': result['title'],
+                'date': existing?['date'] ?? '2026-10-03',
+              };
+              onSave(lessonData);
+            },
           ),
-          content: SizedBox(
-            width: 780,
-            child: SingleChildScrollView(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _buildDialogField("عنوان الدرس / المحاضرة", titleCtrl),
-                  _buildDialogField("وصف مختصر", descCtrl),
-                  _buildDialogField("رابط فيديو يوتيوب (يشتغل مباشرة داخل الموقع)", ytCtrl, hint: "https://www.youtube.com/watch?v=... أو معرف الفيديو"),
-                  _buildDialogField("رابط صورة الغلاف المصغرة (Thumbnail)", imgCtrl),
-
-                  const SizedBox(height: 8),
-
-                  // Editor Area
-                  if (editorType == 'visual') ...[
-                    Text("محتوى الدرس (شرح، مقالات، وتوضيحات برمجية):", style: GoogleFonts.cairo(fontWeight: FontWeight.bold, fontSize: 13)),
-                    const SizedBox(height: 6),
-                    TextField(
-                      controller: visualContentCtrl,
-                      maxLines: 8,
-                      decoration: InputDecoration(
-                        hintText: "اكتب تفاصيل وشرح الدرس هنا بأسلوب سهل ومنظم...",
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-                        filled: true,
-                        fillColor: const Color(0xFFF8FAFC),
-                      ),
-                    ),
-                  ] else ...[
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text("محرر أكواد HTML الكامل (يدعم جميع وسوم وتنسيقات HTML):", style: GoogleFonts.cairo(fontWeight: FontWeight.bold, fontSize: 13)),
-                        TextButton.icon(
-                          onPressed: () {
-                            showDialog(
-                              context: ctx,
-                              builder: (c) => AlertDialog(
-                                title: Text("معاينة كود HTML", style: GoogleFonts.cairo(fontWeight: FontWeight.bold)),
-                                content: SizedBox(
-                                  width: 600,
-                                  height: 400,
-                                  child: SingleChildScrollView(
-                                    child: ArticleContentRenderer(content: htmlCodeCtrl.text, isDark: false),
-                                  ),
-                                ),
-                                actions: [
-                                  TextButton(onPressed: () => Navigator.pop(c), child: const Text("إغلاق")),
-                                ],
-                              ),
-                            );
-                          },
-                          icon: const Icon(Icons.preview_rounded, size: 16),
-                          label: Text("معاينة الكود", style: GoogleFonts.cairo(fontSize: 12)),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 6),
-                    TextField(
-                      controller: htmlCodeCtrl,
-                      maxLines: 10,
-                      style: GoogleFonts.firaCode(fontSize: 13),
-                      decoration: InputDecoration(
-                        hintText: "<div class='content'>...</div>",
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-                        filled: true,
-                        fillColor: const Color(0xFF0F172A),
-                        hintStyle: const TextStyle(color: Colors.grey),
-                      ),
-                    ),
-                  ],
-
-                  const SizedBox(height: 16),
-
-                  // Quiz Button Options
-                  SwitchListTile(
-                    contentPadding: EdgeInsets.zero,
-                    title: Text("تفعيل زر اختبار تفاعلي في نهاية الدرس 🧠", style: GoogleFonts.cairo(fontWeight: FontWeight.bold, fontSize: 13)),
-                    subtitle: Text("يسمح للطلاب باختبار فهمهم للدرس والحصول على تغذية راجعة فورية.", style: GoogleFonts.cairo(fontSize: 11, color: Colors.grey)),
-                    value: hasQuiz,
-                    activeColor: const Color(0xFF10B981),
-                    onChanged: (val) => setDlgState(() => hasQuiz = val),
-                  ),
-
-                  if (hasQuiz) ...[
-                    Container(
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(color: const Color(0xFFF0FDF4), borderRadius: BorderRadius.circular(10), border: Border.all(color: const Color(0xFFBBF7D0))),
-                      child: Column(
-                        children: [
-                          _buildDialogField("نص زر الاختبار", quizTitleCtrl),
-                          _buildDialogField("السؤال", quizQCtrl),
-                          Row(
-                            children: [
-                              Expanded(child: _buildDialogField("الخيار 1", quizOpt1Ctrl)),
-                              const SizedBox(width: 12),
-                              Expanded(child: _buildDialogField("الخيار 2 (الإجابة الصحيحة)", quizOpt2Ctrl)),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-
-                  const SizedBox(height: 12),
-                  Row(
-                    children: [
-                      Text("حالة النشر: ", style: GoogleFonts.cairo(fontWeight: FontWeight.bold, fontSize: 13)),
-                      const SizedBox(width: 8),
-                      DropdownButton<String>(
-                        value: status,
-                        items: const [
-                          DropdownMenuItem(value: 'منشور', child: Text("منشور")),
-                          DropdownMenuItem(value: 'مسودة', child: Text("مسودة")),
-                        ],
-                        onChanged: (v) => setDlgState(() => status = v ?? 'منشور'),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ),
-          actions: [
-            TextButton(onPressed: () => Navigator.pop(ctx), child: Text("إلغاء", style: GoogleFonts.cairo())),
-            ElevatedButton(
-              onPressed: () {
-                if (titleCtrl.text.trim().isEmpty) return;
-                final lessonData = {
-                  if (existing != null) 'id': existing['id'],
-                  'title': titleCtrl.text.trim(),
-                  'description': descCtrl.text.trim(),
-                  'youtubeUrl': ytCtrl.text.trim(),
-                  'imageUrl': imgCtrl.text.trim(),
-                  'category': catCtrl.text.trim(),
-                  'editorType': editorType,
-                  'content': visualContentCtrl.text.trim(),
-                  'htmlCode': htmlCodeCtrl.text.trim(),
-                  'hasQuiz': hasQuiz,
-                  'quizTitle': quizTitleCtrl.text.trim(),
-                  'quizQuestion': quizQCtrl.text.trim(),
-                  'quizOpt1': quizOpt1Ctrl.text.trim(),
-                  'quizOpt2': quizOpt2Ctrl.text.trim(),
-                  'status': status,
-                  'date': existing?['date'] ?? '2026-10-02',
-                };
-                onSave(lessonData);
-                Navigator.pop(ctx);
-              },
-              style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF0284C7)),
-              child: Text("حفظ الدرس", style: GoogleFonts.cairo(color: Colors.white, fontWeight: FontWeight.bold)),
-            ),
-          ],
         ),
       ),
     );

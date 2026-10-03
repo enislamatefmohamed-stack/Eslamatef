@@ -442,13 +442,16 @@ class _WebHtmlViewWidgetState extends State<WebHtmlViewWidget> {
               ],
             ),
           ),
-          // HTML iframe sandbox
+          // HTML iframe sandbox (Rendered in LTR coordinate space so CanvasKit doesn't shift the platform view to the right)
           SizedBox(
             height: _containerHeight,
             width: double.infinity,
             child: ClipRRect(
               borderRadius: const BorderRadius.vertical(bottom: Radius.circular(15)),
-              child: HtmlElementView(viewType: _viewId),
+              child: Directionality(
+                textDirection: TextDirection.ltr,
+                child: HtmlElementView(viewType: _viewId),
+              ),
             ),
           ),
         ],

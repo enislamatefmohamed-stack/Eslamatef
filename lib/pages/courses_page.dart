@@ -3,13 +3,12 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../theme/app_theme.dart';
-import '../data/arabic_data.dart';
-import '../widgets/social_icons.dart';
 import '../services/site_data_service.dart';
 import '../widgets/article_content_renderer.dart';
 import '../widgets/youtube_embedded_player.dart';
 import '../widgets/auth_modal.dart';
 import '../widgets/safe_network_image/safe_network_image.dart';
+import '../widgets/unified_app_bar.dart';
 
 class CoursesPage extends StatefulWidget {
   const CoursesPage({super.key});
@@ -66,15 +65,21 @@ class _CoursesPageState extends State<CoursesPage> {
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Scaffold(
+        endDrawer: isMobile ? const UnifiedAppDrawer(currentRoute: '/courses') : null,
         backgroundColor: isDark ? AppColors.bgDark : AppColors.bgLight,
         body: SelectionArea(
           child: SafeArea(
             child: Column(
               children: [
-                // Top Nav
-                _buildPageHeader(context, isMobile, isDark),
-
-                // Main Content Area
+                UnifiedAppHeader(
+                  currentRoute: '/courses',
+                  pageTitle: 'الكورسات والمسارات البرمجية',
+                  onBack: _activeLesson != null
+                      ? () => setState(() => _activeLesson = null)
+                      : (_activeCourse != null
+                          ? () => setState(() => _activeCourse = null)
+                          : null),
+                ),
                 Expanded(
                   child: SingleChildScrollView(
                     child: Column(
@@ -86,7 +91,7 @@ class _CoursesPageState extends State<CoursesPage> {
                                 ? _buildCourseInsideView(context, isMobile, isDark)
                                 : _buildCourseFoldersCatalog(context, isMobile, isDark),
                         const SizedBox(height: 60),
-                        _buildPageFooter(context, isMobile, isDark),
+                        const UnifiedAppFooter(),
                       ],
                     ),
                   ),
@@ -99,90 +104,6 @@ class _CoursesPageState extends State<CoursesPage> {
     );
   }
 
-  Widget _buildPageHeader(BuildContext context, bool isMobile, bool isDark) {
-    return Container(
-      height: 72,
-      padding: const EdgeInsets.symmetric(horizontal: 24),
-      decoration: BoxDecoration(
-        color: isDark ? AppColors.surfaceDark : Colors.white,
-        border: Border(bottom: BorderSide(color: isDark ? AppColors.borderDark : AppColors.borderLight)),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.04),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Center(
-        child: Container(
-          constraints: const BoxConstraints(maxWidth: 1200),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              // Brand Logo & Title
-              Row(
-                children: [
-                  ClipOval(
-                    child: Image.asset('assets/images/logo.jpeg', width: 42, height: 42, fit: BoxFit.cover),
-                  ),
-                  const SizedBox(width: 12),
-                  Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        ArabicData.brandName,
-                        style: GoogleFonts.inter(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          color: isDark ? AppColors.textPrimary : AppColors.textPrimaryLight,
-                        ),
-                      ),
-                      Text(
-                        "الكورسات والمسارات البرمجية",
-                        style: GoogleFonts.cairo(
-                          fontSize: 11,
-                          fontWeight: FontWeight.w700,
-                          color: const Color(0xFF00E5FF),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-
-              // Theme Toggle & Navigation
-              Row(
-                children: [
-                  IconButton(
-                    icon: Icon(
-                      isDark ? Icons.light_mode_rounded : Icons.dark_mode_rounded,
-                      color: isDark ? const Color(0xFFFFB300) : const Color(0xFF1E293B),
-                    ),
-                    onPressed: () => AppThemeManager.toggleTheme(),
-                  ),
-                  const SizedBox(width: 10),
-                  ElevatedButton.icon(
-                    onPressed: () => Navigator.of(context).pushReplacementNamed('/'),
-                    icon: const Icon(Icons.arrow_forward_rounded, size: 18),
-                    label: Text("الرئيسية", style: GoogleFonts.cairo(fontWeight: FontWeight.bold)),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: isDark ? AppColors.cardDark : Colors.white,
-                      foregroundColor: const Color(0xFF00E5FF),
-                      side: BorderSide(color: isDark ? AppColors.borderLightDark : AppColors.borderLight),
-                      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
 
   // ==========================================
   // VIEW 1: Course Folders Catalog
@@ -797,26 +718,4 @@ class _CoursesPageState extends State<CoursesPage> {
     );
   }
 
-  Widget _buildPageFooter(BuildContext context, bool isMobile, bool isDark) {
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
-      child: Column(
-        children: [
-          Divider(color: isDark ? AppColors.borderDark : AppColors.borderLight),
-          const SizedBox(height: 16),
-          const SocialIconsBar(
-            facebookUrl: ArabicData.facebookUrl,
-            youtubeUrl: ArabicData.youtubeUrl,
-            telegramUrl: ArabicData.telegramUrl,
-            linkedinUrl: ArabicData.linkedinUrl,
-          ),
-          const SizedBox(height: 14),
-          Text(
-            "جميع الحقوق محفوظة © 2026 Eslam Atef | Code & AI",
-            style: GoogleFonts.cairo(fontSize: 13, color: AppColors.textMuted),
-          ),
-        ],
-      ),
-    );
-  }
 }

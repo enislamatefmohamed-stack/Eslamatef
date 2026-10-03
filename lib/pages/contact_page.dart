@@ -7,7 +7,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../theme/app_theme.dart';
 import '../data/arabic_data.dart';
-import '../widgets/social_icons.dart';
+import '../widgets/unified_app_bar.dart';
 
 class ContactPage extends StatefulWidget {
   const ContactPage({super.key});
@@ -258,13 +258,14 @@ class _ContactPageState extends State<ContactPage> {
     final isMobile = screenWidth < 850;
 
     return Scaffold(
+      endDrawer: isMobile ? const UnifiedAppDrawer(currentRoute: '/contact') : null,
       body: SafeArea(
         child: Column(
           children: [
-            // Top Nav Header
-            _buildPageHeader(context, isMobile),
-
-            // Main Scrollable Area
+            const UnifiedAppHeader(
+              currentRoute: '/contact',
+              pageTitle: 'تواصل معنا — يسعدنا استقبال رسائلك',
+            ),
             Expanded(
               child: SingleChildScrollView(
                 child: Column(
@@ -274,7 +275,7 @@ class _ContactPageState extends State<ContactPage> {
                     const SizedBox(height: 32),
                     _buildContentContainer(isMobile, screenWidth),
                     const SizedBox(height: 48),
-                    _buildPageFooter(context, isMobile),
+                    const UnifiedAppFooter(),
                   ],
                 ),
               ),
@@ -285,79 +286,6 @@ class _ContactPageState extends State<ContactPage> {
     );
   }
 
-  // -------------------------------------------------------------
-  // Header
-  // -------------------------------------------------------------
-  Widget _buildPageHeader(BuildContext context, bool isMobile) {
-    return Container(
-      height: 72,
-      padding: const EdgeInsets.symmetric(horizontal: 24),
-      decoration: const BoxDecoration(
-        color: AppColors.surfaceDark,
-        border: Border(bottom: BorderSide(color: AppColors.borderDark)),
-      ),
-      child: Center(
-        child: Container(
-          constraints: const BoxConstraints(maxWidth: 1200),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              // Logo & Title
-              MouseRegion(
-                cursor: SystemMouseCursors.click,
-                child: GestureDetector(
-                  onTap: () => Navigator.of(context).pushReplacementNamed('/'),
-                  child: Row(
-                    children: [
-                      ClipOval(
-                        child: Image.asset('assets/images/logo.jpeg', width: 42, height: 42, fit: BoxFit.cover),
-                      ),
-                      const SizedBox(width: 12),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            ArabicData.brandName,
-                            style: GoogleFonts.cairo(fontSize: 16, fontWeight: FontWeight.w800),
-                          ),
-                          Text(
-                            ArabicData.brandSubtitle,
-                            style: GoogleFonts.inter(
-                              fontSize: 11,
-                              fontWeight: FontWeight.w700,
-                              color: AppColors.primaryLight,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-
-              // Back to Home Button
-              ElevatedButton.icon(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.cardDark,
-                  foregroundColor: const Color(0xFF00E5FF),
-                  side: const BorderSide(color: AppColors.borderLightDark),
-                  padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                ),
-                onPressed: () => Navigator.of(context).pushReplacementNamed('/'),
-                icon: const Icon(Icons.arrow_forward_rounded, size: 16),
-                label: Text(
-                  "الرئيسية",
-                  style: GoogleFonts.cairo(fontSize: 14, fontWeight: FontWeight.bold),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
 
   // -------------------------------------------------------------
   // Hero Banner
@@ -1002,80 +930,5 @@ class _ContactPageState extends State<ContactPage> {
     );
   }
 
-  // -------------------------------------------------------------
-  // Footer
-  // -------------------------------------------------------------
-  Widget _buildPageFooter(BuildContext context, bool isMobile) {
-    return Container(
-      decoration: const BoxDecoration(
-        color: Color(0xFF070A12),
-        border: Border(top: BorderSide(color: AppColors.borderDark)),
-      ),
-      padding: EdgeInsets.symmetric(horizontal: isMobile ? 20 : 48, vertical: 32),
-      child: Center(
-        child: Column(
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                ClipOval(
-                  child: Image.asset('assets/images/logo.jpeg', width: 34, height: 34, fit: BoxFit.cover),
-                ),
-                const SizedBox(width: 10),
-                Text(
-                  ArabicData.brandName,
-                  style: GoogleFonts.cairo(fontSize: 15, fontWeight: FontWeight.bold),
-                ),
-              ],
-            ),
-            const SizedBox(height: 14),
-            Wrap(
-              spacing: 16,
-              runSpacing: 8,
-              alignment: WrapAlignment.center,
-              children: [
-                _footerLink("الرئيسية", () => Navigator.of(context).pushReplacementNamed('/')),
-                _footerLink("الكورسات", () => Navigator.of(context).pushNamed('/courses')),
-                _footerLink("الدروس", () => Navigator.of(context).pushNamed('/lessons')),
-                _footerLink("من نحن", () => Navigator.of(context).pushNamed('/about')),
-                _footerLink("سياسة الاستخدام والخصوصية", () => Navigator.of(context).pushNamed('/privacy')),
-              ],
-            ),
-            const SizedBox(height: 16),
-            const SocialIconsBar(
-              facebookUrl: ArabicData.facebookUrl,
-              youtubeUrl: ArabicData.youtubeUrl,
-              telegramUrl: ArabicData.telegramUrl,
-              linkedinUrl: ArabicData.linkedinUrl,
-            ),
-            const SizedBox(height: 16),
-            Text(
-              "جميع الحقوق محفوظة © 2026 Eslam Atef | Code & AI",
-              style: GoogleFonts.cairo(fontSize: 12, color: AppColors.textMuted),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _footerLink(String text, VoidCallback onTap) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      child: MouseRegion(
-        cursor: SystemMouseCursors.click,
-        child: GestureDetector(
-          onTap: onTap,
-          child: Text(
-            text,
-            style: GoogleFonts.cairo(
-              fontSize: 13,
-              fontWeight: FontWeight.w600,
-              color: AppColors.textSecondary,
-            ),
-          ),
-        ),
-      ),
-    );
-  }
 }
+

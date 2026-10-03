@@ -8,13 +8,29 @@ void registerHtmlViewFactory(String viewId, String rawHtml, {bool isDark = false
       ..style.border = 'none'
       ..style.width = '100%'
       ..style.height = '100%'
-      ..style.minHeight = '450px'
+      ..style.minHeight = '100%'
+      ..style.boxSizing = 'border-box'
+      ..style.display = 'block'
+      ..style.margin = '0'
+      ..style.padding = '0'
       ..style.backgroundColor = isDark ? '#0F172A' : '#FFFFFF'
       ..allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen'
       ..allowFullscreen = true;
 
+    // Repair broken/truncated Unsplash test image URLs (like photo-151632131 mor?)
+    var processed = rawHtml.replaceAll(
+      RegExp(r'https?://images\.unsplash\.com/photo-151632131[^\s"\x27<>]*', caseSensitive: false),
+      'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=1200&q=85',
+    );
+
+    // Remove onerror that hides images on slight network blips
+    processed = processed.replaceAll(
+      RegExp(r'onerror=["\x27]this\.style\.display\s*=\s*[\x27"]none[\x27"]\s*;?["\x27]', caseSensitive: false),
+      '',
+    );
+
     // Convert BBCode image tags in HTML if any
-    var processed = rawHtml
+    processed = processed
         .replaceAllMapped(
           RegExp(r'\[url=([^\]]+)\]\s*\[img\]([^\]]+)\[\/img\]\s*\[\/url\]', caseSensitive: false),
           (m) => '<a href="${m[1]}" target="_blank"><img src="${m[2]}" referrerpolicy="no-referrer" style="max-width:100%; border-radius:12px;" /></a>',
@@ -41,13 +57,16 @@ void registerHtmlViewFactory(String viewId, String rawHtml, {bool isDark = false
     *, *::before, *::after {
       box-sizing: border-box;
     }
-    html {
+    html, body {
+      width: 100%;
+      min-width: 100%;
+      margin: 0;
+      padding: 0;
       scroll-behavior: smooth;
     }
     body {
-      margin: 0;
       padding: 16px;
-      font-family: 'Cairo', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      font-family: 'Cairo', Tahoma, Arial, sans-serif;
       color: ${isDark ? '#F8FAFC' : '#0F172A'};
       background-color: ${isDark ? '#0F172A' : '#FFFFFF'};
       direction: rtl;
@@ -57,6 +76,10 @@ void registerHtmlViewFactory(String viewId, String rawHtml, {bool isDark = false
       word-wrap: break-word;
       user-select: text !important;
       -webkit-user-select: text !important;
+    }
+    article, main, section, header, figure, footer {
+      max-width: 100%;
+      box-sizing: border-box;
     }
     img {
       max-width: 100%;

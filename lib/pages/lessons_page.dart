@@ -3,13 +3,12 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../theme/app_theme.dart';
-import '../data/arabic_data.dart';
-import '../widgets/social_icons.dart';
 import '../services/site_data_service.dart';
 import '../widgets/article_content_renderer.dart';
 import '../widgets/youtube_embedded_player.dart';
 import '../widgets/auth_modal.dart';
 import '../widgets/safe_network_image/safe_network_image.dart';
+import '../widgets/unified_app_bar.dart';
 
 class LessonsPage extends StatefulWidget {
   const LessonsPage({super.key});
@@ -69,115 +68,41 @@ class _LessonsPageState extends State<LessonsPage> {
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Scaffold(
+        endDrawer: isMobile ? const UnifiedAppDrawer(currentRoute: '/lessons') : null,
         backgroundColor: isDark ? AppColors.bgDark : AppColors.bgLight,
         body: SelectionArea(
           child: SafeArea(
-          child: Column(
-            children: [
-              _buildPageHeader(context, isMobile, isDark),
-              Expanded(
-                child: SingleChildScrollView(
-                  child: Column(
-                    children: [
-                      const SizedBox(height: 28),
-                      _selectedLesson != null
-                          ? _buildLessonDetailView(context, isMobile, isDark)
-                          : _buildAllLessonsCatalog(context, isMobile, isDark),
-                      const SizedBox(height: 60),
-                      _buildPageFooter(context, isMobile, isDark),
-                    ],
+            child: Column(
+              children: [
+                UnifiedAppHeader(
+                  currentRoute: '/lessons',
+                  pageTitle: 'الدروس والفيديوهات التعليمية',
+                  onBack: _selectedLesson != null
+                      ? () => setState(() => _selectedLesson = null)
+                      : null,
+                ),
+                Expanded(
+                  child: SingleChildScrollView(
+                    child: Column(
+                      children: [
+                        const SizedBox(height: 28),
+                        _selectedLesson != null
+                            ? _buildLessonDetailView(context, isMobile, isDark)
+                            : _buildAllLessonsCatalog(context, isMobile, isDark),
+                        const SizedBox(height: 60),
+                        const UnifiedAppFooter(),
+                      ],
+                    ),
                   ),
                 ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    ),
-  );
-}
-
-  Widget _buildPageHeader(BuildContext context, bool isMobile, bool isDark) {
-    return Container(
-      height: 72,
-      padding: const EdgeInsets.symmetric(horizontal: 24),
-      decoration: BoxDecoration(
-        color: isDark ? AppColors.surfaceDark : Colors.white,
-        border: Border(bottom: BorderSide(color: isDark ? AppColors.borderDark : AppColors.borderLight)),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.04),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Center(
-        child: Container(
-          constraints: const BoxConstraints(maxWidth: 1200),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Row(
-                children: [
-                  ClipOval(
-                    child: Image.asset('assets/images/logo.jpeg', width: 42, height: 42, fit: BoxFit.cover),
-                  ),
-                  const SizedBox(width: 12),
-                  Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        ArabicData.brandName,
-                        style: GoogleFonts.inter(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          color: isDark ? AppColors.textPrimary : AppColors.textPrimaryLight,
-                        ),
-                      ),
-                      Text(
-                        "الدروس والفيديوهات التعليمية",
-                        style: GoogleFonts.cairo(
-                          fontSize: 11,
-                          fontWeight: FontWeight.w700,
-                          color: const Color(0xFF3B82F6),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-              Row(
-                children: [
-                  IconButton(
-                    icon: Icon(
-                      isDark ? Icons.light_mode_rounded : Icons.dark_mode_rounded,
-                      color: isDark ? const Color(0xFFFFB300) : const Color(0xFF1E293B),
-                    ),
-                    onPressed: () => AppThemeManager.toggleTheme(),
-                  ),
-                  const SizedBox(width: 10),
-                  ElevatedButton.icon(
-                    onPressed: () => Navigator.of(context).pushReplacementNamed('/'),
-                    icon: const Icon(Icons.arrow_forward_rounded, size: 18),
-                    label: Text("الرئيسية", style: GoogleFonts.cairo(fontWeight: FontWeight.bold)),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: isDark ? AppColors.cardDark : Colors.white,
-                      foregroundColor: const Color(0xFF3B82F6),
-                      side: BorderSide(color: isDark ? AppColors.borderLightDark : AppColors.borderLight),
-                      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                    ),
-                  ),
-                ],
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
     );
   }
+
 
   // ==========================================
   // Catalog of All Lessons (collected from courses + lessons)
@@ -686,26 +611,4 @@ class _LessonsPageState extends State<LessonsPage> {
     );
   }
 
-  Widget _buildPageFooter(BuildContext context, bool isMobile, bool isDark) {
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
-      child: Column(
-        children: [
-          Divider(color: isDark ? AppColors.borderDark : AppColors.borderLight),
-          const SizedBox(height: 16),
-          const SocialIconsBar(
-            facebookUrl: ArabicData.facebookUrl,
-            youtubeUrl: ArabicData.youtubeUrl,
-            telegramUrl: ArabicData.telegramUrl,
-            linkedinUrl: ArabicData.linkedinUrl,
-          ),
-          const SizedBox(height: 14),
-          Text(
-            "جميع الحقوق محفوظة © 2026 Eslam Atef | Code & AI",
-            style: GoogleFonts.cairo(fontSize: 13, color: AppColors.textMuted),
-          ),
-        ],
-      ),
-    );
-  }
 }

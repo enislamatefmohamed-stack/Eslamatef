@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../theme/app_theme.dart';
-import '../data/arabic_data.dart';
-import '../widgets/social_icons.dart';
+import '../widgets/unified_app_bar.dart';
 
 class PrivacyPage extends StatelessWidget {
   const PrivacyPage({super.key});
@@ -11,85 +10,35 @@ class PrivacyPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     final isMobile = screenWidth < 850;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    return Scaffold(
-      body: SafeArea(
-        child: Column(
-          children: [
-            // Header
-            _buildPageHeader(context, isMobile),
-
-            // Main Content
-            Expanded(
-              child: SingleChildScrollView(
-                child: Column(
-                  children: [
-                    const SizedBox(height: 36),
-                    _buildContent(context, isMobile),
-                    const SizedBox(height: 60),
-                    _buildPageFooter(context, isMobile),
-                  ],
+    return Directionality(
+      textDirection: TextDirection.rtl,
+      child: Scaffold(
+        endDrawer: isMobile ? const UnifiedAppDrawer(currentRoute: '/privacy') : null,
+        backgroundColor: isDark ? AppColors.bgDark : AppColors.bgLight,
+        body: SelectionArea(
+          child: SafeArea(
+            child: Column(
+              children: [
+                const UnifiedAppHeader(
+                  currentRoute: '/privacy',
+                  pageTitle: 'سياسة الاستخدام والخصوصية',
                 ),
-              ),
+                Expanded(
+                  child: SingleChildScrollView(
+                    child: Column(
+                      children: [
+                        const SizedBox(height: 36),
+                        _buildContent(context, isMobile),
+                        const SizedBox(height: 60),
+                        const UnifiedAppFooter(),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
             ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildPageHeader(BuildContext context, bool isMobile) {
-    return Container(
-      height: 72,
-      padding: const EdgeInsets.symmetric(horizontal: 24),
-      decoration: const BoxDecoration(
-        color: AppColors.surfaceDark,
-        border: Border(bottom: BorderSide(color: AppColors.borderDark)),
-      ),
-      child: Center(
-        child: Container(
-          constraints: const BoxConstraints(maxWidth: 1200),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Row(
-                children: [
-                  ClipOval(
-                    child: Image.asset('assets/images/logo.jpeg', width: 42, height: 42, fit: BoxFit.cover),
-                  ),
-                  const SizedBox(width: 12),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        ArabicData.brandName,
-                        style: GoogleFonts.cairo(fontSize: 16, fontWeight: FontWeight.w800),
-                      ),
-                      Text(
-                        ArabicData.brandSubtitle,
-                        style: GoogleFonts.inter(fontSize: 11, fontWeight: FontWeight.w700, color: AppColors.primaryLight),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-              ElevatedButton.icon(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.cardDark,
-                  foregroundColor: AppColors.primaryLight,
-                  side: const BorderSide(color: AppColors.borderLightDark),
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                ),
-                onPressed: () => Navigator.of(context).pushReplacementNamed('/'),
-                icon: const Icon(Icons.arrow_forward_rounded, size: 16),
-                label: Text(
-                  "الرئيسية",
-                  style: GoogleFonts.cairo(fontSize: 14, fontWeight: FontWeight.bold),
-                ),
-              ),
-            ],
           ),
         ),
       ),
@@ -199,78 +148,5 @@ class PrivacyPage extends StatelessWidget {
       ),
     );
   }
-
-  Widget _buildPageFooter(BuildContext context, bool isMobile) {
-    return Container(
-      decoration: const BoxDecoration(
-        color: Color(0xFF070A12),
-        border: Border(top: BorderSide(color: AppColors.borderDark)),
-      ),
-      padding: EdgeInsets.symmetric(horizontal: isMobile ? 20 : 48, vertical: 32),
-      child: Center(
-        child: Column(
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                ClipOval(
-                  child: Image.asset('assets/images/logo.jpeg', width: 34, height: 34, fit: BoxFit.cover),
-                ),
-                const SizedBox(width: 10),
-                Text(
-                  ArabicData.brandName,
-                  style: GoogleFonts.cairo(fontSize: 15, fontWeight: FontWeight.bold),
-                ),
-              ],
-            ),
-            const SizedBox(height: 14),
-            Wrap(
-              spacing: 16,
-              runSpacing: 8,
-              alignment: WrapAlignment.center,
-              children: [
-                _footerLink("الرئيسية", () => Navigator.of(context).pushReplacementNamed('/')),
-                _footerLink("الكورسات", () {}),
-                _footerLink("الدروس", () {}),
-                _footerLink("من نحن", () => Navigator.of(context).pushNamed('/about')),
-                _footerLink("تواصل معنا", () => Navigator.of(context).pushNamed('/contact')),
-              ],
-            ),
-            const SizedBox(height: 16),
-            const SocialIconsBar(
-              facebookUrl: ArabicData.facebookUrl,
-              youtubeUrl: ArabicData.youtubeUrl,
-              telegramUrl: ArabicData.telegramUrl,
-              linkedinUrl: ArabicData.linkedinUrl,
-            ),
-            const SizedBox(height: 16),
-            Text(
-              "جميع الحقوق محفوظة © 2026 Eslam Atef | Code & AI",
-              style: GoogleFonts.cairo(fontSize: 12, color: AppColors.textMuted),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _footerLink(String text, VoidCallback onTap) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      child: MouseRegion(
-        cursor: SystemMouseCursors.click,
-        child: GestureDetector(
-          onTap: onTap,
-          child: Text(
-            text,
-            style: GoogleFonts.cairo(
-              fontSize: 13,
-              fontWeight: FontWeight.w600,
-              color: AppColors.textSecondary,
-            ),
-          ),
-        ),
-      ),
-    );
-  }
 }
+
