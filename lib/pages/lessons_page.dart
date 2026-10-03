@@ -305,14 +305,13 @@ class _LessonsPageState extends State<LessonsPage> {
   Widget _buildLessonDetailView(BuildContext context, bool isMobile, bool isDark) {
     final lesson = _selectedLesson!;
     final title = lesson['title'] ?? 'درس جديد';
-    final youtubeUrl = (lesson['youtubeUrl'] ?? lesson['videoUrl'] ?? '').toString();
-    final image = (lesson['image'] ?? lesson['imageUrl'] ?? '').toString();
-    final content = (lesson['content'] ?? '').toString();
-    final htmlCode = (lesson['htmlCode'] ?? '').toString();
-    final editorType = lesson['editorType'] ?? 'visual';
-    final displayContent = (editorType == 'html' && htmlCode.isNotEmpty)
+    final youtubeUrl = (lesson['youtubeUrl'] ?? lesson['videoUrl'] ?? '').toString().trim();
+    final image = (lesson['image'] ?? lesson['imageUrl'] ?? '').toString().trim();
+    final content = (lesson['content'] ?? '').toString().trim();
+    final htmlCode = (lesson['htmlCode'] ?? '').toString().trim();
+    final displayContent = htmlCode.isNotEmpty
         ? htmlCode
-        : (content.isNotEmpty ? content : htmlCode);
+        : (content.isNotEmpty ? content : '');
     final hasQuiz = lesson['hasQuiz'] == true;
     final quizTitle = lesson['quizTitle'] ?? 'اختبار فهم الدرس';
 
@@ -336,25 +335,21 @@ class _LessonsPageState extends State<LessonsPage> {
           Text(title, style: GoogleFonts.cairo(fontSize: 24, fontWeight: FontWeight.w900)),
           const SizedBox(height: 18),
 
-          // 1. YouTube Video Player
-          if (youtubeUrl.isNotEmpty) ...[
+          // 1. YouTube Video Player (Only if youtubeUrl is provided and valid)
+          if (youtubeUrl.isNotEmpty && youtubeUrl.length > 5) ...[
             YouTubeEmbeddedPlayer(youtubeUrl: youtubeUrl, height: isMobile ? 240 : 480),
             const SizedBox(height: 24),
           ],
 
-          // 2. Image Cover (if present)
-          if (image.isNotEmpty) ...[
+          // 2. Image Cover (safely renders without leftover empty box on error)
+          if (image.isNotEmpty && image.startsWith('http')) ...[
             ClipRRect(
               borderRadius: BorderRadius.circular(16),
-              child: Container(
-                height: isMobile ? 200 : 340,
+              child: Image.network(
+                image,
+                fit: BoxFit.cover,
                 width: double.infinity,
-                decoration: BoxDecoration(
-                  color: isDark ? const Color(0xFF1E293B) : const Color(0xFFF1F5F9),
-                ),
-                child: image.startsWith('http')
-                    ? Image.network(image, fit: BoxFit.cover, errorBuilder: (ctx, err, stack) => const SizedBox.shrink())
-                    : Image.asset(image, fit: BoxFit.cover, errorBuilder: (ctx, err, stack) => const SizedBox.shrink()),
+                errorBuilder: (ctx, err, stack) => const SizedBox.shrink(),
               ),
             ),
             const SizedBox(height: 24),

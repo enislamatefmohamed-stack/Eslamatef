@@ -424,6 +424,25 @@ class SiteDataService extends ChangeNotifier {
     if (lesson['subject'] != null && (lesson['category'] == null || lesson['category'].toString().isEmpty)) {
       lesson['category'] = lesson['subject'];
     }
+
+    // Bidirectional HTML content normalization
+    final htmlCode = (lesson['htmlCode'] ?? '').toString().trim();
+    final content = (lesson['content'] ?? '').toString().trim();
+    if (htmlCode.isNotEmpty && content.isEmpty) {
+      lesson['content'] = htmlCode;
+    } else if (content.isNotEmpty && htmlCode.isEmpty) {
+      lesson['htmlCode'] = content;
+    }
+
+    // Detect if content is HTML
+    final activeText = htmlCode.isNotEmpty ? htmlCode : content;
+    if (activeText.contains('<style') ||
+        activeText.contains('<div') ||
+        activeText.contains('<iframe') ||
+        activeText.contains('<p') ||
+        activeText.startsWith('<')) {
+      lesson['editorType'] = 'html';
+    }
   }
 
   // --- Course Categories CRUD ---

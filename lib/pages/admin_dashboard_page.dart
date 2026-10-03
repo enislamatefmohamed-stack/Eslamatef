@@ -5372,23 +5372,28 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
 
   // 9. Preview Lecture Dialog
   void _previewLectureDialog(Map<String, dynamic> lecture) {
+    final youtubeUrl = (lecture['youtubeUrl'] ?? lecture['videoUrl'] ?? '').toString().trim();
+    final html = (lecture['htmlCode'] ?? '').toString().trim();
+    final text = (lecture['content'] ?? '').toString().trim();
+    final activeContent = html.isNotEmpty ? html : text;
+
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: Text("معاينة: ${lecture['title']}", style: GoogleFonts.cairo(fontWeight: FontWeight.bold)),
         content: SizedBox(
-          width: 700,
-          height: 500,
+          width: 850,
+          height: 600,
           child: SingleChildScrollView(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                if ((lecture['youtubeUrl'] ?? '').toString().isNotEmpty) ...[
-                  YouTubeEmbeddedPlayer(youtubeUrl: lecture['youtubeUrl'], height: 260),
+                if (youtubeUrl.isNotEmpty && youtubeUrl.length > 5) ...[
+                  YouTubeEmbeddedPlayer(youtubeUrl: youtubeUrl, height: 280),
                   const SizedBox(height: 16),
                 ],
-                ArticleContentRenderer(content: (lecture['editorType'] == 'html') ? (lecture['htmlCode'] ?? '') : (lecture['content'] ?? ''), isDark: false),
+                ArticleContentRenderer(content: activeContent, isDark: false),
               ],
             ),
           ),

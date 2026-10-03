@@ -52,6 +52,11 @@ class EslamAtefApp extends StatelessWidget {
           darkTheme: AppTheme.darkTheme,
           themeMode: currentMode,
           initialRoute: '/',
+          builder: (context, child) {
+            return SelectionArea(
+              child: child ?? const SizedBox.shrink(),
+            );
+          },
           routes: {
             '/': (context) => const Directionality(
                   textDirection: TextDirection.rtl,

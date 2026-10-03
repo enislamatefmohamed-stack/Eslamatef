@@ -5,7 +5,7 @@
 
   <meta charset="UTF-8">
   <meta content="IE=Edge" http-equiv="X-UA-Compatible">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
   <meta name="description" content="Eslam Atef | Code & AI — منصة تعليم علوم الحاسب والبرمجة والذكاء الاصطناعي">
   <meta name="keywords" content="Computer Science, AI Educator, Programming, Artificial Intelligence, Eslam Atef, Code & AI">
   <meta name="author" content="Eslam Atef">
@@ -32,7 +32,6 @@
       padding: 0;
       width: 100%;
       height: 100%;
-      overflow: hidden;
       color: #f8fafc;
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     }
@@ -99,6 +98,19 @@
     window.addEventListener('flutter-first-frame', removeLoader);
     // Safety fallback to ensure instant responsiveness under 250ms
     setTimeout(removeLoader, 250);
+
+    // Allow Ctrl + Mouse Wheel browser zoom and touchpad pinch-to-zoom
+    window.addEventListener('wheel', function(e) {
+      if (e.ctrlKey) {
+        e.stopImmediatePropagation();
+      }
+    }, { passive: false, capture: true });
+
+    window.addEventListener('touchstart', function(e) {
+      if (e.touches && e.touches.length > 1) {
+        e.stopImmediatePropagation();
+      }
+    }, { passive: false, capture: true });
   </script>
   <script src="flutter_bootstrap.js" async></script>
 </body>
