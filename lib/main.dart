@@ -1176,30 +1176,39 @@ class _HomePageState extends State<HomePage> {
   // -------------------------------------------------------------
   Widget _buildWeeklyChallengeSection(bool isMobile, double screenWidth) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final dataService = SiteDataService.instance;
-    final challenge = dataService.getActiveChallenge() ?? dataService.weeklyChallenge;
-    final hasChallenge = challenge != null && challenge['status'] != 'مسودة';
-
-    // يظهر كرت اختبر نفسك فقط إذا قام الأدمن بإنشاء ونشر اختبار تفاعلي
-    final activeQuizzes = dataService.interactiveQuizzes.where((q) => q['status'] == 'منشور').toList();
-    final hasActiveQuiz = activeQuizzes.isNotEmpty;
-
-    if (!hasChallenge && !hasActiveQuiz) {
-      return const SizedBox.shrink();
-    }
-
     final isStacked = isMobile || screenWidth < 850;
 
-    // حالة 1: كلاهما موجود (يظهران جنباً إلى جنب بمقاس متناسق وجميل)
-    if (hasChallenge && hasActiveQuiz) {
-      return Center(
-        child: Container(
-          constraints: const BoxConstraints(maxWidth: 1050),
-          padding: EdgeInsets.symmetric(horizontal: isMobile ? 16 : 24),
-          child: isStacked
-              ? Column(
-                  children: [
-                    _buildFeatureBannerCard(
+    return Center(
+      child: Container(
+        constraints: const BoxConstraints(maxWidth: 1050),
+        padding: EdgeInsets.symmetric(horizontal: isMobile ? 16 : 24),
+        child: isStacked
+            ? Column(
+                children: [
+                  _buildFeatureBannerCard(
+                    imageAsset: 'assets/images/Weekly.png',
+                    buttonText: 'خوض تحدي الأسبوع 🚀',
+                    accentColor: const Color(0xFF0284C7),
+                    onTap: () => Navigator.of(context).pushNamed('/challenge'),
+                    isDark: isDark,
+                    isMobile: isMobile,
+                  ),
+                  const SizedBox(height: 24),
+                  _buildFeatureBannerCard(
+                    imageAsset: 'assets/images/qu.png',
+                    buttonText: 'ابدأ الاختبار التفاعلي 🧠',
+                    accentColor: const Color(0xFF8B5CF6),
+                    onTap: () => _handleQuizCardTap(context),
+                    isDark: isDark,
+                    isMobile: isMobile,
+                  ),
+                ],
+              )
+            : Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: _buildFeatureBannerCard(
                       imageAsset: 'assets/images/Weekly.png',
                       buttonText: 'خوض تحدي الأسبوع 🚀',
                       accentColor: const Color(0xFF0284C7),
@@ -1207,8 +1216,10 @@ class _HomePageState extends State<HomePage> {
                       isDark: isDark,
                       isMobile: isMobile,
                     ),
-                    const SizedBox(height: 24),
-                    _buildFeatureBannerCard(
+                  ),
+                  const SizedBox(width: 28),
+                  Expanded(
+                    child: _buildFeatureBannerCard(
                       imageAsset: 'assets/images/qu.png',
                       buttonText: 'ابدأ الاختبار التفاعلي 🧠',
                       accentColor: const Color(0xFF8B5CF6),
@@ -1216,69 +1227,9 @@ class _HomePageState extends State<HomePage> {
                       isDark: isDark,
                       isMobile: isMobile,
                     ),
-                  ],
-                )
-              : Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Expanded(
-                      child: _buildFeatureBannerCard(
-                        imageAsset: 'assets/images/Weekly.png',
-                        buttonText: 'خوض تحدي الأسبوع 🚀',
-                        accentColor: const Color(0xFF0284C7),
-                        onTap: () => Navigator.of(context).pushNamed('/challenge'),
-                        isDark: isDark,
-                        isMobile: isMobile,
-                      ),
-                    ),
-                    const SizedBox(width: 28),
-                    Expanded(
-                      child: _buildFeatureBannerCard(
-                        imageAsset: 'assets/images/qu.png',
-                        buttonText: 'ابدأ الاختبار التفاعلي 🧠',
-                        accentColor: const Color(0xFF8B5CF6),
-                        onTap: () => _handleQuizCardTap(context),
-                        isDark: isDark,
-                        isMobile: isMobile,
-                      ),
-                    ),
-                  ],
-                ),
-        ),
-      );
-    }
-
-    // حالة 2: تحدي الأسبوع فقط (لأن لا يوجد اختبار تفاعلي منشور بعد)
-    if (hasChallenge) {
-      return Center(
-        child: Container(
-          constraints: const BoxConstraints(maxWidth: 520),
-          padding: EdgeInsets.symmetric(horizontal: isMobile ? 16 : 24),
-          child: _buildFeatureBannerCard(
-            imageAsset: 'assets/images/Weekly.png',
-            buttonText: 'خوض تحدي الأسبوع 🚀',
-            accentColor: const Color(0xFF0284C7),
-            onTap: () => Navigator.of(context).pushNamed('/challenge'),
-            isDark: isDark,
-            isMobile: isMobile,
-          ),
-        ),
-      );
-    }
-
-    // حالة 3: اختبار تفاعلي فقط
-    return Center(
-      child: Container(
-        constraints: const BoxConstraints(maxWidth: 520),
-        padding: EdgeInsets.symmetric(horizontal: isMobile ? 16 : 24),
-        child: _buildFeatureBannerCard(
-          imageAsset: 'assets/images/qu.png',
-          buttonText: 'ابدأ الاختبار التفاعلي 🧠',
-          accentColor: const Color(0xFF8B5CF6),
-          onTap: () => _handleQuizCardTap(context),
-          isDark: isDark,
-          isMobile: isMobile,
-        ),
+                  ),
+                ],
+              ),
       ),
     );
   }

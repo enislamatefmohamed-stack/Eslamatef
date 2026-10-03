@@ -151,13 +151,28 @@ class SiteDataService extends ChangeNotifier {
         ];
       }
 
-      // 1. Interactive Quizzes (يبدأ فارغاً تماماً ولا يظهر في الموقع إلا عند قيام الأدمن بإنشاء ونشر اختبار)
+      // 1. Interactive Quizzes
       final iQuizStr = prefs.getString('site_interactive_quizzes');
       if (iQuizStr != null) {
-        final list = List<Map<String, dynamic>>.from(jsonDecode(iQuizStr));
-        _interactiveQuizzes = list.where((q) => q['id'] != 'quiz_ai_bac' && q['id'] != 'quiz_kids').toList();
-      } else {
-        _interactiveQuizzes = [];
+        _interactiveQuizzes = List<Map<String, dynamic>>.from(jsonDecode(iQuizStr));
+      }
+      if (_interactiveQuizzes.isEmpty) {
+        _interactiveQuizzes = [
+          {
+            'id': 'quiz_general',
+            'title': 'اختبار قياس المستوى البرمجي التفاعلي',
+            'description': 'اختبار شامل لقياس التفكير المنطقي والمهارات البرمجية الأساسية',
+            'category': 'عام',
+            'questionsCount': 10,
+            'status': 'منشور',
+            'date': '2026-10-03',
+            'editorType': 'html',
+            'htmlCode': '''<div class="quiz-container">
+  <h3>اختبار تحديد المستوى في البرمجة والذكاء الاصطناعي</h3>
+  <p>أجب عن الأسئلة بدقة لتحديد مستواك وتطوير مهاراتك.</p>
+</div>''',
+          }
+        ];
       }
 
       // 2. Quiz Submissions (Student Results)
