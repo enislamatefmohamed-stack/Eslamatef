@@ -328,13 +328,15 @@ class _CoursesPageState extends State<CoursesPage> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.stretch,
                             children: [
-                              SizedBox(
-                                height: 180,
+                              Container(
+                                height: 210,
+                                width: double.infinity,
+                                color: isDark ? const Color(0xFF060D1F) : const Color(0xFF0F172A),
                                 child: SafeNetworkImage(
                                   imageUrl: image,
-                                  height: 180,
+                                  height: 210,
                                   width: double.infinity,
-                                  fit: BoxFit.cover,
+                                  fit: BoxFit.contain,
                                 ),
                               ),
                               Padding(

@@ -301,14 +301,15 @@ class _LessonsPageState extends State<LessonsPage> {
                             children: [
                               Stack(
                                 children: [
-                                  SizedBox(
-                                    height: 180,
+                                  Container(
+                                    height: 190,
                                     width: double.infinity,
+                                    color: isDark ? const Color(0xFF060D1F) : const Color(0xFF0F172A),
                                     child: SafeNetworkImage(
                                       imageUrl: image,
-                                      height: 180,
+                                      height: 190,
                                       width: double.infinity,
-                                      fit: BoxFit.cover,
+                                      fit: BoxFit.contain,
                                     ),
                                   ),
                                   if (hasYoutube)

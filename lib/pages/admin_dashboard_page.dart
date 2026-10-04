@@ -889,8 +889,10 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
     required ValueChanged<int> onTabSelected,
     Widget? trailing,
   }) {
+    final isMobile = MediaQuery.of(context).size.width < 768;
+
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+      padding: EdgeInsets.symmetric(horizontal: 14, vertical: isMobile ? 8 : 10),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(14),
@@ -903,69 +905,135 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
           ),
         ],
       ),
-      child: Row(
-        children: [
-          Expanded(
-            child: SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: Row(
-                children: List.generate(tabs.length, (idx) {
-                  final tab = tabs[idx];
-                  final isSelected = selectedIndex == idx;
-                  return Padding(
-                    padding: const EdgeInsets.only(left: 8),
-                    child: InkWell(
-                      onTap: () => onTabSelected(idx),
-                      borderRadius: BorderRadius.circular(10),
-                      child: AnimatedContainer(
-                        duration: const Duration(milliseconds: 200),
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                        decoration: BoxDecoration(
-                          color: isSelected ? const Color(0xFF0284C7) : const Color(0xFFF1F5F9),
+      child: isMobile
+          ? Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Row(
+                    children: List.generate(tabs.length, (idx) {
+                      final tab = tabs[idx];
+                      final isSelected = selectedIndex == idx;
+                      return Padding(
+                        padding: const EdgeInsets.only(left: 8),
+                        child: InkWell(
+                          onTap: () => onTabSelected(idx),
                           borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: Row(
-                          children: [
-                            Icon(tab.icon, size: 16, color: isSelected ? Colors.white : const Color(0xFF64748B)),
-                            const SizedBox(width: 8),
-                            Text(
-                              tab.title,
-                              style: GoogleFonts.cairo(
-                                fontSize: 13,
-                                fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
-                                color: isSelected ? Colors.white : const Color(0xFF475569),
-                              ),
+                          child: AnimatedContainer(
+                            duration: const Duration(milliseconds: 200),
+                            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                            decoration: BoxDecoration(
+                              color: isSelected ? const Color(0xFF0284C7) : const Color(0xFFF1F5F9),
+                              borderRadius: BorderRadius.circular(10),
                             ),
-                            if (tab.count > 0) ...[
-                              const SizedBox(width: 8),
-                              Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                                decoration: BoxDecoration(
-                                  color: isSelected ? Colors.white.withOpacity(0.25) : const Color(0xFFE2E8F0),
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                child: Text(
-                                  "${tab.count}",
+                            child: Row(
+                              children: [
+                                Icon(tab.icon, size: 16, color: isSelected ? Colors.white : const Color(0xFF64748B)),
+                                const SizedBox(width: 8),
+                                Text(
+                                  tab.title,
                                   style: GoogleFonts.cairo(
-                                    fontSize: 11,
-                                    fontWeight: FontWeight.bold,
-                                    color: isSelected ? Colors.white : const Color(0xFF334155),
+                                    fontSize: 13,
+                                    fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
+                                    color: isSelected ? Colors.white : const Color(0xFF475569),
                                   ),
                                 ),
-                              ),
-                            ],
-                          ],
+                                if (tab.count > 0) ...[
+                                  const SizedBox(width: 8),
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                                    decoration: BoxDecoration(
+                                      color: isSelected ? Colors.white.withOpacity(0.25) : const Color(0xFFE2E8F0),
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                    child: Text(
+                                      "${tab.count}",
+                                      style: GoogleFonts.cairo(
+                                        fontSize: 11,
+                                        fontWeight: FontWeight.bold,
+                                        color: isSelected ? Colors.white : const Color(0xFF334155),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ],
+                            ),
+                          ),
                         ),
-                      ),
+                      );
+                    }),
+                  ),
+                ),
+                if (trailing != null) ...[
+                  const SizedBox(height: 10),
+                  trailing,
+                ],
+              ],
+            )
+          : Row(
+              children: [
+                Expanded(
+                  child: SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Row(
+                      children: List.generate(tabs.length, (idx) {
+                        final tab = tabs[idx];
+                        final isSelected = selectedIndex == idx;
+                        return Padding(
+                          padding: const EdgeInsets.only(left: 8),
+                          child: InkWell(
+                            onTap: () => onTabSelected(idx),
+                            borderRadius: BorderRadius.circular(10),
+                            child: AnimatedContainer(
+                              duration: const Duration(milliseconds: 200),
+                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                              decoration: BoxDecoration(
+                                color: isSelected ? const Color(0xFF0284C7) : const Color(0xFFF1F5F9),
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: Row(
+                                children: [
+                                  Icon(tab.icon, size: 16, color: isSelected ? Colors.white : const Color(0xFF64748B)),
+                                  const SizedBox(width: 8),
+                                  Text(
+                                    tab.title,
+                                    style: GoogleFonts.cairo(
+                                      fontSize: 13,
+                                      fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
+                                      color: isSelected ? Colors.white : const Color(0xFF475569),
+                                    ),
+                                  ),
+                                  if (tab.count > 0) ...[
+                                    const SizedBox(width: 8),
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                                      decoration: BoxDecoration(
+                                        color: isSelected ? Colors.white.withOpacity(0.25) : const Color(0xFFE2E8F0),
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
+                                      child: Text(
+                                        "${tab.count}",
+                                        style: GoogleFonts.cairo(
+                                          fontSize: 11,
+                                          fontWeight: FontWeight.bold,
+                                          color: isSelected ? Colors.white : const Color(0xFF334155),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ],
+                              ),
+                            ),
+                          ),
+                        );
+                      }),
                     ),
-                  );
-                }),
-              ),
+                  ),
+                ),
+                ?trailing,
+              ],
             ),
-          ),
-          ?trailing,
-        ],
-      ),
     );
   }
 
@@ -4321,6 +4389,8 @@ function checkScore() {
       return matchesSearch && matchesFilter && matchesCat;
     }).toList();
 
+    final isMobile = MediaQuery.of(context).size.width < 768;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -4333,7 +4403,7 @@ function checkScore() {
           ],
           selectedIndex: _coursesSubTab,
           onTabSelected: (idx) => setState(() => _coursesSubTab = idx),
-          trailing: _coursesSubTab == 0
+          trailing: _coursesSubTab == 0 && !isMobile
               ? ElevatedButton.icon(
                   onPressed: () => _openCreateCourseView(),
                   icon: const Icon(Icons.add, size: 18),
@@ -4352,11 +4422,11 @@ function checkScore() {
           _buildCourseCategoriesTab()
         else ...[
           // Top Toolbar: Search + Category Filter + Status Filter + Add Button
-          Row(
-            children: [
-              Expanded(
-                flex: 4,
-                child: TextField(
+          if (isMobile)
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                TextField(
                   onChanged: (val) => setState(() => _coursesSearch = val),
                   decoration: InputDecoration(
                     hintText: "بحث في الكورسات...",
@@ -4369,64 +4439,152 @@ function checkScore() {
                     enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: const BorderSide(color: Color(0xFFE2E8F0))),
                   ),
                 ),
-              ),
-              const SizedBox(width: 10),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFF8FAFC),
-                  borderRadius: BorderRadius.circular(10),
-                  border: Border.all(color: const Color(0xFFE2E8F0)),
+                const SizedBox(height: 10),
+                Row(
+                  children: [
+                    Expanded(
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 10),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFF8FAFC),
+                          borderRadius: BorderRadius.circular(10),
+                          border: Border.all(color: const Color(0xFFE2E8F0)),
+                        ),
+                        child: DropdownButtonHideUnderline(
+                          child: DropdownButton<String>(
+                            isExpanded: true,
+                            value: (cats.contains(_selectedCourseCategoryFilter) || _selectedCourseCategoryFilter == 'الكل')
+                                ? _selectedCourseCategoryFilter
+                                : 'الكل',
+                            items: [
+                              const DropdownMenuItem(value: 'الكل', child: Text("جميع التصنيفات", overflow: TextOverflow.ellipsis)),
+                              ...cats.map((cat) => DropdownMenuItem(value: cat, child: Text(cat, overflow: TextOverflow.ellipsis))),
+                            ],
+                            onChanged: (v) => setState(() => _selectedCourseCategoryFilter = v ?? 'الكل'),
+                            style: GoogleFonts.cairo(color: const Color(0xFF0F172A), fontSize: 12),
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 10),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFF8FAFC),
+                          borderRadius: BorderRadius.circular(10),
+                          border: Border.all(color: const Color(0xFFE2E8F0)),
+                        ),
+                        child: DropdownButtonHideUnderline(
+                          child: DropdownButton<String>(
+                            isExpanded: true,
+                            value: _coursesFilter,
+                            items: const [
+                              DropdownMenuItem(value: 'الكل', child: Text("جميع الحالات")),
+                              DropdownMenuItem(value: 'منشور', child: Text("منشور")),
+                              DropdownMenuItem(value: 'مسودة', child: Text("مسودة")),
+                            ],
+                            onChanged: (v) => setState(() => _coursesFilter = v ?? 'الكل'),
+                            style: GoogleFonts.cairo(color: const Color(0xFF0F172A), fontSize: 12),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-                child: DropdownButtonHideUnderline(
-                  child: DropdownButton<String>(
-                    value: (cats.contains(_selectedCourseCategoryFilter) || _selectedCourseCategoryFilter == 'الكل')
-                        ? _selectedCourseCategoryFilter
-                        : 'الكل',
-                    items: [
-                      const DropdownMenuItem(value: 'الكل', child: Text("جميع التصنيفات 📁")),
-                      ...cats.map((cat) => DropdownMenuItem(value: cat, child: Text("تصنيف: $cat"))),
-                    ],
-                    onChanged: (v) => setState(() => _selectedCourseCategoryFilter = v ?? 'الكل'),
-                    style: GoogleFonts.cairo(color: const Color(0xFF0F172A), fontSize: 13),
+                const SizedBox(height: 12),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton.icon(
+                    onPressed: () => _openCreateCourseView(),
+                    icon: const Icon(Icons.add, size: 18),
+                    label: Text("+ إنشاء كورس جديد", style: GoogleFonts.cairo(fontWeight: FontWeight.bold, fontSize: 13)),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF0284C7),
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 13),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                    ),
                   ),
                 ),
-              ),
-              const SizedBox(width: 10),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFF8FAFC),
-                  borderRadius: BorderRadius.circular(10),
-                  border: Border.all(color: const Color(0xFFE2E8F0)),
-                ),
-                child: DropdownButtonHideUnderline(
-                  child: DropdownButton<String>(
-                    value: _coursesFilter,
-                    items: const [
-                      DropdownMenuItem(value: 'الكل', child: Text("جميع الحالات")),
-                      DropdownMenuItem(value: 'منشور', child: Text("منشور فقط")),
-                      DropdownMenuItem(value: 'مسودة', child: Text("مسودة فقط")),
-                    ],
-                    onChanged: (v) => setState(() => _coursesFilter = v ?? 'الكل'),
-                    style: GoogleFonts.cairo(color: const Color(0xFF0F172A), fontSize: 13),
+              ],
+            )
+          else
+            Row(
+              children: [
+                Expanded(
+                  flex: 4,
+                  child: TextField(
+                    onChanged: (val) => setState(() => _coursesSearch = val),
+                    decoration: InputDecoration(
+                      hintText: "بحث في الكورسات...",
+                      hintStyle: GoogleFonts.cairo(fontSize: 13, color: Colors.grey),
+                      prefixIcon: const Icon(Icons.search, size: 20, color: Colors.grey),
+                      filled: true,
+                      fillColor: const Color(0xFFF8FAFC),
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: const BorderSide(color: Color(0xFFE2E8F0))),
+                      enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: const BorderSide(color: Color(0xFFE2E8F0))),
+                    ),
                   ),
                 ),
-              ),
-              const SizedBox(width: 14),
-              ElevatedButton.icon(
-                onPressed: () => _openCreateCourseView(),
-                icon: const Icon(Icons.add, size: 18),
-                label: Text("+ إنشاء كورس جديد", style: GoogleFonts.cairo(fontWeight: FontWeight.bold)),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF0284C7),
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                const SizedBox(width: 10),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF8FAFC),
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(color: const Color(0xFFE2E8F0)),
+                  ),
+                  child: DropdownButtonHideUnderline(
+                    child: DropdownButton<String>(
+                      value: (cats.contains(_selectedCourseCategoryFilter) || _selectedCourseCategoryFilter == 'الكل')
+                          ? _selectedCourseCategoryFilter
+                          : 'الكل',
+                      items: [
+                        const DropdownMenuItem(value: 'الكل', child: Text("جميع التصنيفات 📁")),
+                        ...cats.map((cat) => DropdownMenuItem(value: cat, child: Text("تصنيف: $cat"))),
+                      ],
+                      onChanged: (v) => setState(() => _selectedCourseCategoryFilter = v ?? 'الكل'),
+                      style: GoogleFonts.cairo(color: const Color(0xFF0F172A), fontSize: 13),
+                    ),
+                  ),
                 ),
-              ),
-            ],
-          ),
+                const SizedBox(width: 10),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF8FAFC),
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(color: const Color(0xFFE2E8F0)),
+                  ),
+                  child: DropdownButtonHideUnderline(
+                    child: DropdownButton<String>(
+                      value: _coursesFilter,
+                      items: const [
+                        DropdownMenuItem(value: 'الكل', child: Text("جميع الحالات")),
+                        DropdownMenuItem(value: 'منشور', child: Text("منشور فقط")),
+                        DropdownMenuItem(value: 'مسودة', child: Text("مسودة فقط")),
+                      ],
+                      onChanged: (v) => setState(() => _coursesFilter = v ?? 'الكل'),
+                      style: GoogleFonts.cairo(color: const Color(0xFF0F172A), fontSize: 13),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 14),
+                ElevatedButton.icon(
+                  onPressed: () => _openCreateCourseView(),
+                  icon: const Icon(Icons.add, size: 18),
+                  label: Text("+ إنشاء كورس جديد", style: GoogleFonts.cairo(fontWeight: FontWeight.bold)),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF0284C7),
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                  ),
+                ),
+              ],
+            ),
 
           const SizedBox(height: 24),
 
@@ -4495,11 +4653,16 @@ function checkScore() {
             children: [
               ClipRRect(
                 borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
-                child: SafeNetworkImage(
-                  imageUrl: (course['image'] ?? course['imageUrl'] ?? '').toString(),
-                  height: 160,
+                child: Container(
+                  height: 190,
                   width: double.infinity,
-                  fit: BoxFit.cover,
+                  color: const Color(0xFF060D1F),
+                  child: SafeNetworkImage(
+                    imageUrl: (course['image'] ?? course['imageUrl'] ?? '').toString(),
+                    height: 190,
+                    width: double.infinity,
+                    fit: BoxFit.contain,
+                  ),
                 ),
               ),
               Positioned(
@@ -4880,57 +5043,110 @@ function checkScore() {
 
   Widget _buildPlaylistsTab() {
     final playlists = _dataService.lessonPlaylists;
+    final isMobile = MediaQuery.of(context).size.width < 768;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Expanded(
-              child: Text("إدارة قوائم وسلاسل المناهج والدروس (${playlists.length})", style: GoogleFonts.cairo(fontSize: 16, fontWeight: FontWeight.bold, color: const Color(0xFF0F172A)), overflow: TextOverflow.ellipsis),
-            ),
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: [
-                if (playlists.isNotEmpty)
-                  OutlinedButton.icon(
-                    onPressed: () async {
-                      final confirm = await showDialog<bool>(
-                        context: context,
-                        builder: (c) => AlertDialog(
-                          title: Text("تأكيد مسح كافة المناهج", style: GoogleFonts.cairo(fontWeight: FontWeight.bold)),
-                          content: Text("هل أنت متأكد من مسح جميع المناهج الحالية من Firebase والتطبيق لتتمكن من إنشاء منهج جديد نظيف؟", style: GoogleFonts.cairo()),
-                          actions: [
-                            TextButton(onPressed: () => Navigator.pop(c, false), child: const Text("إلغاء")),
-                            ElevatedButton(
-                              onPressed: () => Navigator.pop(c, true),
-                              style: ElevatedButton.styleFrom(backgroundColor: Colors.red, foregroundColor: Colors.white),
-                              child: const Text("نعم، امسح الكل"),
-                            ),
-                          ],
-                        ),
-                      );
-                      if (confirm == true) {
-                        await _dataService.clearAllLessonPlaylists();
-                        setState(() {});
-                        _showSnackBar("تم مسح وتنظيف كافة المناهج من Firebase بنجاح 🗑️");
-                      }
-                    },
-                    icon: const Icon(Icons.delete_sweep_rounded, size: 16, color: Color(0xFFEF4444)),
-                    label: Text("مسح وتنظيف كافة المناهج", style: GoogleFonts.cairo(fontWeight: FontWeight.bold, color: const Color(0xFFEF4444), fontSize: 12)),
-                    style: OutlinedButton.styleFrom(side: const BorderSide(color: Color(0xFFEF4444))),
+        if (isMobile)
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Text(
+                "إدارة قوائم وسلاسل المناهج والدروس (${playlists.length})",
+                style: GoogleFonts.cairo(fontSize: 16, fontWeight: FontWeight.bold, color: const Color(0xFF0F172A)),
+              ),
+              const SizedBox(height: 12),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: [
+                  if (playlists.isNotEmpty)
+                    OutlinedButton.icon(
+                      onPressed: () async {
+                        final confirm = await showDialog<bool>(
+                          context: context,
+                          builder: (c) => AlertDialog(
+                            title: Text("تأكيد مسح كافة المناهج", style: GoogleFonts.cairo(fontWeight: FontWeight.bold)),
+                            content: Text("هل أنت متأكد من مسح جميع المناهج الحالية من Firebase والتطبيق لتتمكن من إنشاء منهج جديد نظيف؟", style: GoogleFonts.cairo()),
+                            actions: [
+                              TextButton(onPressed: () => Navigator.pop(c, false), child: const Text("إلغاء")),
+                              ElevatedButton(
+                                onPressed: () => Navigator.pop(c, true),
+                                style: ElevatedButton.styleFrom(backgroundColor: Colors.red, foregroundColor: Colors.white),
+                                child: const Text("نعم، امسح الكل"),
+                              ),
+                            ],
+                          ),
+                        );
+                        if (confirm == true) {
+                          await _dataService.clearAllLessonPlaylists();
+                          setState(() {});
+                          _showSnackBar("تم مسح وتنظيف كافة المناهج من Firebase بنجاح 🗑️");
+                        }
+                      },
+                      icon: const Icon(Icons.delete_sweep_rounded, size: 16, color: Color(0xFFEF4444)),
+                      label: Text("مسح وتنظيف كافة المناهج", style: GoogleFonts.cairo(fontWeight: FontWeight.bold, color: const Color(0xFFEF4444), fontSize: 12)),
+                      style: OutlinedButton.styleFrom(side: const BorderSide(color: Color(0xFFEF4444))),
+                    ),
+                  ElevatedButton.icon(
+                    onPressed: () => _openCreatePlaylistView(),
+                    icon: const Icon(Icons.add, size: 16),
+                    label: Text("+ إنشاء منهج جديد", style: GoogleFonts.cairo(fontWeight: FontWeight.bold, fontSize: 12)),
+                    style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF0284C7), foregroundColor: Colors.white),
                   ),
-                ElevatedButton.icon(
-                  onPressed: () => _openCreatePlaylistView(),
-                  icon: const Icon(Icons.add, size: 16),
-                  label: Text("+ إنشاء منهج جديد", style: GoogleFonts.cairo(fontWeight: FontWeight.bold, fontSize: 12)),
-                  style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF0284C7), foregroundColor: Colors.white),
-                ),
-              ],
-            ),
-          ],
-        ),
+                ],
+              ),
+            ],
+          )
+        else
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Expanded(
+                child: Text("إدارة قوائم وسلاسل المناهج والدروس (${playlists.length})", style: GoogleFonts.cairo(fontSize: 16, fontWeight: FontWeight.bold, color: const Color(0xFF0F172A)), overflow: TextOverflow.ellipsis),
+              ),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: [
+                  if (playlists.isNotEmpty)
+                    OutlinedButton.icon(
+                      onPressed: () async {
+                        final confirm = await showDialog<bool>(
+                          context: context,
+                          builder: (c) => AlertDialog(
+                            title: Text("تأكيد مسح كافة المناهج", style: GoogleFonts.cairo(fontWeight: FontWeight.bold)),
+                            content: Text("هل أنت متأكد من مسح جميع المناهج الحالية من Firebase والتطبيق لتتمكن من إنشاء منهج جديد نظيف؟", style: GoogleFonts.cairo()),
+                            actions: [
+                              TextButton(onPressed: () => Navigator.pop(c, false), child: const Text("إلغاء")),
+                              ElevatedButton(
+                                onPressed: () => Navigator.pop(c, true),
+                                style: ElevatedButton.styleFrom(backgroundColor: Colors.red, foregroundColor: Colors.white),
+                                child: const Text("نعم، امسح الكل"),
+                              ),
+                            ],
+                          ),
+                        );
+                        if (confirm == true) {
+                          await _dataService.clearAllLessonPlaylists();
+                          setState(() {});
+                          _showSnackBar("تم مسح وتنظيف كافة المناهج من Firebase بنجاح 🗑️");
+                        }
+                      },
+                      icon: const Icon(Icons.delete_sweep_rounded, size: 16, color: Color(0xFFEF4444)),
+                      label: Text("مسح وتنظيف كافة المناهج", style: GoogleFonts.cairo(fontWeight: FontWeight.bold, color: const Color(0xFFEF4444), fontSize: 12)),
+                      style: OutlinedButton.styleFrom(side: const BorderSide(color: Color(0xFFEF4444))),
+                    ),
+                  ElevatedButton.icon(
+                    onPressed: () => _openCreatePlaylistView(),
+                    icon: const Icon(Icons.add, size: 16),
+                    label: Text("+ إنشاء منهج جديد", style: GoogleFonts.cairo(fontWeight: FontWeight.bold, fontSize: 12)),
+                    style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF0284C7), foregroundColor: Colors.white),
+                  ),
+                ],
+              ),
+            ],
+          ),
         const SizedBox(height: 16),
         if (playlists.isEmpty)
           Container(
@@ -5033,6 +5249,8 @@ function checkScore() {
       return matchesSearch && matchesFilter && matchesPlaylist && matchesCat;
     }).toList();
 
+    final isMobile = MediaQuery.of(context).size.width < 768;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -5046,7 +5264,7 @@ function checkScore() {
           ],
           selectedIndex: _lessonsSubTab,
           onTabSelected: (idx) => setState(() => _lessonsSubTab = idx),
-          trailing: _lessonsSubTab == 0
+          trailing: _lessonsSubTab == 0 && !isMobile
               ? Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
@@ -5084,12 +5302,12 @@ function checkScore() {
         else if (_lessonsSubTab == 2)
           _buildPlaylistsTab()
         else ...[
-          // Search & Filters Row
-          Row(
-            children: [
-              Expanded(
-                flex: 3,
-                child: TextField(
+          // Search & Filters
+          if (isMobile)
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                TextField(
                   onChanged: (val) => setState(() => _lessonsSearch = val),
                   decoration: InputDecoration(
                     hintText: "بحث في الدروس...",
@@ -5102,76 +5320,206 @@ function checkScore() {
                     enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: const BorderSide(color: Color(0xFFE2E8F0))),
                   ),
                 ),
-              ),
-              const SizedBox(width: 10),
-              // Category Filter Dropdown
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFF8FAFC),
-                  borderRadius: BorderRadius.circular(10),
-                  border: Border.all(color: const Color(0xFFE2E8F0)),
+                const SizedBox(height: 10),
+                Row(
+                  children: [
+                    Expanded(
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFF8FAFC),
+                          borderRadius: BorderRadius.circular(10),
+                          border: Border.all(color: const Color(0xFFE2E8F0)),
+                        ),
+                        child: DropdownButtonHideUnderline(
+                          child: DropdownButton<String>(
+                            isExpanded: true,
+                            value: (lessonCats.contains(_selectedLessonCategoryFilter) || _selectedLessonCategoryFilter == 'الكل')
+                                ? _selectedLessonCategoryFilter
+                                : 'الكل',
+                            items: [
+                              const DropdownMenuItem(value: 'الكل', child: Text("جميع التصنيفات", overflow: TextOverflow.ellipsis)),
+                              ...lessonCats.map((cat) => DropdownMenuItem(value: cat, child: Text(cat, overflow: TextOverflow.ellipsis))),
+                            ],
+                            onChanged: (v) => setState(() => _selectedLessonCategoryFilter = v ?? 'الكل'),
+                            style: GoogleFonts.cairo(color: const Color(0xFF0F172A), fontSize: 12),
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFF8FAFC),
+                          borderRadius: BorderRadius.circular(10),
+                          border: Border.all(color: const Color(0xFFE2E8F0)),
+                        ),
+                        child: DropdownButtonHideUnderline(
+                          child: DropdownButton<String>(
+                            isExpanded: true,
+                            value: (playlists.any((p) => p['id'] == _selectedLessonsPlaylistFilter) || _selectedLessonsPlaylistFilter == 'الكل')
+                                ? _selectedLessonsPlaylistFilter
+                                : 'الكل',
+                            items: [
+                              const DropdownMenuItem(value: 'الكل', child: Text("جميع القوائم", overflow: TextOverflow.ellipsis)),
+                              ...playlists.map((p) => DropdownMenuItem(value: p['id'].toString(), child: Text(p['title'] ?? '', overflow: TextOverflow.ellipsis))),
+                            ],
+                            onChanged: (v) => setState(() => _selectedLessonsPlaylistFilter = v ?? 'الكل'),
+                            style: GoogleFonts.cairo(color: const Color(0xFF0F172A), fontSize: 12),
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFF8FAFC),
+                          borderRadius: BorderRadius.circular(10),
+                          border: Border.all(color: const Color(0xFFE2E8F0)),
+                        ),
+                        child: DropdownButtonHideUnderline(
+                          child: DropdownButton<String>(
+                            isExpanded: true,
+                            value: _lessonsFilter,
+                            items: const [
+                              DropdownMenuItem(value: 'الكل', child: Text("جميع الحالات", overflow: TextOverflow.ellipsis)),
+                              DropdownMenuItem(value: 'منشور', child: Text("منشور", overflow: TextOverflow.ellipsis)),
+                              DropdownMenuItem(value: 'مسودة', child: Text("مسودة", overflow: TextOverflow.ellipsis)),
+                            ],
+                            onChanged: (v) => setState(() => _lessonsFilter = v ?? 'الكل'),
+                            style: GoogleFonts.cairo(color: const Color(0xFF0F172A), fontSize: 12),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-                child: DropdownButtonHideUnderline(
-                  child: DropdownButton<String>(
-                    value: (lessonCats.contains(_selectedLessonCategoryFilter) || _selectedLessonCategoryFilter == 'الكل')
-                        ? _selectedLessonCategoryFilter
-                        : 'الكل',
-                    items: [
-                      const DropdownMenuItem(value: 'الكل', child: Text("جميع تصنيفات الدروس 🏷️")),
-                      ...lessonCats.map((cat) => DropdownMenuItem(value: cat, child: Text("تصنيف: $cat"))),
-                    ],
-                    onChanged: (v) => setState(() => _selectedLessonCategoryFilter = v ?? 'الكل'),
-                    style: GoogleFonts.cairo(color: const Color(0xFF0F172A), fontSize: 13),
+                const SizedBox(height: 12),
+                Row(
+                  children: [
+                    Expanded(
+                      child: OutlinedButton.icon(
+                        onPressed: () => _openCreatePlaylistView(),
+                        icon: const Icon(Icons.playlist_add_rounded, size: 16, color: Color(0xFF0284C7)),
+                        label: Text("إنشاء قائمة", style: GoogleFonts.cairo(color: const Color(0xFF0284C7), fontWeight: FontWeight.bold, fontSize: 12)),
+                        style: OutlinedButton.styleFrom(
+                          side: const BorderSide(color: Color(0xFFBAE6FD)),
+                          backgroundColor: const Color(0xFFF0F9FF),
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: ElevatedButton.icon(
+                        onPressed: () => _openCreateLessonView(),
+                        icon: const Icon(Icons.add, size: 16),
+                        label: Text("+ إنشاء درس", style: GoogleFonts.cairo(fontWeight: FontWeight.bold, fontSize: 12)),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF8B5CF6),
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            )
+          else
+            Row(
+              children: [
+                Expanded(
+                  flex: 3,
+                  child: TextField(
+                    onChanged: (val) => setState(() => _lessonsSearch = val),
+                    decoration: InputDecoration(
+                      hintText: "بحث في الدروس...",
+                      hintStyle: GoogleFonts.cairo(fontSize: 13, color: Colors.grey),
+                      prefixIcon: const Icon(Icons.search, size: 20, color: Colors.grey),
+                      filled: true,
+                      fillColor: const Color(0xFFF8FAFC),
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: const BorderSide(color: Color(0xFFE2E8F0))),
+                      enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: const BorderSide(color: Color(0xFFE2E8F0))),
+                    ),
                   ),
                 ),
-              ),
-              const SizedBox(width: 10),
-              // Playlist Filter Dropdown
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFF8FAFC),
-                  borderRadius: BorderRadius.circular(10),
-                  border: Border.all(color: const Color(0xFFE2E8F0)),
-                ),
-                child: DropdownButtonHideUnderline(
-                  child: DropdownButton<String>(
-                    value: (playlists.any((p) => p['id'] == _selectedLessonsPlaylistFilter) || _selectedLessonsPlaylistFilter == 'الكل')
-                        ? _selectedLessonsPlaylistFilter
-                        : 'الكل',
-                    items: [
-                      const DropdownMenuItem(value: 'الكل', child: Text("جميع القوائم 📁")),
-                      ...playlists.map((p) => DropdownMenuItem(value: p['id'].toString(), child: Text("قائمة: ${p['title']}"))),
-                    ],
-                    onChanged: (v) => setState(() => _selectedLessonsPlaylistFilter = v ?? 'الكل'),
-                    style: GoogleFonts.cairo(color: const Color(0xFF0F172A), fontSize: 13),
+                const SizedBox(width: 10),
+                // Category Filter Dropdown
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF8FAFC),
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(color: const Color(0xFFE2E8F0)),
+                  ),
+                  child: DropdownButtonHideUnderline(
+                    child: DropdownButton<String>(
+                      value: (lessonCats.contains(_selectedLessonCategoryFilter) || _selectedLessonCategoryFilter == 'الكل')
+                          ? _selectedLessonCategoryFilter
+                          : 'الكل',
+                      items: [
+                        const DropdownMenuItem(value: 'الكل', child: Text("جميع تصنيفات الدروس 🏷️")),
+                        ...lessonCats.map((cat) => DropdownMenuItem(value: cat, child: Text("تصنيف: $cat"))),
+                      ],
+                      onChanged: (v) => setState(() => _selectedLessonCategoryFilter = v ?? 'الكل'),
+                      style: GoogleFonts.cairo(color: const Color(0xFF0F172A), fontSize: 13),
+                    ),
                   ),
                 ),
-              ),
-              const SizedBox(width: 10),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFF8FAFC),
-                  borderRadius: BorderRadius.circular(10),
-                  border: Border.all(color: const Color(0xFFE2E8F0)),
-                ),
-                child: DropdownButtonHideUnderline(
-                  child: DropdownButton<String>(
-                    value: _lessonsFilter,
-                    items: const [
-                      DropdownMenuItem(value: 'الكل', child: Text("جميع الحالات")),
-                      DropdownMenuItem(value: 'منشور', child: Text("منشور فقط")),
-                      DropdownMenuItem(value: 'مسودة', child: Text("مسودة فقط")),
-                    ],
-                    onChanged: (v) => setState(() => _lessonsFilter = v ?? 'الكل'),
-                    style: GoogleFonts.cairo(color: const Color(0xFF0F172A), fontSize: 13),
+                const SizedBox(width: 10),
+                // Playlist Filter Dropdown
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF8FAFC),
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(color: const Color(0xFFE2E8F0)),
+                  ),
+                  child: DropdownButtonHideUnderline(
+                    child: DropdownButton<String>(
+                      value: (playlists.any((p) => p['id'] == _selectedLessonsPlaylistFilter) || _selectedLessonsPlaylistFilter == 'الكل')
+                          ? _selectedLessonsPlaylistFilter
+                          : 'الكل',
+                      items: [
+                        const DropdownMenuItem(value: 'الكل', child: Text("جميع القوائم 📁")),
+                        ...playlists.map((p) => DropdownMenuItem(value: p['id'].toString(), child: Text("قائمة: ${p['title']}"))),
+                      ],
+                      onChanged: (v) => setState(() => _selectedLessonsPlaylistFilter = v ?? 'الكل'),
+                      style: GoogleFonts.cairo(color: const Color(0xFF0F172A), fontSize: 13),
+                    ),
                   ),
                 ),
-              ),
-            ],
-          ),
+                const SizedBox(width: 10),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF8FAFC),
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(color: const Color(0xFFE2E8F0)),
+                  ),
+                  child: DropdownButtonHideUnderline(
+                    child: DropdownButton<String>(
+                      value: _lessonsFilter,
+                      items: const [
+                        DropdownMenuItem(value: 'الكل', child: Text("جميع الحالات")),
+                        DropdownMenuItem(value: 'منشور', child: Text("منشور فقط")),
+                        DropdownMenuItem(value: 'مسودة', child: Text("مسودة فقط")),
+                      ],
+                      onChanged: (v) => setState(() => _lessonsFilter = v ?? 'الكل'),
+                      style: GoogleFonts.cairo(color: const Color(0xFF0F172A), fontSize: 13),
+                    ),
+                  ),
+                ),
+              ],
+            ),
 
           const SizedBox(height: 24),
 
