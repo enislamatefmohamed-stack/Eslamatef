@@ -21,15 +21,35 @@ class _CoursesPageState extends State<CoursesPage> {
   final _dataService = SiteDataService.instance;
   Map<String, dynamic>? _activeCourse; // null = Folders list, non-null = Course details & lessons
   Map<String, dynamic>? _activeLesson; // Currently playing lesson/video
+  final Set<String> _enrolledCourseIds = {};
+  final Set<String> _watchedLessonIds = {};
 
   @override
   void initState() {
     super.initState();
     _dataService.addListener(_onDataChanged);
+    _checkEnrollment();
+  }
+
+  void _checkEnrollment() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user != null && _activeCourse != null) {
+      final cid = _activeCourse!['id']?.toString() ?? '';
+      final enrolled = await _dataService.isEnrolled(courseId: cid, userId: user.uid);
+      if (enrolled) {
+        _enrolledCourseIds.add(cid);
+      }
+      final watched = await _dataService.getWatchedLessons(courseId: cid, userId: user.uid);
+      _watchedLessonIds.addAll(watched);
+      if (mounted) setState(() {});
+    }
   }
 
   void _onDataChanged() {
-    if (mounted) setState(() {});
+    if (mounted) {
+      _checkEnrollment();
+      setState(() {});
+    }
   }
 
   @override
@@ -255,19 +275,13 @@ class _CoursesPageState extends State<CoursesPage> {
   // ==========================================
   Widget _buildCourseInsideView(BuildContext context, bool isMobile, bool isDark) {
     final course = _activeCourse!;
+    final courseId = course['id']?.toString() ?? '';
     final lessons = List<Map<String, dynamic>>.from(course['lessons'] ?? []);
     final isPaid = course['isPaid'] == true;
-
-    // Check member permissions for paid course
-    if (!_canAccess(courseId: course['id']?.toString(), isPaid: isPaid)) {
-      return _buildLockedScreen(
-        context: context,
-        title: course['title'] ?? 'الكورس',
-        contentType: 'كورس',
-        isDark: isDark,
-        onBack: () => setState(() => _activeCourse = null),
-      );
-    }
+    final price = course['price'] ?? 250;
+    final user = FirebaseAuth.instance.currentUser;
+    final hasAdminAccess = _canAccess(courseId: courseId, isPaid: isPaid);
+    final isEnrolled = _enrolledCourseIds.contains(courseId) || hasAdminAccess;
 
     return Container(
       constraints: const BoxConstraints(maxWidth: 1200),
@@ -289,7 +303,175 @@ class _CoursesPageState extends State<CoursesPage> {
               ),
             ],
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: 20),
+
+          // Enrollment / Progress Banner
+          if (!isEnrolled) ...[
+            Container(
+              padding: const EdgeInsets.all(22),
+              margin: const EdgeInsets.only(bottom: 24),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: isDark
+                      ? [const Color(0xFF0F2D6B), const Color(0xFF0F172A)]
+                      : [const Color(0xFFE0F2FE), Colors.white],
+                  begin: Alignment.topRight,
+                  end: Alignment.bottomLeft,
+                ),
+                borderRadius: BorderRadius.circular(18),
+                border: Border.all(color: const Color(0xFF00E5FF).withValues(alpha: 0.4)),
+                boxShadow: [
+                  BoxShadow(
+                    color: const Color(0xFF00E5FF).withValues(alpha: 0.08),
+                    blurRadius: 16,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF00E5FF).withValues(alpha: 0.15),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: const Icon(Icons.school_rounded, color: Color(0xFF00E5FF), size: 26),
+                      ),
+                      const SizedBox(width: 14),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              "سجّل الآن في هذا الكورس لتفعيل الدروس وحفظ تقدمك 🎓",
+                              style: GoogleFonts.cairo(
+                                fontSize: 17,
+                                fontWeight: FontWeight.bold,
+                                color: isDark ? Colors.white : const Color(0xFF0F172A),
+                              ),
+                            ),
+                            Text(
+                              isPaid
+                                  ? "هذا الكورس يتطلب اشتراكاً مدفوعاً ($price ج.م) للحصول على الوصول الكامل والمحاضرات والاختبارات."
+                                  : "الالتحاق مجاني بالكامل! سجّل لتتمكن من متابعة الدروس واحتساب نسبة إنجازك في ملفك الشخصي.",
+                              style: GoogleFonts.cairo(
+                                fontSize: 13,
+                                color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  Wrap(
+                    spacing: 12,
+                    runSpacing: 10,
+                    children: [
+                      if (user == null)
+                        ElevatedButton.icon(
+                          onPressed: () => showDialog(context: context, builder: (c) => const AuthModal()),
+                          icon: const Icon(Icons.login_rounded, size: 18),
+                          label: Text("تسجيل الدخول للالتحاق بالكورس 🔐", style: GoogleFonts.cairo(fontWeight: FontWeight.bold)),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF00E5FF),
+                            foregroundColor: Colors.black,
+                            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                          ),
+                        )
+                      else if (!isPaid)
+                        ElevatedButton.icon(
+                          onPressed: () async {
+                            await _dataService.enrollInCourse(
+                              courseId: courseId,
+                              userId: user.uid,
+                              userEmail: user.email,
+                              userName: user.displayName,
+                            );
+                            setState(() => _enrolledCourseIds.add(courseId));
+                            if (!context.mounted) return;
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text("تم تسجيلك في الكورس بنجاح! تم فتح جميع المحاضرات لك 🚀", style: GoogleFonts.cairo(fontWeight: FontWeight.bold)),
+                                backgroundColor: const Color(0xFF10B981),
+                              ),
+                            );
+                          },
+                          icon: const Icon(Icons.check_circle_outline_rounded, size: 18),
+                          label: Text("الالتحاق بالكورس مجاناً (تسجيل فوري) 🎓", style: GoogleFonts.cairo(fontWeight: FontWeight.bold)),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF10B981),
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                          ),
+                        )
+                      else
+                        ElevatedButton.icon(
+                          onPressed: () => Navigator.of(context).pushNamed('/checkout', arguments: course),
+                          icon: const Icon(Icons.credit_card_rounded, size: 18),
+                          label: Text("شراء الكورس والاشتراك الآن 💳 ($price ج.م)", style: GoogleFonts.cairo(fontWeight: FontWeight.bold)),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFFDC2626),
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                          ),
+                        ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ] else ...[
+            // Enrolled & Progress Bar
+            Container(
+              padding: const EdgeInsets.all(18),
+              margin: const EdgeInsets.only(bottom: 24),
+              decoration: BoxDecoration(
+                color: isDark ? const Color(0xFF064E3B).withValues(alpha: 0.3) : const Color(0xFFECFDF5),
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: const Color(0xFF10B981).withValues(alpha: 0.4)),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Row(
+                        children: [
+                          const Icon(Icons.verified_rounded, color: Color(0xFF10B981), size: 22),
+                          const SizedBox(width: 8),
+                          Text("أنت ملتحق ومسجل في هذا الكورس بنجاح ✅", style: GoogleFonts.cairo(fontWeight: FontWeight.bold, color: const Color(0xFF10B981))),
+                        ],
+                      ),
+                      Text(
+                        "${_watchedLessonIds.length} من ${lessons.length} درس مكتمل",
+                        style: GoogleFonts.cairo(fontSize: 13, fontWeight: FontWeight.bold, color: isDark ? Colors.white70 : const Color(0xFF0F172A)),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 10),
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(6),
+                    child: LinearProgressIndicator(
+                      value: lessons.isEmpty ? 0 : (_watchedLessonIds.length / lessons.length).clamp(0.0, 1.0),
+                      backgroundColor: isDark ? const Color(0xFF1E293B) : const Color(0xFFCBD5E1),
+                      valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFF10B981)),
+                      minHeight: 8,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
 
           if (lessons.isEmpty)
             _buildEmptyState("لا توجد دروس أو فيديوهات داخل هذا الكورس بعد", "يمكنك إضافة دروس جديدة لهذا الكورس عبر لوحة التحكم.", isDark)
@@ -297,6 +479,8 @@ class _CoursesPageState extends State<CoursesPage> {
             ...lessons.asMap().entries.map((entry) {
               final idx = entry.key;
               final lesson = entry.value;
+              final lessonId = (lesson['id'] ?? '').toString();
+              final isWatched = _watchedLessonIds.contains(lessonId);
               final image = (lesson['image'] ?? lesson['imageUrl'] ?? 'assets/images/slide1.png').toString();
               final youtubeUrl = (lesson['youtubeUrl'] ?? lesson['videoUrl'] ?? '').toString();
               final hasYoutube = youtubeUrl.isNotEmpty;
@@ -308,68 +492,204 @@ class _CoursesPageState extends State<CoursesPage> {
                 decoration: BoxDecoration(
                   color: isDark ? const Color(0xFF0F172A) : Colors.white,
                   borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0)),
+                  border: Border.all(
+                    color: isWatched
+                        ? const Color(0xFF10B981).withValues(alpha: 0.5)
+                        : (isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0)),
+                  ),
                 ),
-                child: Row(
-                  children: [
-                    Container(
-                      width: 36,
-                      height: 36,
-                      decoration: const BoxDecoration(color: Color(0xFF00E5FF), shape: BoxShape.circle),
-                      child: Center(
-                        child: Text("${idx + 1}", style: GoogleFonts.inter(fontWeight: FontWeight.bold, color: Colors.black)),
-                      ),
-                    ),
-                    const SizedBox(width: 16),
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(10),
-                      child: SizedBox(
-                        width: 90,
-                        height: 65,
-                        child: SafeNetworkImage(
-                          imageUrl: image,
-                          width: 90,
-                          height: 65,
-                          fit: BoxFit.cover,
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                child: isMobile
+                    ? Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
-                          Text(lesson['title'] ?? '', style: GoogleFonts.cairo(fontSize: 16, fontWeight: FontWeight.bold)),
                           Row(
                             children: [
-                              if (hasYoutube)
-                                Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                                  decoration: BoxDecoration(color: Colors.red.withValues(alpha: 0.15), borderRadius: BorderRadius.circular(4)),
-                                  child: Text("▶ فيديو يوتيوب مدمج", style: GoogleFonts.cairo(fontSize: 11, color: Colors.red, fontWeight: FontWeight.bold)),
+                              Container(
+                                width: 32,
+                                height: 32,
+                                decoration: BoxDecoration(
+                                  color: isWatched ? const Color(0xFF10B981) : const Color(0xFF00E5FF),
+                                  shape: BoxShape.circle,
                                 ),
-                              if (hasQuiz) ...[
-                                const SizedBox(width: 8),
-                                Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                                  decoration: BoxDecoration(color: const Color(0xFF10B981).withValues(alpha: 0.15), borderRadius: BorderRadius.circular(4)),
-                                  child: Text("📝 اختبار متاح", style: GoogleFonts.cairo(fontSize: 11, color: const Color(0xFF10B981), fontWeight: FontWeight.bold)),
+                                child: Center(
+                                  child: isWatched
+                                      ? const Icon(Icons.check, size: 18, color: Colors.white)
+                                      : Text("${idx + 1}", style: GoogleFonts.inter(fontWeight: FontWeight.bold, fontSize: 12, color: Colors.black)),
+                                ),
+                              ),
+                              const SizedBox(width: 10),
+                              ClipRRect(
+                                borderRadius: BorderRadius.circular(8),
+                                child: SizedBox(
+                                  width: 70,
+                                  height: 50,
+                                  child: SafeNetworkImage(
+                                    imageUrl: image,
+                                    width: 70,
+                                    height: 50,
+                                    fit: BoxFit.cover,
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 10),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      lesson['title'] ?? '',
+                                      style: GoogleFonts.cairo(fontSize: 14, fontWeight: FontWeight.bold),
+                                      maxLines: 2,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                    const SizedBox(height: 4),
+                                    Wrap(
+                                      spacing: 6,
+                                      runSpacing: 4,
+                                      children: [
+                                        if (hasYoutube)
+                                          Text("▶ يوتيوب", style: GoogleFonts.cairo(fontSize: 10, color: Colors.red, fontWeight: FontWeight.bold)),
+                                        if (hasQuiz)
+                                          Text("📝 اختبار", style: GoogleFonts.cairo(fontSize: 10, color: const Color(0xFF10B981), fontWeight: FontWeight.bold)),
+                                        if (isWatched)
+                                          Text("✓ مكتمل", style: GoogleFonts.cairo(fontSize: 10, color: const Color(0xFF10B981), fontWeight: FontWeight.bold)),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 12),
+                          ElevatedButton.icon(
+                            onPressed: () {
+                              if (!isEnrolled) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text("يرجى التسجيل في الكورس أولاً لتتمكن من مشاهدة الدروس 🔒", style: GoogleFonts.cairo(fontWeight: FontWeight.bold)),
+                                    backgroundColor: const Color(0xFFDC2626),
+                                  ),
+                                );
+                                return;
+                              }
+                              setState(() => _activeLesson = lesson);
+                              if (user != null && lessonId.isNotEmpty) {
+                                _dataService.markLessonWatched(courseId: courseId, lessonId: lessonId, userId: user.uid);
+                                setState(() => _watchedLessonIds.add(lessonId));
+                              }
+                            },
+                            icon: Icon(isEnrolled ? Icons.play_arrow_rounded : Icons.lock_outline_rounded, size: 18),
+                            label: Text(
+                              isEnrolled
+                                  ? (isWatched ? "مشاهدة الدرس (مكتمل ✓)" : "مشاهدة الدرس ➔")
+                                  : "يتطلب التسجيل 🔒",
+                              style: GoogleFonts.cairo(fontWeight: FontWeight.bold, fontSize: 13),
+                            ),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: isEnrolled ? const Color(0xFF00E5FF) : Colors.grey.shade700,
+                              foregroundColor: isEnrolled ? Colors.black : Colors.white70,
+                              padding: const EdgeInsets.symmetric(vertical: 10),
+                            ),
+                          ),
+                        ],
+                      )
+                    : Row(
+                        children: [
+                          Container(
+                            width: 36,
+                            height: 36,
+                            decoration: BoxDecoration(
+                              color: isWatched ? const Color(0xFF10B981) : const Color(0xFF00E5FF),
+                              shape: BoxShape.circle,
+                            ),
+                            child: Center(
+                              child: isWatched
+                                  ? const Icon(Icons.check, size: 20, color: Colors.white)
+                                  : Text("${idx + 1}", style: GoogleFonts.inter(fontWeight: FontWeight.bold, color: Colors.black)),
+                            ),
+                          ),
+                          const SizedBox(width: 16),
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(10),
+                            child: SizedBox(
+                              width: 90,
+                              height: 65,
+                              child: SafeNetworkImage(
+                                imageUrl: image,
+                                width: 90,
+                                height: 65,
+                                fit: BoxFit.cover,
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 16),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(lesson['title'] ?? '', style: GoogleFonts.cairo(fontSize: 16, fontWeight: FontWeight.bold)),
+                                Row(
+                                  children: [
+                                    if (hasYoutube)
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                        decoration: BoxDecoration(color: Colors.red.withValues(alpha: 0.15), borderRadius: BorderRadius.circular(4)),
+                                        child: Text("▶ فيديو يوتيوب مدمج", style: GoogleFonts.cairo(fontSize: 11, color: Colors.red, fontWeight: FontWeight.bold)),
+                                      ),
+                                    if (hasQuiz) ...[
+                                      const SizedBox(width: 8),
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                        decoration: BoxDecoration(color: const Color(0xFF10B981).withValues(alpha: 0.15), borderRadius: BorderRadius.circular(4)),
+                                        child: Text("📝 اختبار متاح", style: GoogleFonts.cairo(fontSize: 11, color: const Color(0xFF10B981), fontWeight: FontWeight.bold)),
+                                      ),
+                                    ],
+                                    if (isWatched) ...[
+                                      const SizedBox(width: 8),
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                        decoration: BoxDecoration(color: const Color(0xFF10B981).withValues(alpha: 0.15), borderRadius: BorderRadius.circular(4)),
+                                        child: Text("تمت المشاهدة ✓", style: GoogleFonts.cairo(fontSize: 11, color: const Color(0xFF10B981), fontWeight: FontWeight.bold)),
+                                      ),
+                                    ],
+                                  ],
                                 ),
                               ],
-                            ],
+                            ),
+                          ),
+                          ElevatedButton.icon(
+                            onPressed: () {
+                              if (!isEnrolled) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text("يرجى التسجيل في الكورس أولاً لتتمكن من مشاهدة الدروس 🔒", style: GoogleFonts.cairo(fontWeight: FontWeight.bold)),
+                                    backgroundColor: const Color(0xFFDC2626),
+                                  ),
+                                );
+                                return;
+                              }
+                              setState(() => _activeLesson = lesson);
+                              if (user != null && lessonId.isNotEmpty) {
+                                _dataService.markLessonWatched(courseId: courseId, lessonId: lessonId, userId: user.uid);
+                                setState(() => _watchedLessonIds.add(lessonId));
+                              }
+                            },
+                            icon: Icon(isEnrolled ? Icons.play_arrow_rounded : Icons.lock_outline_rounded, size: 20),
+                            label: Text(
+                              isEnrolled
+                                  ? (isWatched ? "مشاهدة الدرس (مكتمل ✓)" : "مشاهدة الدرس ➔")
+                                  : "يتطلب التسجيل 🔒",
+                              style: GoogleFonts.cairo(fontWeight: FontWeight.bold, fontSize: 13),
+                            ),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: isEnrolled ? const Color(0xFF00E5FF) : Colors.grey.shade700,
+                              foregroundColor: isEnrolled ? Colors.black : Colors.white70,
+                            ),
                           ),
                         ],
                       ),
-                    ),
-                    ElevatedButton.icon(
-                      onPressed: () => setState(() => _activeLesson = lesson),
-                      icon: const Icon(Icons.play_arrow_rounded, size: 20),
-                      label: Text("مشاهدة الدرس ➔", style: GoogleFonts.cairo(fontWeight: FontWeight.bold, fontSize: 13)),
-                      style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF00E5FF), foregroundColor: Colors.black),
-                    ),
-                  ],
-                ),
               );
             }),
         ],

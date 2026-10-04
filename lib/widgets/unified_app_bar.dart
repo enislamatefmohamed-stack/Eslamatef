@@ -119,7 +119,7 @@ class UnifiedAppHeader extends StatelessWidget implements PreferredSizeWidget {
                   children: [
                     _navItem(context, "الرئيسية", '/', currentRoute == '/', isDark),
                     _navItem(context, "الكورسات", '/courses', currentRoute == '/courses', isDark),
-                    _navItem(context, "الدروس", '/lessons', currentRoute == '/lessons', isDark),
+                    _navItem(context, "المناهج", '/lessons', currentRoute == '/lessons' || currentRoute == '/curricula', isDark),
                     _navItem(context, "تحدي الأسبوع", '/challenge', currentRoute == '/challenge', isDark),
                     _navItem(context, "اختبر نفسك", '/quiz', currentRoute == '/quiz', isDark),
                     _navItem(context, "من نحن", '/about', currentRoute == '/about', isDark),
@@ -377,7 +377,7 @@ class UnifiedAppDrawer extends StatelessWidget {
                 children: [
                   _drawerItem(context, "الرئيسية", Icons.home_rounded, '/', currentRoute == '/'),
                   _drawerItem(context, "الكورسات والمسارات", Icons.school_rounded, '/courses', currentRoute == '/courses'),
-                  _drawerItem(context, "الدروس والفيديوهات", Icons.play_lesson_rounded, '/lessons', currentRoute == '/lessons'),
+                  _drawerItem(context, "المناهج الدراسية", Icons.menu_book_rounded, '/lessons', currentRoute == '/lessons' || currentRoute == '/curricula'),
                   _drawerItem(context, "تحدي الأسبوع", Icons.emoji_events_rounded, '/challenge', currentRoute == '/challenge'),
                   _drawerItem(context, "اختبر نفسك", Icons.quiz_rounded, '/quiz', currentRoute == '/quiz'),
                   _drawerItem(context, "من نحن", Icons.info_outline_rounded, '/about', currentRoute == '/about'),

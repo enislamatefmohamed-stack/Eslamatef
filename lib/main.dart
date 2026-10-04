@@ -16,6 +16,7 @@ import 'pages/admin_dashboard_page.dart';
 import 'pages/challenge_page.dart';
 import 'pages/quiz_page.dart';
 import 'pages/student_profile_page.dart';
+import 'pages/checkout_page.dart';
 import 'widgets/auth_modal.dart';
 import 'services/site_data_service.dart';
 import 'services/auth_service.dart';
@@ -103,6 +104,14 @@ class EslamAtefApp extends StatelessWidget {
             '/profile': (context) => const Directionality(
                   textDirection: TextDirection.rtl,
                   child: StudentProfilePage(),
+                ),
+            '/checkout': (context) => const Directionality(
+                  textDirection: TextDirection.rtl,
+                  child: CheckoutPage(),
+                ),
+            '/curricula': (context) => const Directionality(
+                  textDirection: TextDirection.rtl,
+                  child: LessonsPage(),
                 ),
           },
         );

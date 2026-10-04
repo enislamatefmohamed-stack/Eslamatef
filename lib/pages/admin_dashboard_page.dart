@@ -103,6 +103,8 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
   bool _isCreatingCourse = false;
   Map<String, dynamic>? _editingCourse;
   bool _isCourseHtmlMode = false;
+  bool _isCoursePaid = false;
+  final _coursePriceCtrl = TextEditingController();
   final _courseTitleCtrl = TextEditingController();
   final _courseDescCtrl = TextEditingController();
   final _courseImgCtrl = TextEditingController();
@@ -159,6 +161,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
     _playlistDescCtrl.dispose();
     _courseTitleCtrl.dispose();
     _courseDescCtrl.dispose();
+    _coursePriceCtrl.dispose();
     _courseImgCtrl.dispose();
     _courseCatCtrl.dispose();
     _courseHtmlCtrl.dispose();
@@ -1649,6 +1652,8 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
     _editingCourse = existing;
     _isCreatingCourse = true;
     _isCourseHtmlMode = (existing?['editorType'] ?? 'visual') == 'html';
+    _isCoursePaid = existing?['isPaid'] == true;
+    _coursePriceCtrl.text = (existing != null && existing['price'] != null && existing['price'].toString() != '0') ? existing['price'].toString() : '';
     _courseTitleCtrl.text = existing?['title'] ?? '';
     _courseDescCtrl.text = existing?['description'] ?? '';
     _courseImgCtrl.text = existing?['image'] ?? existing?['imageUrl'] ?? 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=600';
@@ -1854,6 +1859,52 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
               ),
             ],
           ),
+          const SizedBox(height: 16),
+
+          // Course Pricing & Access
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            decoration: BoxDecoration(
+              color: _isCoursePaid ? const Color(0xFFFEF2F2) : const Color(0xFFF0FDF4),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: _isCoursePaid ? const Color(0xFFFECACA) : const Color(0xFFBBF7D0)),
+            ),
+            child: Wrap(
+              crossAxisAlignment: WrapCrossAlignment.center,
+              spacing: 16,
+              runSpacing: 10,
+              children: [
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      _isCoursePaid ? "🔒 كورس مدفوع (يتطلب شراء واشتراك)" : "🟢 كورس مجاني (متاح للجميع بالتسجيل)",
+                      style: GoogleFonts.cairo(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 13,
+                        color: _isCoursePaid ? const Color(0xFFDC2626) : const Color(0xFF16A34A),
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Switch(
+                      value: _isCoursePaid,
+                      activeColor: const Color(0xFFDC2626),
+                      onChanged: (v) => setState(() => _isCoursePaid = v),
+                    ),
+                  ],
+                ),
+                if (_isCoursePaid)
+                  SizedBox(
+                    width: 250,
+                    child: TextField(
+                      controller: _coursePriceCtrl,
+                      keyboardType: TextInputType.number,
+                      decoration: _inputDecoration("سعر الكورس (ج.م EGP) * مثال: 300"),
+                    ),
+                  ),
+              ],
+            ),
+          ),
 
           if (_isCourseHtmlMode) ...[
             const SizedBox(height: 24),
@@ -1944,6 +1995,8 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
       'category': cat,
       'level': _selectedCourseLevel,
       'status': _selectedCourseStatus,
+      'isPaid': _isCoursePaid,
+      'price': _isCoursePaid ? (double.tryParse(_coursePriceCtrl.text.trim()) ?? _coursePriceCtrl.text.trim()) : 0,
       'editorType': _isCourseHtmlMode ? 'html' : 'visual',
       'htmlCode': _courseHtmlCtrl.text.trim(),
       'content': _isCourseHtmlMode ? _courseHtmlCtrl.text.trim() : _courseDescCtrl.text.trim(),
@@ -2892,6 +2945,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
     final titleCtrl = TextEditingController();
     final imgCtrl = TextEditingController();
     final descCtrl = TextEditingController();
+    final priceCtrl = TextEditingController();
     final cats = isCourse ? _dataService.courseCategories : _dataService.lessonCategories;
     String selectedCat = cats.isNotEmpty ? cats.first : 'عام';
     bool isPaid = false;
@@ -2902,6 +2956,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
         return StatefulBuilder(
           builder: (dialogCtx, setDlgState) {
             final playlists = isCourse ? _dataService.courses : _dataService.lessonPlaylists;
+            final screenWidth = MediaQuery.of(context).size.width;
 
             return AlertDialog(
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
@@ -2913,14 +2968,17 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                     child: const Icon(Icons.playlist_play_rounded, color: Color(0xFF8B5CF6), size: 24),
                   ),
                   const SizedBox(width: 12),
-                  Text(
-                    isCourse ? "قوائم التشغيل (إنشاء وإدارة الكورسات) 📚" : "قوائم التشغيل (إنشاء وإدارة المناهج) 📑",
-                    style: GoogleFonts.cairo(fontWeight: FontWeight.bold, fontSize: 18),
+                  Expanded(
+                    child: Text(
+                      isCourse ? "قوائم التشغيل (إنشاء وإدارة الكورسات) 📚" : "قوائم التشغيل (إنشاء وإدارة المناهج) 📑",
+                      style: GoogleFonts.cairo(fontWeight: FontWeight.bold, fontSize: 16),
+                      overflow: TextOverflow.ellipsis,
+                    ),
                   ),
                 ],
               ),
               content: SizedBox(
-                width: 600,
+                width: screenWidth > 650 ? 600 : screenWidth * 0.9,
                 child: SingleChildScrollView(
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
@@ -2957,9 +3015,13 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                               decoration: _inputDecoration("وصف مختصر للقائمة *"),
                             ),
                             const SizedBox(height: 10),
-                            Row(
+                            Wrap(
+                              spacing: 12,
+                              runSpacing: 10,
+                              crossAxisAlignment: WrapCrossAlignment.center,
                               children: [
-                                Expanded(
+                                SizedBox(
+                                  width: 200,
                                   child: DropdownButtonFormField<String>(
                                     value: (cats.contains(selectedCat)) ? selectedCat : (cats.isNotEmpty ? cats.first : null),
                                     decoration: _inputDecoration("التصنيف"),
@@ -2967,7 +3029,6 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                                     onChanged: (v) => setDlgState(() => selectedCat = v ?? selectedCat),
                                   ),
                                 ),
-                                const SizedBox(width: 12),
                                 Container(
                                   padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                                   decoration: BoxDecoration(
@@ -2997,6 +3058,14 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                                 ),
                               ],
                             ),
+                            if (isPaid) ...[
+                              const SizedBox(height: 12),
+                              TextField(
+                                controller: priceCtrl,
+                                keyboardType: TextInputType.number,
+                                decoration: _inputDecoration("سعر الاشتراك (بالجنيه المصري EGP) * مثال: 250"),
+                              ),
+                            ],
                             const SizedBox(height: 14),
                             Align(
                               alignment: Alignment.centerLeft,
@@ -3012,6 +3081,9 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                                       ? sanitizeImageUrl(rawImg)
                                       : 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=600';
                                   final desc = descCtrl.text.trim();
+                                  final priceVal = isPaid
+                                      ? (double.tryParse(priceCtrl.text.trim()) ?? priceCtrl.text.trim())
+                                      : 0;
 
                                   if (isCourse) {
                                     await _dataService.createCourse({
@@ -3021,6 +3093,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                                       'description': desc,
                                       'category': selectedCat,
                                       'isPaid': isPaid,
+                                      'price': priceVal,
                                       'status': 'منشور',
                                       'lessons': [],
                                     });
@@ -3032,12 +3105,14 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                                       'description': desc,
                                       'category': selectedCat,
                                       'isPaid': isPaid,
+                                      'price': priceVal,
                                       'status': 'منشور',
                                     });
                                   }
                                   titleCtrl.clear();
                                   imgCtrl.clear();
                                   descCtrl.clear();
+                                  priceCtrl.clear();
                                   setDlgState(() {});
                                   setState(() {});
                                   _showSnackBar("تم حفظ القائمة بنجاح في Firebase 🚀");
@@ -3055,7 +3130,40 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                         ),
                       ),
                       const SizedBox(height: 24),
-                      Text("القوائم الحالية (${playlists.length}):", style: GoogleFonts.cairo(fontWeight: FontWeight.bold, fontSize: 14)),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text("القوائم الحالية (${playlists.length}):", style: GoogleFonts.cairo(fontWeight: FontWeight.bold, fontSize: 14)),
+                          if (!isCourse && playlists.isNotEmpty)
+                            TextButton.icon(
+                              onPressed: () async {
+                                final confirm = await showDialog<bool>(
+                                  context: dialogCtx,
+                                  builder: (c) => AlertDialog(
+                                    title: Text("تأكيد مسح كافة المناهج", style: GoogleFonts.cairo(fontWeight: FontWeight.bold)),
+                                    content: Text("هل أنت متأكد من مسح جميع المناهج الحالية من Firebase والتطبيق لتتمكن من إنشاء منهج جديد نظيف؟", style: GoogleFonts.cairo()),
+                                    actions: [
+                                      TextButton(onPressed: () => Navigator.pop(c, false), child: const Text("إلغاء")),
+                                      ElevatedButton(
+                                        onPressed: () => Navigator.pop(c, true),
+                                        style: ElevatedButton.styleFrom(backgroundColor: Colors.red, foregroundColor: Colors.white),
+                                        child: const Text("نعم، امسح الكل"),
+                                      ),
+                                    ],
+                                  ),
+                                );
+                                if (confirm == true) {
+                                  await _dataService.clearAllLessonPlaylists();
+                                  setDlgState(() {});
+                                  setState(() {});
+                                  _showSnackBar("تم مسح وتنظيف كافة المناهج من Firebase بنجاح 🗑️");
+                                }
+                              },
+                              icon: const Icon(Icons.delete_sweep_rounded, size: 16, color: Color(0xFFEF4444)),
+                              label: Text("مسح وتنظيف كافة المناهج", style: GoogleFonts.cairo(fontSize: 12, color: const Color(0xFFEF4444), fontWeight: FontWeight.bold)),
+                            ),
+                        ],
+                      ),
                       const SizedBox(height: 12),
                       ConstrainedBox(
                         constraints: const BoxConstraints(maxHeight: 250),
@@ -3068,6 +3176,9 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                                 itemBuilder: (c, i) {
                                   final item = playlists[i];
                                   final paid = item['isPaid'] == true;
+                                  final priceText = item['price'] != null && item['price'].toString().isNotEmpty && item['price'].toString() != '0'
+                                      ? " (${item['price']} ج.م)"
+                                      : "";
                                   return Container(
                                     padding: const EdgeInsets.all(12),
                                     decoration: BoxDecoration(
@@ -3106,7 +3217,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                                             borderRadius: BorderRadius.circular(6),
                                           ),
                                           child: Text(
-                                            paid ? "🔒 مدفوع" : "🟢 مجاني",
+                                            paid ? "🔒 مدفوع$priceText" : "🟢 مجاني",
                                             style: GoogleFonts.cairo(fontSize: 10, fontWeight: FontWeight.bold, color: paid ? const Color(0xFFDC2626) : const Color(0xFF16A34A)),
                                           ),
                                         ),
@@ -3182,7 +3293,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                 ],
               ),
               content: SizedBox(
-                width: 780,
+                width: MediaQuery.of(context).size.width > 820 ? 780 : MediaQuery.of(context).size.width * 0.92,
                 child: SingleChildScrollView(
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
@@ -3492,7 +3603,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                 ],
               ),
               content: SizedBox(
-                width: 720,
+                width: MediaQuery.of(context).size.width > 750 ? 720 : MediaQuery.of(context).size.width * 0.92,
                 child: SingleChildScrollView(
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
@@ -4526,12 +4637,48 @@ function checkScore() {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text("إدارة قوائم وسلاسل الدروس (${playlists.length})", style: GoogleFonts.cairo(fontSize: 16, fontWeight: FontWeight.bold, color: const Color(0xFF0F172A))),
-            ElevatedButton.icon(
-              onPressed: () => _openCreatePlaylistView(),
-              icon: const Icon(Icons.add, size: 16),
-              label: Text("+ إنشاء قائمة جديدة", style: GoogleFonts.cairo(fontWeight: FontWeight.bold)),
-              style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF0284C7), foregroundColor: Colors.white),
+            Expanded(
+              child: Text("إدارة قوائم وسلاسل المناهج والدروس (${playlists.length})", style: GoogleFonts.cairo(fontSize: 16, fontWeight: FontWeight.bold, color: const Color(0xFF0F172A)), overflow: TextOverflow.ellipsis),
+            ),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                if (playlists.isNotEmpty)
+                  OutlinedButton.icon(
+                    onPressed: () async {
+                      final confirm = await showDialog<bool>(
+                        context: context,
+                        builder: (c) => AlertDialog(
+                          title: Text("تأكيد مسح كافة المناهج", style: GoogleFonts.cairo(fontWeight: FontWeight.bold)),
+                          content: Text("هل أنت متأكد من مسح جميع المناهج الحالية من Firebase والتطبيق لتتمكن من إنشاء منهج جديد نظيف؟", style: GoogleFonts.cairo()),
+                          actions: [
+                            TextButton(onPressed: () => Navigator.pop(c, false), child: const Text("إلغاء")),
+                            ElevatedButton(
+                              onPressed: () => Navigator.pop(c, true),
+                              style: ElevatedButton.styleFrom(backgroundColor: Colors.red, foregroundColor: Colors.white),
+                              child: const Text("نعم، امسح الكل"),
+                            ),
+                          ],
+                        ),
+                      );
+                      if (confirm == true) {
+                        await _dataService.clearAllLessonPlaylists();
+                        setState(() {});
+                        _showSnackBar("تم مسح وتنظيف كافة المناهج من Firebase بنجاح 🗑️");
+                      }
+                    },
+                    icon: const Icon(Icons.delete_sweep_rounded, size: 16, color: Color(0xFFEF4444)),
+                    label: Text("مسح وتنظيف كافة المناهج", style: GoogleFonts.cairo(fontWeight: FontWeight.bold, color: const Color(0xFFEF4444), fontSize: 12)),
+                    style: OutlinedButton.styleFrom(side: const BorderSide(color: Color(0xFFEF4444))),
+                  ),
+                ElevatedButton.icon(
+                  onPressed: () => _openCreatePlaylistView(),
+                  icon: const Icon(Icons.add, size: 16),
+                  label: Text("+ إنشاء منهج جديد", style: GoogleFonts.cairo(fontWeight: FontWeight.bold, fontSize: 12)),
+                  style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF0284C7), foregroundColor: Colors.white),
+                ),
+              ],
             ),
           ],
         ),

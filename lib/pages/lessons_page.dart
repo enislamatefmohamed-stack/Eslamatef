@@ -75,8 +75,8 @@ class _LessonsPageState extends State<LessonsPage> {
             child: Column(
               children: [
                 UnifiedAppHeader(
-                  currentRoute: '/lessons',
-                  pageTitle: 'الدروس والفيديوهات التعليمية',
+                  currentRoute: '/curricula',
+                  pageTitle: 'المناهج والشروحات التعليمية',
                   onBack: _selectedLesson != null
                       ? () => setState(() => _selectedLesson = null)
                       : null,
@@ -146,13 +146,13 @@ class _LessonsPageState extends State<LessonsPage> {
                     borderRadius: BorderRadius.circular(30),
                   ),
                   child: Text(
-                    "مكتبة الفيديوهات والشروحات التفاعلية",
+                    "مكتبة المناهج والشروحات التفاعلية",
                     style: GoogleFonts.cairo(fontSize: 12.5, fontWeight: FontWeight.bold, color: const Color(0xFF3B82F6)),
                   ),
                 ),
                 const SizedBox(height: 14),
                 Text(
-                  "فيديوهات برمجية مباشرة مع شرح كامل واختبار لكل درس",
+                  "مناهج دراسية وفيديوهات تعليمية مع شرح تفصيلي واختبار لكل درس",
                   style: GoogleFonts.cairo(fontSize: isMobile ? 22 : 32, fontWeight: FontWeight.w900),
                   textAlign: TextAlign.center,
                 ),
@@ -303,6 +303,16 @@ class _LessonsPageState extends State<LessonsPage> {
     }
 
     final desc = (lesson['description'] ?? lesson['desc'] ?? '').toString().trim();
+
+    // Automatically record lesson as watched for enrolled/logged-in users
+    final currentUser = FirebaseAuth.instance.currentUser;
+    if (currentUser != null && lessonId != null && lessonId.isNotEmpty) {
+      _dataService.markLessonWatched(
+        courseId: courseId ?? 'curricula',
+        lessonId: lessonId,
+        userId: currentUser.uid,
+      );
+    }
 
     return Container(
       constraints: const BoxConstraints(maxWidth: 1100),
@@ -497,7 +507,7 @@ class _LessonsPageState extends State<LessonsPage> {
               ],
             ),
             content: SizedBox(
-              width: 750,
+              width: MediaQuery.of(ctx).size.width < 750 ? (MediaQuery.of(ctx).size.width * 0.88) : 750,
               child: SingleChildScrollView(
                 child: ArticleContentRenderer(content: quizHtml, isDark: isDark),
               ),
@@ -646,14 +656,36 @@ class _LessonsPageState extends State<LessonsPage> {
                 textAlign: TextAlign.center,
               ),
             ],
-            const SizedBox(height: 18),
+            const SizedBox(height: 16),
             ElevatedButton.icon(
               onPressed: () {
-                final wa = "https://wa.me/201201509012?text=${Uri.encodeComponent('مرحباً أستاذ إسلام، أود تفعيل الاشتراك في $contentType: $title')}";
+                Navigator.of(context).pushNamed(
+                  '/checkout',
+                  arguments: {
+                    'id': title,
+                    'title': title,
+                    'type': 'منهج دراسي',
+                    'price': 200,
+                  },
+                );
+              },
+              icon: const Icon(Icons.credit_card_rounded),
+              label: Text("الاشتراك في المنهج والدفع الآن 💳", style: GoogleFonts.cairo(fontWeight: FontWeight.bold)),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF3B82F6),
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+              ),
+            ),
+            const SizedBox(height: 12),
+            ElevatedButton.icon(
+              onPressed: () {
+                final wa = "https://wa.me/201025173298?text=${Uri.encodeComponent('مرحباً أستاذ إسلام، أود تفعيل الاشتراك في $contentType: $title')}";
                 launchUrl(Uri.parse(wa), mode: LaunchMode.externalApplication);
               },
               icon: const Icon(Icons.chat_bubble_rounded),
-              label: Text("تواصل عبر واتساب لطلب التفعيل 💬", style: GoogleFonts.cairo(fontWeight: FontWeight.bold)),
+              label: Text("تواصل عبر واتساب للتأكيد الفوري 💬", style: GoogleFonts.cairo(fontWeight: FontWeight.bold)),
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF16A34A),
                 foregroundColor: Colors.white,

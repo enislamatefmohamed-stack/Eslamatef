@@ -78,10 +78,7 @@ class SiteDataService extends ChangeNotifier {
       if (plStr != null) {
         _lessonPlaylists = List<Map<String, dynamic>>.from(jsonDecode(plStr));
       } else {
-        _lessonPlaylists = [
-          {'id': 'pl_1', 'title': 'منهج الصف الأول الثانوي', 'description': 'أساسيات البرمجة والذكاء الاصطناعي', 'imageUrl': 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=600'},
-          {'id': 'pl_2', 'title': 'منهج الصف الثاني الثانوي', 'description': 'هياكل البيانات والبرمجة الكائنية OOP', 'imageUrl': 'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=600'},
-        ];
+        _lessonPlaylists = [];
       }
 
       final cCatStr = prefs.getString('site_course_categories');
@@ -195,17 +192,15 @@ class SiteDataService extends ChangeNotifier {
         }
       }, onError: (e) => debugPrint("Firestore lesson_categories error: $e"));
 
-      // Lesson Playlists Collection
+      // Lesson Playlists Collection (Curricula / مناهج)
       _firestore.collection('lesson_playlists').snapshots().listen((snapshot) {
-        if (snapshot.docs.isNotEmpty) {
-          _lessonPlaylists = snapshot.docs.map((doc) {
-            final d = doc.data();
-            d['id'] = doc.id;
-            return d;
-          }).toList();
-          _saveLessonPlaylists();
-          notifyListeners();
-        }
+        _lessonPlaylists = snapshot.docs.map((doc) {
+          final d = doc.data();
+          d['id'] = doc.id;
+          return d;
+        }).toList();
+        _saveLessonPlaylists();
+        notifyListeners();
       }, onError: (e) => debugPrint("Firestore lesson_playlists error: $e"));
 
       // Interactive Quizzes Collection
@@ -676,6 +671,23 @@ class SiteDataService extends ChangeNotifier {
     }
   }
 
+  Future<void> clearAllLessonPlaylists() async {
+    _lessonPlaylists.clear();
+    await _saveLessonPlaylists();
+    notifyListeners();
+
+    if (isFirebaseReady) {
+      try {
+        final snap = await _firestore.collection('lesson_playlists').get();
+        for (final doc in snap.docs) {
+          await doc.reference.delete();
+        }
+      } catch (e) {
+        debugPrint("Firestore clearAllLessonPlaylists error: $e");
+      }
+    }
+  }
+
   Future<void> _saveLessonPlaylists() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('site_lesson_playlists', jsonEncode(_lessonPlaylists));
@@ -1052,5 +1064,160 @@ class SiteDataService extends ChangeNotifier {
   Future<void> _saveRecordingLessons() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('site_recording_lessons', jsonEncode(_recordingLessons));
+  }
+
+  // =========================================================================
+  // ENROLLMENT & LESSON PROGRESS TRACKING
+  // =========================================================================
+  Future<void> enrollInCourse({
+    required String courseId,
+    required String userId,
+    String? userEmail,
+    String? userName,
+    bool isCurriculum = false,
+  }) async {
+    final enrollmentData = {
+      'courseId': courseId,
+      'userId': userId,
+      'userEmail': userEmail ?? '',
+      'userName': userName ?? '',
+      'isCurriculum': isCurriculum,
+      'enrolledAt': DateTime.now().toIso8601String(),
+    };
+
+    final prefs = await SharedPreferences.getInstance();
+    final key = 'enrollment_${userId}_$courseId';
+    await prefs.setString(key, jsonEncode(enrollmentData));
+
+    final listKey = 'user_enrolled_courses_$userId';
+    final currentList = prefs.getStringList(listKey) ?? [];
+    if (!currentList.contains(courseId)) {
+      currentList.add(courseId);
+      await prefs.setStringList(listKey, currentList);
+    }
+
+    notifyListeners();
+
+    if (isFirebaseReady) {
+      try {
+        await _firestore
+            .collection('users')
+            .doc(userId)
+            .collection('enrollments')
+            .doc(courseId)
+            .set(enrollmentData, SetOptions(merge: true));
+
+        await _firestore
+            .collection('enrollments')
+            .doc('${userId}_$courseId')
+            .set(enrollmentData, SetOptions(merge: true));
+      } catch (e) {
+        debugPrint("Firestore enrollInCourse error: $e");
+      }
+    }
+  }
+
+  Future<bool> isEnrolled({required String courseId, required String userId}) async {
+    if (userId.isEmpty || courseId.isEmpty) return false;
+    final prefs = await SharedPreferences.getInstance();
+    final key = 'enrollment_${userId}_$courseId';
+    if (prefs.containsKey(key)) return true;
+
+    if (isFirebaseReady) {
+      try {
+        final doc = await _firestore
+            .collection('users')
+            .doc(userId)
+            .collection('enrollments')
+            .doc(courseId)
+            .get();
+        if (doc.exists) {
+          await prefs.setString(key, jsonEncode(doc.data()));
+          return true;
+        }
+      } catch (e) {
+        debugPrint("Firestore isEnrolled check error: $e");
+      }
+    }
+    return false;
+  }
+
+  Future<void> markLessonWatched({
+    required String courseId,
+    required String lessonId,
+    required String userId,
+  }) async {
+    if (userId.isEmpty || courseId.isEmpty || lessonId.isEmpty) return;
+    final prefs = await SharedPreferences.getInstance();
+    final key = 'watched_${userId}_${courseId}_$lessonId';
+    await prefs.setBool(key, true);
+
+    final watchedListKey = 'watched_lessons_${userId}_$courseId';
+    final currentList = prefs.getStringList(watchedListKey) ?? [];
+    if (!currentList.contains(lessonId)) {
+      currentList.add(lessonId);
+      await prefs.setStringList(watchedListKey, currentList);
+    }
+
+    notifyListeners();
+
+    if (isFirebaseReady) {
+      try {
+        await _firestore
+            .collection('users')
+            .doc(userId)
+            .collection('enrollments')
+            .doc(courseId)
+            .set({
+          'watchedLessons': FieldValue.arrayUnion([lessonId]),
+          'lastWatchedAt': DateTime.now().toIso8601String(),
+          'lastLessonId': lessonId,
+        }, SetOptions(merge: true));
+      } catch (e) {
+        debugPrint("Firestore markLessonWatched error: $e");
+      }
+    }
+  }
+
+  Future<List<String>> getWatchedLessons({required String courseId, required String userId}) async {
+    if (userId.isEmpty || courseId.isEmpty) return [];
+    final prefs = await SharedPreferences.getInstance();
+    final watchedListKey = 'watched_lessons_${userId}_$courseId';
+    return prefs.getStringList(watchedListKey) ?? [];
+  }
+
+  // =========================================================================
+  // COURSE PURCHASE REQUESTS
+  // =========================================================================
+  Future<void> submitPurchaseRequest({
+    required String courseId,
+    required String courseTitle,
+    required dynamic price,
+    required String paymentMethod,
+    required String senderPhone,
+    required String userId,
+    required String userEmail,
+    String notes = '',
+  }) async {
+    final req = {
+      'courseId': courseId,
+      'courseTitle': courseTitle,
+      'price': price,
+      'paymentMethod': paymentMethod,
+      'senderPhone': senderPhone,
+      'userId': userId,
+      'userEmail': userEmail,
+      'notes': notes,
+      'status': 'قيد المراجعة',
+      'createdAt': DateTime.now().toIso8601String(),
+    };
+
+    if (isFirebaseReady) {
+      try {
+        await _firestore.collection('purchase_requests').add(req);
+      } catch (e) {
+        debugPrint("Firestore submitPurchaseRequest error: $e");
+      }
+    }
   }
 }
