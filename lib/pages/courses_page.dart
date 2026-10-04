@@ -101,50 +101,101 @@ class _CoursesPageState extends State<CoursesPage> {
     final htmlCode = (lesson['htmlCode'] ?? '').toString();
     final content = (lesson['content'] ?? '').toString();
     final desc = (lesson['description'] ?? '').toString();
-    final combined = '$htmlCode $content $desc';
+    final article = (lesson['article'] ?? lesson['body'] ?? lesson['details'] ?? '').toString();
+    final combined = '$htmlCode $content $desc $article';
 
-    if (combined.isNotEmpty) {
-      // Check HTML <img>
-      final htmlMatch = RegExp(r'<img[^>]+src=["\x27](https?:\/\/[^"\x27\s]+)["\x27]', caseSensitive: false).firstMatch(combined);
+    if (combined.trim().isNotEmpty) {
+      // Unescape HTML quotes & entities
+      final unescaped = combined
+          .replaceAll('&quot;', '"')
+          .replaceAll('&#39;', "'")
+          .replaceAll('&amp;', '&')
+          .replaceAll(r'\"', '"')
+          .replaceAll(r"\'", "'");
+
+      // Check HTML <img ... src="...">
+      final htmlMatch = RegExp(
+        r'<img\b[^>]*?\bsrc\s*=\s*["\x27]?([^"\x27\s>]+)',
+        caseSensitive: false,
+      ).firstMatch(unescaped);
       if (htmlMatch != null) {
-        final src = htmlMatch.group(1)!.trim();
-        if (src.isNotEmpty && src != courseImg) return src;
+        var src = htmlMatch.group(1)!.trim().replaceAll('"', '').replaceAll("'", '');
+        if (src.startsWith('//')) src = 'https:$src';
+        if (src.isNotEmpty && src != courseImg && !src.contains('slide1.png') && !src.contains('slide2.png')) {
+          return src;
+        }
       }
 
       // Check Markdown ![...](...)
-      final mdMatch = RegExp(r'!\[.*?\]\((https?:\/\/[^\s\)]+)\)').firstMatch(combined);
+      final mdMatch = RegExp(r'!\[[^\]]*\]\(([^)\s]+)\)').firstMatch(unescaped);
       if (mdMatch != null) {
-        final src = mdMatch.group(1)!.trim();
-        if (src.isNotEmpty && src != courseImg) return src;
+        var src = mdMatch.group(1)!.trim();
+        if (src.startsWith('//')) src = 'https:$src';
+        if (src.isNotEmpty && src != courseImg && !src.contains('slide1.png')) {
+          return src;
+        }
       }
 
-      // Check direct image URL ending with extension
-      final extMatch = RegExp(r'(https?:\/\/[^\s"<>]+\.(?:jpg|jpeg|png|webp|gif|svg))', caseSensitive: false).firstMatch(combined);
+      // Check CSS background-image: url(...)
+      final cssMatch = RegExp(
+        r'background(?:-image)?\s*:\s*url\(["\x27]?([^"\x27\)\s]+)',
+        caseSensitive: false,
+      ).firstMatch(unescaped);
+      if (cssMatch != null) {
+        var src = cssMatch.group(1)!.trim();
+        if (src.startsWith('//')) src = 'https:$src';
+        if (src.isNotEmpty && src != courseImg && !src.contains('slide1.png')) {
+          return src;
+        }
+      }
+
+      // Check direct image URL ending with standard image extension
+      final extMatch = RegExp(
+        r'(https?:\/\/[^\s"<>\)]+\.(?:jpg|jpeg|png|webp|gif|svg))',
+        caseSensitive: false,
+      ).firstMatch(unescaped);
       if (extMatch != null) {
         final src = extMatch.group(1)!.trim();
-        if (src.isNotEmpty && src != courseImg) return src;
+        if (src.isNotEmpty && src != courseImg && !src.contains('slide1.png')) {
+          return src;
+        }
       }
     }
 
-    // 2. Check lesson explicit image if distinct from course cover
+    // 2. Check lesson explicit image if distinct from course cover and slide default
     final rawLessonImg = (lesson['image'] ?? lesson['imageUrl'] ?? '').toString().trim();
-    if (rawLessonImg.isNotEmpty && rawLessonImg != courseImg && rawLessonImg != 'assets/images/slide1.png') {
+    if (rawLessonImg.isNotEmpty &&
+        rawLessonImg != courseImg &&
+        !rawLessonImg.contains('slide1.png') &&
+        !rawLessonImg.contains('slide2.png')) {
       return rawLessonImg;
     }
 
-    // 3. Fallback: if YouTube video exists, extract its thumbnail
+    // 3. Fallback: if YouTube video exists, extract its official high-quality thumbnail
     final ytUrl = (lesson['youtubeUrl'] ?? lesson['videoUrl'] ?? '').toString().trim();
     if (ytUrl.isNotEmpty) {
-      final ytMatch = RegExp(r'(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|shorts\/|live\/))([a-zA-Z0-9_-]{11})').firstMatch(ytUrl);
+      final ytMatch = RegExp(
+        r'(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|shorts\/|live\/))([a-zA-Z0-9_-]{11})',
+      ).firstMatch(ytUrl);
       if (ytMatch != null) {
         return 'https://img.youtube.com/vi/${ytMatch.group(1)}/hqdefault.jpg';
       }
     }
 
-    // 4. Fallback to lesson image or course cover
-    if (rawLessonImg.isNotEmpty) return rawLessonImg;
-    if (courseImg.isNotEmpty) return courseImg;
-    return 'assets/images/slide1.png';
+    // Also check if YouTube URL is inside the article content
+    if (combined.contains('youtu')) {
+      final contentYtMatch = RegExp(
+        r'(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|shorts\/|live\/))([a-zA-Z0-9_-]{11})',
+      ).firstMatch(combined);
+      if (contentYtMatch != null) {
+        return 'https://img.youtube.com/vi/${contentYtMatch.group(1)}/hqdefault.jpg';
+      }
+    }
+
+    // 4. Fallback to lesson image or course cover or default slide
+    if (rawLessonImg.isNotEmpty && !rawLessonImg.contains('slide1.png')) return rawLessonImg;
+    if (courseImg.isNotEmpty && !courseImg.contains('slide1.png')) return courseImg;
+    return rawLessonImg.isNotEmpty ? rawLessonImg : (courseImg.isNotEmpty ? courseImg : 'assets/images/slide1.png');
   }
 
   @override

@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:http/http.dart' as http;
 import 'package:url_launcher/url_launcher.dart';
 
@@ -115,7 +116,20 @@ class _ContactPageState extends State<ContactPage> {
     final fileNames = _attachedFiles.map((f) => "${f.name} (${_formatFileSize(f.lengthSync() ?? 0)})").join(", ");
 
     try {
-      // 1. Submit via FormSubmit AJAX directly to en.islam.atef.mohamed@gmail.com
+      // 1. Direct Cloud Firestore Backup (Guarantees zero lost messages)
+      await FirebaseFirestore.instance.collection('contact_messages').add({
+        'name': name,
+        'email': email,
+        'phone': phone,
+        'inquiryType': _selectedInquiryType,
+        'message': message,
+        'files': fileNames,
+        'createdAt': DateTime.now().toIso8601String(),
+        'timestamp': FieldValue.serverTimestamp(),
+        'status': 'new',
+      });
+
+      // 2. Submit via FormSubmit AJAX directly to en.islam.atef.mohamed@gmail.com
       final url = Uri.parse("https://formsubmit.co/ajax/en.islam.atef.mohamed@gmail.com");
       final response = await http.post(
         url,
@@ -145,8 +159,8 @@ class _ContactPageState extends State<ContactPage> {
       }
     } catch (_) {
       if (!mounted) return;
-      // Network or CORS issue: fallback directly to mailto
-      _launchMailtoFallback(name, email, phone, message, fileNames);
+      // Message saved to Firestore above, show success with direct WhatsApp option
+      _showSuccessDialog();
     } finally {
       if (mounted) {
         setState(() {

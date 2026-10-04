@@ -1,5 +1,6 @@
 // ignore_for_file: deprecated_member_use, unused_element
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -5821,53 +5822,98 @@ function checkScore() {
   // 6. جلسات التصوير (RECORDING STUDIO 🎥)
   // =========================================================================
   Widget _buildRecordingStudioSection() {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isMobile = screenWidth < 800;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Studio Notice Banner
+        // Studio Notice Banner (Fully Responsive for Mobile)
         Container(
-          padding: const EdgeInsets.all(20),
+          padding: EdgeInsets.all(isMobile ? 16 : 20),
           decoration: BoxDecoration(
             color: const Color(0xFFF0FDF4),
             borderRadius: BorderRadius.circular(16),
             border: Border.all(color: const Color(0xFFBBF7D0)),
           ),
-          child: Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(color: const Color(0xFF16A34A).withOpacity(0.12), borderRadius: BorderRadius.circular(12)),
-                child: const Icon(Icons.videocam_rounded, color: Color(0xFF16A34A), size: 28),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+          child: isMobile
+              ? Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    Text(
-                      "استوديو التصوير التفاعلي (خاص بالأدمن فقط 🔒)",
-                      style: GoogleFonts.cairo(fontSize: 16, fontWeight: FontWeight.bold, color: const Color(0xFF166534)),
+                    Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(10),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF16A34A).withOpacity(0.12),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: const Icon(Icons.videocam_rounded, color: Color(0xFF16A34A), size: 24),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Text(
+                            "استوديو التصوير التفاعلي 🔒",
+                            style: GoogleFonts.cairo(fontSize: 15, fontWeight: FontWeight.bold, color: const Color(0xFF166534)),
+                          ),
+                        ),
+                      ],
                     ),
+                    const SizedBox(height: 10),
                     Text(
-                      "تم سحب الاستوديو من الواجهة العامة للموقع وحمايته داخل لوحة الإدارة. يمكنك كتابة أكواد الشرائح HTML وفتح السبورة التفاعلية للشرح.",
-                      style: GoogleFonts.cairo(fontSize: 12, color: const Color(0xFF15803D)),
+                      "تم سحب الاستوديو من الواجهة العامة وحمايته داخل لوحة الإدارة. يمكنك كتابة أكواد الشرائح وفتح السبورة التفاعلية للشرح.",
+                      style: GoogleFonts.cairo(fontSize: 12, color: const Color(0xFF15803D), height: 1.6),
+                    ),
+                    const SizedBox(height: 14),
+                    ElevatedButton.icon(
+                      onPressed: () => _openCreateRecordingSessionPrompt(),
+                      icon: const Icon(Icons.add, size: 18),
+                      label: Text("+ إضافة جلسة تصوير جديدة", style: GoogleFonts.cairo(fontWeight: FontWeight.bold, fontSize: 13)),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF8B5CF6),
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                      ),
+                    ),
+                  ],
+                )
+              : Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(color: const Color(0xFF16A34A).withOpacity(0.12), borderRadius: BorderRadius.circular(12)),
+                      child: const Icon(Icons.videocam_rounded, color: Color(0xFF16A34A), size: 28),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            "استوديو التصوير التفاعلي (خاص بالأدمن فقط 🔒)",
+                            style: GoogleFonts.cairo(fontSize: 16, fontWeight: FontWeight.bold, color: const Color(0xFF166534)),
+                          ),
+                          Text(
+                            "تم سحب الاستوديو من الواجهة العامة للموقع وحمايته داخل لوحة الإدارة. يمكنك كتابة أكواد الشرائح HTML وفتح السبورة التفاعلية للشرح.",
+                            style: GoogleFonts.cairo(fontSize: 12, color: const Color(0xFF15803D)),
+                          ),
+                        ],
+                      ),
+                    ),
+                    ElevatedButton.icon(
+                      onPressed: () => _openCreateRecordingSessionPrompt(),
+                      icon: const Icon(Icons.add, size: 18),
+                      label: Text("+ إضافة جلسة تصوير جديدة", style: GoogleFonts.cairo(fontWeight: FontWeight.bold)),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF8B5CF6),
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                      ),
                     ),
                   ],
                 ),
-              ),
-              ElevatedButton.icon(
-                onPressed: () => _openCreateRecordingSessionPrompt(),
-                icon: const Icon(Icons.add, size: 18),
-                label: Text("+ إضافة جلسة تصوير جديدة", style: GoogleFonts.cairo(fontWeight: FontWeight.bold)),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF8B5CF6),
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                ),
-              ),
-            ],
-          ),
         ),
 
         const SizedBox(height: 28),
@@ -5905,54 +5951,114 @@ function checkScore() {
                     BoxShadow(color: Colors.black.withOpacity(0.01), blurRadius: 6, offset: const Offset(0, 2)),
                   ],
                 ),
-                child: Row(
-                  children: [
-                    Container(
-                      width: 44,
-                      height: 44,
-                      decoration: BoxDecoration(color: const Color(0xFF16A34A).withOpacity(0.1), borderRadius: BorderRadius.circular(10)),
-                      child: const Center(child: Icon(Icons.slideshow_rounded, color: Color(0xFF16A34A), size: 24)),
-                    ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                child: isMobile
+                    ? Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
-                          Text(rec['title'] ?? '', style: GoogleFonts.cairo(fontWeight: FontWeight.bold, fontSize: 14)),
-                          Text("${rec['subject'] ?? 'جلسة تدريسية'} • تاريخ: ${rec['date'] ?? '2026'}", style: GoogleFonts.cairo(fontSize: 11, color: Colors.grey)),
+                          Row(
+                            children: [
+                              Container(
+                                width: 40,
+                                height: 40,
+                                decoration: BoxDecoration(color: const Color(0xFF16A34A).withOpacity(0.1), borderRadius: BorderRadius.circular(10)),
+                                child: const Center(child: Icon(Icons.slideshow_rounded, color: Color(0xFF16A34A), size: 22)),
+                              ),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(rec['title'] ?? '', style: GoogleFonts.cairo(fontWeight: FontWeight.bold, fontSize: 14)),
+                                    Text("${rec['subject'] ?? 'جلسة تدريسية'} • تاريخ: ${rec['date'] ?? '2026'}", style: GoogleFonts.cairo(fontSize: 11, color: Colors.grey)),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 12),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: ElevatedButton.icon(
+                                  onPressed: () {
+                                    final studioUrl = Uri.parse("presentation/index.html");
+                                    launchUrl(studioUrl, mode: LaunchMode.platformDefault);
+                                  },
+                                  icon: const Icon(Icons.play_circle_fill_rounded, size: 16),
+                                  label: Text("تشغيل الاستوديو 🎬", style: GoogleFonts.cairo(fontWeight: FontWeight.bold, fontSize: 12)),
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: const Color(0xFF0284C7),
+                                    foregroundColor: Colors.white,
+                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                                    padding: const EdgeInsets.symmetric(vertical: 10),
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              IconButton(
+                                icon: const Icon(Icons.code_rounded, color: Color(0xFF0284C7)),
+                                tooltip: "تعديل كود الـ HTML للشرائح",
+                                onPressed: () => _openRecordingHtmlEditor(rec),
+                              ),
+                              IconButton(
+                                icon: const Icon(Icons.delete_outline_rounded, color: Color(0xFFEF4444)),
+                                tooltip: "حذف الجلسة",
+                                onPressed: () => _confirmDelete("جلسة: ${rec['title']}", () async {
+                                  await _dataService.deleteRecordingLesson(rec['id']);
+                                  _showSnackBar("تم حذف جلسة التصوير");
+                                }),
+                              ),
+                            ],
+                          ),
+                        ],
+                      )
+                    : Row(
+                        children: [
+                          Container(
+                            width: 44,
+                            height: 44,
+                            decoration: BoxDecoration(color: const Color(0xFF16A34A).withOpacity(0.1), borderRadius: BorderRadius.circular(10)),
+                            child: const Center(child: Icon(Icons.slideshow_rounded, color: Color(0xFF16A34A), size: 24)),
+                          ),
+                          const SizedBox(width: 16),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(rec['title'] ?? '', style: GoogleFonts.cairo(fontWeight: FontWeight.bold, fontSize: 14)),
+                                Text("${rec['subject'] ?? 'جلسة تدريسية'} • تاريخ: ${rec['date'] ?? '2026'}", style: GoogleFonts.cairo(fontSize: 11, color: Colors.grey)),
+                              ],
+                            ),
+                          ),
+                          ElevatedButton.icon(
+                            onPressed: () {
+                              final studioUrl = Uri.parse("presentation/index.html");
+                              launchUrl(studioUrl, mode: LaunchMode.platformDefault);
+                            },
+                            icon: const Icon(Icons.play_circle_fill_rounded, size: 16),
+                            label: Text("تشغيل الاستوديو 🎬", style: GoogleFonts.cairo(fontWeight: FontWeight.bold, fontSize: 12)),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(0xFF0284C7),
+                              foregroundColor: Colors.white,
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          IconButton(
+                            icon: const Icon(Icons.code_rounded, color: Color(0xFF0284C7)),
+                            tooltip: "تعديل كود الـ HTML للشرائح",
+                            onPressed: () => _openRecordingHtmlEditor(rec),
+                          ),
+                          IconButton(
+                            icon: const Icon(Icons.delete_outline_rounded, color: Color(0xFFEF4444)),
+                            tooltip: "حذف الجلسة",
+                            onPressed: () => _confirmDelete("جلسة: ${rec['title']}", () async {
+                              await _dataService.deleteRecordingLesson(rec['id']);
+                              _showSnackBar("تم حذف جلسة التصوير");
+                            }),
+                          ),
                         ],
                       ),
-                    ),
-                    ElevatedButton.icon(
-                      onPressed: () {
-                        // Launch live interactive presentation studio in presentation/index.html
-                        final studioUrl = Uri.parse("presentation/index.html");
-                        launchUrl(studioUrl, mode: LaunchMode.platformDefault);
-                      },
-                      icon: const Icon(Icons.play_circle_fill_rounded, size: 16),
-                      label: Text("تشغيل الاستوديو 🎬", style: GoogleFonts.cairo(fontWeight: FontWeight.bold, fontSize: 12)),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF0284C7),
-                        foregroundColor: Colors.white,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    IconButton(
-                      icon: const Icon(Icons.code_rounded, color: Color(0xFF0284C7)),
-                      tooltip: "تعديل كود الـ HTML للشرائح",
-                      onPressed: () => _openRecordingHtmlEditor(rec),
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.delete_outline_rounded, color: Color(0xFFEF4444)),
-                      tooltip: "حذف الجلسة",
-                      onPressed: () => _confirmDelete("جلسة: ${rec['title']}", () async {
-                        await _dataService.deleteRecordingLesson(rec['id']);
-                        _showSnackBar("تم حذف جلسة التصوير");
-                      }),
-                    ),
-                  ],
-                ),
               );
             },
           ),
@@ -6214,25 +6320,43 @@ function checkScore() {
                           ),
                         ),
                       ),
-                      // Action 2: Password Reset Link
+                      // Action 2: Admin Direct Password Set + Reset Link
                       DataCell(
-                        OutlinedButton.icon(
-                          onPressed: email.isEmpty || email == '—'
-                              ? null
-                              : () async {
-                                  try {
-                                    await UserService.instance.sendPasswordReset(email);
-                                    _showSnackBar("تم إرسال رابط تعيين كلمة المرور بنجاح إلى: $email");
-                                  } catch (e) {
-                                    _showSnackBar("فشل إرسال رابط كلمة المرور: $e", isError: true);
-                                  }
-                                },
-                          icon: const Icon(Icons.lock_reset_rounded, size: 14, color: Color(0xFF0284C7)),
-                          label: Text("إرسال رابط", style: GoogleFonts.cairo(fontSize: 11, color: const Color(0xFF0284C7))),
-                          style: OutlinedButton.styleFrom(
-                            side: const BorderSide(color: Color(0xFFBAE6FD)),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
-                          ),
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            ElevatedButton.icon(
+                              onPressed: () => _openAdminSetPasswordDialog(
+                                uid,
+                                name,
+                                email,
+                                whatsapp.isNotEmpty ? whatsapp : phone,
+                              ),
+                              icon: const Icon(Icons.key_rounded, size: 13),
+                              label: Text("تعيين كلمة مرور 🔑", style: GoogleFonts.cairo(fontSize: 11, fontWeight: FontWeight.bold)),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: const Color(0xFF0284C7),
+                                foregroundColor: Colors.white,
+                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
+                              ),
+                            ),
+                            const SizedBox(width: 6),
+                            IconButton(
+                              tooltip: "إرسال رابط استعادة رسمي عبر الإيميل",
+                              icon: const Icon(Icons.email_outlined, size: 16, color: Color(0xFF0284C7)),
+                              onPressed: email.isEmpty || email == '—'
+                                  ? null
+                                  : () async {
+                                      try {
+                                        await UserService.instance.sendPasswordReset(email);
+                                        _showSnackBar("تم إرسال رابط تعيين كلمة المرور بنجاح إلى: $email");
+                                      } catch (e) {
+                                        _showSnackBar("فشل إرسال رابط كلمة المرور: $e", isError: true);
+                                      }
+                                    },
+                            ),
+                          ],
                         ),
                       ),
                       // Action 3: Delete Member from Firebase
@@ -6254,6 +6378,210 @@ function checkScore() {
           },
         ),
       ],
+    );
+  }
+
+  // =========================================================================
+  // ADMIN PASSWORD ASSIGNMENT & CREDENTIALS SHARING
+  // =========================================================================
+  void _openAdminSetPasswordDialog(String uid, String name, String email, String phone) {
+    final passwordCtrl = TextEditingController();
+    bool isSaving = false;
+    bool obscureText = false;
+
+    showDialog(
+      context: context,
+      builder: (ctx) => StatefulBuilder(
+        builder: (context, setDlgState) => Directionality(
+          textDirection: TextDirection.rtl,
+          child: AlertDialog(
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+            title: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(color: const Color(0xFF0284C7).withOpacity(0.12), borderRadius: BorderRadius.circular(8)),
+                  child: const Icon(Icons.lock_reset_rounded, color: Color(0xFF0284C7)),
+                ),
+                const SizedBox(width: 10),
+                Text("تعيين كلمة مرور جديدة للعضو", style: GoogleFonts.cairo(fontWeight: FontWeight.bold, fontSize: 16)),
+              ],
+            ),
+            content: SizedBox(
+              width: 440,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFF8FAFC),
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(color: const Color(0xFFE2E8F0)),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text("اسم العضو: $name", style: GoogleFonts.cairo(fontWeight: FontWeight.bold, fontSize: 13)),
+                        Text("البريد الإلكتروني: $email", style: GoogleFonts.cairo(fontSize: 12, color: Colors.grey)),
+                        if (phone.isNotEmpty && phone != '—')
+                          Text("رقم الهاتف / واتساب: $phone", style: GoogleFonts.cairo(fontSize: 12, color: Colors.grey)),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Text("كلمة المرور الجديدة:", style: GoogleFonts.cairo(fontWeight: FontWeight.bold, fontSize: 13)),
+                  const SizedBox(height: 6),
+                  TextField(
+                    controller: passwordCtrl,
+                    obscureText: obscureText,
+                    decoration: InputDecoration(
+                      hintText: "أدخل كلمة المرور الجديدة (6 خانات على الأقل)",
+                      hintStyle: GoogleFonts.cairo(fontSize: 12, color: Colors.grey),
+                      prefixIcon: const Icon(Icons.password_rounded, size: 20),
+                      suffixIcon: IconButton(
+                        icon: Icon(obscureText ? Icons.visibility_off : Icons.visibility, size: 20),
+                        onPressed: () => setDlgState(() => obscureText = !obscureText),
+                      ),
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  Text(
+                    "💡 بمجرد الحفظ، سيتم تحديث كلمة المرور في قاعدة بيانات Firebase مباشرة، وستتمكن من إرسالها للطالب على واتساب أو نسخها بضغطة زر.",
+                    style: GoogleFonts.cairo(fontSize: 11.5, color: const Color(0xFF0369A1), height: 1.5),
+                  ),
+                ],
+              ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(ctx).pop(),
+                child: Text("إلغاء", style: GoogleFonts.cairo(color: Colors.grey)),
+              ),
+              ElevatedButton.icon(
+                onPressed: isSaving
+                    ? null
+                    : () async {
+                        final newPass = passwordCtrl.text.trim();
+                        if (newPass.length < 6) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text("كلمة المرور يجب أن لا تقل عن 6 خانات", style: GoogleFonts.cairo()),
+                              backgroundColor: Colors.red,
+                            ),
+                          );
+                          return;
+                        }
+
+                        setDlgState(() => isSaving = true);
+                        try {
+                          // Save in Firestore user document
+                          await FirebaseFirestore.instance.collection('users').doc(uid).set({
+                            'adminAssignedPassword': newPass,
+                            'passwordStatus': 'assigned_by_admin',
+                            'passwordUpdatedAt': FieldValue.serverTimestamp(),
+                          }, SetOptions(merge: true));
+
+                          if (email.isNotEmpty && email != '—') {
+                            try {
+                              await UserService.instance.sendPasswordReset(email);
+                            } catch (_) {}
+                          }
+
+                          if (!context.mounted) return;
+                          Navigator.of(ctx).pop();
+
+                          _showSnackBar("تم تعيين كلمة المرور بنجاح للعضو: $name ✅");
+
+                          _showPasswordCredentialsDialog(name, email, phone, newPass);
+                        } catch (e) {
+                          setDlgState(() => isSaving = false);
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text("خطأ أثناء تعيين كلمة المرور: $e", style: GoogleFonts.cairo()),
+                              backgroundColor: Colors.red,
+                            ),
+                          );
+                        }
+                      },
+                icon: const Icon(Icons.save_rounded, size: 18),
+                label: Text(isSaving ? "جارٍ الحفظ..." : "حفظ وتعيين 🔑", style: GoogleFonts.cairo(fontWeight: FontWeight.bold)),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF0284C7),
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _showPasswordCredentialsDialog(String name, String email, String phone, String password) {
+    final credentialsText = "مرحباً $name،\nتم تعيين كلمة مرور جديدة لحسابك في منصة Eslam Atef | Code & AI:\nالبريد: $email\nكلمة المرور: $password\nيمكنك تسجيل الدخول الآن عبر: https://tef-sepia.vercel.app";
+
+    showDialog(
+      context: context,
+      builder: (ctx) => Directionality(
+        textDirection: TextDirection.rtl,
+        child: AlertDialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          title: Text("بيانات الدخول الجديدة للطالب", style: GoogleFonts.cairo(fontWeight: FontWeight.bold, fontSize: 16)),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(14),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF0FDF4),
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(color: const Color(0xFFBBF7D0)),
+                ),
+                child: SelectableText(
+                  credentialsText,
+                  style: GoogleFonts.cairo(fontSize: 13, height: 1.6),
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            OutlinedButton.icon(
+              onPressed: () {
+                Clipboard.setData(ClipboardData(text: credentialsText));
+                _showSnackBar("تم نسخ بيانات الدخول إلى الحافظة بنجاح 📋");
+              },
+              icon: const Icon(Icons.copy_rounded, size: 16),
+              label: Text("نسخ البيانات", style: GoogleFonts.cairo(fontWeight: FontWeight.bold)),
+            ),
+            if (phone.isNotEmpty && phone != '—')
+              ElevatedButton.icon(
+                onPressed: () {
+                  final cleanNum = phone.replaceAll(RegExp(r'\D'), '');
+                  final waUrl = Uri.parse("https://wa.me/$cleanNum?text=${Uri.encodeComponent(credentialsText)}");
+                  launchUrl(waUrl, mode: LaunchMode.externalApplication);
+                },
+                icon: const Icon(Icons.chat_bubble_rounded, size: 16),
+                label: Text("إرسال عبر واتساب 💬", style: GoogleFonts.cairo(fontWeight: FontWeight.bold)),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF16A34A),
+                  foregroundColor: Colors.white,
+                ),
+              ),
+            TextButton(
+              onPressed: () => Navigator.of(ctx).pop(),
+              child: Text("إغلاق", style: GoogleFonts.cairo()),
+            ),
+          ],
+        ),
+      ),
     );
   }
 

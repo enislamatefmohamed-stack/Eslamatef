@@ -111,57 +111,67 @@ class _YouTubeEmbeddedPlayerState extends State<YouTubeEmbeddedPlayer> {
 
     final screenWidth = MediaQuery.of(context).size.width;
     final isMobile = screenWidth < 700;
-    final effectiveHeight = isMobile
-        ? (screenWidth - 48).clamp(200.0, 520.0) * (9 / 16)
-        : widget.height;
 
-    return Container(
-      height: effectiveHeight,
-      width: double.infinity,
-      decoration: BoxDecoration(
-        color: Colors.black,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFF1E293B)),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.5),
-            blurRadius: 16,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: kIsWeb
-          ? HtmlElementView(viewType: _viewId)
-          : ClipRRect(
-              borderRadius: BorderRadius.circular(15),
-              child: Stack(
-                children: [
-                  Positioned.fill(
-                    child: Image.network(
-                      'https://img.youtube.com/vi/$_videoId/hqdefault.jpg',
-                      fit: BoxFit.cover,
-                      errorBuilder: (ctx, err, stack) => Container(color: Colors.black),
-                    ),
-                  ),
-                  Positioned.fill(
-                    child: Container(color: Colors.black.withValues(alpha: 0.4)),
-                  ),
-                  Center(
-                    child: ElevatedButton.icon(
-                      onPressed: () => launchUrl(Uri.parse(widget.youtubeUrl), mode: LaunchMode.externalApplication),
-                      icon: const Icon(Icons.play_arrow_rounded, size: 28, color: Colors.white),
-                      label: Text("مشاهدة الفيديو على يوتيوب", style: GoogleFonts.cairo(fontWeight: FontWeight.bold)),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFFFF0000),
-                        foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final availableWidth = constraints.maxWidth.isFinite && constraints.maxWidth > 0
+            ? constraints.maxWidth
+            : (screenWidth - 32);
+        final effectiveHeight = isMobile
+            ? (availableWidth * (9 / 16)).clamp(180.0, 520.0)
+            : widget.height;
+
+        return SizedBox(
+          width: availableWidth,
+          height: effectiveHeight,
+          child: Container(
+            decoration: BoxDecoration(
+              color: Colors.black,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: const Color(0xFF1E293B)),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.5),
+                  blurRadius: 16,
+                  offset: const Offset(0, 4),
+                ),
+              ],
             ),
+            child: kIsWeb
+                ? HtmlElementView(viewType: _viewId)
+                : ClipRRect(
+                    borderRadius: BorderRadius.circular(15),
+                    child: Stack(
+                      children: [
+                        Positioned.fill(
+                          child: Image.network(
+                            'https://img.youtube.com/vi/$_videoId/hqdefault.jpg',
+                            fit: BoxFit.cover,
+                            errorBuilder: (ctx, err, stack) => Container(color: Colors.black),
+                          ),
+                        ),
+                        Positioned.fill(
+                          child: Container(color: Colors.black.withValues(alpha: 0.4)),
+                        ),
+                        Center(
+                          child: ElevatedButton.icon(
+                            onPressed: () => launchUrl(Uri.parse(widget.youtubeUrl), mode: LaunchMode.externalApplication),
+                            icon: const Icon(Icons.play_arrow_rounded, size: 28, color: Colors.white),
+                            label: Text("مشاهدة الفيديو على يوتيوب", style: GoogleFonts.cairo(fontWeight: FontWeight.bold)),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(0xFFFF0000),
+                              foregroundColor: Colors.white,
+                              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+          ),
+        );
+      },
     );
   }
 }

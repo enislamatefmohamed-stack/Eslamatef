@@ -76,42 +76,89 @@ class _LessonsPageState extends State<LessonsPage> {
     final htmlCode = (lesson['htmlCode'] ?? '').toString();
     final content = (lesson['content'] ?? '').toString();
     final desc = (lesson['description'] ?? '').toString();
-    final combined = '$htmlCode $content $desc';
+    final article = (lesson['article'] ?? lesson['body'] ?? lesson['details'] ?? '').toString();
+    final combined = '$htmlCode $content $desc $article';
 
-    if (combined.isNotEmpty) {
-      final htmlMatch = RegExp(r'<img[^>]+src=["\x27](https?:\/\/[^"\x27\s]+)["\x27]', caseSensitive: false).firstMatch(combined);
+    if (combined.trim().isNotEmpty) {
+      final unescaped = combined
+          .replaceAll('&quot;', '"')
+          .replaceAll('&#39;', "'")
+          .replaceAll('&amp;', '&')
+          .replaceAll(r'\"', '"')
+          .replaceAll(r"\'", "'");
+
+      final htmlMatch = RegExp(
+        r'<img\b[^>]*?\bsrc\s*=\s*["\x27]?([^"\x27\s>]+)',
+        caseSensitive: false,
+      ).firstMatch(unescaped);
       if (htmlMatch != null) {
-        final src = htmlMatch.group(1)!.trim();
-        if (src.isNotEmpty) return src;
+        var src = htmlMatch.group(1)!.trim().replaceAll('"', '').replaceAll("'", '');
+        if (src.startsWith('//')) src = 'https:$src';
+        if (src.isNotEmpty && !src.contains('slide1.png') && !src.contains('slide2.png')) {
+          return src;
+        }
       }
 
-      final mdMatch = RegExp(r'!\[.*?\]\((https?:\/\/[^\s\)]+)\)').firstMatch(combined);
+      final mdMatch = RegExp(r'!\[[^\]]*\]\(([^)\s]+)\)').firstMatch(unescaped);
       if (mdMatch != null) {
-        final src = mdMatch.group(1)!.trim();
-        if (src.isNotEmpty) return src;
+        var src = mdMatch.group(1)!.trim();
+        if (src.startsWith('//')) src = 'https:$src';
+        if (src.isNotEmpty && !src.contains('slide1.png') && !src.contains('slide2.png')) {
+          return src;
+        }
       }
 
-      final extMatch = RegExp(r'(https?:\/\/[^\s"<>]+\.(?:jpg|jpeg|png|webp|gif|svg))', caseSensitive: false).firstMatch(combined);
+      final cssMatch = RegExp(
+        r'background(?:-image)?\s*:\s*url\(["\x27]?([^"\x27\)\s]+)',
+        caseSensitive: false,
+      ).firstMatch(unescaped);
+      if (cssMatch != null) {
+        var src = cssMatch.group(1)!.trim();
+        if (src.startsWith('//')) src = 'https:$src';
+        if (src.isNotEmpty && !src.contains('slide1.png')) {
+          return src;
+        }
+      }
+
+      final extMatch = RegExp(
+        r'(https?:\/\/[^\s"<>\)]+\.(?:jpg|jpeg|png|webp|gif|svg))',
+        caseSensitive: false,
+      ).firstMatch(unescaped);
       if (extMatch != null) {
         final src = extMatch.group(1)!.trim();
-        if (src.isNotEmpty) return src;
+        if (src.isNotEmpty && !src.contains('slide1.png')) {
+          return src;
+        }
       }
     }
 
     final rawLessonImg = (lesson['image'] ?? lesson['imageUrl'] ?? '').toString().trim();
-    if (rawLessonImg.isNotEmpty && rawLessonImg != 'assets/images/slide2.png') {
+    if (rawLessonImg.isNotEmpty &&
+        !rawLessonImg.contains('slide1.png') &&
+        !rawLessonImg.contains('slide2.png')) {
       return rawLessonImg;
     }
 
     final ytUrl = (lesson['youtubeUrl'] ?? lesson['videoUrl'] ?? '').toString().trim();
     if (ytUrl.isNotEmpty) {
-      final ytMatch = RegExp(r'(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|shorts\/|live\/))([a-zA-Z0-9_-]{11})').firstMatch(ytUrl);
+      final ytMatch = RegExp(
+        r'(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|shorts\/|live\/))([a-zA-Z0-9_-]{11})',
+      ).firstMatch(ytUrl);
       if (ytMatch != null) {
         return 'https://img.youtube.com/vi/${ytMatch.group(1)}/hqdefault.jpg';
       }
     }
 
-    if (rawLessonImg.isNotEmpty) return rawLessonImg;
+    if (combined.contains('youtu')) {
+      final contentYtMatch = RegExp(
+        r'(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|shorts\/|live\/))([a-zA-Z0-9_-]{11})',
+      ).firstMatch(combined);
+      if (contentYtMatch != null) {
+        return 'https://img.youtube.com/vi/${contentYtMatch.group(1)}/hqdefault.jpg';
+      }
+    }
+
+    if (rawLessonImg.isNotEmpty && !rawLessonImg.contains('slide2.png')) return rawLessonImg;
     return 'assets/images/slide2.png';
   }
 
