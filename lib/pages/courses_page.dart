@@ -94,6 +94,59 @@ class _CoursesPageState extends State<CoursesPage> {
     return allowedLessons.contains(lessonId);
   }
 
+  String _resolveLessonThumbnail(Map<String, dynamic> lesson, [Map<String, dynamic>? course]) {
+    final courseImg = (course?['image'] ?? course?['imageUrl'] ?? '').toString().trim();
+
+    // 1. Try to extract first image from the lesson article content (HTML or Markdown)
+    final htmlCode = (lesson['htmlCode'] ?? '').toString();
+    final content = (lesson['content'] ?? '').toString();
+    final desc = (lesson['description'] ?? '').toString();
+    final combined = '$htmlCode $content $desc';
+
+    if (combined.isNotEmpty) {
+      // Check HTML <img>
+      final htmlMatch = RegExp(r'<img[^>]+src=["\x27](https?:\/\/[^"\x27\s]+)["\x27]', caseSensitive: false).firstMatch(combined);
+      if (htmlMatch != null) {
+        final src = htmlMatch.group(1)!.trim();
+        if (src.isNotEmpty && src != courseImg) return src;
+      }
+
+      // Check Markdown ![...](...)
+      final mdMatch = RegExp(r'!\[.*?\]\((https?:\/\/[^\s\)]+)\)').firstMatch(combined);
+      if (mdMatch != null) {
+        final src = mdMatch.group(1)!.trim();
+        if (src.isNotEmpty && src != courseImg) return src;
+      }
+
+      // Check direct image URL ending with extension
+      final extMatch = RegExp(r'(https?:\/\/[^\s"<>]+\.(?:jpg|jpeg|png|webp|gif|svg))', caseSensitive: false).firstMatch(combined);
+      if (extMatch != null) {
+        final src = extMatch.group(1)!.trim();
+        if (src.isNotEmpty && src != courseImg) return src;
+      }
+    }
+
+    // 2. Check lesson explicit image if distinct from course cover
+    final rawLessonImg = (lesson['image'] ?? lesson['imageUrl'] ?? '').toString().trim();
+    if (rawLessonImg.isNotEmpty && rawLessonImg != courseImg && rawLessonImg != 'assets/images/slide1.png') {
+      return rawLessonImg;
+    }
+
+    // 3. Fallback: if YouTube video exists, extract its thumbnail
+    final ytUrl = (lesson['youtubeUrl'] ?? lesson['videoUrl'] ?? '').toString().trim();
+    if (ytUrl.isNotEmpty) {
+      final ytMatch = RegExp(r'(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|shorts\/|live\/))([a-zA-Z0-9_-]{11})').firstMatch(ytUrl);
+      if (ytMatch != null) {
+        return 'https://img.youtube.com/vi/${ytMatch.group(1)}/hqdefault.jpg';
+      }
+    }
+
+    // 4. Fallback to lesson image or course cover
+    if (rawLessonImg.isNotEmpty) return rawLessonImg;
+    if (courseImg.isNotEmpty) return courseImg;
+    return 'assets/images/slide1.png';
+  }
+
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
@@ -521,8 +574,7 @@ class _CoursesPageState extends State<CoursesPage> {
               final lesson = entry.value;
               final lessonId = (lesson['id'] ?? '').toString();
               final isWatched = _watchedLessonIds.contains(lessonId);
-              final rawLessonImg = (lesson['image'] ?? lesson['imageUrl'] ?? '').toString().trim();
-              final image = rawLessonImg.isNotEmpty ? rawLessonImg : 'assets/images/slide1.png';
+              final image = _resolveLessonThumbnail(lesson, _activeCourse);
               final youtubeUrl = (lesson['youtubeUrl'] ?? lesson['videoUrl'] ?? '').toString();
               final hasYoutube = youtubeUrl.isNotEmpty;
               final hasQuiz = lesson['hasQuiz'] == true;

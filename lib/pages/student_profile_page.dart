@@ -2,8 +2,12 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../services/auth_service.dart';
 import '../services/user_service.dart';
+import '../services/site_data_service.dart';
+import '../widgets/safe_network_image/safe_network_image.dart';
 
 class StudentProfilePage extends StatefulWidget {
   const StudentProfilePage({super.key});
@@ -15,6 +19,10 @@ class StudentProfilePage extends StatefulWidget {
 class _StudentProfilePageState extends State<StudentProfilePage> {
   final _authService = AuthService.instance;
   final _userService = UserService.instance;
+  final _dataService = SiteDataService.instance;
+
+  List<String> _localEnrolledCids = [];
+  Map<String, List<String>> _localWatchedLessons = {};
 
   bool _isEditing = false;
   bool _isSaving = false;
@@ -31,11 +39,66 @@ class _StudentProfilePageState extends State<StudentProfilePage> {
   ];
 
   @override
+  void initState() {
+    super.initState();
+    _dataService.addListener(_onDataServiceChanged);
+    _loadLocalEnrollments();
+  }
+
+  void _onDataServiceChanged() {
+    if (mounted) {
+      _loadLocalEnrollments();
+    }
+  }
+
+  void _loadLocalEnrollments() async {
+    final user = _authService.currentUser;
+    if (user != null) {
+      final prefs = await SharedPreferences.getInstance();
+      final list = prefs.getStringList('user_enrolled_courses_${user.uid}') ?? [];
+      final Map<String, List<String>> watchedMap = {};
+      for (final cid in list) {
+        watchedMap[cid] = prefs.getStringList('watched_lessons_${user.uid}_$cid') ?? [];
+      }
+      if (mounted) {
+        setState(() {
+          _localEnrolledCids = list;
+          _localWatchedLessons = watchedMap;
+        });
+      }
+    }
+  }
+
+  @override
   void dispose() {
+    _dataService.removeListener(_onDataServiceChanged);
     _nameCtrl.dispose();
     _phoneCtrl.dispose();
     _whatsappCtrl.dispose();
     super.dispose();
+  }
+
+  bool _isAdmin(User? user) {
+    if (user == null) return false;
+    if (user.email == 'islamatef01016834012@gmail.com') return true;
+    final cached = _dataService.members.firstWhere(
+      (m) => m['uid'] == user.uid || m['email'] == user.email,
+      orElse: () => <String, dynamic>{},
+    );
+    return cached['role'] == 'admin';
+  }
+
+  String _formatDate(dynamic val) {
+    if (val == null) return 'تاريخ حديث';
+    if (val is Timestamp) {
+      return val.toDate().toString().split(' ')[0];
+    }
+    if (val is String) {
+      final p = DateTime.tryParse(val);
+      if (p != null) return p.toIso8601String().split('T')[0];
+      return val.split('T')[0];
+    }
+    return 'تاريخ حديث';
   }
 
   void _initFields(Map<String, dynamic> data) {
@@ -307,306 +370,7 @@ class _StudentProfilePageState extends State<StudentProfilePage> {
                           ),
                         ),
 
-                      // Activity Summary Counters (Live Streamed)
-                      StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
-                        stream: FirebaseFirestore.instance.collection('users').doc(user.uid).collection('enrollments').snapshots(),
-                        builder: (ctx, eSnap) {
-                          final enrolledCount = eSnap.data?.docs.length ?? 0;
-                          return StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
-                            stream: FirebaseFirestore.instance.collection('users').doc(user.uid).collection('watched_lessons').snapshots(),
-                            builder: (ctx2, wSnap) {
-                              final watchedCount = wSnap.data?.docs.length ?? 0;
-
-                              return isMobile
-                                  ? Column(
-                                      children: [
-                                        Row(
-                                          children: [
-                                            Expanded(
-                                              child: _buildStatTile(
-                                                "الكورسات المسجلة",
-                                                "$enrolledCount",
-                                                Icons.school_rounded,
-                                                const Color(0xFF00E5FF),
-                                                isDark,
-                                              ),
-                                            ),
-                                            const SizedBox(width: 12),
-                                            Expanded(
-                                              child: _buildStatTile(
-                                                "الدروس المكتملة",
-                                                "$watchedCount",
-                                                Icons.play_circle_filled_rounded,
-                                                const Color(0xFF10B981),
-                                                isDark,
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                        const SizedBox(height: 12),
-                                        _buildStatTile(
-                                          "الاختبارات المنجزة",
-                                          "${data['quizzesCount'] ?? 0}",
-                                          Icons.psychology_rounded,
-                                          const Color(0xFF8B5CF6),
-                                          isDark,
-                                        ),
-                                      ],
-                                    )
-                                  : Row(
-                                      children: [
-                                        Expanded(
-                                          child: _buildStatTile(
-                                            "الكورسات المسجلة",
-                                            "$enrolledCount",
-                                            Icons.school_rounded,
-                                            const Color(0xFF00E5FF),
-                                            isDark,
-                                          ),
-                                        ),
-                                        const SizedBox(width: 14),
-                                        Expanded(
-                                          child: _buildStatTile(
-                                            "الدروس المكتملة",
-                                            "$watchedCount",
-                                            Icons.play_circle_filled_rounded,
-                                            const Color(0xFF10B981),
-                                            isDark,
-                                          ),
-                                        ),
-                                        const SizedBox(width: 14),
-                                        Expanded(
-                                          child: _buildStatTile(
-                                            "الاختبارات المنجزة",
-                                            "${data['quizzesCount'] ?? 0}",
-                                            Icons.psychology_rounded,
-                                            const Color(0xFF8B5CF6),
-                                            isDark,
-                                          ),
-                                        ),
-                                      ],
-                                    );
-                            },
-                          );
-                        },
-                      ),
-
-                      const SizedBox(height: 28),
-
-                      // Section: Enrolled Courses & Curricula
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            "📚 الكورسات والمناهج المسجّل بها:",
-                            style: GoogleFonts.cairo(fontWeight: FontWeight.bold, fontSize: 16, color: isDark ? Colors.white : const Color(0xFF0F172A)),
-                          ),
-                          TextButton.icon(
-                            onPressed: () => Navigator.of(context).pushNamed('/courses'),
-                            icon: const Icon(Icons.explore_outlined, size: 16),
-                            label: Text("تصفح الكورسات", style: GoogleFonts.cairo(fontSize: 12, fontWeight: FontWeight.bold)),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 12),
-
-                      StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
-                        stream: FirebaseFirestore.instance
-                            .collection('users')
-                            .doc(user.uid)
-                            .collection('enrollments')
-                            .snapshots(),
-                        builder: (ctx, eSnap) {
-                          if (eSnap.connectionState == ConnectionState.waiting) {
-                            return const Center(child: Padding(padding: EdgeInsets.all(16), child: CircularProgressIndicator()));
-                          }
-                          final docs = eSnap.data?.docs ?? [];
-                          if (docs.isEmpty) {
-                            return Container(
-                              padding: const EdgeInsets.all(24),
-                              decoration: BoxDecoration(
-                                color: isDark ? const Color(0xFF0F172A) : Colors.white,
-                                borderRadius: BorderRadius.circular(16),
-                                border: Border.all(color: isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0)),
-                              ),
-                              child: Center(
-                                child: Column(
-                                  children: [
-                                    const Icon(Icons.school_outlined, size: 48, color: Colors.grey),
-                                    const SizedBox(height: 10),
-                                    Text("لم تقم بالتسجيل في أي كورس بعد.", style: GoogleFonts.cairo(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.grey)),
-                                    const SizedBox(height: 8),
-                                    Text(
-                                      "يمكنك التسجيل المجاني أو الاشتراك في أي كورس للوصول لكافة المحاضرات والاختبارات.",
-                                      textAlign: TextAlign.center,
-                                      style: GoogleFonts.cairo(fontSize: 12, color: Colors.grey),
-                                    ),
-                                    const SizedBox(height: 14),
-                                    ElevatedButton(
-                                      onPressed: () => Navigator.of(context).pushNamed('/courses'),
-                                      style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF00E5FF), foregroundColor: Colors.black),
-                                      child: Text("تصفح الكورسات المتاحة ➔", style: GoogleFonts.cairo(fontWeight: FontWeight.bold)),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            );
-                          }
-
-                          return ListView.separated(
-                            shrinkWrap: true,
-                            physics: const NeverScrollableScrollPhysics(),
-                            itemCount: docs.length,
-                            separatorBuilder: (c, i) => const SizedBox(height: 10),
-                            itemBuilder: (c, i) {
-                              final enroll = docs[i].data();
-                              final cid = enroll['courseId'] ?? '';
-                              final date = enroll['enrolledAt'] != null
-                                  ? (enroll['enrolledAt'] as Timestamp).toDate().toString().split(' ')[0]
-                                  : 'تاريخ حديث';
-
-                              return Container(
-                                padding: const EdgeInsets.all(16),
-                                decoration: BoxDecoration(
-                                  color: isDark ? const Color(0xFF0F172A) : Colors.white,
-                                  borderRadius: BorderRadius.circular(14),
-                                  border: Border.all(color: const Color(0xFF10B981).withValues(alpha: 0.4)),
-                                ),
-                                child: isMobile
-                                    ? Column(
-                                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                                        children: [
-                                          Row(
-                                            children: [
-                                              Container(
-                                                padding: const EdgeInsets.all(8),
-                                                decoration: BoxDecoration(color: const Color(0xFF10B981).withOpacity(0.12), borderRadius: BorderRadius.circular(8)),
-                                                child: const Icon(Icons.school_rounded, color: Color(0xFF10B981), size: 20),
-                                              ),
-                                              const SizedBox(width: 12),
-                                              Expanded(
-                                                child: Column(
-                                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                                  children: [
-                                                    Text("كورس مسجل: $cid", style: GoogleFonts.cairo(fontWeight: FontWeight.bold, fontSize: 14)),
-                                                    Text("تاريخ التسجيل: $date", style: GoogleFonts.cairo(fontSize: 11, color: Colors.grey)),
-                                                  ],
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                          const SizedBox(height: 10),
-                                          ElevatedButton(
-                                            onPressed: () => Navigator.of(context).pushNamed('/courses'),
-                                            style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF0284C7), foregroundColor: Colors.white),
-                                            child: Text("متابعة ودخول الكورس ➔", style: GoogleFonts.cairo(fontSize: 12, fontWeight: FontWeight.bold)),
-                                          ),
-                                        ],
-                                      )
-                                    : Row(
-                                        children: [
-                                          Container(
-                                            padding: const EdgeInsets.all(10),
-                                            decoration: BoxDecoration(color: const Color(0xFF10B981).withOpacity(0.12), borderRadius: BorderRadius.circular(10)),
-                                            child: const Icon(Icons.school_rounded, color: Color(0xFF10B981), size: 22),
-                                          ),
-                                          const SizedBox(width: 14),
-                                          Expanded(
-                                            child: Column(
-                                              crossAxisAlignment: CrossAxisAlignment.start,
-                                              children: [
-                                                Text("كورس مسجل: $cid", style: GoogleFonts.cairo(fontWeight: FontWeight.bold, fontSize: 14)),
-                                                Text("تاريخ التسجيل: $date • الحالة: مفعّل بالكامل ✅", style: GoogleFonts.cairo(fontSize: 11, color: Colors.grey)),
-                                              ],
-                                            ),
-                                          ),
-                                          ElevatedButton(
-                                            onPressed: () => Navigator.of(context).pushNamed('/courses'),
-                                            style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF0284C7), foregroundColor: Colors.white),
-                                            child: Text("متابعة الكورس ➔", style: GoogleFonts.cairo(fontSize: 12, fontWeight: FontWeight.bold)),
-                                          ),
-                                        ],
-                                      ),
-                              );
-                            },
-                          );
-                        },
-                      ),
-
-                      const SizedBox(height: 28),
-
-                      // Section: Watched Lessons & Progress
-                      Text(
-                        "🎬 سجل الدروس والفيديوهات المشاهدة:",
-                        style: GoogleFonts.cairo(fontWeight: FontWeight.bold, fontSize: 16, color: isDark ? Colors.white : const Color(0xFF0F172A)),
-                      ),
-                      const SizedBox(height: 12),
-
-                      StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
-                        stream: FirebaseFirestore.instance
-                            .collection('users')
-                            .doc(user.uid)
-                            .collection('watched_lessons')
-                            .snapshots(),
-                        builder: (ctx, wSnap) {
-                          if (wSnap.connectionState == ConnectionState.waiting) {
-                            return const Center(child: Padding(padding: EdgeInsets.all(14), child: CircularProgressIndicator()));
-                          }
-                          final docs = wSnap.data?.docs ?? [];
-                          if (docs.isEmpty) {
-                            return Container(
-                              padding: const EdgeInsets.all(20),
-                              decoration: BoxDecoration(
-                                color: isDark ? const Color(0xFF0F172A) : Colors.white,
-                                borderRadius: BorderRadius.circular(16),
-                                border: Border.all(color: isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0)),
-                              ),
-                              child: Center(
-                                child: Text("لم تقم بمشاهدة أي دروس بعد. ابدأ بمشاهدة الدروس ليتم تسجيل إنجازك هنا.", style: GoogleFonts.cairo(color: Colors.grey, fontSize: 13)),
-                              ),
-                            );
-                          }
-
-                          return ListView.separated(
-                            shrinkWrap: true,
-                            physics: const NeverScrollableScrollPhysics(),
-                            itemCount: docs.length,
-                            separatorBuilder: (c, i) => const SizedBox(height: 8),
-                            itemBuilder: (c, i) {
-                              final watched = docs[i].data();
-                              final lid = watched['lessonId'] ?? docs[i].id;
-                              final cid = watched['courseId'] ?? '';
-                              final date = watched['watchedAt'] != null
-                                  ? (watched['watchedAt'] as Timestamp).toDate().toString().split(' ')[0]
-                                  : '';
-
-                              return Container(
-                                padding: const EdgeInsets.all(12),
-                                decoration: BoxDecoration(
-                                  color: isDark ? const Color(0xFF0F172A) : Colors.white,
-                                  borderRadius: BorderRadius.circular(10),
-                                  border: Border.all(color: isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0)),
-                                ),
-                                child: Row(
-                                  children: [
-                                    const Icon(Icons.check_circle_rounded, color: Color(0xFF10B981), size: 18),
-                                    const SizedBox(width: 10),
-                                    Expanded(
-                                      child: Text(
-                                        "درس مكتمل ($cid): $lid",
-                                        style: GoogleFonts.cairo(fontSize: 12.5, fontWeight: FontWeight.bold),
-                                        overflow: TextOverflow.ellipsis,
-                                      ),
-                                    ),
-                                    if (date.isNotEmpty)
-                                      Text(date, style: GoogleFonts.cairo(fontSize: 10.5, color: Colors.grey)),
-                                  ],
-                                ),
-                              );
-                            },
-                          );
-                        },
-                      ),
+                      _buildEnrolledCoursesAndStats(user, data, isMobile, isDark),
 
                       const SizedBox(height: 28),
 
@@ -694,6 +458,469 @@ class _StudentProfilePageState extends State<StudentProfilePage> {
           },
         ),
       ),
+    );
+  }
+
+  Widget _buildEnrolledCoursesAndStats(User user, Map<String, dynamic> data, bool isMobile, bool isDark) {
+    return StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
+      stream: FirebaseFirestore.instance.collection('users').doc(user.uid).collection('enrollments').snapshots(),
+      builder: (ctx, eSnap) {
+        final firestoreDocs = eSnap.data?.docs ?? [];
+        final Map<String, Map<String, dynamic>> enrolledMap = {};
+
+        // 1. From Firestore enrollments
+        for (final doc in firestoreDocs) {
+          final d = Map<String, dynamic>.from(doc.data());
+          final cid = (d['courseId'] ?? doc.id).toString();
+          enrolledMap[cid] = d;
+        }
+
+        // 2. From SharedPreferences
+        for (final cid in _localEnrolledCids) {
+          if (!enrolledMap.containsKey(cid)) {
+            enrolledMap[cid] = {
+              'courseId': cid,
+              'enrolledAt': DateTime.now().toIso8601String(),
+              'watchedLessons': _localWatchedLessons[cid] ?? [],
+            };
+          }
+        }
+
+        // 3. From Member permissions (allowedCourses)
+        final cachedMember = _dataService.members.firstWhere(
+          (m) => m['uid'] == user.uid || m['email'] == user.email,
+          orElse: () => <String, dynamic>{},
+        );
+        final allowedCourses = List<String>.from(cachedMember['allowedCourses'] ?? []);
+        for (final cid in allowedCourses) {
+          if (!enrolledMap.containsKey(cid)) {
+            enrolledMap[cid] = {
+              'courseId': cid,
+              'enrolledAt': DateTime.now().toIso8601String(),
+              'watchedLessons': _localWatchedLessons[cid] ?? [],
+            };
+          }
+        }
+
+        // 4. Admin Access
+        final isAdmin = _isAdmin(user);
+        if (isAdmin) {
+          for (final c in _dataService.courses) {
+            final cid = (c['id'] ?? '').toString();
+            if (cid.isNotEmpty && !enrolledMap.containsKey(cid)) {
+              enrolledMap[cid] = {
+                'courseId': cid,
+                'enrolledAt': DateTime.now().toIso8601String(),
+                'watchedLessons': _localWatchedLessons[cid] ?? [],
+              };
+            }
+          }
+        }
+
+        // Build enriched courses and history
+        final List<Map<String, dynamic>> enrichedCourses = [];
+        final Set<String> distinctWatchedLessonIds = {};
+        final List<Map<String, dynamic>> allWatchedHistory = [];
+
+        for (final entry in enrolledMap.entries) {
+          final cid = entry.key;
+          final eData = entry.value;
+
+          final courseDef = _dataService.courses.firstWhere(
+            (c) => (c['id'] ?? '').toString() == cid,
+            orElse: () => _dataService.lessonPlaylists.firstWhere(
+              (cu) => (cu['id'] ?? '').toString() == cid,
+              orElse: () => <String, dynamic>{},
+            ),
+          );
+
+          final courseTitle = (courseDef['title'] ?? eData['courseTitle'] ?? 'كورس $cid').toString();
+          final courseImage = (courseDef['image'] ?? courseDef['imageUrl'] ?? 'assets/images/slide1.png').toString();
+          final lessons = List<dynamic>.from(courseDef['lessons'] ?? []);
+          final totalLessons = lessons.length;
+
+          final remoteWatched = List<String>.from(eData['watchedLessons'] ?? []);
+          final localWatched = _localWatchedLessons[cid] ?? [];
+          final watchedSet = {...remoteWatched, ...localWatched};
+          distinctWatchedLessonIds.addAll(watchedSet);
+
+          final progress = totalLessons > 0 ? (watchedSet.length / totalLessons).clamp(0.0, 1.0) : 0.0;
+
+          enrichedCourses.add({
+            'courseId': cid,
+            'courseTitle': courseTitle,
+            'courseImage': courseImage,
+            'enrolledAt': eData['enrolledAt'],
+            'totalLessons': totalLessons,
+            'watchedCount': watchedSet.length,
+            'progress': progress,
+            'courseDef': courseDef,
+          });
+
+          for (final lid in watchedSet) {
+            final lessonObj = lessons.firstWhere(
+              (l) => (l['id'] ?? '').toString() == lid,
+              orElse: () => <String, dynamic>{},
+            );
+            final lessonTitle = (lessonObj['title'] ?? 'درس رقم $lid').toString();
+            allWatchedHistory.add({
+              'lessonId': lid,
+              'lessonTitle': lessonTitle,
+              'courseId': cid,
+              'courseTitle': courseTitle,
+              'watchedAt': eData['lastWatchedAt'] ?? eData['enrolledAt'],
+            });
+          }
+        }
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            // Top Counters
+            isMobile
+                ? Column(
+                    children: [
+                      Row(
+                        children: [
+                          Expanded(
+                            child: _buildStatTile(
+                              "الكورسات المسجلة",
+                              "${enrichedCourses.length}",
+                              Icons.school_rounded,
+                              const Color(0xFF00E5FF),
+                              isDark,
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: _buildStatTile(
+                              "الدروس المكتملة",
+                              "${distinctWatchedLessonIds.length}",
+                              Icons.play_circle_filled_rounded,
+                              const Color(0xFF10B981),
+                              isDark,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 12),
+                      _buildStatTile(
+                        "الاختبارات المنجزة",
+                        "${data['quizzesCount'] ?? 0}",
+                        Icons.psychology_rounded,
+                        const Color(0xFF8B5CF6),
+                        isDark,
+                      ),
+                    ],
+                  )
+                : Row(
+                    children: [
+                      Expanded(
+                        child: _buildStatTile(
+                          "الكورسات المسجلة",
+                          "${enrichedCourses.length}",
+                          Icons.school_rounded,
+                          const Color(0xFF00E5FF),
+                          isDark,
+                        ),
+                      ),
+                      const SizedBox(width: 14),
+                      Expanded(
+                        child: _buildStatTile(
+                          "الدروس المكتملة",
+                          "${distinctWatchedLessonIds.length}",
+                          Icons.play_circle_filled_rounded,
+                          const Color(0xFF10B981),
+                          isDark,
+                        ),
+                      ),
+                      const SizedBox(width: 14),
+                      Expanded(
+                        child: _buildStatTile(
+                          "الاختبارات المنجزة",
+                          "${data['quizzesCount'] ?? 0}",
+                          Icons.psychology_rounded,
+                          const Color(0xFF8B5CF6),
+                          isDark,
+                        ),
+                      ),
+                    ],
+                  ),
+
+            const SizedBox(height: 28),
+
+            // Section: Enrolled Courses & Curricula
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  "📚 الكورسات والمناهج المسجّل بها:",
+                  style: GoogleFonts.cairo(fontWeight: FontWeight.bold, fontSize: 16, color: isDark ? Colors.white : const Color(0xFF0F172A)),
+                ),
+                TextButton.icon(
+                  onPressed: () => Navigator.of(context).pushNamed('/courses'),
+                  icon: const Icon(Icons.explore_outlined, size: 16),
+                  label: Text("تصفح الكورسات", style: GoogleFonts.cairo(fontSize: 12, fontWeight: FontWeight.bold)),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+
+            if (enrichedCourses.isEmpty)
+              Container(
+                padding: const EdgeInsets.all(24),
+                decoration: BoxDecoration(
+                  color: isDark ? const Color(0xFF0F172A) : Colors.white,
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0)),
+                ),
+                child: Center(
+                  child: Column(
+                    children: [
+                      const Icon(Icons.school_outlined, size: 48, color: Colors.grey),
+                      const SizedBox(height: 10),
+                      Text("لم تقم بالتسجيل في أي كورس بعد.", style: GoogleFonts.cairo(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.grey)),
+                      const SizedBox(height: 8),
+                      Text(
+                        "يمكنك التسجيل المجاني أو الاشتراك في أي كورس للوصول لكافة المحاضرات والاختبارات.",
+                        textAlign: TextAlign.center,
+                        style: GoogleFonts.cairo(fontSize: 12, color: Colors.grey),
+                      ),
+                      const SizedBox(height: 14),
+                      ElevatedButton(
+                        onPressed: () => Navigator.of(context).pushNamed('/courses'),
+                        style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF00E5FF), foregroundColor: Colors.black),
+                        child: Text("تصفح الكورسات المتاحة ➔", style: GoogleFonts.cairo(fontWeight: FontWeight.bold)),
+                      ),
+                    ],
+                  ),
+                ),
+              )
+            else
+              ListView.separated(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: enrichedCourses.length,
+                separatorBuilder: (c, i) => const SizedBox(height: 12),
+                itemBuilder: (c, i) {
+                  final course = enrichedCourses[i];
+                  final date = _formatDate(course['enrolledAt']);
+                  final progress = (course['progress'] as double?) ?? 0.0;
+                  final watchedCount = course['watchedCount'] ?? 0;
+                  final totalLessons = course['totalLessons'] ?? 0;
+
+                  return Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: isDark ? const Color(0xFF0F172A) : Colors.white,
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: const Color(0xFF10B981).withValues(alpha: 0.4)),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.04),
+                          blurRadius: 10,
+                          offset: const Offset(0, 3),
+                        ),
+                      ],
+                    ),
+                    child: isMobile
+                        ? Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              Row(
+                                children: [
+                                  ClipRRect(
+                                    borderRadius: BorderRadius.circular(10),
+                                    child: SizedBox(
+                                      width: 70,
+                                      height: 52,
+                                      child: SafeNetworkImage(
+                                        imageUrl: course['courseImage'],
+                                        width: 70,
+                                        height: 52,
+                                        fit: BoxFit.cover,
+                                        borderRadius: BorderRadius.circular(10),
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 12),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          course['courseTitle'],
+                                          style: GoogleFonts.cairo(fontWeight: FontWeight.bold, fontSize: 14),
+                                          maxLines: 2,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                        Text("تاريخ التسجيل: $date", style: GoogleFonts.cairo(fontSize: 11, color: Colors.grey)),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 12),
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: ClipRRect(
+                                      borderRadius: BorderRadius.circular(4),
+                                      child: LinearProgressIndicator(
+                                        value: progress,
+                                        minHeight: 6,
+                                        backgroundColor: isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0),
+                                        valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFF10B981)),
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 10),
+                                  Text(
+                                    "$watchedCount/$totalLessons مكتمل (${(progress * 100).toInt()}%)",
+                                    style: GoogleFonts.cairo(fontSize: 11, fontWeight: FontWeight.bold, color: const Color(0xFF10B981)),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 12),
+                              ElevatedButton(
+                                onPressed: () => Navigator.of(context).pushNamed('/courses'),
+                                style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF0284C7), foregroundColor: Colors.white),
+                                child: Text("متابعة ودخول الكورس ➔", style: GoogleFonts.cairo(fontSize: 12, fontWeight: FontWeight.bold)),
+                              ),
+                            ],
+                          )
+                        : Row(
+                            children: [
+                              ClipRRect(
+                                borderRadius: BorderRadius.circular(12),
+                                child: SizedBox(
+                                  width: 85,
+                                  height: 60,
+                                  child: SafeNetworkImage(
+                                    imageUrl: course['courseImage'],
+                                    width: 85,
+                                    height: 60,
+                                    fit: BoxFit.cover,
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 14),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(course['courseTitle'], style: GoogleFonts.cairo(fontWeight: FontWeight.bold, fontSize: 15)),
+                                    const SizedBox(height: 4),
+                                    Text("تاريخ التسجيل: $date • الحالة: مسجّل ومفعّل بالكامل ✅", style: GoogleFonts.cairo(fontSize: 11.5, color: Colors.grey)),
+                                    const SizedBox(height: 8),
+                                    Row(
+                                      children: [
+                                        SizedBox(
+                                          width: 180,
+                                          child: ClipRRect(
+                                            borderRadius: BorderRadius.circular(4),
+                                            child: LinearProgressIndicator(
+                                              value: progress,
+                                              minHeight: 6,
+                                              backgroundColor: isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0),
+                                              valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFF10B981)),
+                                            ),
+                                          ),
+                                        ),
+                                        const SizedBox(width: 10),
+                                        Text(
+                                          "$watchedCount/$totalLessons مكتمل (${(progress * 100).toInt()}%)",
+                                          style: GoogleFonts.cairo(fontSize: 11, fontWeight: FontWeight.bold, color: const Color(0xFF10B981)),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              const SizedBox(width: 12),
+                              ElevatedButton(
+                                onPressed: () => Navigator.of(context).pushNamed('/courses'),
+                                style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF0284C7), foregroundColor: Colors.white),
+                                child: Text("متابعة الكورس ➔", style: GoogleFonts.cairo(fontSize: 12, fontWeight: FontWeight.bold)),
+                              ),
+                            ],
+                          ),
+                  );
+                },
+              ),
+
+            const SizedBox(height: 28),
+
+            // Section: Watched Lessons & Progress
+            Text(
+              "🎬 سجل الدروس والفيديوهات المشاهدة:",
+              style: GoogleFonts.cairo(fontWeight: FontWeight.bold, fontSize: 16, color: isDark ? Colors.white : const Color(0xFF0F172A)),
+            ),
+            const SizedBox(height: 12),
+
+            if (allWatchedHistory.isEmpty)
+              Container(
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: isDark ? const Color(0xFF0F172A) : Colors.white,
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0)),
+                ),
+                child: Center(
+                  child: Text(
+                    "لم تقم بمشاهدة أي دروس بعد. ابدأ بمشاهدة الدروس ليتم تسجيل إنجازك هنا.",
+                    style: GoogleFonts.cairo(color: Colors.grey, fontSize: 13),
+                  ),
+                ),
+              )
+            else
+              ListView.separated(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: allWatchedHistory.length,
+                separatorBuilder: (c, i) => const SizedBox(height: 8),
+                itemBuilder: (c, i) {
+                  final watched = allWatchedHistory[i];
+                  final date = _formatDate(watched['watchedAt']);
+
+                  return Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: isDark ? const Color(0xFF0F172A) : Colors.white,
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(color: isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0)),
+                    ),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.check_circle_rounded, color: Color(0xFF10B981), size: 18),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                watched['lessonTitle'],
+                                style: GoogleFonts.cairo(fontSize: 13, fontWeight: FontWeight.bold),
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              Text(
+                                watched['courseTitle'],
+                                style: GoogleFonts.cairo(fontSize: 11, color: Colors.grey),
+                              ),
+                            ],
+                          ),
+                        ),
+                        if (date.isNotEmpty && date != 'تاريخ حديث')
+                          Text(date, style: GoogleFonts.cairo(fontSize: 10.5, color: Colors.grey)),
+                      ],
+                    ),
+                  );
+                },
+              ),
+          ],
+        );
+      },
     );
   }
 

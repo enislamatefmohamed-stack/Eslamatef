@@ -109,8 +109,14 @@ class _YouTubeEmbeddedPlayerState extends State<YouTubeEmbeddedPlayer> {
       );
     }
 
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isMobile = screenWidth < 700;
+    final effectiveHeight = isMobile
+        ? (screenWidth - 48).clamp(200.0, 520.0) * (9 / 16)
+        : widget.height;
+
     return Container(
-      height: widget.height,
+      height: effectiveHeight,
       width: double.infinity,
       decoration: BoxDecoration(
         color: Colors.black,
@@ -124,14 +130,11 @@ class _YouTubeEmbeddedPlayerState extends State<YouTubeEmbeddedPlayer> {
           ),
         ],
       ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(15),
-        child: kIsWeb
-            ? Directionality(
-                textDirection: TextDirection.ltr,
-                child: HtmlElementView(viewType: _viewId),
-              )
-            : Stack(
+      child: kIsWeb
+          ? HtmlElementView(viewType: _viewId)
+          : ClipRRect(
+              borderRadius: BorderRadius.circular(15),
+              child: Stack(
                 children: [
                   Positioned.fill(
                     child: Image.network(
@@ -158,7 +161,7 @@ class _YouTubeEmbeddedPlayerState extends State<YouTubeEmbeddedPlayer> {
                   ),
                 ],
               ),
-      ),
+            ),
     );
   }
 }

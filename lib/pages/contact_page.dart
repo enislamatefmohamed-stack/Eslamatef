@@ -522,7 +522,8 @@ class _ContactPageState extends State<ContactPage> {
           );
         } else {
           return Column(
-            children: cards.map((c) => Padding(padding: const EdgeInsets.only(bottom: 12), child: c)).toList(),
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: cards.map((c) => Padding(padding: const EdgeInsets.only(bottom: 14), child: c)).toList(),
           );
         }
       },
@@ -539,6 +540,7 @@ class _ContactPageState extends State<ContactPage> {
     required VoidCallback onTap,
   }) {
     return Container(
+      width: double.infinity,
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: isDark ? AppColors.cardDark : Colors.white,

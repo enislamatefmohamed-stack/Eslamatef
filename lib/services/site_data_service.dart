@@ -1173,6 +1173,17 @@ class SiteDataService extends ChangeNotifier {
           'lastWatchedAt': DateTime.now().toIso8601String(),
           'lastLessonId': lessonId,
         }, SetOptions(merge: true));
+
+        await _firestore
+            .collection('users')
+            .doc(userId)
+            .collection('watched_lessons')
+            .doc('${courseId}_$lessonId')
+            .set({
+          'courseId': courseId,
+          'lessonId': lessonId,
+          'watchedAt': DateTime.now().toIso8601String(),
+        }, SetOptions(merge: true));
       } catch (e) {
         debugPrint("Firestore markLessonWatched error: $e");
       }

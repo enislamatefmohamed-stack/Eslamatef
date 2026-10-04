@@ -71,6 +71,50 @@ class _LessonsPageState extends State<LessonsPage> {
     return false;
   }
 
+  String _resolveLessonThumbnail(Map<String, dynamic> lesson) {
+    // 1. Try to extract first image from the lesson article content (HTML or Markdown)
+    final htmlCode = (lesson['htmlCode'] ?? '').toString();
+    final content = (lesson['content'] ?? '').toString();
+    final desc = (lesson['description'] ?? '').toString();
+    final combined = '$htmlCode $content $desc';
+
+    if (combined.isNotEmpty) {
+      final htmlMatch = RegExp(r'<img[^>]+src=["\x27](https?:\/\/[^"\x27\s]+)["\x27]', caseSensitive: false).firstMatch(combined);
+      if (htmlMatch != null) {
+        final src = htmlMatch.group(1)!.trim();
+        if (src.isNotEmpty) return src;
+      }
+
+      final mdMatch = RegExp(r'!\[.*?\]\((https?:\/\/[^\s\)]+)\)').firstMatch(combined);
+      if (mdMatch != null) {
+        final src = mdMatch.group(1)!.trim();
+        if (src.isNotEmpty) return src;
+      }
+
+      final extMatch = RegExp(r'(https?:\/\/[^\s"<>]+\.(?:jpg|jpeg|png|webp|gif|svg))', caseSensitive: false).firstMatch(combined);
+      if (extMatch != null) {
+        final src = extMatch.group(1)!.trim();
+        if (src.isNotEmpty) return src;
+      }
+    }
+
+    final rawLessonImg = (lesson['image'] ?? lesson['imageUrl'] ?? '').toString().trim();
+    if (rawLessonImg.isNotEmpty && rawLessonImg != 'assets/images/slide2.png') {
+      return rawLessonImg;
+    }
+
+    final ytUrl = (lesson['youtubeUrl'] ?? lesson['videoUrl'] ?? '').toString().trim();
+    if (ytUrl.isNotEmpty) {
+      final ytMatch = RegExp(r'(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|shorts\/|live\/))([a-zA-Z0-9_-]{11})').firstMatch(ytUrl);
+      if (ytMatch != null) {
+        return 'https://img.youtube.com/vi/${ytMatch.group(1)}/hqdefault.jpg';
+      }
+    }
+
+    if (rawLessonImg.isNotEmpty) return rawLessonImg;
+    return 'assets/images/slide2.png';
+  }
+
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
@@ -189,7 +233,7 @@ class _LessonsPageState extends State<LessonsPage> {
                   spacing: 20,
                   runSpacing: 22,
                   children: allLessons.map((lesson) {
-                    final image = (lesson['image'] ?? lesson['imageUrl'] ?? 'assets/images/slide2.png').toString();
+                    final image = _resolveLessonThumbnail(lesson);
                     final courseTitle = lesson['courseTitle'] ?? lesson['playlistTitle'] ?? lesson['category'] ?? lesson['subject'] ?? 'درس';
                     final youtubeUrl = (lesson['youtubeUrl'] ?? lesson['videoUrl'] ?? '').toString();
                     final hasYoutube = youtubeUrl.isNotEmpty;

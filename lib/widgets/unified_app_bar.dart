@@ -14,11 +14,14 @@ class UnifiedAppHeader extends StatelessWidget implements PreferredSizeWidget {
   final VoidCallback? onBack;
   final String? pageTitle;
 
+  final bool showBackButton;
+
   const UnifiedAppHeader({
     super.key,
     this.currentRoute,
     this.onBack,
     this.pageTitle,
+    this.showBackButton = false,
   });
 
   @override
@@ -41,7 +44,6 @@ class UnifiedAppHeader extends StatelessWidget implements PreferredSizeWidget {
     final screenWidth = MediaQuery.of(context).size.width;
     final isMobile = screenWidth < 900;
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final isHome = currentRoute == '/' || currentRoute == null;
 
     return Container(
       height: 72,
@@ -127,8 +129,8 @@ class UnifiedAppHeader extends StatelessWidget implements PreferredSizeWidget {
               Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  // Smart Back Button on inner pages
-                  if (!isHome) ...[
+                  // Smart Back Button (only when explicitly requested)
+                  if (showBackButton) ...[
                     ElevatedButton.icon(
                       onPressed: () => _handleBack(context),
                       icon: const Icon(Icons.arrow_forward_rounded, size: 16),
