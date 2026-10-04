@@ -4,6 +4,10 @@
   "buildCommand": "bash build.sh",
   "routes": [
     {
+      "src": "/api/(.*)",
+      "dest": "/api/$1"
+    },
+    {
       "src": "/presentation/(.*)",
       "dest": "/presentation/$1"
     },

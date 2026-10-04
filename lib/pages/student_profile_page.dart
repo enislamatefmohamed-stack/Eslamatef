@@ -535,7 +535,7 @@ class _StudentProfilePageState extends State<StudentProfilePage> {
           );
 
           final courseTitle = (courseDef['title'] ?? eData['courseTitle'] ?? 'كورس $cid').toString();
-          final courseImage = (courseDef['image'] ?? courseDef['imageUrl'] ?? 'assets/images/slide1.png').toString();
+          final courseImage = (courseDef['image'] ?? courseDef['imageUrl'] ?? '').toString();
           final lessons = List<dynamic>.from(courseDef['lessons'] ?? []);
           final totalLessons = lessons.length;
 

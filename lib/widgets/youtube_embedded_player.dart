@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -8,11 +9,15 @@ import 'youtube_platform/youtube_platform.dart' as yt_platform;
 class YouTubeEmbeddedPlayer extends StatefulWidget {
   final String youtubeUrl;
   final double height;
+  final bool showWatermark;
+  final String? watermarkText;
 
   const YouTubeEmbeddedPlayer({
     super.key,
     required this.youtubeUrl,
     this.height = 360,
+    this.showWatermark = false,
+    this.watermarkText,
   });
 
   @override
@@ -22,6 +27,8 @@ class YouTubeEmbeddedPlayer extends StatefulWidget {
 class _YouTubeEmbeddedPlayerState extends State<YouTubeEmbeddedPlayer> {
   late String _viewId;
   String? _videoId;
+  int _watermarkPosition = 0; // 0: top-right, 1: bottom-left, 2: top-left, 3: bottom-right
+  Timer? _watermarkTimer;
 
   @override
   void initState() {
@@ -32,11 +39,35 @@ class _YouTubeEmbeddedPlayerState extends State<YouTubeEmbeddedPlayer> {
     if (kIsWeb && _videoId != null) {
       yt_platform.registerIframeViewFactory(_viewId, _videoId!);
     }
+
+    _initWatermarkTimer();
+  }
+
+  void _initWatermarkTimer() {
+    _watermarkTimer?.cancel();
+    if (widget.showWatermark && (widget.watermarkText?.isNotEmpty ?? false)) {
+      _watermarkTimer = Timer.periodic(const Duration(seconds: 25), (t) {
+        if (mounted) {
+          setState(() {
+            _watermarkPosition = (_watermarkPosition + 1) % 4;
+          });
+        }
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    _watermarkTimer?.cancel();
+    super.dispose();
   }
 
   @override
   void didUpdateWidget(YouTubeEmbeddedPlayer oldWidget) {
     super.didUpdateWidget(oldWidget);
+    if (oldWidget.showWatermark != widget.showWatermark || oldWidget.watermarkText != widget.watermarkText) {
+      _initWatermarkTimer();
+    }
     if (oldWidget.youtubeUrl != widget.youtubeUrl) {
       _videoId = _extractVideoId(widget.youtubeUrl);
       _viewId = 'yt_player_${DateTime.now().millisecondsSinceEpoch}_${_videoId ?? 'video'}';
@@ -137,41 +168,97 @@ class _YouTubeEmbeddedPlayerState extends State<YouTubeEmbeddedPlayer> {
                 ),
               ],
             ),
-            child: kIsWeb
-                ? HtmlElementView(viewType: _viewId)
-                : ClipRRect(
-                    borderRadius: BorderRadius.circular(15),
-                    child: Stack(
-                      children: [
-                        Positioned.fill(
-                          child: Image.network(
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(15),
+              child: Stack(
+                children: [
+                  Positioned.fill(
+                    child: kIsWeb
+                        ? HtmlElementView(viewType: _viewId)
+                        : Image.network(
                             'https://img.youtube.com/vi/$_videoId/hqdefault.jpg',
                             fit: BoxFit.cover,
                             errorBuilder: (ctx, err, stack) => Container(color: Colors.black),
                           ),
-                        ),
-                        Positioned.fill(
-                          child: Container(color: Colors.black.withValues(alpha: 0.4)),
-                        ),
-                        Center(
-                          child: ElevatedButton.icon(
-                            onPressed: () => launchUrl(Uri.parse(widget.youtubeUrl), mode: LaunchMode.externalApplication),
-                            icon: const Icon(Icons.play_arrow_rounded, size: 28, color: Colors.white),
-                            label: Text("مشاهدة الفيديو على يوتيوب", style: GoogleFonts.cairo(fontWeight: FontWeight.bold)),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xFFFF0000),
-                              foregroundColor: Colors.white,
-                              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
                   ),
+                  if (!kIsWeb)
+                    Center(
+                      child: ElevatedButton.icon(
+                        onPressed: () => launchUrl(Uri.parse(widget.youtubeUrl), mode: LaunchMode.externalApplication),
+                        icon: const Icon(Icons.play_arrow_rounded, size: 28, color: Colors.white),
+                        label: Text("مشاهدة الفيديو على يوتيوب", style: GoogleFonts.cairo(fontWeight: FontWeight.bold)),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFFFF0000),
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        ),
+                      ),
+                    ),
+                  if (widget.showWatermark && (widget.watermarkText?.isNotEmpty ?? false))
+                    _buildWatermarkOverlay(),
+                ],
+              ),
+            ),
           ),
         );
       },
+    );
+  }
+
+  Widget _buildWatermarkOverlay() {
+    Alignment align;
+    switch (_watermarkPosition) {
+      case 0:
+        align = Alignment.topRight;
+        break;
+      case 1:
+        align = Alignment.bottomLeft;
+        break;
+      case 2:
+        align = Alignment.topLeft;
+        break;
+      case 3:
+      default:
+        align = Alignment.bottomRight;
+        break;
+    }
+
+    return Positioned.fill(
+      child: IgnorePointer(
+        child: AnimatedAlign(
+          duration: const Duration(seconds: 2),
+          curve: Curves.easeInOut,
+          alignment: align,
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+              decoration: BoxDecoration(
+                color: Colors.black.withValues(alpha: 0.45),
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(color: Colors.white.withValues(alpha: 0.2), width: 0.8),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.shield_outlined, size: 12, color: Colors.white.withValues(alpha: 0.7)),
+                  const SizedBox(width: 5),
+                  Text(
+                    widget.watermarkText!,
+                    style: GoogleFonts.cairo(
+                      fontSize: 11,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white.withValues(alpha: 0.75),
+                      letterSpacing: 0.5,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
     );
   }
 }

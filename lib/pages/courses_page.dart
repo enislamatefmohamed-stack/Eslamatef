@@ -192,10 +192,10 @@ class _CoursesPageState extends State<CoursesPage> {
       }
     }
 
-    // 4. Fallback to lesson image or course cover or default slide
+    // 4. Fallback to lesson image or course cover
     if (rawLessonImg.isNotEmpty && !rawLessonImg.contains('slide1.png')) return rawLessonImg;
     if (courseImg.isNotEmpty && !courseImg.contains('slide1.png')) return courseImg;
-    return rawLessonImg.isNotEmpty ? rawLessonImg : (courseImg.isNotEmpty ? courseImg : 'assets/images/slide1.png');
+    return rawLessonImg.isNotEmpty ? rawLessonImg : (courseImg.isNotEmpty ? courseImg : '');
   }
 
   @override
@@ -313,7 +313,7 @@ class _CoursesPageState extends State<CoursesPage> {
                   children: courses.map((course) {
                     final lessons = (course['lessons'] as List?) ?? [];
                     final rawCourseImg = (course['image'] ?? course['imageUrl'] ?? '').toString().trim();
-                    final image = rawCourseImg.isNotEmpty ? rawCourseImg : 'assets/images/slide1.png';
+                    final image = rawCourseImg;
 
                     return SizedBox(
                       width: width,
@@ -953,7 +953,12 @@ class _CoursesPageState extends State<CoursesPage> {
                   constraints: const BoxConstraints(maxWidth: 850),
                   child: Directionality(
                     textDirection: TextDirection.ltr,
-                    child: YouTubeEmbeddedPlayer(youtubeUrl: youtubeUrl, height: isMobile ? 240 : 480),
+                    child: YouTubeEmbeddedPlayer(
+                      youtubeUrl: youtubeUrl,
+                      height: isMobile ? 240 : 480,
+                      showWatermark: isPaid && FirebaseAuth.instance.currentUser != null,
+                      watermarkText: FirebaseAuth.instance.currentUser?.displayName ?? FirebaseAuth.instance.currentUser?.email?.split('@').first ?? 'طالب منصة إسلام عاطف',
+                    ),
                   ),
                 ),
               ),

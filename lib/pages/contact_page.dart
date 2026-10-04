@@ -36,6 +36,7 @@ class _ContactPageState extends State<ContactPage> {
 
   final List<PlatformFile> _attachedFiles = [];
   bool _isSubmitting = false;
+  static DateTime? _lastSubmitTime;
 
   @override
   void dispose() {
@@ -104,6 +105,23 @@ class _ContactPageState extends State<ContactPage> {
       return;
     }
 
+    // Anti-spam check (45 seconds interval)
+    if (_lastSubmitTime != null) {
+      final diff = DateTime.now().difference(_lastSubmitTime!).inSeconds;
+      if (diff < 45) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            backgroundColor: const Color(0xFFD97706),
+            content: Text(
+              '⚠️ برجاء الانتظار ${45 - diff} ثانية قبل إرسال رسالة أخرى لحماية النظام من التكرار.',
+              style: GoogleFonts.cairo(),
+            ),
+          ),
+        );
+        return;
+      }
+    }
+
     setState(() {
       _isSubmitting = true;
     });
@@ -152,6 +170,7 @@ class _ContactPageState extends State<ContactPage> {
       if (!mounted) return;
 
       if (response.statusCode >= 200 && response.statusCode < 300) {
+        _lastSubmitTime = DateTime.now();
         _showSuccessDialog();
       } else {
         // Fallback to mailto if API error
@@ -160,6 +179,7 @@ class _ContactPageState extends State<ContactPage> {
     } catch (_) {
       if (!mounted) return;
       // Message saved to Firestore above, show success with direct WhatsApp option
+      _lastSubmitTime = DateTime.now();
       _showSuccessDialog();
     } finally {
       if (mounted) {

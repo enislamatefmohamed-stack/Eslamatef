@@ -1,7 +1,10 @@
+import 'dart:convert';
 import 'package:flutter/foundation.dart';
+import 'package:http/http.dart' as http;
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'gamification_service.dart';
 
 class UserService extends ChangeNotifier {
   static final UserService instance = UserService._internal();
@@ -198,6 +201,99 @@ class UserService extends ChangeNotifier {
     }
   }
 
+  /// Safely set a student's password using Serverless Admin API (Firebase Admin SDK)
+  /// NEVER stores password in Firestore, and removes any old plaintext password.
+  Future<Map<String, dynamic>> setStudentPasswordSecurely({
+    required String targetUid,
+    required String newPassword,
+    String? targetEmail,
+  }) async {
+    try {
+      final currentUser = FirebaseAuth.instance.currentUser;
+      if (currentUser == null) {
+        return {
+          'success': false,
+          'message': 'يجب تسجيل الدخول كمسؤول أولاً.',
+        };
+      }
+
+      final idToken = await currentUser.getIdToken(true);
+      final apiUrl = Uri.base.resolve('/api/admin/manage-password');
+
+      final response = await http.post(
+        apiUrl,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $idToken',
+        },
+        body: jsonEncode({
+          'action': 'set_password',
+          'targetUid': targetUid,
+          'newPassword': newPassword,
+          'targetEmail': targetEmail,
+        }),
+      );
+
+      final resBody = jsonDecode(response.body) as Map<String, dynamic>;
+      if (response.statusCode == 200 && resBody['success'] == true) {
+        // Also ensure Firestore document doesn't hold adminAssignedPassword
+        await removeAdminAssignedPassword(targetUid);
+        return {'success': true, 'message': resBody['message'] ?? 'تم تحديث كلمة المرور بنجاح.'};
+      } else {
+        return {
+          'success': false,
+          'error': resBody['error'] ?? 'API_ERROR',
+          'message': resBody['message'] ?? 'فشل تعيين كلمة المرور عبر السيرفر.',
+        };
+      }
+    } catch (e) {
+      debugPrint("Error in setStudentPasswordSecurely: $e");
+      return {
+        'success': false,
+        'error': 'NETWORK_ERROR',
+        'message': 'تعذر الاتصال بخدمة السيرفر: $e',
+      };
+    }
+  }
+
+  /// Remove adminAssignedPassword from a specific user document
+  Future<void> removeAdminAssignedPassword(String uid) async {
+    try {
+      await _usersCol.doc(uid).set({
+        'adminAssignedPassword': FieldValue.delete(),
+        'passwordStatus': 'secured',
+        'updatedAt': FieldValue.serverTimestamp(),
+      }, SetOptions(merge: true));
+    } catch (e) {
+      debugPrint("Error removing adminAssignedPassword: $e");
+    }
+  }
+
+  /// Sanitize database: remove all old plaintext passwords from all users
+  Future<int> sanitizeAllOldPlaintextPasswords() async {
+    int count = 0;
+    try {
+      final snapshot = await _usersCol.get();
+      final batch = _firestore.batch();
+      for (final doc in snapshot.docs) {
+        final data = doc.data();
+        if (data.containsKey('adminAssignedPassword')) {
+          batch.update(doc.reference, {
+            'adminAssignedPassword': FieldValue.delete(),
+            'passwordStatus': 'secured',
+          });
+          count++;
+        }
+      }
+      if (count > 0) {
+        await batch.commit();
+      }
+    } catch (e) {
+      debugPrint("Error in sanitizeAllOldPlaintextPasswords: $e");
+    }
+    return count;
+  }
+
   /// Record a quiz attempt for the student
   Future<void> recordQuizSubmission(String uid, Map<String, dynamic> submission) async {
     try {
@@ -225,6 +321,15 @@ class UserService extends ChangeNotifier {
 
       await batch.commit();
       notifyListeners();
+
+      // Trigger points award (المرحلة السابعة: احتساب نقاط الاختبار)
+      try {
+        final quizId = submission['quizId']?.toString() ?? 'quiz';
+        final pct = (submission['percentage'] is num)
+            ? (submission['percentage'] as num).toDouble()
+            : (((submission['score'] ?? 0) / ((submission['totalQuestions'] ?? 1) == 0 ? 1 : (submission['totalQuestions'] ?? 1))) * 100).toDouble();
+        GamificationService.instance.awardQuizPass(quizId, pct);
+      } catch (_) {}
     } catch (e) {
       debugPrint("Error recording quiz submission: $e");
     }
@@ -257,6 +362,12 @@ class UserService extends ChangeNotifier {
 
       await batch.commit();
       notifyListeners();
+
+      // Trigger challenge points award (المرحلة السابعة: احتساب نقاط التحدي)
+      try {
+        final challId = submission['challengeId']?.toString() ?? 'challenge';
+        GamificationService.instance.awardChallengeCompletion(challId);
+      } catch (_) {}
     } catch (e) {
       debugPrint("Error recording challenge submission: $e");
     }

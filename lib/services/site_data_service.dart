@@ -4,6 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../data/fifty_challenges_data.dart';
+import 'gamification_service.dart';
 
 class SiteDataService extends ChangeNotifier {
   static final SiteDataService instance = SiteDataService._internal();
@@ -157,6 +158,33 @@ class SiteDataService extends ChangeNotifier {
           }).toList();
           _saveCourses();
           notifyListeners();
+
+          // Listen to subcollections (المرحلة الخامسة: استماع حي للدروس في المجموعات الفرعية)
+          for (final doc in snapshot.docs) {
+            final courseId = doc.id;
+            _firestore
+                .collection('courses')
+                .doc(courseId)
+                .collection('lessons')
+                .snapshots()
+                .listen((subSnap) {
+              if (subSnap.docs.isNotEmpty) {
+                final subLessons = subSnap.docs.map((sDoc) {
+                  final sData = sDoc.data();
+                  sData['id'] = sDoc.id;
+                  sData['courseId'] = courseId;
+                  _normalizeLesson(sData);
+                  return sData;
+                }).toList();
+                final cIdx = _courses.indexWhere((c) => c['id'] == courseId);
+                if (cIdx != -1) {
+                  _courses[cIdx]['lessons'] = subLessons;
+                  _saveCourses();
+                  notifyListeners();
+                }
+              }
+            }, onError: (_) {});
+          }
         }
       }, onError: (e) => debugPrint("Firestore courses listener error: $e"));
 
@@ -358,7 +386,11 @@ class SiteDataService extends ChangeNotifier {
   Future<void> addLessonToCourse(String courseId, Map<String, dynamic> lesson) async {
     final idx = _courses.indexWhere((c) => c['id'] == courseId);
     if (idx != -1) {
-      lesson['id'] = 'lec_${DateTime.now().millisecondsSinceEpoch}';
+      final lessonId = (lesson['id'] != null && lesson['id'].toString().isNotEmpty)
+          ? lesson['id'].toString()
+          : 'lec_${DateTime.now().millisecondsSinceEpoch}';
+      lesson['id'] = lessonId;
+      lesson['courseId'] = courseId;
       _normalizeLesson(lesson);
       final list = List<Map<String, dynamic>>.from(_courses[idx]['lessons'] ?? []);
       list.add(lesson);
@@ -368,6 +400,15 @@ class SiteDataService extends ChangeNotifier {
 
       if (isFirebaseReady) {
         try {
+          // Write to subcollection (المرحلة الخامسة: فصل الدروس في مجموعات فرعية)
+          await _firestore
+              .collection('courses')
+              .doc(courseId)
+              .collection('lessons')
+              .doc(lessonId)
+              .set(lesson, SetOptions(merge: true));
+
+          // Also keep backward-compatible array update
           await _firestore.collection('courses').doc(courseId).update({'lessons': list});
         } catch (e) {
           debugPrint("Firestore addLessonToCourse error: $e");
@@ -383,6 +424,7 @@ class SiteDataService extends ChangeNotifier {
       final lIdx = list.indexWhere((l) => l['id'] == lessonId);
       if (lIdx != -1) {
         updatedLesson['id'] = lessonId;
+        updatedLesson['courseId'] = courseId;
         _normalizeLesson(updatedLesson);
         list[lIdx] = updatedLesson;
         _courses[idx]['lessons'] = list;
@@ -391,6 +433,14 @@ class SiteDataService extends ChangeNotifier {
 
         if (isFirebaseReady) {
           try {
+            // Update subcollection doc
+            await _firestore
+                .collection('courses')
+                .doc(courseId)
+                .collection('lessons')
+                .doc(lessonId)
+                .set(updatedLesson, SetOptions(merge: true));
+
             await _firestore.collection('courses').doc(courseId).update({'lessons': list});
           } catch (e) {
             debugPrint("Firestore updateLessonInCourse error: $e");
@@ -411,12 +461,56 @@ class SiteDataService extends ChangeNotifier {
 
       if (isFirebaseReady) {
         try {
+          // Delete from subcollection
+          await _firestore
+              .collection('courses')
+              .doc(courseId)
+              .collection('lessons')
+              .doc(lessonId)
+              .delete();
+
           await _firestore.collection('courses').doc(courseId).update({'lessons': list});
         } catch (e) {
           debugPrint("Firestore deleteLessonFromCourse error: $e");
         }
       }
     }
+  }
+
+  /// Safe, non-destructive migration utility: Migrates all course lessons to subcollections
+  Future<int> migrateLessonsToSubcollections() async {
+    int count = 0;
+    if (!isFirebaseReady) return 0;
+    try {
+      final coursesSnap = await _firestore.collection('courses').get();
+      for (final courseDoc in coursesSnap.docs) {
+        final courseData = courseDoc.data();
+        final courseId = courseDoc.id;
+        final lessons = (courseData['lessons'] as List?) ?? [];
+
+        for (final rawItem in lessons) {
+          if (rawItem is Map) {
+            final item = Map<String, dynamic>.from(rawItem);
+            final lessonId = item['id']?.toString() ?? 'lec_${DateTime.now().millisecondsSinceEpoch}_$count';
+            item['id'] = lessonId;
+            item['courseId'] = courseId;
+            _normalizeLesson(item);
+
+            await _firestore
+                .collection('courses')
+                .doc(courseId)
+                .collection('lessons')
+                .doc(lessonId)
+                .set(item, SetOptions(merge: true));
+            count++;
+          }
+        }
+      }
+      debugPrint("Migration completed: $count lessons copied to subcollections.");
+    } catch (e) {
+      debugPrint("Error migrating lessons to subcollections: $e");
+    }
+    return count;
   }
 
   Future<void> _saveCourses() async {
@@ -1187,6 +1281,21 @@ class SiteDataService extends ChangeNotifier {
       } catch (e) {
         debugPrint("Firestore markLessonWatched error: $e");
       }
+
+      // Trigger gamification points (المرحلة السابعة: احتساب نقاط الدرس والكورس)
+      try {
+        GamificationService.instance.awardLessonCompletion(lessonId);
+        final cIdx = _courses.indexWhere((c) => c['id'] == courseId);
+        if (cIdx != -1) {
+          final cLessons = (_courses[cIdx]['lessons'] as List?) ?? [];
+          if (cLessons.isNotEmpty) {
+            final allWatched = cLessons.every((l) => currentList.contains(l['id']));
+            if (allWatched) {
+              GamificationService.instance.awardCourseCompletion(courseId);
+            }
+          }
+        }
+      } catch (_) {}
     }
   }
 

@@ -23,6 +23,7 @@ import 'services/auth_service.dart';
 import 'services/user_service.dart';
 import 'widgets/live_text_ticker_bar.dart';
 import 'widgets/unified_app_bar.dart';
+import 'widgets/safe_network_image/safe_network_image.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 
@@ -56,8 +57,14 @@ class EslamAtefApp extends StatelessWidget {
           themeMode: currentMode,
           initialRoute: '/',
           builder: (context, child) {
-            return SelectionArea(
-              child: child ?? const SizedBox.shrink(),
+            return Overlay(
+              initialEntries: [
+                OverlayEntry(
+                  builder: (context) => SelectionArea(
+                    child: child ?? const SizedBox.shrink(),
+                  ),
+                ),
+              ],
             );
           },
           routes: {
@@ -160,7 +167,7 @@ class _HomePageState extends State<HomePage> {
         'category': c['category'] ?? 'كورس',
         'badge': c['level'] ?? 'كورس متميز',
         'duration': c['price'] ?? 'مجاني',
-        'image': courseImg.isNotEmpty ? courseImg : 'assets/images/slide1.png',
+        'image': courseImg,
         'route': '/courses',
       });
 
@@ -2056,12 +2063,9 @@ class _SquareNewsCardState extends State<_SquareNewsCard> {
               children: [
                 // Background image
                 Positioned.fill(
-                  child: Image.asset(
-                    widget.item['image'] ?? 'assets/images/slide1.png',
+                  child: SafeNetworkImage(
+                    imageUrl: (widget.item['image'] ?? '').toString(),
                     fit: BoxFit.cover,
-                    errorBuilder: (ctx, err, stack) => Container(
-                      color: isDark ? const Color(0xFF0A0F1D) : const Color(0xFFF1F5F9),
-                    ),
                   ),
                 ),
                 // Gradient overlay tailored for Light & Dark mode

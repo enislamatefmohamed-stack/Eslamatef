@@ -20,6 +20,7 @@ class LessonsPage extends StatefulWidget {
 class _LessonsPageState extends State<LessonsPage> {
   final _dataService = SiteDataService.instance;
   Map<String, dynamic>? _selectedLesson; // When non-null, plays lesson video and details
+  bool _isCinemaMode = false;
 
   @override
   void initState() {
@@ -158,8 +159,8 @@ class _LessonsPageState extends State<LessonsPage> {
       }
     }
 
-    if (rawLessonImg.isNotEmpty && !rawLessonImg.contains('slide2.png')) return rawLessonImg;
-    return 'assets/images/slide2.png';
+    if (rawLessonImg.isNotEmpty) return rawLessonImg;
+    return '';
   }
 
   @override
@@ -468,10 +469,49 @@ class _LessonsPageState extends State<LessonsPage> {
           if (!displayContent.contains('youtube') && !displayContent.contains('youtu.be') && !displayContent.contains('<iframe') && youtubeUrl.isNotEmpty && youtubeUrl.length > 5) ...[
             Center(
               child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 850),
-                child: Directionality(
-                  textDirection: TextDirection.ltr,
-                  child: YouTubeEmbeddedPlayer(youtubeUrl: youtubeUrl, height: isMobile ? 240 : 480),
+                constraints: BoxConstraints(maxWidth: _isCinemaMode ? 1150 : 850),
+                child: Column(
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Row(
+                          children: [
+                            const Icon(Icons.play_circle_filled_rounded, color: Color(0xFFEF4444), size: 20),
+                            const SizedBox(width: 8),
+                            Text("فيديو الدرس", style: GoogleFonts.cairo(fontWeight: FontWeight.bold, fontSize: 14)),
+                          ],
+                        ),
+                        TextButton.icon(
+                          onPressed: () {
+                            setState(() {
+                              _isCinemaMode = !_isCinemaMode;
+                            });
+                          },
+                          icon: Icon(_isCinemaMode ? Icons.fullscreen_exit_rounded : Icons.theater_comedy_rounded, size: 16),
+                          label: Text(
+                            _isCinemaMode ? "تصغير المشغل" : "وضع السينما 🎬",
+                            style: GoogleFonts.cairo(fontSize: 12, fontWeight: FontWeight.bold),
+                          ),
+                          style: TextButton.styleFrom(
+                            foregroundColor: const Color(0xFF0284C7),
+                            backgroundColor: const Color(0xFF0284C7).withValues(alpha: 0.08),
+                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    Directionality(
+                      textDirection: TextDirection.ltr,
+                      child: YouTubeEmbeddedPlayer(
+                        youtubeUrl: youtubeUrl,
+                        height: isMobile ? (_isCinemaMode ? 280 : 240) : (_isCinemaMode ? 600 : 480),
+                        showWatermark: isPaid && currentUser != null,
+                        watermarkText: currentUser?.displayName ?? currentUser?.email?.split('@').first ?? 'طالب منصة إسلام عاطف',
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),

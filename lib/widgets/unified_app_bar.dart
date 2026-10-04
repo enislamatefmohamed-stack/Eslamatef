@@ -6,6 +6,7 @@ import '../data/arabic_data.dart';
 import '../services/auth_service.dart';
 import 'social_icons.dart';
 import 'auth_modal.dart';
+import 'achievements_dialog.dart';
 
 /// Unified Header used across all pages of the application.
 /// Ensures identical design, branding, navigation, and smart back behavior everywhere.
@@ -188,6 +189,38 @@ class UnifiedAppHeader extends StatelessWidget implements PreferredSizeWidget {
                                   ),
                                 ),
                               ),
+                            Padding(
+                              padding: const EdgeInsets.only(left: 6),
+                              child: InkWell(
+                                onTap: () => AchievementsDialog.show(context),
+                                borderRadius: BorderRadius.circular(18),
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFFF59E0B).withValues(alpha: 0.12),
+                                    borderRadius: BorderRadius.circular(18),
+                                    border: Border.all(color: const Color(0xFFF59E0B).withValues(alpha: 0.4)),
+                                  ),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      const Icon(Icons.emoji_events_rounded, size: 14, color: Color(0xFFD97706)),
+                                      if (!isMobile) ...[
+                                        const SizedBox(width: 4),
+                                        Text(
+                                          "إنجازاتي",
+                                          style: GoogleFonts.cairo(
+                                            fontSize: 11,
+                                            fontWeight: FontWeight.bold,
+                                            color: const Color(0xFFD97706),
+                                          ),
+                                        ),
+                                      ],
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
                             Padding(
                               padding: const EdgeInsets.only(left: 6),
                               child: InkWell(
@@ -378,6 +411,21 @@ class UnifiedAppDrawer extends StatelessWidget {
                   _drawerItem(context, "المناهج الدراسية", Icons.menu_book_rounded, '/lessons', currentRoute == '/lessons' || currentRoute == '/curricula'),
                   _drawerItem(context, "تحدي الأسبوع", Icons.emoji_events_rounded, '/challenge', currentRoute == '/challenge'),
                   _drawerItem(context, "اختبر نفسك", Icons.quiz_rounded, '/quiz', currentRoute == '/quiz'),
+                  ListTile(
+                    leading: const Icon(Icons.workspace_premium_rounded, color: Color(0xFFD97706), size: 22),
+                    title: Text(
+                      "إنجازاتي وأوسمتي 🏆",
+                      style: GoogleFonts.cairo(
+                        fontWeight: FontWeight.bold,
+                        color: const Color(0xFFD97706),
+                        fontSize: 14,
+                      ),
+                    ),
+                    onTap: () {
+                      Navigator.pop(context);
+                      AchievementsDialog.show(context);
+                    },
+                  ),
                   _drawerItem(context, "من نحن", Icons.info_outline_rounded, '/about', currentRoute == '/about'),
                   _drawerItem(context, "تواصل معنا", Icons.contact_mail_rounded, '/contact', currentRoute == '/contact'),
                   if (AuthService.instance.isAdmin)
