@@ -12,36 +12,41 @@ class AboutPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     final isMobile = screenWidth < 850;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    return Scaffold(
-      endDrawer: isMobile ? const UnifiedAppDrawer(currentRoute: '/about') : null,
-      body: SafeArea(
-        child: Column(
-          children: [
-            const UnifiedAppHeader(
-              currentRoute: '/about',
-              pageTitle: 'من نحن — رسالتنا ورؤيتنا',
-            ),
-            Expanded(
-              child: SingleChildScrollView(
-                child: Column(
-                  children: [
-                    const SizedBox(height: 36),
-                    _buildAboutContent(context, isMobile),
-                    const SizedBox(height: 60),
-                    const UnifiedAppFooter(),
-                  ],
+    return Directionality(
+      textDirection: TextDirection.rtl,
+      child: Scaffold(
+        backgroundColor: isDark ? AppColors.bgDark : AppColors.bgLight,
+        endDrawer: isMobile ? const UnifiedAppDrawer(currentRoute: '/about') : null,
+        body: SafeArea(
+          child: Column(
+            children: [
+              const UnifiedAppHeader(
+                currentRoute: '/about',
+                pageTitle: 'من نحن — رسالتنا ورؤيتنا',
+              ),
+              Expanded(
+                child: SingleChildScrollView(
+                  child: Column(
+                    children: [
+                      const SizedBox(height: 36),
+                      _buildAboutContent(context, isMobile, isDark),
+                      const SizedBox(height: 60),
+                      const UnifiedAppFooter(),
+                    ],
+                  ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
   }
 
 
-  Widget _buildAboutContent(BuildContext context, bool isMobile) {
+  Widget _buildAboutContent(BuildContext context, bool isMobile, bool isDark) {
     return Container(
       constraints: const BoxConstraints(maxWidth: 1000),
       padding: EdgeInsets.symmetric(horizontal: isMobile ? 20 : 32),
@@ -76,7 +81,7 @@ class AboutPage extends StatelessWidget {
               style: GoogleFonts.cairo(
                 fontSize: isMobile ? 24 : 32,
                 fontWeight: FontWeight.w900,
-                color: AppColors.textPrimary,
+                color: isDark ? AppColors.textPrimary : const Color(0xFF0F172A),
                 height: 1.3,
               ),
             ),
@@ -87,16 +92,23 @@ class AboutPage extends StatelessWidget {
           Container(
             padding: EdgeInsets.all(isMobile ? 24 : 36),
             decoration: BoxDecoration(
-              color: AppColors.cardDark,
+              color: isDark ? AppColors.cardDark : Colors.white,
               borderRadius: BorderRadius.circular(24),
-              border: Border.all(color: AppColors.borderLightDark),
+              border: Border.all(color: isDark ? AppColors.borderLightDark : const Color(0xFFE2E8F0)),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.05),
+                  blurRadius: 20,
+                  offset: const Offset(0, 6),
+                ),
+              ],
             ),
             child: isMobile
                 ? Column(
                     children: [
                       _buildPortraitImage(),
                       const SizedBox(height: 24),
-                      _buildBioText(),
+                      _buildBioText(isDark),
                     ],
                   )
                 : Row(
@@ -104,7 +116,7 @@ class AboutPage extends StatelessWidget {
                     children: [
                       _buildPortraitImage(),
                       const SizedBox(width: 36),
-                      Expanded(child: _buildBioText()),
+                      Expanded(child: _buildBioText(isDark)),
                     ],
                   ),
           ),
@@ -116,7 +128,7 @@ class AboutPage extends StatelessWidget {
             style: GoogleFonts.cairo(
               fontSize: 22,
               fontWeight: FontWeight.w800,
-              color: AppColors.textPrimary,
+              color: isDark ? AppColors.textPrimary : const Color(0xFF0F172A),
             ),
           ),
           const SizedBox(height: 16),
@@ -159,9 +171,9 @@ class AboutPage extends StatelessWidget {
                     child: Container(
                       padding: const EdgeInsets.all(20),
                       decoration: BoxDecoration(
-                        color: AppColors.surfaceDark,
+                        color: isDark ? AppColors.surfaceDark : const Color(0xFFF8FAFC),
                         borderRadius: BorderRadius.circular(16),
-                        border: Border.all(color: AppColors.borderDark),
+                        border: Border.all(color: isDark ? AppColors.borderDark : const Color(0xFFE2E8F0)),
                       ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -173,7 +185,7 @@ class AboutPage extends StatelessWidget {
                             style: GoogleFonts.cairo(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
-                              color: AppColors.textPrimary,
+                              color: isDark ? AppColors.textPrimary : const Color(0xFF0F172A),
                             ),
                           ),
                           const SizedBox(height: 6),
@@ -181,7 +193,7 @@ class AboutPage extends StatelessWidget {
                             item["desc"] as String,
                             style: GoogleFonts.cairo(
                               fontSize: 13.5,
-                              color: AppColors.textSecondary,
+                              color: isDark ? AppColors.textSecondary : const Color(0xFF475569),
                               height: 1.6,
                             ),
                           ),
@@ -199,8 +211,10 @@ class AboutPage extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(28),
             decoration: BoxDecoration(
-              gradient: const LinearGradient(
-                colors: [Color(0xFF131D33), Color(0xFF0F172A)],
+              gradient: LinearGradient(
+                colors: isDark
+                    ? [const Color(0xFF131D33), const Color(0xFF0F172A)]
+                    : [const Color(0xFFE0F2FE), Colors.white],
               ),
               borderRadius: BorderRadius.circular(20),
               border: Border.all(color: AppColors.primaryLight.withValues(alpha: 0.4)),
@@ -208,19 +222,29 @@ class AboutPage extends StatelessWidget {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      "هل ترغب في الانضمام للكورسات أو الاستفسار؟",
-                      style: GoogleFonts.cairo(fontSize: 16, fontWeight: FontWeight.bold),
-                    ),
-                    Text(
-                      "تواصل مباشرة مع م. إسلام عاطف على: ${ArabicData.phone}",
-                      style: GoogleFonts.cairo(fontSize: 13, color: AppColors.textSecondary),
-                    ),
-                  ],
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        "هل ترغب في الانضمام للكورسات أو الاستفسار؟",
+                        style: GoogleFonts.cairo(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: isDark ? Colors.white : const Color(0xFF0F172A),
+                        ),
+                      ),
+                      Text(
+                        "تواصل مباشرة مع م. إسلام عاطف على: ${ArabicData.phone}",
+                        style: GoogleFonts.cairo(
+                          fontSize: 13,
+                          color: isDark ? AppColors.textSecondary : const Color(0xFF475569),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
+                const SizedBox(width: 16),
                 ElevatedButton.icon(
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.whatsapp,
@@ -266,7 +290,7 @@ class AboutPage extends StatelessWidget {
     );
   }
 
-  Widget _buildBioText() {
+  Widget _buildBioText(bool isDark) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -275,7 +299,7 @@ class AboutPage extends StatelessWidget {
           style: GoogleFonts.cairo(
             fontSize: 24,
             fontWeight: FontWeight.w900,
-            color: AppColors.textPrimary,
+            color: isDark ? AppColors.textPrimary : const Color(0xFF0F172A),
           ),
         ),
         Text(
@@ -291,7 +315,7 @@ class AboutPage extends StatelessWidget {
           "مهندس ومدرس متخصص في علوم الحاسب والذكاء الاصطناعي، يتمتع بخبرة واسعة في تدريب وتوجيه مئات المطورين نحو التفكير الهندسي السليم. تهدف رسالتي التعليمية إلى القضاء على ثقافة النسخ العشوائي للكود، وبناء مبرمج متمكن يفهم أسس النظم، وتفاصيل الخوارزميات، وكيفية توظيف الذكاء الاصطناعي التوليدي كأداة قوية ترفع من جودة وكفاءة إنتاجه البرمجي.",
           style: GoogleFonts.cairo(
             fontSize: 15,
-            color: AppColors.textSecondary,
+            color: isDark ? AppColors.textSecondary : const Color(0xFF475569),
             height: 1.75,
           ),
         ),

@@ -9,6 +9,9 @@ void registerIframeViewFactory(String viewId, String videoId) {
       ..style.border = 'none'
       ..style.width = '100%'
       ..style.height = '100%'
+      ..style.borderRadius = '14px'
+      ..style.display = 'block'
+      ..dir = 'ltr'
       ..allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture'
       ..allowFullscreen = true;
     return iframe;

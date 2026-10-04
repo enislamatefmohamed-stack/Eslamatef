@@ -58,22 +58,40 @@ class _CoursesPageState extends State<CoursesPage> {
     super.dispose();
   }
 
-  bool _canAccess({String? courseId, String? lessonId, required bool isPaid}) {
-    if (!isPaid) return true;
-    final user = FirebaseAuth.instance.currentUser;
+  bool _isAdmin(User? user) {
     if (user == null) return false;
     if (user.email == 'islamatef01016834012@gmail.com') return true;
-    final cached = _dataService.members.firstWhere((m) => m['uid'] == user.uid, orElse: () => <String, dynamic>{});
-    if (cached['role'] == 'admin') return true;
-    if (courseId != null) {
+    final cached = _dataService.members.firstWhere(
+      (m) => m['uid'] == user.uid || m['email'] == user.email,
+      orElse: () => <String, dynamic>{},
+    );
+    return cached['role'] == 'admin';
+  }
+
+  bool _isUserEnrolled({required String courseId, required bool isPaid}) {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) return false;
+    if (_isAdmin(user)) return true;
+    if (_enrolledCourseIds.contains(courseId)) return true;
+    if (isPaid) {
+      final cached = _dataService.members.firstWhere((m) => m['uid'] == user.uid, orElse: () => <String, dynamic>{});
       final allowedCourses = List<String>.from(cached['allowedCourses'] ?? []);
-      if (allowedCourses.contains(courseId)) return true;
-    }
-    if (lessonId != null) {
-      final allowedLessons = List<String>.from(cached['allowedLessons'] ?? []);
-      if (allowedLessons.contains(lessonId)) return true;
+      return allowedCourses.contains(courseId);
     }
     return false;
+  }
+
+  bool _canAccessLesson({required String courseId, required String lessonId, required bool isPaid}) {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) return false;
+    if (_isAdmin(user)) return true;
+    if (!_isUserEnrolled(courseId: courseId, isPaid: isPaid)) return false;
+    if (!isPaid) return true;
+    final cached = _dataService.members.firstWhere((m) => m['uid'] == user.uid, orElse: () => <String, dynamic>{});
+    final allowedCourses = List<String>.from(cached['allowedCourses'] ?? []);
+    if (allowedCourses.contains(courseId)) return true;
+    final allowedLessons = List<String>.from(cached['allowedLessons'] ?? []);
+    return allowedLessons.contains(lessonId);
   }
 
   @override
@@ -286,8 +304,7 @@ class _CoursesPageState extends State<CoursesPage> {
     final isPaid = course['isPaid'] == true;
     final price = course['price'] ?? 250;
     final user = FirebaseAuth.instance.currentUser;
-    final hasAdminAccess = _canAccess(courseId: courseId, isPaid: isPaid);
-    final isEnrolled = _enrolledCourseIds.contains(courseId) || hasAdminAccess;
+    final isEnrolled = _isUserEnrolled(courseId: courseId, isPaid: isPaid);
 
     return Center(
       child: Container(
@@ -587,18 +604,32 @@ class _CoursesPageState extends State<CoursesPage> {
                           ),
                           const SizedBox(height: 12),
                           ElevatedButton.icon(
-                            onPressed: () {
-                              if (!isEnrolled) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text("يرجى التسجيل في الكورس أولاً لتتمكن من مشاهدة الدروس 🔒", style: GoogleFonts.cairo(fontWeight: FontWeight.bold)),
-                                    backgroundColor: const Color(0xFFDC2626),
-                                  ),
-                                );
+                            onPressed: () async {
+                              if (user == null) {
+                                showDialog(context: context, builder: (c) => const AuthModal());
                                 return;
                               }
+                              if (!isEnrolled) {
+                                if (!isPaid) {
+                                  await _dataService.enrollInCourse(
+                                    courseId: courseId,
+                                    userId: user.uid,
+                                    userEmail: user.email,
+                                    userName: user.displayName,
+                                  );
+                                  setState(() => _enrolledCourseIds.add(courseId));
+                                } else {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text("هذا الكورس يتطلب اشتراكاً مدفوعاً لمشاهدة الدروس 🔒", style: GoogleFonts.cairo(fontWeight: FontWeight.bold)),
+                                      backgroundColor: const Color(0xFFDC2626),
+                                    ),
+                                  );
+                                  return;
+                                }
+                              }
                               setState(() => _activeLesson = lesson);
-                              if (user != null && lessonId.isNotEmpty) {
+                              if (lessonId.isNotEmpty) {
                                 _dataService.markLessonWatched(courseId: courseId, lessonId: lessonId, userId: user.uid);
                                 setState(() => _watchedLessonIds.add(lessonId));
                               }
@@ -684,18 +715,32 @@ class _CoursesPageState extends State<CoursesPage> {
                             ),
                           ),
                           ElevatedButton.icon(
-                            onPressed: () {
-                              if (!isEnrolled) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text("يرجى التسجيل في الكورس أولاً لتتمكن من مشاهدة الدروس 🔒", style: GoogleFonts.cairo(fontWeight: FontWeight.bold)),
-                                    backgroundColor: const Color(0xFFDC2626),
-                                  ),
-                                );
+                            onPressed: () async {
+                              if (user == null) {
+                                showDialog(context: context, builder: (c) => const AuthModal());
                                 return;
                               }
+                              if (!isEnrolled) {
+                                if (!isPaid) {
+                                  await _dataService.enrollInCourse(
+                                    courseId: courseId,
+                                    userId: user.uid,
+                                    userEmail: user.email,
+                                    userName: user.displayName,
+                                  );
+                                  setState(() => _enrolledCourseIds.add(courseId));
+                                } else {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text("هذا الكورس يتطلب اشتراكاً مدفوعاً لمشاهدة الدروس 🔒", style: GoogleFonts.cairo(fontWeight: FontWeight.bold)),
+                                      backgroundColor: const Color(0xFFDC2626),
+                                    ),
+                                  );
+                                  return;
+                                }
+                              }
                               setState(() => _activeLesson = lesson);
-                              if (user != null && lessonId.isNotEmpty) {
+                              if (lessonId.isNotEmpty) {
                                 _dataService.markLessonWatched(courseId: courseId, lessonId: lessonId, userId: user.uid);
                                 setState(() => _watchedLessonIds.add(lessonId));
                               }
@@ -730,7 +775,6 @@ class _CoursesPageState extends State<CoursesPage> {
     final title = lesson['title'] ?? 'درس جديد';
     final desc = (lesson['description'] ?? lesson['desc'] ?? '').toString().trim();
     final youtubeUrl = (lesson['youtubeUrl'] ?? lesson['videoUrl'] ?? '').toString().trim();
-    final image = (lesson['image'] ?? lesson['imageUrl'] ?? '').toString().trim();
     final content = (lesson['content'] ?? '').toString().trim();
     final htmlCode = (lesson['htmlCode'] ?? '').toString().trim();
     final displayContent = htmlCode.isNotEmpty
@@ -740,13 +784,17 @@ class _CoursesPageState extends State<CoursesPage> {
     final quizTitle = lesson['quizTitle'] ?? 'اختبار فهم الدرس';
     final isPaid = lesson['isPaid'] == true || _activeCourse?['isPaid'] == true;
 
-    // Check permissions for paid lesson
-    if (!_canAccess(courseId: _activeCourse?['id']?.toString(), lessonId: lesson['id']?.toString(), isPaid: isPaid)) {
+    // Check permissions for lesson
+    final courseId = _activeCourse?['id']?.toString() ?? '';
+    final lessonId = lesson['id']?.toString() ?? '';
+    if (!_canAccessLesson(courseId: courseId, lessonId: lessonId, isPaid: isPaid)) {
       return _buildLockedScreen(
         context: context,
         title: title,
         contentType: 'درس',
         isDark: isDark,
+        isPaid: isPaid,
+        courseId: courseId,
         onBack: () => setState(() => _activeLesson = null),
       );
     }
@@ -795,32 +843,13 @@ class _CoursesPageState extends State<CoursesPage> {
               const SizedBox(height: 20),
             ],
 
-            // 3. الصورة (Cover Image)
-            if (image.isNotEmpty) ...[
+            // 3. الفيديو (Video / YouTube Player) - يعرض فقط إذا لم يكن المقال يحتوي بالفعل على فيديو لتجنب التكرار
+            if (!displayContent.contains('youtube') && !displayContent.contains('youtu.be') && !displayContent.contains('<iframe') && youtubeUrl.isNotEmpty && youtubeUrl.length > 5) ...[
               Center(
                 child: ConstrainedBox(
                   constraints: const BoxConstraints(maxWidth: 850),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(16),
-                    child: SafeNetworkImage(
-                      imageUrl: image,
-                      fit: BoxFit.cover,
-                      width: double.infinity,
-                      height: isMobile ? 220 : 420,
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 24),
-            ],
-
-            // 4. الفيديو (Video / YouTube Player)
-            if (youtubeUrl.isNotEmpty && youtubeUrl.length > 5) ...[
-              Center(
-                child: ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 850),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(16),
+                  child: Directionality(
+                    textDirection: TextDirection.ltr,
                     child: YouTubeEmbeddedPlayer(youtubeUrl: youtubeUrl, height: isMobile ? 240 : 480),
                   ),
                 ),
@@ -945,6 +974,8 @@ class _CoursesPageState extends State<CoursesPage> {
     required String contentType,
     required bool isDark,
     required VoidCallback onBack,
+    bool isPaid = true,
+    String courseId = '',
   }) {
     final user = FirebaseAuth.instance.currentUser;
 
@@ -978,7 +1009,7 @@ class _CoursesPageState extends State<CoursesPage> {
             ),
             const SizedBox(height: 20),
             Text(
-              "🔒 محتوى مدفوع خاص بالمشتركين",
+              isPaid ? "🔒 محتوى مدفوع خاص بالمشتركين" : "🔒 يتطلب التسجيل في الكورس",
               style: GoogleFonts.cairo(
                 fontSize: 22,
                 fontWeight: FontWeight.bold,
@@ -987,7 +1018,11 @@ class _CoursesPageState extends State<CoursesPage> {
             ),
             const SizedBox(height: 10),
             Text(
-              "هذا الـ$contentType ($title) مخصص للطلاب المشتركين فقط. لا يمكنك الوصول إلى محتواه ومشاهدة الدروس والاختبارات إلا بعد الحصول على تصريح من الإدارة.",
+              isPaid
+                  ? "هذا الـ$contentType ($title) مخصص للطلاب المشتركين فقط. لا يمكنك الوصول إلى محتواه ومشاهدة الدروس والاختبارات إلا بعد الحصول على تصريح من الإدارة."
+                  : (user == null
+                      ? "لمشاهدة هذا الدرس ومتابعة المحتوى، يجب تسجيل الدخول والالتحاق بالكورس أولاً."
+                      : "أنت مسجل كعضو، لكن لم تنضم لهذا الكورس بعد. اضغط على زر الالتحاق بالأسفل لتفعيل الدروس فوراً وحفظ تقدمك."),
               style: GoogleFonts.cairo(
                 fontSize: 14,
                 color: isDark ? Colors.white70 : const Color(0xFF475569),
@@ -1000,31 +1035,61 @@ class _CoursesPageState extends State<CoursesPage> {
               ElevatedButton.icon(
                 onPressed: () => showDialog(context: context, builder: (c) => const AuthModal()),
                 icon: const Icon(Icons.login_rounded),
-                label: Text("تسجيل الدخول إلى حسابك أولاً", style: GoogleFonts.cairo(fontWeight: FontWeight.bold)),
+                label: Text("تسجيل الدخول / إنشاء حساب جديد 🔐", style: GoogleFonts.cairo(fontWeight: FontWeight.bold)),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF0284C7),
+                  backgroundColor: const Color(0xFF00E5FF),
+                  foregroundColor: Colors.black,
+                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                ),
+              ),
+              const SizedBox(height: 12),
+            ] else if (!isPaid && courseId.isNotEmpty) ...[
+              ElevatedButton.icon(
+                onPressed: () async {
+                  await _dataService.enrollInCourse(
+                    courseId: courseId,
+                    userId: user.uid,
+                    userEmail: user.email,
+                    userName: user.displayName,
+                  );
+                  setState(() => _enrolledCourseIds.add(courseId));
+                  if (!context.mounted) return;
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text("تم تسجيلك في الكورس بنجاح! تم فتح الدرس لك 🚀", style: GoogleFonts.cairo(fontWeight: FontWeight.bold)),
+                      backgroundColor: const Color(0xFF10B981),
+                    ),
+                  );
+                },
+                icon: const Icon(Icons.check_circle_rounded, color: Colors.white),
+                label: Text("الالتحاق بالكورس وتفعيل الدرس مجاناً 🚀", style: GoogleFonts.cairo(fontWeight: FontWeight.bold, fontSize: 14)),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF10B981),
                   foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                 ),
               ),
               const SizedBox(height: 12),
             ],
-            ElevatedButton.icon(
-              onPressed: () {
-                final email = user?.email ?? 'زائر';
-                final msg = Uri.encodeComponent("مرحباً أستاذ إسلام عاطف، أرغب في تفعيل الاشتراك في $contentType: $title\nالبريد الإلكتروني: $email");
-                launchUrl(Uri.parse("https://wa.me/201016834012?text=$msg"), mode: LaunchMode.externalApplication);
-              },
-              icon: const Icon(Icons.chat_rounded, color: Colors.white),
-              label: Text("تواصل عبر واتساب للتفعيل الفوري 💬", style: GoogleFonts.cairo(fontWeight: FontWeight.bold, fontSize: 14)),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF16A34A),
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            if (isPaid) ...[
+              ElevatedButton.icon(
+                onPressed: () {
+                  final email = user?.email ?? 'زائر';
+                  final msg = Uri.encodeComponent("مرحباً أستاذ إسلام عاطف، أرغب في تفعيل الاشتراك في $contentType: $title\nالبريد الإلكتروني: $email");
+                  launchUrl(Uri.parse("https://wa.me/201016834012?text=$msg"), mode: LaunchMode.externalApplication);
+                },
+                icon: const Icon(Icons.chat_rounded, color: Colors.white),
+                label: Text("تواصل عبر واتساب للتفعيل الفوري 💬", style: GoogleFonts.cairo(fontWeight: FontWeight.bold, fontSize: 14)),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF16A34A),
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                ),
               ),
-            ),
+            ],
             const SizedBox(height: 16),
             TextButton(
               onPressed: onBack,

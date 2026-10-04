@@ -188,12 +188,14 @@ class _ContactPageState extends State<ContactPage> {
       _attachedFiles.clear();
     });
 
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     showDialog(
       context: context,
       builder: (ctx) => Directionality(
         textDirection: TextDirection.rtl,
         child: AlertDialog(
-          backgroundColor: AppColors.cardDark,
+          backgroundColor: isDark ? AppColors.cardDark : Colors.white,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20),
             side: const BorderSide(color: Color(0xFF00E5FF), width: 1.5),
@@ -217,7 +219,7 @@ class _ContactPageState extends State<ContactPage> {
                 style: GoogleFonts.cairo(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
-                  color: AppColors.textPrimary,
+                  color: isDark ? AppColors.textPrimary : const Color(0xFF0F172A),
                 ),
                 textAlign: TextAlign.center,
               ),
@@ -226,7 +228,7 @@ class _ContactPageState extends State<ContactPage> {
                 "شكراً لتواصلك معنا. تم إرسال رسالتك مباشرة إلى البريد الإلكتروني:\nen.islam.atef.mohamed@gmail.com\nوسيقوم Eslam Atef بالرد عليك في أقرب وقت.",
                 style: GoogleFonts.cairo(
                   fontSize: 14,
-                  color: AppColors.textSecondary,
+                  color: isDark ? AppColors.textSecondary : const Color(0xFF475569),
                   height: 1.7,
                 ),
                 textAlign: TextAlign.center,
@@ -256,31 +258,36 @@ class _ContactPageState extends State<ContactPage> {
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     final isMobile = screenWidth < 850;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    return Scaffold(
-      endDrawer: isMobile ? const UnifiedAppDrawer(currentRoute: '/contact') : null,
-      body: SafeArea(
-        child: Column(
-          children: [
-            const UnifiedAppHeader(
-              currentRoute: '/contact',
-              pageTitle: 'تواصل معنا — يسعدنا استقبال رسائلك',
-            ),
-            Expanded(
-              child: SingleChildScrollView(
-                child: Column(
-                  children: [
-                    const SizedBox(height: 28),
-                    _buildContactHero(isMobile),
-                    const SizedBox(height: 32),
-                    _buildContentContainer(isMobile, screenWidth),
-                    const SizedBox(height: 48),
-                    const UnifiedAppFooter(),
-                  ],
+    return Directionality(
+      textDirection: TextDirection.rtl,
+      child: Scaffold(
+        backgroundColor: isDark ? AppColors.bgDark : AppColors.bgLight,
+        endDrawer: isMobile ? const UnifiedAppDrawer(currentRoute: '/contact') : null,
+        body: SafeArea(
+          child: Column(
+            children: [
+              const UnifiedAppHeader(
+                currentRoute: '/contact',
+                pageTitle: 'تواصل معنا — يسعدنا استقبال رسائلك',
+              ),
+              Expanded(
+                child: SingleChildScrollView(
+                  child: Column(
+                    children: [
+                      const SizedBox(height: 28),
+                      _buildContactHero(isMobile, isDark),
+                      const SizedBox(height: 32),
+                      _buildContentContainer(isMobile, screenWidth, isDark),
+                      const SizedBox(height: 48),
+                      const UnifiedAppFooter(),
+                    ],
+                  ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -290,7 +297,7 @@ class _ContactPageState extends State<ContactPage> {
   // -------------------------------------------------------------
   // Hero Banner
   // -------------------------------------------------------------
-  Widget _buildContactHero(bool isMobile) {
+  Widget _buildContactHero(bool isMobile, bool isDark) {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: isMobile ? 20 : 32),
       constraints: const BoxConstraints(maxWidth: 900),
@@ -325,7 +332,7 @@ class _ContactPageState extends State<ContactPage> {
             style: GoogleFonts.cairo(
               fontSize: isMobile ? 26 : 38,
               fontWeight: FontWeight.w900,
-              color: AppColors.textPrimary,
+              color: isDark ? AppColors.textPrimary : const Color(0xFF0F172A),
             ),
             textAlign: TextAlign.center,
           ),
@@ -334,7 +341,7 @@ class _ContactPageState extends State<ContactPage> {
             "يسعدنا استقبال استفساراتك حول الكورسات البرمجية، التدريب الخاص، أو أي استشارة تقنية في هندسة البرمجيات والذكاء الاصطناعي. املأ النموذج أدناه وستصل رسالتك مباشرة إلى Eslam Atef.",
             style: GoogleFonts.cairo(
               fontSize: isMobile ? 14 : 16,
-              color: AppColors.textSecondary,
+              color: isDark ? AppColors.textSecondary : const Color(0xFF475569),
               height: 1.8,
             ),
             textAlign: TextAlign.center,
@@ -347,27 +354,27 @@ class _ContactPageState extends State<ContactPage> {
   // -------------------------------------------------------------
   // Main Content: Form + Quick Info Cards
   // -------------------------------------------------------------
-  Widget _buildContentContainer(bool isMobile, double screenWidth) {
+  Widget _buildContentContainer(bool isMobile, double screenWidth, bool isDark) {
     return Container(
       constraints: const BoxConstraints(maxWidth: 1100),
       padding: EdgeInsets.symmetric(horizontal: isMobile ? 16 : 24),
       child: Column(
         children: [
           // Quick Contact Info Row
-          _buildQuickInfoCards(isMobile),
+          _buildQuickInfoCards(isMobile, isDark),
           const SizedBox(height: 36),
 
           // The Contact Form Card
           Container(
             decoration: BoxDecoration(
-              color: AppColors.cardDark,
+              color: isDark ? AppColors.cardDark : Colors.white,
               borderRadius: BorderRadius.circular(24),
-              border: Border.all(color: AppColors.borderLightDark),
+              border: Border.all(color: isDark ? AppColors.borderLightDark : const Color(0xFFE2E8F0)),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.4),
-                  blurRadius: 30,
-                  offset: const Offset(0, 10),
+                  color: Colors.black.withValues(alpha: isDark ? 0.4 : 0.06),
+                  blurRadius: 24,
+                  offset: const Offset(0, 8),
                 ),
               ],
             ),
@@ -397,7 +404,7 @@ class _ContactPageState extends State<ContactPage> {
                               style: GoogleFonts.cairo(
                                 fontSize: isMobile ? 18 : 22,
                                 fontWeight: FontWeight.bold,
-                                color: AppColors.textPrimary,
+                                color: isDark ? AppColors.textPrimary : const Color(0xFF0F172A),
                               ),
                             ),
                             Text(
@@ -419,15 +426,15 @@ class _ContactPageState extends State<ContactPage> {
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Expanded(child: _buildNameField()),
+                        Expanded(child: _buildNameField(isDark)),
                         const SizedBox(width: 20),
-                        Expanded(child: _buildEmailField()),
+                        Expanded(child: _buildEmailField(isDark)),
                       ],
                     )
                   else ...[
-                    _buildNameField(),
+                    _buildNameField(isDark),
                     const SizedBox(height: 18),
-                    _buildEmailField(),
+                    _buildEmailField(isDark),
                   ],
 
                   const SizedBox(height: 18),
@@ -437,26 +444,26 @@ class _ContactPageState extends State<ContactPage> {
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Expanded(child: _buildPhoneField()),
+                        Expanded(child: _buildPhoneField(isDark)),
                         const SizedBox(width: 20),
-                        Expanded(child: _buildInquiryTypeField()),
+                        Expanded(child: _buildInquiryTypeField(isDark)),
                       ],
                     )
                   else ...[
-                    _buildPhoneField(),
+                    _buildPhoneField(isDark),
                     const SizedBox(height: 18),
-                    _buildInquiryTypeField(),
+                    _buildInquiryTypeField(isDark),
                   ],
 
                   const SizedBox(height: 18),
 
                   // Message Field
-                  _buildMessageField(),
+                  _buildMessageField(isDark),
 
                   const SizedBox(height: 24),
 
                   // File & Image Attachments Section
-                  _buildAttachmentsSection(isMobile),
+                  _buildAttachmentsSection(isMobile, isDark),
 
                   const SizedBox(height: 32),
 
@@ -474,7 +481,7 @@ class _ContactPageState extends State<ContactPage> {
   // -------------------------------------------------------------
   // Quick Contact Info Cards
   // -------------------------------------------------------------
-  Widget _buildQuickInfoCards(bool isMobile) {
+  Widget _buildQuickInfoCards(bool isMobile, bool isDark) {
     return LayoutBuilder(
       builder: (context, constraints) {
         final useGrid = constraints.maxWidth > 700;
@@ -486,6 +493,7 @@ class _ContactPageState extends State<ContactPage> {
             value: "en.islam.atef.mohamed@gmail.com",
             actionText: "مراسلة عبر الإيميل",
             iconColor: const Color(0xFF00E5FF),
+            isDark: isDark,
             onTap: () => launchUrl(Uri.parse("mailto:en.islam.atef.mohamed@gmail.com")),
           ),
           _infoCard(
@@ -494,6 +502,7 @@ class _ContactPageState extends State<ContactPage> {
             value: "01100665674",
             actionText: "محادثة فورية",
             iconColor: const Color(0xFF25D366),
+            isDark: isDark,
             onTap: () => launchUrl(Uri.parse(ArabicData.whatsappUrl)),
           ),
           _infoCard(
@@ -502,6 +511,7 @@ class _ContactPageState extends State<ContactPage> {
             value: "@EslamAtefAI",
             actionText: "انضم للقناة",
             iconColor: const Color(0xFF229ED9),
+            isDark: isDark,
             onTap: () => launchUrl(Uri.parse(ArabicData.telegramUrl)),
           ),
         ];
@@ -525,14 +535,22 @@ class _ContactPageState extends State<ContactPage> {
     required String value,
     required String actionText,
     required Color iconColor,
+    required bool isDark,
     required VoidCallback onTap,
   }) {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: AppColors.cardDark,
+        color: isDark ? AppColors.cardDark : Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.borderLightDark),
+        border: Border.all(color: isDark ? AppColors.borderLightDark : const Color(0xFFE2E8F0)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.04),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -548,7 +566,10 @@ class _ContactPageState extends State<ContactPage> {
           const SizedBox(height: 14),
           Text(
             title,
-            style: GoogleFonts.cairo(fontSize: 13, color: AppColors.textMuted),
+            style: GoogleFonts.cairo(
+              fontSize: 13,
+              color: isDark ? AppColors.textMuted : const Color(0xFF64748B),
+            ),
           ),
           const SizedBox(height: 4),
           SelectableText(
@@ -556,7 +577,7 @@ class _ContactPageState extends State<ContactPage> {
             style: GoogleFonts.cairo(
               fontSize: 14,
               fontWeight: FontWeight.bold,
-              color: AppColors.textPrimary,
+              color: isDark ? AppColors.textPrimary : const Color(0xFF0F172A),
             ),
           ),
           const SizedBox(height: 12),
@@ -589,18 +610,19 @@ class _ContactPageState extends State<ContactPage> {
   // -------------------------------------------------------------
   // Form Field Widgets
   // -------------------------------------------------------------
-  Widget _buildNameField() {
+  Widget _buildNameField(bool isDark) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _fieldLabel("الاسم بالكامل", isRequired: true),
+        _fieldLabel("الاسم بالكامل", isDark: isDark, isRequired: true),
         const SizedBox(height: 8),
         TextFormField(
           controller: _nameController,
-          style: GoogleFonts.cairo(color: AppColors.textPrimary, fontSize: 14),
+          style: GoogleFonts.cairo(color: isDark ? AppColors.textPrimary : const Color(0xFF0F172A), fontSize: 14),
           decoration: _inputDecoration(
             hint: "مثال: أحمد محمود",
             prefixIcon: Icons.person_outline_rounded,
+            isDark: isDark,
           ),
           validator: (val) {
             if (val == null || val.trim().isEmpty) {
@@ -613,19 +635,20 @@ class _ContactPageState extends State<ContactPage> {
     );
   }
 
-  Widget _buildEmailField() {
+  Widget _buildEmailField(bool isDark) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _fieldLabel("البريد الإلكتروني", isRequired: true),
+        _fieldLabel("البريد الإلكتروني", isDark: isDark, isRequired: true),
         const SizedBox(height: 8),
         TextFormField(
           controller: _emailController,
           keyboardType: TextInputType.emailAddress,
-          style: GoogleFonts.cairo(color: AppColors.textPrimary, fontSize: 14),
+          style: GoogleFonts.cairo(color: isDark ? AppColors.textPrimary : const Color(0xFF0F172A), fontSize: 14),
           decoration: _inputDecoration(
             hint: "example@gmail.com",
             prefixIcon: Icons.alternate_email_rounded,
+            isDark: isDark,
           ),
           validator: (val) {
             if (val == null || val.trim().isEmpty) {
@@ -641,45 +664,46 @@ class _ContactPageState extends State<ContactPage> {
     );
   }
 
-  Widget _buildPhoneField() {
+  Widget _buildPhoneField(bool isDark) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _fieldLabel("رقم الهاتف أو الواتساب", isRequired: false),
+        _fieldLabel("رقم الهاتف أو الواتساب", isDark: isDark, isRequired: false),
         const SizedBox(height: 8),
         TextFormField(
           controller: _phoneController,
           keyboardType: TextInputType.phone,
-          style: GoogleFonts.cairo(color: AppColors.textPrimary, fontSize: 14),
+          style: GoogleFonts.cairo(color: isDark ? AppColors.textPrimary : const Color(0xFF0F172A), fontSize: 14),
           decoration: _inputDecoration(
             hint: "010xxxxxxxx أو مع كود الدولة",
             prefixIcon: Icons.phone_outlined,
+            isDark: isDark,
           ),
         ),
       ],
     );
   }
 
-  Widget _buildInquiryTypeField() {
+  Widget _buildInquiryTypeField(bool isDark) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _fieldLabel("موضوع الاستفسار", isRequired: true),
+        _fieldLabel("موضوع الاستفسار", isDark: isDark, isRequired: true),
         const SizedBox(height: 8),
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 14),
           decoration: BoxDecoration(
-            color: AppColors.surfaceDark,
+            color: isDark ? AppColors.surfaceDark : const Color(0xFFF8FAFC),
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: AppColors.borderLightDark),
+            border: Border.all(color: isDark ? AppColors.borderLightDark : const Color(0xFFCBD5E1)),
           ),
           child: DropdownButtonHideUnderline(
             child: DropdownButton<String>(
               value: _selectedInquiryType,
               isExpanded: true,
-              dropdownColor: AppColors.surfaceDark,
+              dropdownColor: isDark ? AppColors.surfaceDark : Colors.white,
               icon: const Icon(Icons.keyboard_arrow_down_rounded, color: AppColors.primaryLight),
-              style: GoogleFonts.cairo(color: AppColors.textPrimary, fontSize: 14),
+              style: GoogleFonts.cairo(color: isDark ? AppColors.textPrimary : const Color(0xFF0F172A), fontSize: 14),
               items: _inquiryTypes.map((type) {
                 return DropdownMenuItem<String>(
                   value: type,
@@ -698,19 +722,20 @@ class _ContactPageState extends State<ContactPage> {
     );
   }
 
-  Widget _buildMessageField() {
+  Widget _buildMessageField(bool isDark) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _fieldLabel("تفاصيل الرسالة أو الاستفسار", isRequired: true),
+        _fieldLabel("تفاصيل الرسالة أو الاستفسار", isDark: isDark, isRequired: true),
         const SizedBox(height: 8),
         TextFormField(
           controller: _messageController,
           maxLines: 5,
-          style: GoogleFonts.cairo(color: AppColors.textPrimary, fontSize: 14),
+          style: GoogleFonts.cairo(color: isDark ? AppColors.textPrimary : const Color(0xFF0F172A), fontSize: 14),
           decoration: _inputDecoration(
             hint: "اكتب جميع تفاصيل استفسارك أو هدفك التعليمي أو المشروع البرمجي هنا...",
             prefixIcon: Icons.message_outlined,
+            isDark: isDark,
           ),
           validator: (val) {
             if (val == null || val.trim().isEmpty) {
@@ -729,14 +754,16 @@ class _ContactPageState extends State<ContactPage> {
   // -------------------------------------------------------------
   // File and Image Attachments Section
   // -------------------------------------------------------------
-  Widget _buildAttachmentsSection(bool isMobile) {
+  Widget _buildAttachmentsSection(bool isMobile, bool isDark) {
     return Container(
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-        color: AppColors.surfaceDark.withValues(alpha: 0.6),
+        color: isDark ? AppColors.surfaceDark.withValues(alpha: 0.6) : const Color(0xFFF8FAFC),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: _attachedFiles.isNotEmpty ? const Color(0xFF00E5FF).withValues(alpha: 0.5) : AppColors.borderDark,
+          color: _attachedFiles.isNotEmpty
+              ? const Color(0xFF00E5FF).withValues(alpha: 0.5)
+              : (isDark ? AppColors.borderDark : const Color(0xFFCBD5E1)),
           style: BorderStyle.solid,
         ),
       ),
@@ -755,7 +782,7 @@ class _ContactPageState extends State<ContactPage> {
                     style: GoogleFonts.cairo(
                       fontSize: 14,
                       fontWeight: FontWeight.bold,
-                      color: AppColors.textPrimary,
+                      color: isDark ? AppColors.textPrimary : const Color(0xFF0F172A),
                     ),
                   ),
                 ],
@@ -780,12 +807,15 @@ class _ContactPageState extends State<ContactPage> {
           const SizedBox(height: 8),
           Text(
             "يمكنك إرفاق سكرين شوت، أكواد برمجية، ملفات PDF، أو أي مستندات تدعم استفسارك.",
-            style: GoogleFonts.cairo(fontSize: 12, color: AppColors.textMuted),
+            style: GoogleFonts.cairo(
+              fontSize: 12,
+              color: isDark ? AppColors.textMuted : const Color(0xFF64748B),
+            ),
           ),
 
           if (_attachedFiles.isNotEmpty) ...[
             const SizedBox(height: 14),
-            const Divider(color: AppColors.borderDark),
+            Divider(color: isDark ? AppColors.borderDark : const Color(0xFFE2E8F0)),
             const SizedBox(height: 10),
             Wrap(
               spacing: 10,
@@ -795,9 +825,11 @@ class _ContactPageState extends State<ContactPage> {
                 return Container(
                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                   decoration: BoxDecoration(
-                    color: AppColors.cardDark,
+                    color: isDark ? AppColors.cardDark : Colors.white,
                     borderRadius: BorderRadius.circular(10),
-                    border: Border.all(color: const Color(0xFF00E5FF).withValues(alpha: 0.3)),
+                    border: Border.all(
+                      color: isDark ? const Color(0xFF00E5FF).withValues(alpha: 0.3) : const Color(0xFFBAE6FD),
+                    ),
                   ),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
@@ -808,14 +840,21 @@ class _ContactPageState extends State<ContactPage> {
                         constraints: const BoxConstraints(maxWidth: 160),
                         child: Text(
                           file.name,
-                          style: GoogleFonts.cairo(fontSize: 12, fontWeight: FontWeight.w600),
+                          style: GoogleFonts.cairo(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                            color: isDark ? Colors.white : const Color(0xFF0F172A),
+                          ),
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
                       const SizedBox(width: 6),
                       Text(
                         "(${_formatFileSize(file.lengthSync() ?? 0)})",
-                        style: GoogleFonts.inter(fontSize: 11, color: AppColors.textMuted),
+                        style: GoogleFonts.inter(
+                          fontSize: 11,
+                          color: isDark ? AppColors.textMuted : const Color(0xFF64748B),
+                        ),
                       ),
                       const SizedBox(width: 6),
                       MouseRegion(
@@ -883,12 +922,16 @@ class _ContactPageState extends State<ContactPage> {
     );
   }
 
-  Widget _fieldLabel(String label, {required bool isRequired}) {
+  Widget _fieldLabel(String label, {required bool isDark, required bool isRequired}) {
     return Row(
       children: [
         Text(
           label,
-          style: GoogleFonts.cairo(fontSize: 14, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
+          style: GoogleFonts.cairo(
+            fontSize: 14,
+            fontWeight: FontWeight.bold,
+            color: isDark ? AppColors.textPrimary : const Color(0xFF1E293B),
+          ),
         ),
         if (isRequired)
           Text(
@@ -899,21 +942,21 @@ class _ContactPageState extends State<ContactPage> {
     );
   }
 
-  InputDecoration _inputDecoration({required String hint, required IconData prefixIcon}) {
+  InputDecoration _inputDecoration({required String hint, required IconData prefixIcon, required bool isDark}) {
     return InputDecoration(
       hintText: hint,
-      hintStyle: GoogleFonts.cairo(color: AppColors.textMuted, fontSize: 13),
+      hintStyle: GoogleFonts.cairo(color: isDark ? AppColors.textMuted : const Color(0xFF94A3B8), fontSize: 13),
       prefixIcon: Icon(prefixIcon, color: AppColors.primaryLight, size: 20),
       filled: true,
-      fillColor: AppColors.surfaceDark,
+      fillColor: isDark ? AppColors.surfaceDark : const Color(0xFFF8FAFC),
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
-        borderSide: const BorderSide(color: AppColors.borderLightDark),
+        borderSide: BorderSide(color: isDark ? AppColors.borderLightDark : const Color(0xFFCBD5E1)),
       ),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
-        borderSide: const BorderSide(color: AppColors.borderLightDark),
+        borderSide: BorderSide(color: isDark ? AppColors.borderLightDark : const Color(0xFFCBD5E1)),
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),

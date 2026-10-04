@@ -42,7 +42,7 @@ class RecordingStudioPage extends StatelessWidget {
                     child: Column(
                       children: [
                         const SizedBox(height: 36),
-                        _buildRecordingContent(context, isMobile, screenWidth),
+                        _buildRecordingContent(context, isMobile, screenWidth, isDark),
                         const SizedBox(height: 60),
                         const UnifiedAppFooter(),
                       ],
@@ -57,7 +57,7 @@ class RecordingStudioPage extends StatelessWidget {
     );
   }
 
-  Widget _buildRecordingContent(BuildContext context, bool isMobile, double screenWidth) {
+  Widget _buildRecordingContent(BuildContext context, bool isMobile, double screenWidth, bool isDark) {
     return Container(
       constraints: const BoxConstraints(maxWidth: 1100),
       padding: EdgeInsets.symmetric(horizontal: isMobile ? 18 : 32),
@@ -116,14 +116,17 @@ class RecordingStudioPage extends StatelessWidget {
             width: double.infinity,
             padding: EdgeInsets.all(isMobile ? 22 : 36),
             decoration: BoxDecoration(
-              color: AppColors.cardDark,
+              color: isDark ? AppColors.cardDark : Colors.white,
               borderRadius: BorderRadius.circular(24),
-              border: Border.all(color: const Color(0xFF00E5FF).withValues(alpha: 0.4), width: 1.5),
+              border: Border.all(
+                color: isDark ? const Color(0xFF00E5FF).withValues(alpha: 0.4) : const Color(0xFFE2E8F0),
+                width: 1.5,
+              ),
               boxShadow: [
                 BoxShadow(
-                  color: const Color(0xFF00E5FF).withValues(alpha: 0.12),
-                  blurRadius: 30,
-                  offset: const Offset(0, 10),
+                  color: isDark ? const Color(0xFF00E5FF).withValues(alpha: 0.12) : Colors.black.withValues(alpha: 0.05),
+                  blurRadius: 24,
+                  offset: const Offset(0, 8),
                 ),
               ],
             ),
@@ -152,7 +155,7 @@ class RecordingStudioPage extends StatelessWidget {
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                       decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.08),
+                        color: isDark ? Colors.white.withValues(alpha: 0.08) : Colors.grey.withValues(alpha: 0.15),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Text(
@@ -160,7 +163,7 @@ class RecordingStudioPage extends StatelessWidget {
                         style: GoogleFonts.cairo(
                           fontSize: 12,
                           fontWeight: FontWeight.w700,
-                          color: Colors.white70,
+                          color: isDark ? Colors.white70 : const Color(0xFF475569),
                         ),
                       ),
                     ),
@@ -173,7 +176,7 @@ class RecordingStudioPage extends StatelessWidget {
                   style: GoogleFonts.cairo(
                     fontSize: isMobile ? 20 : 28,
                     fontWeight: FontWeight.w900,
-                    color: Colors.white,
+                    color: isDark ? Colors.white : const Color(0xFF0F172A),
                   ),
                 ),
                 const SizedBox(height: 12),

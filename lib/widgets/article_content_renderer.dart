@@ -455,8 +455,8 @@ class ArticleContentRenderer extends StatelessWidget {
         if (block.imageUrl == null) return const SizedBox.shrink();
         return Padding(
           padding: const EdgeInsets.symmetric(vertical: 18),
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(14),
+          child: Directionality(
+            textDirection: TextDirection.ltr,
             child: YouTubeEmbeddedPlayer(youtubeUrl: block.imageUrl!, height: 340),
           ),
         );

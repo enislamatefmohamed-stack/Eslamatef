@@ -37,10 +37,22 @@ class _LessonsPageState extends State<LessonsPage> {
     super.dispose();
   }
 
+  bool _isAdmin(User? user) {
+    if (user == null) return false;
+    if (user.email == 'islamatef01016834012@gmail.com') return true;
+    final cached = _dataService.members.firstWhere(
+      (m) => m['uid'] == user.uid || m['email'] == user.email,
+      orElse: () => <String, dynamic>{},
+    );
+    return cached['role'] == 'admin';
+  }
+
   bool _canAccess({String? courseId, String? lessonId, required bool isPaid}) {
-    if (!isPaid) return true;
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) return false;
+    if (_isAdmin(user)) return true;
+    if (!isPaid) return true;
+
     final cached = _dataService.members.firstWhere(
       (m) => m['uid'] == user.uid || m['email'] == user.email,
       orElse: () => <String, dynamic>{},
@@ -284,7 +296,6 @@ class _LessonsPageState extends State<LessonsPage> {
     final lesson = _selectedLesson!;
     final title = lesson['title'] ?? 'درس جديد';
     final youtubeUrl = (lesson['youtubeUrl'] ?? lesson['videoUrl'] ?? '').toString().trim();
-    final image = (lesson['image'] ?? lesson['imageUrl'] ?? '').toString().trim();
     final content = (lesson['content'] ?? '').toString().trim();
     final htmlCode = (lesson['htmlCode'] ?? '').toString().trim();
     final displayContent = htmlCode.isNotEmpty
@@ -362,32 +373,13 @@ class _LessonsPageState extends State<LessonsPage> {
             const SizedBox(height: 20),
           ],
 
-          // 3. الصورة (Cover Image)
-          if (image.isNotEmpty) ...[
+          // 3. الفيديو (Video / YouTube Player) - يعرض فقط إذا لم يكن المقال يحتوي بالفعل على فيديو لتجنب التكرار
+          if (!displayContent.contains('youtube') && !displayContent.contains('youtu.be') && !displayContent.contains('<iframe') && youtubeUrl.isNotEmpty && youtubeUrl.length > 5) ...[
             Center(
               child: ConstrainedBox(
                 constraints: const BoxConstraints(maxWidth: 850),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(16),
-                  child: SafeNetworkImage(
-                    imageUrl: image,
-                    fit: BoxFit.cover,
-                    width: double.infinity,
-                    height: isMobile ? 220 : 420,
-                  ),
-                ),
-              ),
-            ),
-            const SizedBox(height: 24),
-          ],
-
-          // 4. الفيديو (Video / YouTube Player)
-          if (youtubeUrl.isNotEmpty && youtubeUrl.length > 5) ...[
-            Center(
-              child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 850),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(16),
+                child: Directionality(
+                  textDirection: TextDirection.ltr,
                   child: YouTubeEmbeddedPlayer(youtubeUrl: youtubeUrl, height: isMobile ? 240 : 480),
                 ),
               ),

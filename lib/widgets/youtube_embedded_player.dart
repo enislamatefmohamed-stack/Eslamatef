@@ -109,25 +109,28 @@ class _YouTubeEmbeddedPlayerState extends State<YouTubeEmbeddedPlayer> {
       );
     }
 
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(16),
-      child: Container(
-        height: widget.height,
-        width: double.infinity,
-        decoration: BoxDecoration(
-          color: Colors.black,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: const Color(0xFF1E293B)),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.5),
-              blurRadius: 16,
-              offset: const Offset(0, 4),
-            ),
-          ],
-        ),
+    return Container(
+      height: widget.height,
+      width: double.infinity,
+      decoration: BoxDecoration(
+        color: Colors.black,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0xFF1E293B)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.5),
+            blurRadius: 16,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(15),
         child: kIsWeb
-            ? HtmlElementView(viewType: _viewId)
+            ? Directionality(
+                textDirection: TextDirection.ltr,
+                child: HtmlElementView(viewType: _viewId),
+              )
             : Stack(
                 children: [
                   Positioned.fill(

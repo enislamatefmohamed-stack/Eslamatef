@@ -30,7 +30,7 @@ class PrivacyPage extends StatelessWidget {
                     child: Column(
                       children: [
                         const SizedBox(height: 36),
-                        _buildContent(context, isMobile),
+                        _buildContent(context, isMobile, isDark),
                         const SizedBox(height: 60),
                         const UnifiedAppFooter(),
                       ],
@@ -45,7 +45,7 @@ class PrivacyPage extends StatelessWidget {
     );
   }
 
-  Widget _buildContent(BuildContext context, bool isMobile) {
+  Widget _buildContent(BuildContext context, bool isMobile, bool isDark) {
     return Container(
       constraints: const BoxConstraints(maxWidth: 900),
       padding: EdgeInsets.symmetric(horizontal: isMobile ? 20 : 32),
@@ -70,14 +70,21 @@ class PrivacyPage extends StatelessWidget {
           Center(
             child: Text(
               "سياسة الاستخدام والخصوصية",
-              style: GoogleFonts.cairo(fontSize: isMobile ? 26 : 34, fontWeight: FontWeight.w900),
+              style: GoogleFonts.cairo(
+                fontSize: isMobile ? 26 : 34,
+                fontWeight: FontWeight.w900,
+                color: isDark ? AppColors.textPrimary : const Color(0xFF0F172A),
+              ),
             ),
           ),
           const SizedBox(height: 8),
           Center(
             child: Text(
               "تاريخ آخر تحديث: 2026",
-              style: GoogleFonts.cairo(fontSize: 13, color: AppColors.textMuted),
+              style: GoogleFonts.cairo(
+                fontSize: 13,
+                color: isDark ? AppColors.textMuted : const Color(0xFF64748B),
+              ),
             ),
           ),
           const SizedBox(height: 36),
@@ -85,44 +92,56 @@ class PrivacyPage extends StatelessWidget {
           _buildSectionCard(
             "1. مقدمة وقبول الشروط",
             "أهلاً بك في المنصة الرسمية لـ Eslam Atef | Code & AI. باستخدامك لهذا الموقع أو تسجيلك في أي من برامجنا أو دوراتنا التعليمية، فإنك تقر وتوافق صراحة على الالتزام بجميع بنود سياسة الاستخدام والخصوصية الموضحة أدناه.",
+            isDark,
           ),
           const SizedBox(height: 20),
 
           _buildSectionCard(
             "2. حقوق الملكية الفكرية",
             "جميع المواد التعليمية، والمحاضرات المرئية، والمقالات، والأكواد البرمجية والتصميمات المنشورة على هذا الموقع مملوكة بالكامل لـ Eslam Atef ومحمية بموجب قوانين الملكية الفكرية الدولية. يُمنع منعاً باتاً إعادة بيع أو نشر أو توزيع المحتوى أو تسجيل المحاضرات الخاصة بالدورات دون إذن كتابي مسبق.",
+            isDark,
           ),
           const SizedBox(height: 20),
 
           _buildSectionCard(
             "3. جمع وحماية البيانات الشخصية (الخصوصية)",
             "نحن نلتزم بأعلى معايير حماية الخصوصية والأمان الرقمي:\n• نجمع البيانات التي تزودنا بها بمحض إرادتك مثل: الاسم، ورقم الهاتف، والبريد الإلكتروني عند التواصل أو الاشتراك.\n• نستخدم بياناتك حصراً لأغراض الرد على استفساراتك، وتقديم الدعم الأكاديمي، وتنظيم مواعيد الكورسات.\n• نتعهد بعدم بيع، أو تأجير، أو مشاركة أي بيانات شخصية مع أي جهات خارجية أو أطراف دعائية تحت أي ظرف.",
+            isDark,
           ),
           const SizedBox(height: 20),
 
           _buildSectionCard(
             "4. شروط التسجيل في الكورسات",
             "• يلتزم الطالب بحضور الجلسات في مواعيدها ومتابعة التطبيقات العملية والمشاريع المحددة في المسار.\n• يحق للمتدرب الاستفسار والمناقشة المباشرة والحصول على المراجعات البرمجية والتوجيه الفني الكامل خلال فترة الكورس.\n• أي انتهاك لشروط الاستخدام أو الإضرار ببيئة التعلم قد يؤدي إلى إيقاف الوصول دون استرداد الرسوم.",
+            isDark,
           ),
           const SizedBox(height: 20),
 
           _buildSectionCard(
             "5. التواصل والاستفسارات الرسمية",
             "إذا كانت لديك أي استفسارات أو ملاحظات بخصوص شروط الاستخدام أو سياسة الخصوصية، يمكنك التواصل معنا مباشرة:\n• الهاتف الرسمي: 01100665674\n• الواتساب: عبر الرابط المباشر في الموقع\n• البريد الإلكتروني: contact@eslamatef.dev",
+            isDark,
           ),
         ],
       ),
     );
   }
 
-  Widget _buildSectionCard(String title, String body) {
+  Widget _buildSectionCard(String title, String body, bool isDark) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: AppColors.cardDark,
+        color: isDark ? AppColors.cardDark : Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.borderDark),
+        border: Border.all(color: isDark ? AppColors.borderDark : const Color(0xFFE2E8F0)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.04),
+            blurRadius: 14,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -132,7 +151,7 @@ class PrivacyPage extends StatelessWidget {
             style: GoogleFonts.cairo(
               fontSize: 18,
               fontWeight: FontWeight.bold,
-              color: AppColors.primaryLight,
+              color: isDark ? const Color(0xFF38BDF8) : const Color(0xFF0369A1),
             ),
           ),
           const SizedBox(height: 12),
@@ -141,7 +160,7 @@ class PrivacyPage extends StatelessWidget {
             style: GoogleFonts.cairo(
               fontSize: 14.5,
               height: 1.75,
-              color: AppColors.textSecondary,
+              color: isDark ? AppColors.textSecondary : const Color(0xFF334155),
             ),
           ),
         ],
