@@ -83,15 +83,18 @@ class _LessonsPageState extends State<LessonsPage> {
                 ),
                 Expanded(
                   child: SingleChildScrollView(
-                    child: Column(
-                      children: [
-                        const SizedBox(height: 28),
-                        _selectedLesson != null
-                            ? _buildLessonDetailView(context, isMobile, isDark)
-                            : _buildAllLessonsCatalog(context, isMobile, isDark),
-                        const SizedBox(height: 60),
-                        const UnifiedAppFooter(),
-                      ],
+                    child: Center(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          const SizedBox(height: 28),
+                          _selectedLesson != null
+                              ? _buildLessonDetailView(context, isMobile, isDark)
+                              : _buildAllLessonsCatalog(context, isMobile, isDark),
+                          const SizedBox(height: 60),
+                          const UnifiedAppFooter(),
+                        ],
+                      ),
                     ),
                   ),
                 ),
@@ -120,11 +123,12 @@ class _LessonsPageState extends State<LessonsPage> {
     }
     allLessons.addAll(_dataService.lessons);
 
-    return Container(
-      constraints: const BoxConstraints(maxWidth: 1200),
-      padding: EdgeInsets.symmetric(horizontal: isMobile ? 18 : 28),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
+    return Center(
+      child: Container(
+        constraints: const BoxConstraints(maxWidth: 1200),
+        padding: EdgeInsets.symmetric(horizontal: isMobile ? 18 : 28),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Container(
             padding: EdgeInsets.all(isMobile ? 22 : 36),
@@ -269,8 +273,9 @@ class _LessonsPageState extends State<LessonsPage> {
             ),
         ],
       ),
-    );
-  }
+    ),
+  );
+}
 
   // ==========================================
   // Dedicated Lesson View with YouTube Player, Image & HTML Content
@@ -314,11 +319,12 @@ class _LessonsPageState extends State<LessonsPage> {
       );
     }
 
-    return Container(
-      constraints: const BoxConstraints(maxWidth: 1100),
-      padding: EdgeInsets.symmetric(horizontal: isMobile ? 18 : 28),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
+    return Center(
+      child: Container(
+        constraints: const BoxConstraints(maxWidth: 1000),
+        padding: EdgeInsets.symmetric(horizontal: isMobile ? 18 : 28),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Align(
             alignment: Alignment.centerRight,
@@ -357,14 +363,19 @@ class _LessonsPageState extends State<LessonsPage> {
           ],
 
           // 3. الصورة (Cover Image)
-          if (image.isNotEmpty && (image.startsWith('http') || image.contains('http'))) ...[
-            ClipRRect(
-              borderRadius: BorderRadius.circular(16),
-              child: SafeNetworkImage(
-                imageUrl: image,
-                fit: BoxFit.cover,
-                width: double.infinity,
-                height: isMobile ? 220 : 380,
+          if (image.isNotEmpty) ...[
+            Center(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 850),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(16),
+                  child: SafeNetworkImage(
+                    imageUrl: image,
+                    fit: BoxFit.cover,
+                    width: double.infinity,
+                    height: isMobile ? 220 : 420,
+                  ),
+                ),
               ),
             ),
             const SizedBox(height: 24),
@@ -372,9 +383,14 @@ class _LessonsPageState extends State<LessonsPage> {
 
           // 4. الفيديو (Video / YouTube Player)
           if (youtubeUrl.isNotEmpty && youtubeUrl.length > 5) ...[
-            ClipRRect(
-              borderRadius: BorderRadius.circular(16),
-              child: YouTubeEmbeddedPlayer(youtubeUrl: youtubeUrl, height: isMobile ? 240 : 480),
+            Center(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 850),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(16),
+                  child: YouTubeEmbeddedPlayer(youtubeUrl: youtubeUrl, height: isMobile ? 240 : 480),
+                ),
+              ),
             ),
             const SizedBox(height: 24),
           ],
@@ -486,8 +502,9 @@ class _LessonsPageState extends State<LessonsPage> {
           const SizedBox(height: 36),
         ],
       ),
-    );
-  }
+    ),
+  );
+}
 
   void _openLessonQuizDialog(BuildContext context, Map<String, dynamic> lesson, bool isDark) {
     final quizHtml = (lesson['quizHtml'] ?? '').toString().trim();

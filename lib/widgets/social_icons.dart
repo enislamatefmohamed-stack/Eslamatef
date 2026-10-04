@@ -298,21 +298,8 @@ class _SocialIconButtonState extends State<SocialIconButton> {
             padding: const EdgeInsets.all(7),
             transform: Matrix4.translationValues(0, _isHovered ? -2 : 0, 0),
             decoration: BoxDecoration(
-              color: _isHovered ? const Color(0xFF26334D) : const Color(0xFF162032),
+              color: _isHovered ? Colors.white.withValues(alpha: 0.12) : Colors.transparent,
               shape: BoxShape.circle,
-              border: Border.all(
-                color: _isHovered ? const Color(0xFF38BDF8) : const Color(0xFF2A3A54),
-                width: 1.2,
-              ),
-              boxShadow: _isHovered
-                  ? [
-                      BoxShadow(
-                        color: const Color(0xFF38BDF8).withValues(alpha: 0.3),
-                        blurRadius: 10,
-                        offset: const Offset(0, 2),
-                      )
-                    ]
-                  : null,
             ),
             child: widget.iconWidget,
           ),

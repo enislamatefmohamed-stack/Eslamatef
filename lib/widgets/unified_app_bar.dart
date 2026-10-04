@@ -117,12 +117,8 @@ class UnifiedAppHeader extends StatelessWidget implements PreferredSizeWidget {
               if (!isMobile)
                 Row(
                   children: [
-                    _navItem(context, "الرئيسية", '/', currentRoute == '/', isDark),
                     _navItem(context, "الكورسات", '/courses', currentRoute == '/courses', isDark),
-                    _navItem(context, "المناهج", '/lessons', currentRoute == '/lessons' || currentRoute == '/curricula', isDark),
-                    _navItem(context, "تحدي الأسبوع", '/challenge', currentRoute == '/challenge', isDark),
-                    _navItem(context, "اختبر نفسك", '/quiz', currentRoute == '/quiz', isDark),
-                    _navItem(context, "من نحن", '/about', currentRoute == '/about', isDark),
+                    _navItem(context, "المناهج", '/curricula', currentRoute == '/lessons' || currentRoute == '/curricula', isDark),
                     _navItem(context, "تواصل معنا", '/contact', currentRoute == '/contact', isDark),
                   ],
                 ),
