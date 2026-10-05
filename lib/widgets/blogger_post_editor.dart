@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'article_content_renderer.dart';
+import 'safe_network_image/safe_network_image.dart';
 
 /// Google Blogger-styled Post & Lesson Editor (محرر احترافي بنمط بلوجر الأصلي)
 /// Features:
@@ -402,7 +403,7 @@ class _BloggerPostEditorState extends State<BloggerPostEditor> {
     String detectedImage = '';
     final imgMatch = RegExp(r'<img[^>]+src=["' "'" r']([^"' "'" r']+)["' "'" r']', caseSensitive: false).firstMatch(code);
     if (imgMatch != null) {
-      detectedImage = imgMatch.group(1) ?? '';
+      detectedImage = sanitizeImageUrl(imgMatch.group(1) ?? '');
     }
 
     // Auto-extract first YouTube URL from HTML code
@@ -417,12 +418,15 @@ class _BloggerPostEditorState extends State<BloggerPostEditor> {
       }
     }
 
+    final finalImg = detectedImage.isNotEmpty ? detectedImage : 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=600';
+
     final result = {
       'title': _titleCtrl.text.trim().isNotEmpty ? _titleCtrl.text.trim() : 'درس جديد',
       'htmlCode': code,
       'content': code,
       'editorType': _mode == 'html' ? 'html' : 'visual',
-      'imageUrl': detectedImage.isNotEmpty ? detectedImage : 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=600',
+      'imageUrl': finalImg,
+      'image': finalImg,
       'youtubeUrl': detectedYoutube,
       'category': _category,
       'status': _status,

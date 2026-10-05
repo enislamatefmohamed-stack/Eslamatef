@@ -47,16 +47,24 @@ String sanitizeImageUrl(String raw) {
   var trimmed = raw.trim();
   if (trimmed.isEmpty) return '';
 
+  // 0. Auto-repair broken Unsplash demo URLs (handles truncated IDs or stray spaces)
+  if (trimmed.contains('photo-151632131')) {
+    trimmed = trimmed.replaceFirst(
+      RegExp(r'https?://images\.unsplash\.com/photo-151632131[^\s\x22\x27<>]*', caseSensitive: false),
+      'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=1200&q=85',
+    );
+  }
+
   // 1. BBCode [url=...][img]URL[/img][/url]
   final bbMatch = RegExp(r'\[img\](https?://[^\[\]]+)\[\/img\]', caseSensitive: false).firstMatch(trimmed);
   if (bbMatch != null) {
-    return bbMatch.group(1)!.trim();
+    return sanitizeImageUrl(bbMatch.group(1)!.trim());
   }
 
   // 2. BBCode [url=URL]
   final urlMatch = RegExp(r'\[url=(https?://[^\[\]]+)\]', caseSensitive: false).firstMatch(trimmed);
   if (urlMatch != null && (trimmed.startsWith('[url=') || !trimmed.startsWith('http'))) {
-    return urlMatch.group(1)!.trim();
+    return sanitizeImageUrl(urlMatch.group(1)!.trim());
   }
 
   // 3. Direct image link ending with extension

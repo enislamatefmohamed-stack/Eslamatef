@@ -78,9 +78,17 @@ class _LessonsPageState extends State<LessonsPage> {
     final content = (lesson['content'] ?? '').toString();
     final desc = (lesson['description'] ?? '').toString();
     final article = (lesson['article'] ?? lesson['body'] ?? lesson['details'] ?? '').toString();
-    final combined = '$htmlCode $content $desc $article';
+    var combined = '$htmlCode $content $desc $article';
 
     if (combined.trim().isNotEmpty) {
+      // Auto-repair any broken Unsplash photo URLs
+      if (combined.contains('photo-151632131')) {
+        combined = combined.replaceAll(
+          RegExp(r'https?://images\.unsplash\.com/photo-151632131[^\s\x22\x27<>]*', caseSensitive: false),
+          'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=1200&q=85',
+        );
+      }
+
       final unescaped = combined
           .replaceAll('&quot;', '"')
           .replaceAll('&#39;', "'")
@@ -88,52 +96,57 @@ class _LessonsPageState extends State<LessonsPage> {
           .replaceAll(r'\"', '"')
           .replaceAll(r"\'", "'");
 
+      // Check HTML <img ... src="..."> with support for multiline attributes and quotes
       final htmlMatch = RegExp(
-        r'<img\b[^>]*?\bsrc\s*=\s*["\x27]?([^"\x27\s>]+)',
+        r'''<img\b[^>]*?\bsrc\s*=\s*(?:["']([^"']+)["']|([^\s>]+))''',
         caseSensitive: false,
       ).firstMatch(unescaped);
       if (htmlMatch != null) {
-        var src = htmlMatch.group(1)!.trim().replaceAll('"', '').replaceAll("'", '');
+        var rawSrc = (htmlMatch.group(1) ?? htmlMatch.group(2) ?? '').trim();
+        var src = sanitizeImageUrl(rawSrc);
         if (src.startsWith('//')) src = 'https:$src';
         if (src.isNotEmpty && !src.contains('slide1.png') && !src.contains('slide2.png')) {
           return src;
         }
       }
 
+      // Check Markdown ![...](...)
       final mdMatch = RegExp(r'!\[[^\]]*\]\(([^)\s]+)\)').firstMatch(unescaped);
       if (mdMatch != null) {
-        var src = mdMatch.group(1)!.trim();
+        var src = sanitizeImageUrl(mdMatch.group(1)!.trim());
         if (src.startsWith('//')) src = 'https:$src';
         if (src.isNotEmpty && !src.contains('slide1.png') && !src.contains('slide2.png')) {
           return src;
         }
       }
 
+      // Check CSS background-image: url(...)
       final cssMatch = RegExp(
-        r'background(?:-image)?\s*:\s*url\(["\x27]?([^"\x27\)\s]+)',
+        r'''background(?:-image)?\s*:\s*url\s*\(\s*(?:["']([^"']+)["']|([^)"'\s]+))\s*\)''',
         caseSensitive: false,
       ).firstMatch(unescaped);
       if (cssMatch != null) {
-        var src = cssMatch.group(1)!.trim();
+        var src = sanitizeImageUrl((cssMatch.group(1) ?? cssMatch.group(2) ?? '').trim());
         if (src.startsWith('//')) src = 'https:$src';
         if (src.isNotEmpty && !src.contains('slide1.png')) {
           return src;
         }
       }
 
+      // Check direct image URL ending with standard image extension
       final extMatch = RegExp(
         r'(https?:\/\/[^\s"<>\)]+\.(?:jpg|jpeg|png|webp|gif|svg))',
         caseSensitive: false,
       ).firstMatch(unescaped);
       if (extMatch != null) {
-        final src = extMatch.group(1)!.trim();
+        final src = sanitizeImageUrl(extMatch.group(1)!.trim());
         if (src.isNotEmpty && !src.contains('slide1.png')) {
           return src;
         }
       }
     }
 
-    final rawLessonImg = (lesson['image'] ?? lesson['imageUrl'] ?? '').toString().trim();
+    final rawLessonImg = sanitizeImageUrl((lesson['image'] ?? lesson['imageUrl'] ?? '').toString());
     if (rawLessonImg.isNotEmpty &&
         !rawLessonImg.contains('slide1.png') &&
         !rawLessonImg.contains('slide2.png')) {
@@ -160,7 +173,7 @@ class _LessonsPageState extends State<LessonsPage> {
     }
 
     if (rawLessonImg.isNotEmpty) return rawLessonImg;
-    return '';
+    return 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=1200&q=85';
   }
 
   @override
@@ -212,20 +225,11 @@ class _LessonsPageState extends State<LessonsPage> {
 
 
   // ==========================================
-  // Catalog of All Lessons (collected from courses + lessons)
+  // Catalog of All Lessons (Curricula & Standalone Lessons)
   // ==========================================
   Widget _buildAllLessonsCatalog(BuildContext context, bool isMobile, bool isDark) {
-    // Collect all lessons: from Courses + standalone lessons
-    final List<Map<String, dynamic>> allLessons = [];
-
-    for (final course in _dataService.courses) {
-      final courseTitle = course['title'] ?? 'كورس';
-      final lessons = List<Map<String, dynamic>>.from(course['lessons'] ?? []);
-      for (final l in lessons) {
-        allLessons.add({...l, 'courseTitle': courseTitle});
-      }
-    }
-    allLessons.addAll(_dataService.lessons);
+    // Standalone lessons and curricula only (Course lessons stay strictly inside their courses)
+    final List<Map<String, dynamic>> allLessons = List<Map<String, dynamic>>.from(_dataService.lessons);
 
     return Center(
       child: Container(

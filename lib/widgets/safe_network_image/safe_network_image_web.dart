@@ -53,6 +53,10 @@ Widget buildPlatformSafeImage({
         ..style.display = 'block'
         ..style.pointerEvents = 'none';
 
+      img.onError.listen((_) {
+        img.style.display = 'none';
+      });
+
       switch (fit) {
         case BoxFit.cover:
           img.style.objectFit = 'cover';

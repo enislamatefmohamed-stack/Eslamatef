@@ -112,6 +112,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
   final _courseTitleCtrl = TextEditingController();
   final _courseDescCtrl = TextEditingController();
   final _courseImgCtrl = TextEditingController();
+  final _coursePdfCtrl = TextEditingController();
   final _courseCatCtrl = TextEditingController();
   final _courseHtmlCtrl = TextEditingController();
   String _selectedCourseCategory = '';
@@ -167,6 +168,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
     _courseDescCtrl.dispose();
     _coursePriceCtrl.dispose();
     _courseImgCtrl.dispose();
+    _coursePdfCtrl.dispose();
     _courseCatCtrl.dispose();
     _courseHtmlCtrl.dispose();
     _quizHtmlEditorCtrl.dispose();
@@ -1748,6 +1750,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
     _courseTitleCtrl.text = existing?['title'] ?? '';
     _courseDescCtrl.text = existing?['description'] ?? '';
     _courseImgCtrl.text = existing?['image'] ?? existing?['imageUrl'] ?? 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=600';
+    _coursePdfCtrl.text = existing?['pdfUrl'] ?? existing?['pdfLink'] ?? '';
     final cats = _dataService.courseCategories;
     _selectedCourseCategory = existing?['category'] ?? (cats.isNotEmpty ? cats.first : 'مسارات البرمجة');
     _courseCatCtrl.text = _selectedCourseCategory;
@@ -2163,6 +2166,63 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
               ],
             ),
           ),
+          const SizedBox(height: 16),
+
+          // Course PDF Booklet / Material (ملزمة أو ملف الكورس PDF)
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: const Color(0xFFFEF2F2),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: const Color(0xFFFECACA)),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(6),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFEF4444).withOpacity(0.12),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: const Icon(Icons.picture_as_pdf_rounded, color: Color(0xFFEF4444), size: 20),
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      "ملزمة أو ملف الكورس PDF (اختياري)",
+                      style: GoogleFonts.cairo(fontWeight: FontWeight.bold, fontSize: 13, color: const Color(0xFF991B1B)),
+                    ),
+                    const SizedBox(width: 8),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(6),
+                        border: Border.all(color: const Color(0xFFFCA5A5)),
+                      ),
+                      child: Text("غير إجباري", style: GoogleFonts.cairo(fontSize: 10, color: const Color(0xFFDC2626), fontWeight: FontWeight.bold)),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  "ضع رابط ملف الملزمة (مثل رابط Google Drive أو رابط مباشر لملف PDF). سيتمكن الطلاب من تصفحه وقراءته مباشرة داخل الموقع.",
+                  style: GoogleFonts.cairo(fontSize: 11.5, color: const Color(0xFFB91C1C)),
+                ),
+                const SizedBox(height: 10),
+                TextField(
+                  controller: _coursePdfCtrl,
+                  decoration: _inputDecoration(
+                    "مثال: https://drive.google.com/file/d/1KVh0bxk0ozZSuC4QCggyDsHkSK3WHmNt/view",
+                  ).copyWith(
+                    prefixIcon: const Icon(Icons.link_rounded, color: Color(0xFFEF4444), size: 20),
+                  ),
+                ),
+              ],
+            ),
+          ),
 
           if (_isCourseHtmlMode) ...[
             const SizedBox(height: 24),
@@ -2258,6 +2318,8 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
       'editorType': _isCourseHtmlMode ? 'html' : 'visual',
       'htmlCode': _courseHtmlCtrl.text.trim(),
       'content': _isCourseHtmlMode ? _courseHtmlCtrl.text.trim() : _courseDescCtrl.text.trim(),
+      'pdfUrl': _coursePdfCtrl.text.trim(),
+      'pdfLink': _coursePdfCtrl.text.trim(),
       'lessons': _editingCourse?['lessons'] ?? <Map<String, dynamic>>[],
     };
 

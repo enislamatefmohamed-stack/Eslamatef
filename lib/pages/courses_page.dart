@@ -9,6 +9,7 @@ import '../widgets/youtube_embedded_player.dart';
 import '../widgets/auth_modal.dart';
 import '../widgets/safe_network_image/safe_network_image.dart';
 import '../widgets/unified_app_bar.dart';
+import '../widgets/pdf_viewer/pdf_viewer_modal.dart';
 
 class CoursesPage extends StatefulWidget {
   const CoursesPage({super.key});
@@ -95,16 +96,24 @@ class _CoursesPageState extends State<CoursesPage> {
   }
 
   String _resolveLessonThumbnail(Map<String, dynamic> lesson, [Map<String, dynamic>? course]) {
-    final courseImg = (course?['image'] ?? course?['imageUrl'] ?? '').toString().trim();
+    final courseImg = sanitizeImageUrl((course?['image'] ?? course?['imageUrl'] ?? '').toString());
 
     // 1. Try to extract first image from the lesson article content (HTML or Markdown)
     final htmlCode = (lesson['htmlCode'] ?? '').toString();
     final content = (lesson['content'] ?? '').toString();
     final desc = (lesson['description'] ?? '').toString();
     final article = (lesson['article'] ?? lesson['body'] ?? lesson['details'] ?? '').toString();
-    final combined = '$htmlCode $content $desc $article';
+    var combined = '$htmlCode $content $desc $article';
 
     if (combined.trim().isNotEmpty) {
+      // Auto-repair any broken Unsplash photo URLs
+      if (combined.contains('photo-151632131')) {
+        combined = combined.replaceAll(
+          RegExp(r'https?://images\.unsplash\.com/photo-151632131[^\s\x22\x27<>]*', caseSensitive: false),
+          'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=1200&q=85',
+        );
+      }
+
       // Unescape HTML quotes & entities
       final unescaped = combined
           .replaceAll('&quot;', '"')
@@ -113,13 +122,14 @@ class _CoursesPageState extends State<CoursesPage> {
           .replaceAll(r'\"', '"')
           .replaceAll(r"\'", "'");
 
-      // Check HTML <img ... src="...">
+      // Check HTML <img ... src="..."> with support for multiline attributes and quotes
       final htmlMatch = RegExp(
-        r'<img\b[^>]*?\bsrc\s*=\s*["\x27]?([^"\x27\s>]+)',
+        r'''<img\b[^>]*?\bsrc\s*=\s*(?:["']([^"']+)["']|([^\s>]+))''',
         caseSensitive: false,
       ).firstMatch(unescaped);
       if (htmlMatch != null) {
-        var src = htmlMatch.group(1)!.trim().replaceAll('"', '').replaceAll("'", '');
+        var rawSrc = (htmlMatch.group(1) ?? htmlMatch.group(2) ?? '').trim();
+        var src = sanitizeImageUrl(rawSrc);
         if (src.startsWith('//')) src = 'https:$src';
         if (src.isNotEmpty && src != courseImg && !src.contains('slide1.png') && !src.contains('slide2.png')) {
           return src;
@@ -129,7 +139,7 @@ class _CoursesPageState extends State<CoursesPage> {
       // Check Markdown ![...](...)
       final mdMatch = RegExp(r'!\[[^\]]*\]\(([^)\s]+)\)').firstMatch(unescaped);
       if (mdMatch != null) {
-        var src = mdMatch.group(1)!.trim();
+        var src = sanitizeImageUrl(mdMatch.group(1)!.trim());
         if (src.startsWith('//')) src = 'https:$src';
         if (src.isNotEmpty && src != courseImg && !src.contains('slide1.png')) {
           return src;
@@ -138,11 +148,11 @@ class _CoursesPageState extends State<CoursesPage> {
 
       // Check CSS background-image: url(...)
       final cssMatch = RegExp(
-        r'background(?:-image)?\s*:\s*url\(["\x27]?([^"\x27\)\s]+)',
+        r'''background(?:-image)?\s*:\s*url\s*\(\s*(?:["']([^"']+)["']|([^)"'\s]+))\s*\)''',
         caseSensitive: false,
       ).firstMatch(unescaped);
       if (cssMatch != null) {
-        var src = cssMatch.group(1)!.trim();
+        var src = sanitizeImageUrl((cssMatch.group(1) ?? cssMatch.group(2) ?? '').trim());
         if (src.startsWith('//')) src = 'https:$src';
         if (src.isNotEmpty && src != courseImg && !src.contains('slide1.png')) {
           return src;
@@ -155,7 +165,7 @@ class _CoursesPageState extends State<CoursesPage> {
         caseSensitive: false,
       ).firstMatch(unescaped);
       if (extMatch != null) {
-        final src = extMatch.group(1)!.trim();
+        final src = sanitizeImageUrl(extMatch.group(1)!.trim());
         if (src.isNotEmpty && src != courseImg && !src.contains('slide1.png')) {
           return src;
         }
@@ -163,7 +173,7 @@ class _CoursesPageState extends State<CoursesPage> {
     }
 
     // 2. Check lesson explicit image if distinct from course cover and slide default
-    final rawLessonImg = (lesson['image'] ?? lesson['imageUrl'] ?? '').toString().trim();
+    final rawLessonImg = sanitizeImageUrl((lesson['image'] ?? lesson['imageUrl'] ?? '').toString());
     if (rawLessonImg.isNotEmpty &&
         rawLessonImg != courseImg &&
         !rawLessonImg.contains('slide1.png') &&
@@ -192,10 +202,10 @@ class _CoursesPageState extends State<CoursesPage> {
       }
     }
 
-    // 4. Fallback to lesson image or course cover
-    if (rawLessonImg.isNotEmpty && !rawLessonImg.contains('slide1.png')) return rawLessonImg;
+    // 4. Fallback to course cover or lesson image
     if (courseImg.isNotEmpty && !courseImg.contains('slide1.png')) return courseImg;
-    return rawLessonImg.isNotEmpty ? rawLessonImg : (courseImg.isNotEmpty ? courseImg : '');
+    if (rawLessonImg.isNotEmpty && !rawLessonImg.contains('slide1.png')) return rawLessonImg;
+    return courseImg.isNotEmpty ? courseImg : (rawLessonImg.isNotEmpty ? rawLessonImg : 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=1200&q=85');
   }
 
   @override
@@ -619,6 +629,11 @@ class _CoursesPageState extends State<CoursesPage> {
             ),
           ],
 
+          // Course PDF Material (ملزمة الكورس)
+          if ((course['pdfUrl'] ?? course['pdfLink'] ?? '').toString().trim().isNotEmpty) ...[
+            _buildCoursePdfCard(course, isDark, isMobile),
+          ],
+
           if (lessons.isEmpty)
             _buildEmptyState("لا توجد دروس أو فيديوهات داخل هذا الكورس بعد", "يمكنك إضافة دروس جديدة لهذا الكورس عبر لوحة التحكم.", isDark)
           else
@@ -675,6 +690,12 @@ class _CoursesPageState extends State<CoursesPage> {
                                     height: 50,
                                     fit: BoxFit.cover,
                                     borderRadius: BorderRadius.circular(8),
+                                    errorWidget: Container(
+                                      width: 70,
+                                      height: 50,
+                                      color: isDark ? const Color(0xFF060D1F) : const Color(0xFFF1F5F9),
+                                      child: const Icon(Icons.play_circle_outline_rounded, color: Color(0xFF00E5FF), size: 24),
+                                    ),
                                   ),
                                 ),
                               ),
@@ -781,6 +802,12 @@ class _CoursesPageState extends State<CoursesPage> {
                                 height: 65,
                                 fit: BoxFit.cover,
                                 borderRadius: BorderRadius.circular(10),
+                                errorWidget: Container(
+                                  width: 90,
+                                  height: 65,
+                                  color: isDark ? const Color(0xFF060D1F) : const Color(0xFFF1F5F9),
+                                  child: const Icon(Icons.play_circle_outline_rounded, color: Color(0xFF00E5FF), size: 28),
+                                ),
                               ),
                             ),
                           ),
@@ -871,6 +898,125 @@ class _CoursesPageState extends State<CoursesPage> {
     ),
   );
 }
+
+  Widget _buildCoursePdfCard(Map<String, dynamic> course, bool isDark, bool isMobile) {
+    final pdfUrl = (course['pdfUrl'] ?? course['pdfLink'] ?? '').toString().trim();
+    if (pdfUrl.isEmpty) return const SizedBox.shrink();
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 20),
+      padding: const EdgeInsets.all(18),
+      decoration: BoxDecoration(
+        color: isDark ? const Color(0xFF0F172A) : Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: const Color(0xFFEF4444).withValues(alpha: isDark ? 0.45 : 0.3),
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFFEF4444).withValues(alpha: 0.06),
+            blurRadius: 14,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: isMobile
+          ? Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFEF4444).withValues(alpha: 0.12),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: const Icon(Icons.picture_as_pdf_rounded, color: Color(0xFFEF4444), size: 24),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            "ملزمة ومرفقات الكورس (PDF)",
+                            style: GoogleFonts.cairo(fontSize: 15, fontWeight: FontWeight.bold),
+                          ),
+                          Text(
+                            "تصفح وقراءة الملزمة كاملة مباشرة داخل الموقع.",
+                            style: GoogleFonts.cairo(fontSize: 11.5, color: Colors.grey),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 14),
+                ElevatedButton.icon(
+                  onPressed: () => PdfViewerModal.show(
+                    context,
+                    pdfUrl: pdfUrl,
+                    title: "ملزمة ${course['title'] ?? 'الكورس'}",
+                    isDark: isDark,
+                  ),
+                  icon: const Icon(Icons.menu_book_rounded, size: 18),
+                  label: Text("تصفح وقراءة الملزمة داخل الموقع 📖", style: GoogleFonts.cairo(fontWeight: FontWeight.bold, fontSize: 13)),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFFEF4444),
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 11),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                  ),
+                ),
+              ],
+            )
+          : Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFEF4444).withValues(alpha: 0.12),
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                  child: const Icon(Icons.picture_as_pdf_rounded, color: Color(0xFFEF4444), size: 30),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        "ملزمة ومرفقات الكورس (PDF)",
+                        style: GoogleFonts.cairo(fontSize: 16, fontWeight: FontWeight.bold),
+                      ),
+                      Text(
+                        "مذكرة وملخصات هذا الكورس متوفرة للقراءة المباشرة داخل الموقع أو التحميل.",
+                        style: GoogleFonts.cairo(fontSize: 12.5, color: Colors.grey),
+                      ),
+                    ],
+                  ),
+                ),
+                ElevatedButton.icon(
+                  onPressed: () => PdfViewerModal.show(
+                    context,
+                    pdfUrl: pdfUrl,
+                    title: "ملزمة ${course['title'] ?? 'الكورس'}",
+                    isDark: isDark,
+                  ),
+                  icon: const Icon(Icons.menu_book_rounded, size: 18),
+                  label: Text("تصفح وقراءة الملزمة داخل الموقع 📖", style: GoogleFonts.cairo(fontWeight: FontWeight.bold, fontSize: 13)),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFFEF4444),
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                  ),
+                ),
+              ],
+            ),
+    );
+  }
 
   // ==========================================
   // VIEW 3: Dedicated Lesson & YouTube Video Player View
