@@ -129,6 +129,12 @@ class SiteDataService extends ChangeNotifier {
         _members = List<Map<String, dynamic>>.from(jsonDecode(membersStr));
       }
 
+      final recStr = prefs.getString('site_recording_lessons');
+      if (recStr != null) {
+        _recordingLessons.clear();
+        _recordingLessons.addAll(List<Map<String, dynamic>>.from(jsonDecode(recStr)));
+      }
+
       _isInitialized = true;
       notifyListeners();
 
@@ -283,6 +289,20 @@ class SiteDataService extends ChangeNotifier {
           notifyListeners();
         }
       }, onError: (e) => debugPrint("Firestore updates error: $e"));
+
+      // Recording Lessons Collection (جلسات التصوير والسبورة الذكية الحية)
+      _firestore.collection('recording_lessons').snapshots().listen((snapshot) {
+        if (snapshot.docs.isNotEmpty) {
+          _recordingLessons.clear();
+          _recordingLessons.addAll(snapshot.docs.map((doc) {
+            final d = doc.data();
+            d['id'] = doc.id;
+            return d;
+          }).toList());
+          _saveRecordingLessons();
+          notifyListeners();
+        }
+      }, onError: (e) => debugPrint("Firestore recording_lessons error: $e"));
 
     } catch (e) {
       debugPrint("Error binding Firestore listeners: $e");
@@ -1134,18 +1154,43 @@ class SiteDataService extends ChangeNotifier {
 
   // --- Recording Lessons CRUD (استوديو التصوير) ---
   Future<void> addRecordingLesson(Map<String, dynamic> lesson) async {
-    lesson['id'] = DateTime.now().millisecondsSinceEpoch.toString();
+    final id = lesson['id']?.toString() ?? 'rec_${DateTime.now().millisecondsSinceEpoch}';
+    lesson['id'] = id;
+    if (lesson['createdAt'] == null) {
+      lesson['createdAt'] = DateTime.now().toIso8601String();
+    }
+    if (lesson['date'] == null) {
+      final now = DateTime.now();
+      lesson['date'] = "${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}";
+    }
     _recordingLessons.add(lesson);
     await _saveRecordingLessons();
     notifyListeners();
+
+    if (isFirebaseReady) {
+      try {
+        await _firestore.collection('recording_lessons').doc(id).set(lesson, SetOptions(merge: true));
+      } catch (e) {
+        debugPrint("Firestore addRecordingLesson error: $e");
+      }
+    }
   }
 
   Future<void> updateRecordingLesson(String id, Map<String, dynamic> updated) async {
     final idx = _recordingLessons.indexWhere((r) => r['id'] == id);
     if (idx != -1) {
+      updated['id'] = id;
       _recordingLessons[idx] = updated;
       await _saveRecordingLessons();
       notifyListeners();
+
+      if (isFirebaseReady) {
+        try {
+          await _firestore.collection('recording_lessons').doc(id).set(updated, SetOptions(merge: true));
+        } catch (e) {
+          debugPrint("Firestore updateRecordingLesson error: $e");
+        }
+      }
     }
   }
 
@@ -1153,6 +1198,14 @@ class SiteDataService extends ChangeNotifier {
     _recordingLessons.removeWhere((r) => r['id'] == id);
     await _saveRecordingLessons();
     notifyListeners();
+
+    if (isFirebaseReady) {
+      try {
+        await _firestore.collection('recording_lessons').doc(id).delete();
+      } catch (e) {
+        debugPrint("Firestore deleteRecordingLesson error: $e");
+      }
+    }
   }
 
   Future<void> _saveRecordingLessons() async {

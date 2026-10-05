@@ -11,6 +11,7 @@ import '../widgets/article_content_renderer.dart';
 import '../widgets/youtube_embedded_player.dart';
 import '../widgets/safe_network_image/safe_network_image.dart';
 import '../widgets/blogger_post_editor.dart';
+import '../widgets/recording_launcher/recording_launcher.dart';
 
 class _SubTabItem {
   final String title;
@@ -6639,8 +6640,12 @@ function checkScore() {
                               Expanded(
                                 child: ElevatedButton.icon(
                                   onPressed: () {
-                                    final studioUrl = Uri.parse("presentation/index.html");
-                                    launchUrl(studioUrl, mode: LaunchMode.platformDefault);
+                                    final code = (rec['code'] ?? '').toString();
+                                    if (code.trim().isEmpty) {
+                                      _showSnackBar("كود الجلسة فارغ! يرجى النقر على أيقونة التعديل وإضافة كود الـ HTML أولاً");
+                                      return;
+                                    }
+                                    openRecordingPresentation(code, title: rec['title']);
                                   },
                                   icon: const Icon(Icons.play_circle_fill_rounded, size: 16),
                                   label: Text("تشغيل الاستوديو 🎬", style: GoogleFonts.cairo(fontWeight: FontWeight.bold, fontSize: 12)),
@@ -6690,8 +6695,12 @@ function checkScore() {
                           ),
                           ElevatedButton.icon(
                             onPressed: () {
-                              final studioUrl = Uri.parse("presentation/index.html");
-                              launchUrl(studioUrl, mode: LaunchMode.platformDefault);
+                              final code = (rec['code'] ?? '').toString();
+                              if (code.trim().isEmpty) {
+                                _showSnackBar("كود الجلسة فارغ! يرجى النقر على أيقونة التعديل وإضافة كود الـ HTML أولاً");
+                                return;
+                              }
+                              openRecordingPresentation(code, title: rec['title']);
                             },
                             icon: const Icon(Icons.play_circle_fill_rounded, size: 16),
                             label: Text("تشغيل الاستوديو 🎬", style: GoogleFonts.cairo(fontWeight: FontWeight.bold, fontSize: 12)),
@@ -8018,21 +8027,24 @@ function checkScore() {
   // 4. Recording Studio: Prompt for Name FIRST, then open HTML Editor
   void _openCreateRecordingSessionPrompt() {
     final nameCtrl = TextEditingController();
+    final subjectCtrl = TextEditingController(text: "الصف الأول الثانوي | البرمجة والذكاء الاصطناعي");
 
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: Text("اسم جلسة التصوير الجديدة", style: GoogleFonts.cairo(fontWeight: FontWeight.bold)),
+        title: Text("إضافة جلسة تصوير جديدة 🎥", style: GoogleFonts.cairo(fontWeight: FontWeight.bold)),
         content: SizedBox(
-          width: 450,
+          width: 500,
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text("يرجى إدخال اسم الدرس / الجلسة أولاً للمتابعة:", style: GoogleFonts.cairo(fontSize: 13, color: Colors.grey)),
-              const SizedBox(height: 8),
-              _buildDialogField("اسم الجلسة", nameCtrl, hint: "مثال: الدرس 02: الجمل الشرطية والحلقات التكرارية"),
+              Text("أدخل بيانات الجلسة ثم تابع لكتابة أو لصق كود الـ HTML والسبورة التفاعلية:", style: GoogleFonts.cairo(fontSize: 13, color: Colors.grey)),
+              const SizedBox(height: 12),
+              _buildDialogField("اسم الجلسة / المحاضرة", nameCtrl, hint: "مثال: المحاضرة 01: البيانات والمعلومات والمعرفة"),
+              const SizedBox(height: 10),
+              _buildDialogField("المادة / المسار الدراسي", subjectCtrl, hint: "مثال: الصف الأول الثانوي | البرمجة والذكاء الاصطناعي"),
             ],
           ),
         ),
@@ -8045,30 +8057,8 @@ function checkScore() {
               Navigator.pop(ctx);
               _openRecordingHtmlEditor({
                 'title': name,
-                'code': '''<!-- قالب شرائح التصوير التفاعلية لـ Eslam Atef -->
-<section class="slide">
-  <header class="slide-header">
-    <div class="brand">⚡ KMT AI — Eslam Atef</div>
-    <div class="slide-meta">$name</div>
-  </header>
-  <div class="slide-title-area">
-    <div class="slide-tag">المفاهيم الأساسية</div>
-    <h2 class="slide-main-title">$name</h2>
-    <p class="slide-subtitle">شرح تطبيقي وعملي مع كتابة الأكواد على السبورة الذكية</p>
-  </div>
-  <div class="slide-body">
-    <div class="card-grid grid-cols-2">
-      <div class="tech-card">
-        <div class="card-title">المفهوم الأول</div>
-        <div class="card-desc">اكتب تفاصيل النقطة الأولى هنا للشرح</div>
-      </div>
-      <div class="tech-card">
-        <div class="card-title">المفهوم الثاني</div>
-        <div class="card-desc">اكتب تفاصيل النقطة الثانية هنا للشرح</div>
-      </div>
-    </div>
-  </div>
-</section>''',
+                'subject': subjectCtrl.text.trim().isEmpty ? 'جلسة تدريسية' : subjectCtrl.text.trim(),
+                'code': '',
               }, isNew: true);
             },
             style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF0284C7)),
@@ -8080,30 +8070,66 @@ function checkScore() {
   }
 
   void _openRecordingHtmlEditor(Map<String, dynamic> rec, {bool isNew = false}) {
+    final titleCtrl = TextEditingController(text: rec['title'] ?? '');
+    final subjectCtrl = TextEditingController(text: rec['subject'] ?? 'الصف الأول الثانوي | البرمجة والذكاء الاصطناعي');
     final codeCtrl = TextEditingController(text: rec['code'] ?? '');
 
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: Text("محرر شرائح HTML: ${rec['title']}", style: GoogleFonts.cairo(fontWeight: FontWeight.bold)),
+        title: Row(
+          children: [
+            const Icon(Icons.code_rounded, color: Color(0xFF0284C7)),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                isNew ? "إنشاء وتجهيز كود جلسة التصوير" : "تعديل كود جلسة: ${rec['title'] ?? ''}",
+                style: GoogleFonts.cairo(fontWeight: FontWeight.bold, fontSize: 16),
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          ],
+        ),
         content: SizedBox(
-          width: 800,
+          width: 850,
           child: SingleChildScrollView(
             child: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text("الصق أو اكتب كود HTML لشرائح العرض التقديمي. يدعم فئات .slide و .tech-card و .brand:", style: GoogleFonts.cairo(fontSize: 12, color: Colors.grey)),
+                _buildDialogField("عنوان الجلسة", titleCtrl),
                 const SizedBox(height: 8),
+                _buildDialogField("المادة / المسار", subjectCtrl),
+                const SizedBox(height: 12),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text("كود HTML / CSS / JS للشرائح والسبورة الذكية:", style: GoogleFonts.cairo(fontSize: 13, fontWeight: FontWeight.bold, color: const Color(0xFF0F172A))),
+                    TextButton.icon(
+                      onPressed: () async {
+                        final data = await Clipboard.getData('text/plain');
+                        if (data != null && data.text != null && data.text!.isNotEmpty) {
+                          codeCtrl.text = data.text!;
+                          _showSnackBar("تم لصق الكود من الحافظة 📋");
+                        }
+                      },
+                      icon: const Icon(Icons.paste_rounded, size: 16),
+                      label: Text("لصق الكود من الحافظة", style: GoogleFonts.cairo(fontSize: 12)),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 6),
                 TextField(
                   controller: codeCtrl,
-                  maxLines: 15,
-                  style: GoogleFonts.firaCode(fontSize: 13),
+                  maxLines: 18,
+                  style: GoogleFonts.firaCode(fontSize: 12, color: const Color(0xFF38BDF8)),
                   decoration: InputDecoration(
                     border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
                     filled: true,
-                    fillColor: const Color(0xFFF8FAFC),
+                    fillColor: const Color(0xFF0F172A),
+                    hintText: "الصق كود الـ HTML التفاعلي الكامل هنا...",
+                    hintStyle: GoogleFonts.firaCode(color: Colors.grey, fontSize: 12),
                   ),
                 ),
               ],
@@ -8112,20 +8138,40 @@ function checkScore() {
         ),
         actions: [
           TextButton(onPressed: () => Navigator.pop(ctx), child: Text("إلغاء", style: GoogleFonts.cairo())),
-          ElevatedButton(
+          OutlinedButton.icon(
+            onPressed: () {
+              final code = codeCtrl.text;
+              if (code.trim().isEmpty) {
+                _showSnackBar("الكود فارغ! يرجى إدخال أو لصق كود الجلسة للمعاينة");
+                return;
+              }
+              openRecordingPresentation(code, title: titleCtrl.text);
+            },
+            icon: const Icon(Icons.play_circle_outline_rounded, size: 18, color: Color(0xFF0284C7)),
+            label: Text("تشغيل ومعاينة مباشرة 🎬", style: GoogleFonts.cairo(color: const Color(0xFF0284C7), fontWeight: FontWeight.bold)),
+          ),
+          ElevatedButton.icon(
             onPressed: () async {
+              final title = titleCtrl.text.trim();
+              if (title.isEmpty) {
+                _showSnackBar("يرجى كتابة عنوان الجلسة أولاً");
+                return;
+              }
               Navigator.pop(ctx);
+              rec['title'] = title;
+              rec['subject'] = subjectCtrl.text.trim().isEmpty ? 'جلسة تدريسية' : subjectCtrl.text.trim();
               rec['code'] = codeCtrl.text;
               if (isNew) {
                 await _dataService.addRecordingLesson(rec);
-                _showSnackBar("تمت إضافة جلسة التصوير بنجاح");
+                _showSnackBar("تمت إضافة جلسة التصوير وحفظها في الفايربيز بنجاح ☁️");
               } else {
                 await _dataService.updateRecordingLesson(rec['id'], rec);
-                _showSnackBar("تم حفظ كود الجلسة بنجاح");
+                _showSnackBar("تم تحديث جلسة التصوير في الفايربيز بنجاح ☁️");
               }
             },
-            style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF8B5CF6)),
-            child: Text("حفظ الجلسة", style: GoogleFonts.cairo(color: Colors.white, fontWeight: FontWeight.bold)),
+            icon: const Icon(Icons.cloud_upload_rounded, size: 18, color: Colors.white),
+            style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF16A34A)),
+            label: Text("حفظ في الفايربيز 💾", style: GoogleFonts.cairo(color: Colors.white, fontWeight: FontWeight.bold)),
           ),
         ],
       ),
