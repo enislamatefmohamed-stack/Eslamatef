@@ -1,0 +1,22 @@
+# Robots.txt for Eslam Atef | Code & AI Platform
+User-agent: *
+Allow: /
+Allow: /courses
+Allow: /courses/*
+Allow: /lessons/*
+Allow: /blog
+Allow: /blog/*
+Allow: /about
+
+# Disallowed internal routes
+Disallow: /admin
+Disallow: /admin/*
+Disallow: /api/*
+Disallow: /presentation/*
+Disallow: /session/*
+Disallow: /auth/
+Disallow: /*?*fbclid=*
+Disallow: /*?*utm_*
+
+# Sitemap
+Sitemap: https://eslamatef-sepia.vercel.app/sitemap.xml
