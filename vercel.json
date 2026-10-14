@@ -4,6 +4,10 @@
   "buildCommand": "bash build.sh",
   "routes": [
     {
+      "src": "/googleaddb405a7a55dda6.html",
+      "dest": "/api/google-verify.js"
+    },
+    {
       "src": "/robots.txt",
       "dest": "/api/robots.js"
     },
