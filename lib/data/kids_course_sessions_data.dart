@@ -135,13 +135,15 @@ class KidsCourseSessionsData {
     ),
     KidsSessionItem(
       number: 7,
-      title: "أنواع البرمجة ولغاتها",
+      title: "أنواع البرمجة ولغاتها: رحلة في عوالم سكراتش، بايثون وجافاسكريبت",
       levelNumber: 2,
       levelName: "المستوى 2: التفكير البرمجي والخوارزميات",
       description: "الفرق بين البرمجة المرئية بالبلوكات والبرمجة النصية كبايثون وجافاسكريبت.",
       slidesCount: 25,
-      isReady: false,
-      topics: ["Block-based", "Text-based", "Scratch", "Python"],
+      isReady: true,
+      webUrl: "kids_sessions/lecture_07/index.html",
+      quizUrl: "kids_sessions/lecture_07/quiz.html",
+      topics: ["Block-based", "Text-based", "Scratch", "Python", "JavaScript", "Lua"],
     ),
     KidsSessionItem(
       number: 8,
