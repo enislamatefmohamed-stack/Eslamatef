@@ -1,0 +1,731 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>جلسة تصوير المحاضرة 44 | التخطيط الهندسي الشامل للمشروع</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #0284c7;
+            --primary-light: #38bdf8;
+            --primary-dark: #0369a1;
+            --bg-light: #f8fafc;
+            --card-bg: #ffffff;
+            --text-dark: #0f172a;
+            --text-muted: #64748b;
+            --accent-green: #10b981;
+            --accent-amber: #f59e0b;
+            --accent-purple: #8b5cf6;
+            --accent-red: #ef4444;
+            --border: #e2e8f0;
+            --shadow: 0 10px 25px -5px rgba(2, 132, 199, 0.1), 0 8px 10px -6px rgba(2, 132, 199, 0.1);
+            --shadow-lg: 0 20px 30px -10px rgba(2, 132, 199, 0.15);
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Cairo', sans-serif; -webkit-font-smoothing: antialiased; }
+        body { background-color: var(--bg-light); color: var(--text-dark); height: 100vh; overflow: hidden; display: flex; flex-direction: column; user-select: none; }
+        .top-bar { background: #ffffff; border-bottom: 2px solid var(--border); padding: 12px 24px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 4px rgba(0,0,0,0.02); z-index: 10; }
+        .badge-lec { background: rgba(2, 132, 199, 0.1); color: var(--primary); padding: 6px 14px; border-radius: 20px; font-weight: 800; font-size: 14px; display: flex; align-items: center; gap: 8px; border: 1px solid rgba(2, 132, 199, 0.2); }
+        .lec-title { font-size: 18px; font-weight: 800; color: var(--text-dark); display: flex; align-items: center; gap: 10px; }
+        .top-controls { display: flex; align-items: center; gap: 12px; }
+        .btn-ctrl { background: #f1f5f9; border: 1px solid var(--border); color: var(--text-dark); padding: 6px 14px; border-radius: 8px; cursor: pointer; font-weight: 700; font-size: 13px; transition: all 0.2s; display: flex; align-items: center; gap: 6px; }
+        .btn-ctrl:hover { background: #e2e8f0; border-color: #cbd5e1; }
+        .btn-wb { background: #ede9fe; color: var(--accent-purple); border-color: #ddd6fe; }
+        .workspace { flex: 1; display: flex; position: relative; overflow: hidden; }
+        .stage { flex: 1; display: flex; justify-content: center; align-items: center; padding: 24px; position: relative; overflow-y: auto; }
+        .slide-card { background: var(--card-bg); width: 100%; max-width: 1100px; height: 94%; border-radius: 24px; box-shadow: var(--shadow-lg); border: 2px solid var(--border); padding: 40px; display: none; flex-direction: column; justify-content: space-between; position: relative; animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
+        .slide-card.active { display: flex; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(15px) scale(0.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
+        .slide-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px dashed #f1f5f9; padding-bottom: 16px; }
+        .slide-cat { font-size: 14px; font-weight: 800; color: var(--primary); text-transform: uppercase; letter-spacing: 0.5px; background: #f0f9ff; padding: 4px 12px; border-radius: 8px; }
+        .slide-num { font-size: 15px; font-weight: 800; color: var(--text-muted); background: #f8fafc; padding: 4px 12px; border-radius: 12px; border: 1px solid var(--border); }
+        .slide-content { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 20px 0; gap: 20px; }
+        .slide-content h2 { font-size: 34px; font-weight: 900; color: var(--text-dark); line-height: 1.3; }
+        .slide-content p { font-size: 20px; color: var(--text-muted); max-width: 850px; line-height: 1.6; }
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; width: 100%; max-width: 900px; text-align: right; }
+        .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; width: 100%; max-width: 950px; text-align: right; }
+        .grid-4 { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 16px; width: 100%; max-width: 1000px; text-align: center; }
+        .info-box { background: #f8fafc; border: 2px solid var(--border); border-radius: 16px; padding: 20px; transition: all 0.3s; }
+        .info-box:hover { transform: translateY(-4px); border-color: var(--primary); box-shadow: var(--shadow); background: #ffffff; }
+        .info-box.highlight { border-color: #bae6fd; background: #f0f9ff; }
+        .info-box.safe { border-color: #bbf7d0; background: #f0fdf4; }
+        .box-icon { font-size: 36px; margin-bottom: 12px; display: inline-block; }
+        .box-title { font-size: 18px; font-weight: 800; color: var(--text-dark); margin-bottom: 8px; }
+        .box-desc { font-size: 15px; color: var(--text-muted); line-height: 1.5; }
+        .slide-footer { display: flex; justify-content: space-between; align-items: center; border-top: 2px solid #f1f5f9; padding-top: 16px; }
+        .btn-nav { background: #ffffff; border: 2px solid var(--border); color: var(--text-dark); padding: 10px 24px; border-radius: 12px; font-size: 15px; font-weight: 800; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 8px; }
+        .btn-nav:hover { border-color: var(--primary); color: var(--primary); background: #f0f9ff; }
+        .btn-nav.primary { background: var(--primary); color: #ffffff; border-color: var(--primary); }
+        .interactive-quiz { background: #f8fafc; border: 2px solid #e2e8f0; border-radius: 16px; padding: 20px; max-width: 650px; width: 100%; text-align: right; }
+        .quiz-option { background: #ffffff; border: 2px solid #e2e8f0; padding: 12px 16px; border-radius: 10px; margin-top: 10px; font-size: 15px; font-weight: 700; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 10px; }
+        .quiz-option:hover { border-color: var(--primary); background: #f0f9ff; }
+        .quiz-option.correct { background: #dcfce7 !important; border-color: #22c55e !important; color: #15803d; }
+        .quiz-option.wrong { background: #fee2e2 !important; border-color: #ef4444 !important; color: #b91c1c; }
+        .chalkboard { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(8px); z-index: 50; display: none; flex-direction: column; padding: 24px; color: #ffffff; }
+        .chalkboard.open { display: flex; }
+        .chalk-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+        .chalk-canvas { flex: 1; background: #1e293b; border-radius: 16px; border: 2px solid #334155; cursor: crosshair; }
+        .chalk-tools { display: flex; gap: 12px; margin-top: 14px; justify-content: center; }
+        .color-dot { width: 32px; height: 32px; border-radius: 50%; cursor: pointer; border: 2px solid #ffffff; }
+    </style>
+</head>
+<body>
+    <header class="top-bar">
+        <div class="badge-lec"><span>🚀</span><span>المحاضرة 44 • المستوى 7: مشروع التخرج والاحتفال</span></div>
+        <h1 class="lec-title"><span>التخطيط الهندسي الشامل للمشروع</span></h1>
+        <div class="top-controls">
+            <button class="btn-ctrl btn-wb" onclick="toggleChalkboard()"><span>✏️</span><span>سبورة الشرح</span></button>
+            <button class="btn-ctrl" onclick="toggleFullScreen()"><span>⛶</span><span>ملء الشاشة</span></button>
+        </div>
+    </header>
+    <main class="workspace">
+        <div class="stage">
+            
+            <!-- SLIDE 1 -->
+            <div class="slide-card active" data-slide="1">
+                <div class="slide-header">
+                    <span class="slide-cat">افتتاحية الدرس 44 ✨</span>
+                    <span class="slide-num">1 / 25</span>
+                </div>
+                <div class="slide-content">
+                    
+                <div style="font-size: 70px; margin-bottom: -10px;">🌟🚀💻</div>
+                <h2>التخطيط الهندسي الشامل للمشروع</h2>
+                <p>أهلاً بكم يا أبطال المستقبل في المحاضرة 44 من كورس البرمجة والذكاء الاصطناعي للأطفال! رسم المخطط المعماري وخارطة طريق مراحل التنفيذ بالتفصيل.</p>
+                <div style="display: flex; gap: 16px; margin-top: 10px; flex-wrap: wrap; justify-content: center;">
+                    <span class="badge-tag" style="background: #e0f2fe; color: #0369a1; font-size: 14px; padding: 8px 16px; font-weight: 800; border-radius: 8px;">✨ Roadmap</span><span class="badge-tag" style="background: #e0f2fe; color: #0369a1; font-size: 14px; padding: 8px 16px; font-weight: 800; border-radius: 8px;">✨ المخطط الهندسي</span><span class="badge-tag" style="background: #e0f2fe; color: #0369a1; font-size: 14px; padding: 8px 16px; font-weight: 800; border-radius: 8px;">✨ إدارة المشروع</span>
+                </div>
+            
+                </div>
+                <div class="slide-footer">
+                    <button class="btn-nav" disabled>السابق</button>
+                    <button class="btn-nav primary" onclick='changeSlide(1)'>التالي ⬅</button>
+                </div>
+            </div>
+        
+            <!-- SLIDE 2 -->
+            <div class="slide-card " data-slide="2">
+                <div class="slide-header">
+                    <span class="slide-cat">خريطة الأهداف 🗺️</span>
+                    <span class="slide-num">2 / 25</span>
+                </div>
+                <div class="slide-content">
+                    
+                <h2>الأهداف الذهبية للمحاضرة 44</h2>
+                <div class="grid-4">
+                    <div class="info-box"><span class="box-icon">🎯</span><h3 class="box-title">المفهوم الأساسي</h3><p class="box-desc">فهم جوهر التخطيط الهندسي الشامل للمشروع وتطبيقه بمنتهى البساطة والوضوح.</p></div>
+                    <div class="info-box"><span class="box-icon">💡</span><h3 class="box-title">التفكير المنطقي</h3><p class="box-desc">تحليل الخطوات وترتيب الأفكار كمهندسي التكنولوجيا المحترفين.</p></div>
+                    <div class="info-box"><span class="box-icon">🛠️</span><h3 class="box-title">التطبيق العملي</h3><p class="box-desc">ممارسة عملية مباشرة في بيئة العمل وتجربة الكود حياً.</p></div>
+                    <div class="info-box"><span class="box-icon">🏆</span><h3 class="box-title">تحدي الإبداع</h3><p class="box-desc">حل الألغاز التفاعلية وصناعة نموذجك الخاص للأسبوع.</p></div>
+                </div>
+            
+                </div>
+                <div class="slide-footer">
+                    <button class="btn-nav" onclick='changeSlide(-1)'>➡ السابق</button>
+                    <button class="btn-nav primary" onclick='changeSlide(1)'>التالي ⬅</button>
+                </div>
+            </div>
+        
+            <!-- SLIDE 3 -->
+            <div class="slide-card " data-slide="3">
+                <div class="slide-header">
+                    <span class="slide-cat">محور التعلم 3 💡</span>
+                    <span class="slide-num">3 / 25</span>
+                </div>
+                <div class="slide-content">
+                    
+                <h2>التخطيط الهندسي الشامل للمشروع - الجزء 3</h2>
+                <p>نتعمق في تفاصيل إدارة المشروع، ونفهم كيف يوظف مهندسو البرمجيات هذا المفهوم في بناء المنظومات الحقيقية والألعاب التفاعلية.</p>
+                <div class="grid-3">
+                    <div class="info-box"><span class="box-icon">⚙️</span><h3 class="box-title">الجانب النظري</h3><p class="box-desc">القاعدة المنطقية وكيف يستوعبها المعالج والنظام.</p></div>
+                    <div class="info-box highlight"><span class="box-icon">🚀</span><h3 class="box-title">التطبيق في الألعاب</h3><p class="box-desc">كيف نستخدم هذا الأمر في تحريك البطل أو حساب النتيجة.</p></div>
+                    <div class="info-box safe"><span class="box-icon">✨</span><h3 class="box-title">أفضل الممارسات</h3><p class="box-desc">نصائح لكتابة كود نظيف وسريع وخالٍ من الأخطاء البرمجية.</p></div>
+                </div>
+            
+                </div>
+                <div class="slide-footer">
+                    <button class="btn-nav" onclick='changeSlide(-1)'>➡ السابق</button>
+                    <button class="btn-nav primary" onclick='changeSlide(1)'>التالي ⬅</button>
+                </div>
+            </div>
+        
+            <!-- SLIDE 4 -->
+            <div class="slide-card " data-slide="4">
+                <div class="slide-header">
+                    <span class="slide-cat">محور التعلم 4 💡</span>
+                    <span class="slide-num">4 / 25</span>
+                </div>
+                <div class="slide-content">
+                    
+                <h2>التخطيط الهندسي الشامل للمشروع - الجزء 4</h2>
+                <p>نتعمق في تفاصيل Roadmap، ونفهم كيف يوظف مهندسو البرمجيات هذا المفهوم في بناء المنظومات الحقيقية والألعاب التفاعلية.</p>
+                <div class="grid-3">
+                    <div class="info-box"><span class="box-icon">⚙️</span><h3 class="box-title">الجانب النظري</h3><p class="box-desc">القاعدة المنطقية وكيف يستوعبها المعالج والنظام.</p></div>
+                    <div class="info-box highlight"><span class="box-icon">🚀</span><h3 class="box-title">التطبيق في الألعاب</h3><p class="box-desc">كيف نستخدم هذا الأمر في تحريك البطل أو حساب النتيجة.</p></div>
+                    <div class="info-box safe"><span class="box-icon">✨</span><h3 class="box-title">أفضل الممارسات</h3><p class="box-desc">نصائح لكتابة كود نظيف وسريع وخالٍ من الأخطاء البرمجية.</p></div>
+                </div>
+            
+                </div>
+                <div class="slide-footer">
+                    <button class="btn-nav" onclick='changeSlide(-1)'>➡ السابق</button>
+                    <button class="btn-nav primary" onclick='changeSlide(1)'>التالي ⬅</button>
+                </div>
+            </div>
+        
+            <!-- SLIDE 5 -->
+            <div class="slide-card " data-slide="5">
+                <div class="slide-header">
+                    <span class="slide-cat">محور التعلم 5 💡</span>
+                    <span class="slide-num">5 / 25</span>
+                </div>
+                <div class="slide-content">
+                    
+                <h2>التخطيط الهندسي الشامل للمشروع - الجزء 5</h2>
+                <p>نتعمق في تفاصيل المخطط الهندسي، ونفهم كيف يوظف مهندسو البرمجيات هذا المفهوم في بناء المنظومات الحقيقية والألعاب التفاعلية.</p>
+                <div class="grid-3">
+                    <div class="info-box"><span class="box-icon">⚙️</span><h3 class="box-title">الجانب النظري</h3><p class="box-desc">القاعدة المنطقية وكيف يستوعبها المعالج والنظام.</p></div>
+                    <div class="info-box highlight"><span class="box-icon">🚀</span><h3 class="box-title">التطبيق في الألعاب</h3><p class="box-desc">كيف نستخدم هذا الأمر في تحريك البطل أو حساب النتيجة.</p></div>
+                    <div class="info-box safe"><span class="box-icon">✨</span><h3 class="box-title">أفضل الممارسات</h3><p class="box-desc">نصائح لكتابة كود نظيف وسريع وخالٍ من الأخطاء البرمجية.</p></div>
+                </div>
+            
+                </div>
+                <div class="slide-footer">
+                    <button class="btn-nav" onclick='changeSlide(-1)'>➡ السابق</button>
+                    <button class="btn-nav primary" onclick='changeSlide(1)'>التالي ⬅</button>
+                </div>
+            </div>
+        
+            <!-- SLIDE 6 -->
+            <div class="slide-card " data-slide="6">
+                <div class="slide-header">
+                    <span class="slide-cat">محور التعلم 6 💡</span>
+                    <span class="slide-num">6 / 25</span>
+                </div>
+                <div class="slide-content">
+                    
+                <h2>التخطيط الهندسي الشامل للمشروع - الجزء 6</h2>
+                <p>نتعمق في تفاصيل إدارة المشروع، ونفهم كيف يوظف مهندسو البرمجيات هذا المفهوم في بناء المنظومات الحقيقية والألعاب التفاعلية.</p>
+                <div class="grid-3">
+                    <div class="info-box"><span class="box-icon">⚙️</span><h3 class="box-title">الجانب النظري</h3><p class="box-desc">القاعدة المنطقية وكيف يستوعبها المعالج والنظام.</p></div>
+                    <div class="info-box highlight"><span class="box-icon">🚀</span><h3 class="box-title">التطبيق في الألعاب</h3><p class="box-desc">كيف نستخدم هذا الأمر في تحريك البطل أو حساب النتيجة.</p></div>
+                    <div class="info-box safe"><span class="box-icon">✨</span><h3 class="box-title">أفضل الممارسات</h3><p class="box-desc">نصائح لكتابة كود نظيف وسريع وخالٍ من الأخطاء البرمجية.</p></div>
+                </div>
+            
+                </div>
+                <div class="slide-footer">
+                    <button class="btn-nav" onclick='changeSlide(-1)'>➡ السابق</button>
+                    <button class="btn-nav primary" onclick='changeSlide(1)'>التالي ⬅</button>
+                </div>
+            </div>
+        
+            <!-- SLIDE 7 -->
+            <div class="slide-card " data-slide="7">
+                <div class="slide-header">
+                    <span class="slide-cat">محور التعلم 7 💡</span>
+                    <span class="slide-num">7 / 25</span>
+                </div>
+                <div class="slide-content">
+                    
+                <h2>التخطيط الهندسي الشامل للمشروع - الجزء 7</h2>
+                <p>نتعمق في تفاصيل Roadmap، ونفهم كيف يوظف مهندسو البرمجيات هذا المفهوم في بناء المنظومات الحقيقية والألعاب التفاعلية.</p>
+                <div class="grid-3">
+                    <div class="info-box"><span class="box-icon">⚙️</span><h3 class="box-title">الجانب النظري</h3><p class="box-desc">القاعدة المنطقية وكيف يستوعبها المعالج والنظام.</p></div>
+                    <div class="info-box highlight"><span class="box-icon">🚀</span><h3 class="box-title">التطبيق في الألعاب</h3><p class="box-desc">كيف نستخدم هذا الأمر في تحريك البطل أو حساب النتيجة.</p></div>
+                    <div class="info-box safe"><span class="box-icon">✨</span><h3 class="box-title">أفضل الممارسات</h3><p class="box-desc">نصائح لكتابة كود نظيف وسريع وخالٍ من الأخطاء البرمجية.</p></div>
+                </div>
+            
+                </div>
+                <div class="slide-footer">
+                    <button class="btn-nav" onclick='changeSlide(-1)'>➡ السابق</button>
+                    <button class="btn-nav primary" onclick='changeSlide(1)'>التالي ⬅</button>
+                </div>
+            </div>
+        
+            <!-- SLIDE 8 -->
+            <div class="slide-card " data-slide="8">
+                <div class="slide-header">
+                    <span class="slide-cat">محور التعلم 8 💡</span>
+                    <span class="slide-num">8 / 25</span>
+                </div>
+                <div class="slide-content">
+                    
+                <h2>التخطيط الهندسي الشامل للمشروع - الجزء 8</h2>
+                <p>نتعمق في تفاصيل المخطط الهندسي، ونفهم كيف يوظف مهندسو البرمجيات هذا المفهوم في بناء المنظومات الحقيقية والألعاب التفاعلية.</p>
+                <div class="grid-3">
+                    <div class="info-box"><span class="box-icon">⚙️</span><h3 class="box-title">الجانب النظري</h3><p class="box-desc">القاعدة المنطقية وكيف يستوعبها المعالج والنظام.</p></div>
+                    <div class="info-box highlight"><span class="box-icon">🚀</span><h3 class="box-title">التطبيق في الألعاب</h3><p class="box-desc">كيف نستخدم هذا الأمر في تحريك البطل أو حساب النتيجة.</p></div>
+                    <div class="info-box safe"><span class="box-icon">✨</span><h3 class="box-title">أفضل الممارسات</h3><p class="box-desc">نصائح لكتابة كود نظيف وسريع وخالٍ من الأخطاء البرمجية.</p></div>
+                </div>
+            
+                </div>
+                <div class="slide-footer">
+                    <button class="btn-nav" onclick='changeSlide(-1)'>➡ السابق</button>
+                    <button class="btn-nav primary" onclick='changeSlide(1)'>التالي ⬅</button>
+                </div>
+            </div>
+        
+            <!-- SLIDE 9 -->
+            <div class="slide-card " data-slide="9">
+                <div class="slide-header">
+                    <span class="slide-cat">محور التعلم 9 💡</span>
+                    <span class="slide-num">9 / 25</span>
+                </div>
+                <div class="slide-content">
+                    
+                <h2>التخطيط الهندسي الشامل للمشروع - الجزء 9</h2>
+                <p>نتعمق في تفاصيل إدارة المشروع، ونفهم كيف يوظف مهندسو البرمجيات هذا المفهوم في بناء المنظومات الحقيقية والألعاب التفاعلية.</p>
+                <div class="grid-3">
+                    <div class="info-box"><span class="box-icon">⚙️</span><h3 class="box-title">الجانب النظري</h3><p class="box-desc">القاعدة المنطقية وكيف يستوعبها المعالج والنظام.</p></div>
+                    <div class="info-box highlight"><span class="box-icon">🚀</span><h3 class="box-title">التطبيق في الألعاب</h3><p class="box-desc">كيف نستخدم هذا الأمر في تحريك البطل أو حساب النتيجة.</p></div>
+                    <div class="info-box safe"><span class="box-icon">✨</span><h3 class="box-title">أفضل الممارسات</h3><p class="box-desc">نصائح لكتابة كود نظيف وسريع وخالٍ من الأخطاء البرمجية.</p></div>
+                </div>
+            
+                </div>
+                <div class="slide-footer">
+                    <button class="btn-nav" onclick='changeSlide(-1)'>➡ السابق</button>
+                    <button class="btn-nav primary" onclick='changeSlide(1)'>التالي ⬅</button>
+                </div>
+            </div>
+        
+            <!-- SLIDE 10 -->
+            <div class="slide-card " data-slide="10">
+                <div class="slide-header">
+                    <span class="slide-cat">محور التعلم 10 💡</span>
+                    <span class="slide-num">10 / 25</span>
+                </div>
+                <div class="slide-content">
+                    
+                <h2>التخطيط الهندسي الشامل للمشروع - الجزء 10</h2>
+                <p>نتعمق في تفاصيل Roadmap، ونفهم كيف يوظف مهندسو البرمجيات هذا المفهوم في بناء المنظومات الحقيقية والألعاب التفاعلية.</p>
+                <div class="grid-3">
+                    <div class="info-box"><span class="box-icon">⚙️</span><h3 class="box-title">الجانب النظري</h3><p class="box-desc">القاعدة المنطقية وكيف يستوعبها المعالج والنظام.</p></div>
+                    <div class="info-box highlight"><span class="box-icon">🚀</span><h3 class="box-title">التطبيق في الألعاب</h3><p class="box-desc">كيف نستخدم هذا الأمر في تحريك البطل أو حساب النتيجة.</p></div>
+                    <div class="info-box safe"><span class="box-icon">✨</span><h3 class="box-title">أفضل الممارسات</h3><p class="box-desc">نصائح لكتابة كود نظيف وسريع وخالٍ من الأخطاء البرمجية.</p></div>
+                </div>
+            
+                </div>
+                <div class="slide-footer">
+                    <button class="btn-nav" onclick='changeSlide(-1)'>➡ السابق</button>
+                    <button class="btn-nav primary" onclick='changeSlide(1)'>التالي ⬅</button>
+                </div>
+            </div>
+        
+            <!-- SLIDE 11 -->
+            <div class="slide-card " data-slide="11">
+                <div class="slide-header">
+                    <span class="slide-cat">محور التعلم 11 💡</span>
+                    <span class="slide-num">11 / 25</span>
+                </div>
+                <div class="slide-content">
+                    
+                <h2>التخطيط الهندسي الشامل للمشروع - الجزء 11</h2>
+                <p>نتعمق في تفاصيل المخطط الهندسي، ونفهم كيف يوظف مهندسو البرمجيات هذا المفهوم في بناء المنظومات الحقيقية والألعاب التفاعلية.</p>
+                <div class="grid-3">
+                    <div class="info-box"><span class="box-icon">⚙️</span><h3 class="box-title">الجانب النظري</h3><p class="box-desc">القاعدة المنطقية وكيف يستوعبها المعالج والنظام.</p></div>
+                    <div class="info-box highlight"><span class="box-icon">🚀</span><h3 class="box-title">التطبيق في الألعاب</h3><p class="box-desc">كيف نستخدم هذا الأمر في تحريك البطل أو حساب النتيجة.</p></div>
+                    <div class="info-box safe"><span class="box-icon">✨</span><h3 class="box-title">أفضل الممارسات</h3><p class="box-desc">نصائح لكتابة كود نظيف وسريع وخالٍ من الأخطاء البرمجية.</p></div>
+                </div>
+            
+                </div>
+                <div class="slide-footer">
+                    <button class="btn-nav" onclick='changeSlide(-1)'>➡ السابق</button>
+                    <button class="btn-nav primary" onclick='changeSlide(1)'>التالي ⬅</button>
+                </div>
+            </div>
+        
+            <!-- SLIDE 12 -->
+            <div class="slide-card " data-slide="12">
+                <div class="slide-header">
+                    <span class="slide-cat">تحدي ذكاء المبرمج 🎯</span>
+                    <span class="slide-num">12 / 25</span>
+                </div>
+                <div class="slide-content">
+                    
+                <h2>اختبار ذكاء المبرمج السريع!</h2>
+                <p>بصفتك مهندس المستقبل، ما هو التصرف والقرار البرمجي الأصح لتطبيق Roadmap؟</p>
+                <div class="interactive-quiz">
+                    <div class="quiz-option" onclick="selectQuizOpt(this, true)"><span>أ) التخطيط المسبق والتسلسل المنطقي خطوة بخطوة واختبار كل أمر بدقة. ✅</span></div>
+                    <div class="quiz-option" onclick="selectQuizOpt(this, false)"><span>ب) كتابة الأوامر عشوائياً وتخمين النتائج بدون تفكير.</span></div>
+                    <div class="quiz-option" onclick="selectQuizOpt(this, false)"><span>ج) إغلاق الحاسوب والاستسلام فوراً.</span></div>
+                </div>
+            
+                </div>
+                <div class="slide-footer">
+                    <button class="btn-nav" onclick='changeSlide(-1)'>➡ السابق</button>
+                    <button class="btn-nav primary" onclick='changeSlide(1)'>التالي ⬅</button>
+                </div>
+            </div>
+        
+            <!-- SLIDE 13 -->
+            <div class="slide-card " data-slide="13">
+                <div class="slide-header">
+                    <span class="slide-cat">محور التعلم 13 💡</span>
+                    <span class="slide-num">13 / 25</span>
+                </div>
+                <div class="slide-content">
+                    
+                <h2>التخطيط الهندسي الشامل للمشروع - الجزء 13</h2>
+                <p>نتعمق في تفاصيل Roadmap، ونفهم كيف يوظف مهندسو البرمجيات هذا المفهوم في بناء المنظومات الحقيقية والألعاب التفاعلية.</p>
+                <div class="grid-3">
+                    <div class="info-box"><span class="box-icon">⚙️</span><h3 class="box-title">الجانب النظري</h3><p class="box-desc">القاعدة المنطقية وكيف يستوعبها المعالج والنظام.</p></div>
+                    <div class="info-box highlight"><span class="box-icon">🚀</span><h3 class="box-title">التطبيق في الألعاب</h3><p class="box-desc">كيف نستخدم هذا الأمر في تحريك البطل أو حساب النتيجة.</p></div>
+                    <div class="info-box safe"><span class="box-icon">✨</span><h3 class="box-title">أفضل الممارسات</h3><p class="box-desc">نصائح لكتابة كود نظيف وسريع وخالٍ من الأخطاء البرمجية.</p></div>
+                </div>
+            
+                </div>
+                <div class="slide-footer">
+                    <button class="btn-nav" onclick='changeSlide(-1)'>➡ السابق</button>
+                    <button class="btn-nav primary" onclick='changeSlide(1)'>التالي ⬅</button>
+                </div>
+            </div>
+        
+            <!-- SLIDE 14 -->
+            <div class="slide-card " data-slide="14">
+                <div class="slide-header">
+                    <span class="slide-cat">محور التعلم 14 💡</span>
+                    <span class="slide-num">14 / 25</span>
+                </div>
+                <div class="slide-content">
+                    
+                <h2>التخطيط الهندسي الشامل للمشروع - الجزء 14</h2>
+                <p>نتعمق في تفاصيل المخطط الهندسي، ونفهم كيف يوظف مهندسو البرمجيات هذا المفهوم في بناء المنظومات الحقيقية والألعاب التفاعلية.</p>
+                <div class="grid-3">
+                    <div class="info-box"><span class="box-icon">⚙️</span><h3 class="box-title">الجانب النظري</h3><p class="box-desc">القاعدة المنطقية وكيف يستوعبها المعالج والنظام.</p></div>
+                    <div class="info-box highlight"><span class="box-icon">🚀</span><h3 class="box-title">التطبيق في الألعاب</h3><p class="box-desc">كيف نستخدم هذا الأمر في تحريك البطل أو حساب النتيجة.</p></div>
+                    <div class="info-box safe"><span class="box-icon">✨</span><h3 class="box-title">أفضل الممارسات</h3><p class="box-desc">نصائح لكتابة كود نظيف وسريع وخالٍ من الأخطاء البرمجية.</p></div>
+                </div>
+            
+                </div>
+                <div class="slide-footer">
+                    <button class="btn-nav" onclick='changeSlide(-1)'>➡ السابق</button>
+                    <button class="btn-nav primary" onclick='changeSlide(1)'>التالي ⬅</button>
+                </div>
+            </div>
+        
+            <!-- SLIDE 15 -->
+            <div class="slide-card " data-slide="15">
+                <div class="slide-header">
+                    <span class="slide-cat">محور التعلم 15 💡</span>
+                    <span class="slide-num">15 / 25</span>
+                </div>
+                <div class="slide-content">
+                    
+                <h2>التخطيط الهندسي الشامل للمشروع - الجزء 15</h2>
+                <p>نتعمق في تفاصيل إدارة المشروع، ونفهم كيف يوظف مهندسو البرمجيات هذا المفهوم في بناء المنظومات الحقيقية والألعاب التفاعلية.</p>
+                <div class="grid-3">
+                    <div class="info-box"><span class="box-icon">⚙️</span><h3 class="box-title">الجانب النظري</h3><p class="box-desc">القاعدة المنطقية وكيف يستوعبها المعالج والنظام.</p></div>
+                    <div class="info-box highlight"><span class="box-icon">🚀</span><h3 class="box-title">التطبيق في الألعاب</h3><p class="box-desc">كيف نستخدم هذا الأمر في تحريك البطل أو حساب النتيجة.</p></div>
+                    <div class="info-box safe"><span class="box-icon">✨</span><h3 class="box-title">أفضل الممارسات</h3><p class="box-desc">نصائح لكتابة كود نظيف وسريع وخالٍ من الأخطاء البرمجية.</p></div>
+                </div>
+            
+                </div>
+                <div class="slide-footer">
+                    <button class="btn-nav" onclick='changeSlide(-1)'>➡ السابق</button>
+                    <button class="btn-nav primary" onclick='changeSlide(1)'>التالي ⬅</button>
+                </div>
+            </div>
+        
+            <!-- SLIDE 16 -->
+            <div class="slide-card " data-slide="16">
+                <div class="slide-header">
+                    <span class="slide-cat">محور التعلم 16 💡</span>
+                    <span class="slide-num">16 / 25</span>
+                </div>
+                <div class="slide-content">
+                    
+                <h2>التخطيط الهندسي الشامل للمشروع - الجزء 16</h2>
+                <p>نتعمق في تفاصيل Roadmap، ونفهم كيف يوظف مهندسو البرمجيات هذا المفهوم في بناء المنظومات الحقيقية والألعاب التفاعلية.</p>
+                <div class="grid-3">
+                    <div class="info-box"><span class="box-icon">⚙️</span><h3 class="box-title">الجانب النظري</h3><p class="box-desc">القاعدة المنطقية وكيف يستوعبها المعالج والنظام.</p></div>
+                    <div class="info-box highlight"><span class="box-icon">🚀</span><h3 class="box-title">التطبيق في الألعاب</h3><p class="box-desc">كيف نستخدم هذا الأمر في تحريك البطل أو حساب النتيجة.</p></div>
+                    <div class="info-box safe"><span class="box-icon">✨</span><h3 class="box-title">أفضل الممارسات</h3><p class="box-desc">نصائح لكتابة كود نظيف وسريع وخالٍ من الأخطاء البرمجية.</p></div>
+                </div>
+            
+                </div>
+                <div class="slide-footer">
+                    <button class="btn-nav" onclick='changeSlide(-1)'>➡ السابق</button>
+                    <button class="btn-nav primary" onclick='changeSlide(1)'>التالي ⬅</button>
+                </div>
+            </div>
+        
+            <!-- SLIDE 17 -->
+            <div class="slide-card " data-slide="17">
+                <div class="slide-header">
+                    <span class="slide-cat">محور التعلم 17 💡</span>
+                    <span class="slide-num">17 / 25</span>
+                </div>
+                <div class="slide-content">
+                    
+                <h2>التخطيط الهندسي الشامل للمشروع - الجزء 17</h2>
+                <p>نتعمق في تفاصيل المخطط الهندسي، ونفهم كيف يوظف مهندسو البرمجيات هذا المفهوم في بناء المنظومات الحقيقية والألعاب التفاعلية.</p>
+                <div class="grid-3">
+                    <div class="info-box"><span class="box-icon">⚙️</span><h3 class="box-title">الجانب النظري</h3><p class="box-desc">القاعدة المنطقية وكيف يستوعبها المعالج والنظام.</p></div>
+                    <div class="info-box highlight"><span class="box-icon">🚀</span><h3 class="box-title">التطبيق في الألعاب</h3><p class="box-desc">كيف نستخدم هذا الأمر في تحريك البطل أو حساب النتيجة.</p></div>
+                    <div class="info-box safe"><span class="box-icon">✨</span><h3 class="box-title">أفضل الممارسات</h3><p class="box-desc">نصائح لكتابة كود نظيف وسريع وخالٍ من الأخطاء البرمجية.</p></div>
+                </div>
+            
+                </div>
+                <div class="slide-footer">
+                    <button class="btn-nav" onclick='changeSlide(-1)'>➡ السابق</button>
+                    <button class="btn-nav primary" onclick='changeSlide(1)'>التالي ⬅</button>
+                </div>
+            </div>
+        
+            <!-- SLIDE 18 -->
+            <div class="slide-card " data-slide="18">
+                <div class="slide-header">
+                    <span class="slide-cat">محور التعلم 18 💡</span>
+                    <span class="slide-num">18 / 25</span>
+                </div>
+                <div class="slide-content">
+                    
+                <h2>التخطيط الهندسي الشامل للمشروع - الجزء 18</h2>
+                <p>نتعمق في تفاصيل إدارة المشروع، ونفهم كيف يوظف مهندسو البرمجيات هذا المفهوم في بناء المنظومات الحقيقية والألعاب التفاعلية.</p>
+                <div class="grid-3">
+                    <div class="info-box"><span class="box-icon">⚙️</span><h3 class="box-title">الجانب النظري</h3><p class="box-desc">القاعدة المنطقية وكيف يستوعبها المعالج والنظام.</p></div>
+                    <div class="info-box highlight"><span class="box-icon">🚀</span><h3 class="box-title">التطبيق في الألعاب</h3><p class="box-desc">كيف نستخدم هذا الأمر في تحريك البطل أو حساب النتيجة.</p></div>
+                    <div class="info-box safe"><span class="box-icon">✨</span><h3 class="box-title">أفضل الممارسات</h3><p class="box-desc">نصائح لكتابة كود نظيف وسريع وخالٍ من الأخطاء البرمجية.</p></div>
+                </div>
+            
+                </div>
+                <div class="slide-footer">
+                    <button class="btn-nav" onclick='changeSlide(-1)'>➡ السابق</button>
+                    <button class="btn-nav primary" onclick='changeSlide(1)'>التالي ⬅</button>
+                </div>
+            </div>
+        
+            <!-- SLIDE 19 -->
+            <div class="slide-card " data-slide="19">
+                <div class="slide-header">
+                    <span class="slide-cat">محور التعلم 19 💡</span>
+                    <span class="slide-num">19 / 25</span>
+                </div>
+                <div class="slide-content">
+                    
+                <h2>التخطيط الهندسي الشامل للمشروع - الجزء 19</h2>
+                <p>نتعمق في تفاصيل Roadmap، ونفهم كيف يوظف مهندسو البرمجيات هذا المفهوم في بناء المنظومات الحقيقية والألعاب التفاعلية.</p>
+                <div class="grid-3">
+                    <div class="info-box"><span class="box-icon">⚙️</span><h3 class="box-title">الجانب النظري</h3><p class="box-desc">القاعدة المنطقية وكيف يستوعبها المعالج والنظام.</p></div>
+                    <div class="info-box highlight"><span class="box-icon">🚀</span><h3 class="box-title">التطبيق في الألعاب</h3><p class="box-desc">كيف نستخدم هذا الأمر في تحريك البطل أو حساب النتيجة.</p></div>
+                    <div class="info-box safe"><span class="box-icon">✨</span><h3 class="box-title">أفضل الممارسات</h3><p class="box-desc">نصائح لكتابة كود نظيف وسريع وخالٍ من الأخطاء البرمجية.</p></div>
+                </div>
+            
+                </div>
+                <div class="slide-footer">
+                    <button class="btn-nav" onclick='changeSlide(-1)'>➡ السابق</button>
+                    <button class="btn-nav primary" onclick='changeSlide(1)'>التالي ⬅</button>
+                </div>
+            </div>
+        
+            <!-- SLIDE 20 -->
+            <div class="slide-card " data-slide="20">
+                <div class="slide-header">
+                    <span class="slide-cat">محور التعلم 20 💡</span>
+                    <span class="slide-num">20 / 25</span>
+                </div>
+                <div class="slide-content">
+                    
+                <h2>التخطيط الهندسي الشامل للمشروع - الجزء 20</h2>
+                <p>نتعمق في تفاصيل المخطط الهندسي، ونفهم كيف يوظف مهندسو البرمجيات هذا المفهوم في بناء المنظومات الحقيقية والألعاب التفاعلية.</p>
+                <div class="grid-3">
+                    <div class="info-box"><span class="box-icon">⚙️</span><h3 class="box-title">الجانب النظري</h3><p class="box-desc">القاعدة المنطقية وكيف يستوعبها المعالج والنظام.</p></div>
+                    <div class="info-box highlight"><span class="box-icon">🚀</span><h3 class="box-title">التطبيق في الألعاب</h3><p class="box-desc">كيف نستخدم هذا الأمر في تحريك البطل أو حساب النتيجة.</p></div>
+                    <div class="info-box safe"><span class="box-icon">✨</span><h3 class="box-title">أفضل الممارسات</h3><p class="box-desc">نصائح لكتابة كود نظيف وسريع وخالٍ من الأخطاء البرمجية.</p></div>
+                </div>
+            
+                </div>
+                <div class="slide-footer">
+                    <button class="btn-nav" onclick='changeSlide(-1)'>➡ السابق</button>
+                    <button class="btn-nav primary" onclick='changeSlide(1)'>التالي ⬅</button>
+                </div>
+            </div>
+        
+            <!-- SLIDE 21 -->
+            <div class="slide-card " data-slide="21">
+                <div class="slide-header">
+                    <span class="slide-cat">محور التعلم 21 💡</span>
+                    <span class="slide-num">21 / 25</span>
+                </div>
+                <div class="slide-content">
+                    
+                <h2>التخطيط الهندسي الشامل للمشروع - الجزء 21</h2>
+                <p>نتعمق في تفاصيل إدارة المشروع، ونفهم كيف يوظف مهندسو البرمجيات هذا المفهوم في بناء المنظومات الحقيقية والألعاب التفاعلية.</p>
+                <div class="grid-3">
+                    <div class="info-box"><span class="box-icon">⚙️</span><h3 class="box-title">الجانب النظري</h3><p class="box-desc">القاعدة المنطقية وكيف يستوعبها المعالج والنظام.</p></div>
+                    <div class="info-box highlight"><span class="box-icon">🚀</span><h3 class="box-title">التطبيق في الألعاب</h3><p class="box-desc">كيف نستخدم هذا الأمر في تحريك البطل أو حساب النتيجة.</p></div>
+                    <div class="info-box safe"><span class="box-icon">✨</span><h3 class="box-title">أفضل الممارسات</h3><p class="box-desc">نصائح لكتابة كود نظيف وسريع وخالٍ من الأخطاء البرمجية.</p></div>
+                </div>
+            
+                </div>
+                <div class="slide-footer">
+                    <button class="btn-nav" onclick='changeSlide(-1)'>➡ السابق</button>
+                    <button class="btn-nav primary" onclick='changeSlide(1)'>التالي ⬅</button>
+                </div>
+            </div>
+        
+            <!-- SLIDE 22 -->
+            <div class="slide-card " data-slide="22">
+                <div class="slide-header">
+                    <span class="slide-cat">محور التعلم 22 💡</span>
+                    <span class="slide-num">22 / 25</span>
+                </div>
+                <div class="slide-content">
+                    
+                <h2>التخطيط الهندسي الشامل للمشروع - الجزء 22</h2>
+                <p>نتعمق في تفاصيل Roadmap، ونفهم كيف يوظف مهندسو البرمجيات هذا المفهوم في بناء المنظومات الحقيقية والألعاب التفاعلية.</p>
+                <div class="grid-3">
+                    <div class="info-box"><span class="box-icon">⚙️</span><h3 class="box-title">الجانب النظري</h3><p class="box-desc">القاعدة المنطقية وكيف يستوعبها المعالج والنظام.</p></div>
+                    <div class="info-box highlight"><span class="box-icon">🚀</span><h3 class="box-title">التطبيق في الألعاب</h3><p class="box-desc">كيف نستخدم هذا الأمر في تحريك البطل أو حساب النتيجة.</p></div>
+                    <div class="info-box safe"><span class="box-icon">✨</span><h3 class="box-title">أفضل الممارسات</h3><p class="box-desc">نصائح لكتابة كود نظيف وسريع وخالٍ من الأخطاء البرمجية.</p></div>
+                </div>
+            
+                </div>
+                <div class="slide-footer">
+                    <button class="btn-nav" onclick='changeSlide(-1)'>➡ السابق</button>
+                    <button class="btn-nav primary" onclick='changeSlide(1)'>التالي ⬅</button>
+                </div>
+            </div>
+        
+            <!-- SLIDE 23 -->
+            <div class="slide-card " data-slide="23">
+                <div class="slide-header">
+                    <span class="slide-cat">محور التعلم 23 💡</span>
+                    <span class="slide-num">23 / 25</span>
+                </div>
+                <div class="slide-content">
+                    
+                <h2>التخطيط الهندسي الشامل للمشروع - الجزء 23</h2>
+                <p>نتعمق في تفاصيل المخطط الهندسي، ونفهم كيف يوظف مهندسو البرمجيات هذا المفهوم في بناء المنظومات الحقيقية والألعاب التفاعلية.</p>
+                <div class="grid-3">
+                    <div class="info-box"><span class="box-icon">⚙️</span><h3 class="box-title">الجانب النظري</h3><p class="box-desc">القاعدة المنطقية وكيف يستوعبها المعالج والنظام.</p></div>
+                    <div class="info-box highlight"><span class="box-icon">🚀</span><h3 class="box-title">التطبيق في الألعاب</h3><p class="box-desc">كيف نستخدم هذا الأمر في تحريك البطل أو حساب النتيجة.</p></div>
+                    <div class="info-box safe"><span class="box-icon">✨</span><h3 class="box-title">أفضل الممارسات</h3><p class="box-desc">نصائح لكتابة كود نظيف وسريع وخالٍ من الأخطاء البرمجية.</p></div>
+                </div>
+            
+                </div>
+                <div class="slide-footer">
+                    <button class="btn-nav" onclick='changeSlide(-1)'>➡ السابق</button>
+                    <button class="btn-nav primary" onclick='changeSlide(1)'>التالي ⬅</button>
+                </div>
+            </div>
+        
+            <!-- SLIDE 24 -->
+            <div class="slide-card " data-slide="24">
+                <div class="slide-header">
+                    <span class="slide-cat">الاحتفال والختام 🏆</span>
+                    <span class="slide-num">24 / 25</span>
+                </div>
+                <div class="slide-content">
+                    
+                <div style="font-size: 70px; margin-bottom: -10px;">🎉 🏅 🚀</div>
+                <h2>أحسنتم يا أبطال! أنهيتم المحاضرة 44 بنجاح باهر!</h2>
+                <p>أصبحتم الآن تتقنون مهارة التخطيط الهندسي الشامل للمشروع وتتقدمون بخطوات واثقة في المستوى 7: مشروع التخرج والاحتفال!</p>
+                <div style="background: #f0fdf4; border: 2px solid #86efac; border-radius: 12px; padding: 12px 24px; color: #166534; font-weight: 800; font-size: 16px;">
+                    استعدوا للتحدي القادم لمواصلة رحلتكم نحو صناعة المستقبل! 🔥
+                </div>
+            
+                </div>
+                <div class="slide-footer">
+                    <button class="btn-nav" onclick='changeSlide(-1)'>➡ السابق</button>
+                    <button class="btn-nav primary" onclick='changeSlide(1)'>التالي ⬅</button>
+                </div>
+            </div>
+        
+            <!-- SLIDE 25 -->
+            <div class="slide-card " data-slide="25">
+                <div class="slide-header">
+                    <span class="slide-cat">الواجب والاختبار 📝</span>
+                    <span class="slide-num">25 / 25</span>
+                </div>
+                <div class="slide-content">
+                    
+                <h2>مهام الأسبوع والتطبيق العملي</h2>
+                <p>حان وقت الإبداع الشخصي وتطبيق ما تعلمته اليوم:</p>
+                <div class="grid-2">
+                    <div class="info-box safe">
+                        <span class="box-icon">💻</span>
+                        <h3 class="box-title">تحدي الواجب العملي</h3>
+                        <p class="box-desc">راجع ملف الواجب المنزلي ونفذ التحدي التفاعلي وشاركه مع أسرتك ومعلمك.</p>
+                    </div>
+                    <div class="info-box">
+                        <span class="box-icon">⭐</span>
+                        <h3 class="box-title">الاختبار الإلكتروني</h3>
+                        <p class="box-desc">افتح اختبار المحاضرة التفاعلي واجمع وسام التفوق بنسبة 100%!</p>
+                    </div>
+                </div>
+            
+                </div>
+                <div class="slide-footer">
+                    <button class="btn-nav" onclick='changeSlide(-1)'>➡ السابق</button>
+                    <button class="btn-nav primary" onclick="alert('أحسنت صنعاً! انتهت جلسة التصوير بنجاح.')">إنهاء الجلسة 🏁</button>
+                </div>
+            </div>
+        
+        </div>
+        <div class="chalkboard" id="chalkboard">
+            <div class="chalk-header">
+                <h3 style="font-size: 20px; font-weight: 800;">✏️ سبورة الشرح التفاعلية للمدرس</h3>
+                <div style="display: flex; gap: 10px;">
+                    <button class="btn-ctrl" onclick="clearCanvas()">مسح السبورة</button>
+                    <button class="btn-ctrl" onclick="toggleChalkboard()" style="background: #ef4444; color: #fff; border-color: #ef4444;">إغلاق ✕</button>
+                </div>
+            </div>
+            <canvas class="chalk-canvas" id="chalkCanvas"></canvas>
+            <div class="chalk-tools">
+                <div class="color-dot" style="background: #ffffff;" onclick="setChalkColor('#ffffff')"></div>
+                <div class="color-dot" style="background: #38bdf8;" onclick="setChalkColor('#38bdf8')"></div>
+                <div class="color-dot" style="background: #4ade80;" onclick="setChalkColor('#4ade80')"></div>
+                <div class="color-dot" style="background: #facc15;" onclick="setChalkColor('#facc15')"></div>
+                <div class="color-dot" style="background: #f87171;" onclick="setChalkColor('#f87171')"></div>
+            </div>
+        </div>
+    </main>
+    <script>
+        let currentSlide = 1;
+        const totalSlides = 25;
+        function showSlide(num) {
+            if (num < 1 || num > totalSlides) return;
+            currentSlide = num;
+            document.querySelectorAll('.slide-card').forEach(card => card.classList.remove('active'));
+            const activeCard = document.querySelector(`.slide-card[data-slide="${currentSlide}"]`);
+            if (activeCard) activeCard.classList.add('active');
+        }
+        function changeSlide(direction) { showSlide(currentSlide + direction); }
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft' || e.key === 'PageDown' || e.key === ' ') changeSlide(1);
+            else if (e.key === 'ArrowRight' || e.key === 'PageUp') changeSlide(-1);
+            else if (e.key.toLowerCase() === 'b') toggleChalkboard();
+            else if (e.key.toLowerCase() === 'f') toggleFullScreen();
+        });
+        function toggleFullScreen() {
+            if (!document.fullscreenElement) document.documentElement.requestFullscreen().catch(() => {});
+            else document.exitFullscreen().catch(() => {});
+        }
+        const chalkboard = document.getElementById('chalkboard');
+        const canvas = document.getElementById('chalkCanvas');
+        let ctx = null, isDrawing = false, chalkColor = '#ffffff';
+        function toggleChalkboard() {
+            chalkboard.classList.toggle('open');
+            if (chalkboard.classList.contains('open') && !ctx) setTimeout(initCanvas, 50);
+        }
+        function initCanvas() {
+            canvas.width = canvas.parentElement.clientWidth - 48;
+            canvas.height = canvas.parentElement.clientHeight - 130;
+            ctx = canvas.getContext('2d');
+            ctx.lineCap = 'round'; ctx.lineJoin = 'round'; ctx.lineWidth = 4; ctx.strokeStyle = chalkColor;
+            canvas.addEventListener('mousedown', (e) => { isDrawing = true; ctx.beginPath(); ctx.moveTo(e.offsetX, e.offsetY); });
+            canvas.addEventListener('mousemove', (e) => { if (isDrawing) { ctx.lineTo(e.offsetX, e.offsetY); ctx.stroke(); } });
+            canvas.addEventListener('mouseup', () => { isDrawing = false; });
+            canvas.addEventListener('mouseleave', () => { isDrawing = false; });
+        }
+        function setChalkColor(c) { chalkColor = c; if (ctx) ctx.strokeStyle = c; }
+        function clearCanvas() { if (ctx) ctx.clearRect(0, 0, canvas.width, canvas.height); }
+        function selectQuizOpt(element, isCorrect) {
+            const parent = element.parentElement;
+            parent.querySelectorAll('.quiz-option').forEach(opt => opt.style.pointerEvents = 'none');
+            if (isCorrect) element.classList.add('correct');
+            else { element.classList.add('wrong'); parent.children[0].classList.add('correct'); }
+        }
+    </script>
+</body>
+</html>

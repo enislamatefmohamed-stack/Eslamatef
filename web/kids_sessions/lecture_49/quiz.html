@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>اختبار المحاضرة 49 التفاعلي | يوم التخرج الكبير والاحتفال 🎓🏆</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #0284c7; --primary-dark: #0369a1; --bg-light: #f8fafc; --card-bg: #ffffff;
+            --text-dark: #0f172a; --text-muted: #64748b; --accent-green: #10b981; --accent-red: #ef4444;
+            --border: #e2e8f0; --shadow: 0 10px 25px -5px rgba(2, 132, 199, 0.1);
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Cairo', sans-serif; }
+        body { background-color: var(--bg-light); color: var(--text-dark); min-height: 100vh; display: flex; justify-content: center; align-items: center; padding: 24px; }
+        .quiz-container { background: var(--card-bg); max-width: 800px; width: 100%; border-radius: 24px; box-shadow: var(--shadow); border: 2px solid var(--border); padding: 36px; position: relative; }
+        .quiz-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #f1f5f9; padding-bottom: 18px; margin-bottom: 24px; }
+        .badge-title { background: rgba(2, 132, 199, 0.1); color: var(--primary); padding: 6px 16px; border-radius: 20px; font-weight: 800; font-size: 14px; }
+        .timer-box { font-size: 16px; font-weight: 800; color: var(--text-muted); background: #f8fafc; padding: 6px 14px; border-radius: 12px; border: 1px solid var(--border); }
+        .progress-bar-wrap { height: 8px; background: #e2e8f0; border-radius: 4px; overflow: hidden; margin-bottom: 24px; }
+        .progress-bar-fill { height: 100%; width: 10%; background: var(--primary); transition: width 0.3s ease; }
+        .question-card { display: none; }
+        .question-card.active { display: block; animation: fadeIn 0.3s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .q-number { font-size: 14px; font-weight: 800; color: var(--primary); margin-bottom: 8px; }
+        .q-text { font-size: 22px; font-weight: 800; color: var(--text-dark); line-height: 1.5; margin-bottom: 24px; }
+        .options-list { display: flex; flex-direction: column; gap: 12px; }
+        .option-item { background: #f8fafc; border: 2px solid var(--border); border-radius: 14px; padding: 16px 20px; font-size: 16px; font-weight: 700; cursor: pointer; transition: all 0.2s; }
+        .option-item:hover { border-color: var(--primary); background: #f0f9ff; transform: translateX(-4px); }
+        .option-item.selected-correct { background: #dcfce7 !important; border-color: #22c55e !important; color: #15803d; }
+        .option-item.selected-wrong { background: #fee2e2 !important; border-color: #ef4444 !important; color: #b91c1c; }
+        .explanation-box { margin-top: 18px; padding: 14px 18px; border-radius: 12px; font-size: 15px; line-height: 1.5; display: none; }
+        .explanation-box.show { display: block; }
+        .explanation-box.correct { background: #f0fdf4; border: 1px solid #86efac; color: #166534; }
+        .explanation-box.wrong { background: #fef2f2; border: 1px solid #fca5a5; color: #991b1b; }
+        .quiz-actions { margin-top: 28px; display: flex; justify-content: space-between; align-items: center; }
+        .btn-action { background: var(--primary); color: #ffffff; border: none; padding: 12px 28px; border-radius: 12px; font-size: 16px; font-weight: 800; cursor: pointer; transition: all 0.2s; }
+        .btn-action:hover { background: var(--primary-dark); }
+        .btn-action:disabled { background: #cbd5e1; cursor: not-allowed; }
+        .result-screen { text-align: center; padding: 30px 10px; display: none; }
+        .result-badge-icon { font-size: 80px; margin-bottom: 12px; }
+        .result-score { font-size: 38px; font-weight: 900; color: var(--primary); margin-bottom: 8px; }
+        .result-desc { font-size: 18px; color: var(--text-muted); line-height: 1.6; margin-bottom: 24px; }
+    </style>
+</head>
+<body>
+    <div class="quiz-container">
+        <div class="quiz-header">
+            <span class="badge-title">🚀 اختبار المحاضرة 49: يوم التخرج الكبير والاحتفال 🎓🏆</span>
+            <div class="timer-box" id="timerBox">⏱️ الوقت: 00:00</div>
+        </div>
+        <div class="progress-bar-wrap"><div class="progress-bar-fill" id="progressFill"></div></div>
+        
+        <!-- Question 1 -->
+        <div class="question-card active" data-q="1">
+            <div class="q-number">السؤال 1 من 10</div>
+            <h2 class="q-text">ما هو المفهوم الصحيح والتطبيق الأمثل لـ (التخرج) في البرمجة؟</h2>
+            <div class="options-list">
+                <div class="option-item" onclick="chooseOption(this, 1, 0)">أ) كتابة تعليمات منظمة ومنطقية تحقق الهدف بدقة واستقرار.</div>
+                <div class="option-item" onclick="chooseOption(this, 1, 1)">ب) تجاهل الترتيب المنطقي والاعتماد على الصدفة.</div>
+                <div class="option-item" onclick="chooseOption(this, 1, 2)">ج) مسح ملفات البرنامج عند حدوث أي خطأ بسيط.</div>
+                <div class="option-item" onclick="chooseOption(this, 1, 3)">د) إيقاف تشغيل الإنترنت للكمبيوتر دائماً.</div>
+            </div>
+            <div class="explanation-box" id="exp-1"></div>
+        </div>
+        
+        <!-- Question 2 -->
+        <div class="question-card " data-q="2">
+            <div class="q-number">السؤال 2 من 10</div>
+            <h2 class="q-text">ما هو المفهوم الصحيح والتطبيق الأمثل لـ (الشهادات والأوسمة) في البرمجة؟</h2>
+            <div class="options-list">
+                <div class="option-item" onclick="chooseOption(this, 2, 0)">أ) كتابة تعليمات منظمة ومنطقية تحقق الهدف بدقة واستقرار.</div>
+                <div class="option-item" onclick="chooseOption(this, 2, 1)">ب) تجاهل الترتيب المنطقي والاعتماد على الصدفة.</div>
+                <div class="option-item" onclick="chooseOption(this, 2, 2)">ج) مسح ملفات البرنامج عند حدوث أي خطأ بسيط.</div>
+                <div class="option-item" onclick="chooseOption(this, 2, 3)">د) إيقاف تشغيل الإنترنت للكمبيوتر دائماً.</div>
+            </div>
+            <div class="explanation-box" id="exp-2"></div>
+        </div>
+        
+        <!-- Question 3 -->
+        <div class="question-card " data-q="3">
+            <div class="q-number">السؤال 3 من 10</div>
+            <h2 class="q-text">ما هو المفهوم الصحيح والتطبيق الأمثل لـ (الاحتفال الكبير) في البرمجة؟</h2>
+            <div class="options-list">
+                <div class="option-item" onclick="chooseOption(this, 3, 0)">أ) كتابة تعليمات منظمة ومنطقية تحقق الهدف بدقة واستقرار.</div>
+                <div class="option-item" onclick="chooseOption(this, 3, 1)">ب) تجاهل الترتيب المنطقي والاعتماد على الصدفة.</div>
+                <div class="option-item" onclick="chooseOption(this, 3, 2)">ج) مسح ملفات البرنامج عند حدوث أي خطأ بسيط.</div>
+                <div class="option-item" onclick="chooseOption(this, 3, 3)">د) إيقاف تشغيل الإنترنت للكمبيوتر دائماً.</div>
+            </div>
+            <div class="explanation-box" id="exp-3"></div>
+        </div>
+        
+        <!-- Question 4 -->
+        <div class="question-card " data-q="4">
+            <div class="q-number">السؤال 4 من 10</div>
+            <h2 class="q-text">ما هو المفهوم الصحيح والتطبيق الأمثل لـ (التخرج) في البرمجة؟</h2>
+            <div class="options-list">
+                <div class="option-item" onclick="chooseOption(this, 4, 0)">أ) كتابة تعليمات منظمة ومنطقية تحقق الهدف بدقة واستقرار.</div>
+                <div class="option-item" onclick="chooseOption(this, 4, 1)">ب) تجاهل الترتيب المنطقي والاعتماد على الصدفة.</div>
+                <div class="option-item" onclick="chooseOption(this, 4, 2)">ج) مسح ملفات البرنامج عند حدوث أي خطأ بسيط.</div>
+                <div class="option-item" onclick="chooseOption(this, 4, 3)">د) إيقاف تشغيل الإنترنت للكمبيوتر دائماً.</div>
+            </div>
+            <div class="explanation-box" id="exp-4"></div>
+        </div>
+        
+        <!-- Question 5 -->
+        <div class="question-card " data-q="5">
+            <div class="q-number">السؤال 5 من 10</div>
+            <h2 class="q-text">ما هو المفهوم الصحيح والتطبيق الأمثل لـ (الشهادات والأوسمة) في البرمجة؟</h2>
+            <div class="options-list">
+                <div class="option-item" onclick="chooseOption(this, 5, 0)">أ) كتابة تعليمات منظمة ومنطقية تحقق الهدف بدقة واستقرار.</div>
+                <div class="option-item" onclick="chooseOption(this, 5, 1)">ب) تجاهل الترتيب المنطقي والاعتماد على الصدفة.</div>
+                <div class="option-item" onclick="chooseOption(this, 5, 2)">ج) مسح ملفات البرنامج عند حدوث أي خطأ بسيط.</div>
+                <div class="option-item" onclick="chooseOption(this, 5, 3)">د) إيقاف تشغيل الإنترنت للكمبيوتر دائماً.</div>
+            </div>
+            <div class="explanation-box" id="exp-5"></div>
+        </div>
+        
+        <!-- Question 6 -->
+        <div class="question-card " data-q="6">
+            <div class="q-number">السؤال 6 من 10</div>
+            <h2 class="q-text">ما هو المفهوم الصحيح والتطبيق الأمثل لـ (الاحتفال الكبير) في البرمجة؟</h2>
+            <div class="options-list">
+                <div class="option-item" onclick="chooseOption(this, 6, 0)">أ) كتابة تعليمات منظمة ومنطقية تحقق الهدف بدقة واستقرار.</div>
+                <div class="option-item" onclick="chooseOption(this, 6, 1)">ب) تجاهل الترتيب المنطقي والاعتماد على الصدفة.</div>
+                <div class="option-item" onclick="chooseOption(this, 6, 2)">ج) مسح ملفات البرنامج عند حدوث أي خطأ بسيط.</div>
+                <div class="option-item" onclick="chooseOption(this, 6, 3)">د) إيقاف تشغيل الإنترنت للكمبيوتر دائماً.</div>
+            </div>
+            <div class="explanation-box" id="exp-6"></div>
+        </div>
+        
+        <!-- Question 7 -->
+        <div class="question-card " data-q="7">
+            <div class="q-number">السؤال 7 من 10</div>
+            <h2 class="q-text">ما هو المفهوم الصحيح والتطبيق الأمثل لـ (التخرج) في البرمجة؟</h2>
+            <div class="options-list">
+                <div class="option-item" onclick="chooseOption(this, 7, 0)">أ) كتابة تعليمات منظمة ومنطقية تحقق الهدف بدقة واستقرار.</div>
+                <div class="option-item" onclick="chooseOption(this, 7, 1)">ب) تجاهل الترتيب المنطقي والاعتماد على الصدفة.</div>
+                <div class="option-item" onclick="chooseOption(this, 7, 2)">ج) مسح ملفات البرنامج عند حدوث أي خطأ بسيط.</div>
+                <div class="option-item" onclick="chooseOption(this, 7, 3)">د) إيقاف تشغيل الإنترنت للكمبيوتر دائماً.</div>
+            </div>
+            <div class="explanation-box" id="exp-7"></div>
+        </div>
+        
+        <!-- Question 8 -->
+        <div class="question-card " data-q="8">
+            <div class="q-number">السؤال 8 من 10</div>
+            <h2 class="q-text">ما هو المفهوم الصحيح والتطبيق الأمثل لـ (الشهادات والأوسمة) في البرمجة؟</h2>
+            <div class="options-list">
+                <div class="option-item" onclick="chooseOption(this, 8, 0)">أ) كتابة تعليمات منظمة ومنطقية تحقق الهدف بدقة واستقرار.</div>
+                <div class="option-item" onclick="chooseOption(this, 8, 1)">ب) تجاهل الترتيب المنطقي والاعتماد على الصدفة.</div>
+                <div class="option-item" onclick="chooseOption(this, 8, 2)">ج) مسح ملفات البرنامج عند حدوث أي خطأ بسيط.</div>
+                <div class="option-item" onclick="chooseOption(this, 8, 3)">د) إيقاف تشغيل الإنترنت للكمبيوتر دائماً.</div>
+            </div>
+            <div class="explanation-box" id="exp-8"></div>
+        </div>
+        
+        <!-- Question 9 -->
+        <div class="question-card " data-q="9">
+            <div class="q-number">السؤال 9 من 10</div>
+            <h2 class="q-text">ما هو المفهوم الصحيح والتطبيق الأمثل لـ (الاحتفال الكبير) في البرمجة؟</h2>
+            <div class="options-list">
+                <div class="option-item" onclick="chooseOption(this, 9, 0)">أ) كتابة تعليمات منظمة ومنطقية تحقق الهدف بدقة واستقرار.</div>
+                <div class="option-item" onclick="chooseOption(this, 9, 1)">ب) تجاهل الترتيب المنطقي والاعتماد على الصدفة.</div>
+                <div class="option-item" onclick="chooseOption(this, 9, 2)">ج) مسح ملفات البرنامج عند حدوث أي خطأ بسيط.</div>
+                <div class="option-item" onclick="chooseOption(this, 9, 3)">د) إيقاف تشغيل الإنترنت للكمبيوتر دائماً.</div>
+            </div>
+            <div class="explanation-box" id="exp-9"></div>
+        </div>
+        
+        <!-- Question 10 -->
+        <div class="question-card " data-q="10">
+            <div class="q-number">السؤال 10 من 10</div>
+            <h2 class="q-text">ما هو المفهوم الصحيح والتطبيق الأمثل لـ (التخرج) في البرمجة؟</h2>
+            <div class="options-list">
+                <div class="option-item" onclick="chooseOption(this, 10, 0)">أ) كتابة تعليمات منظمة ومنطقية تحقق الهدف بدقة واستقرار.</div>
+                <div class="option-item" onclick="chooseOption(this, 10, 1)">ب) تجاهل الترتيب المنطقي والاعتماد على الصدفة.</div>
+                <div class="option-item" onclick="chooseOption(this, 10, 2)">ج) مسح ملفات البرنامج عند حدوث أي خطأ بسيط.</div>
+                <div class="option-item" onclick="chooseOption(this, 10, 3)">د) إيقاف تشغيل الإنترنت للكمبيوتر دائماً.</div>
+            </div>
+            <div class="explanation-box" id="exp-10"></div>
+        </div>
+        
+        <div class="quiz-actions" id="actionsRow">
+            <span style="font-weight: 800; color: var(--text-muted);" id="scoreCounter">النقاط: 0 / 100</span>
+            <button class="btn-action" id="nextBtn" disabled onclick="nextQuestion()">السؤال التالي ⬅</button>
+        </div>
+        <div class="result-screen" id="resultScreen">
+            <div class="result-badge-icon">🌟🏆✨</div>
+            <h2 style="font-size: 28px; font-weight: 900; margin-bottom: 8px;">مبارك إنهاء اختبار المحاضرة 49!</h2>
+            <div class="result-score" id="finalScore">100 / 100</div>
+            <p class="result-desc" id="finalDesc">أنت الآن تتقن مهارات يوم التخرج الكبير والاحتفال 🎓🏆 وجاهز للمحطة التالية!</p>
+            <button class="btn-action" onclick="location.reload()">إعادة الاختبار 🔄</button>
+        </div>
+    </div>
+    <script>
+        const correctAnswers = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+        const explanations = ["فهم التخرج وتطبيقه المنطقي بدقة يضمن عمل الكود بكفاءة وبدون أخطاء.", "فهم الشهادات والأوسمة وتطبيقه المنطقي بدقة يضمن عمل الكود بكفاءة وبدون أخطاء.", "فهم الاحتفال الكبير وتطبيقه المنطقي بدقة يضمن عمل الكود بكفاءة وبدون أخطاء.", "فهم التخرج وتطبيقه المنطقي بدقة يضمن عمل الكود بكفاءة وبدون أخطاء.", "فهم الشهادات والأوسمة وتطبيقه المنطقي بدقة يضمن عمل الكود بكفاءة وبدون أخطاء.", "فهم الاحتفال الكبير وتطبيقه المنطقي بدقة يضمن عمل الكود بكفاءة وبدون أخطاء.", "فهم التخرج وتطبيقه المنطقي بدقة يضمن عمل الكود بكفاءة وبدون أخطاء.", "فهم الشهادات والأوسمة وتطبيقه المنطقي بدقة يضمن عمل الكود بكفاءة وبدون أخطاء.", "فهم الاحتفال الكبير وتطبيقه المنطقي بدقة يضمن عمل الكود بكفاءة وبدون أخطاء.", "فهم التخرج وتطبيقه المنطقي بدقة يضمن عمل الكود بكفاءة وبدون أخطاء."];
+        let currentQ = 1, score = 0, answered = false, seconds = 0;
+        setInterval(() => {
+            seconds++;
+            const mins = String(Math.floor(seconds / 60)).padStart(2, '0');
+            const secs = String(seconds % 60).padStart(2, '0');
+            document.getElementById('timerBox').textContent = `⏱️ الوقت: ${mins}:${secs}`;
+        }, 1000);
+        function chooseOption(el, qNum, optIndex) {
+            if (answered) return;
+            answered = true;
+            const isCorrect = (optIndex === correctAnswers[qNum - 1]);
+            const parent = el.parentElement;
+            const options = parent.querySelectorAll('.option-item');
+            if (isCorrect) {
+                el.classList.add('selected-correct'); score += 10;
+                document.getElementById('scoreCounter').textContent = `النقاط: ${score} / 100`;
+            } else {
+                el.classList.add('selected-wrong');
+                options[correctAnswers[qNum - 1]].classList.add('selected-correct');
+            }
+            const exp = document.getElementById(`exp-${qNum}`);
+            exp.textContent = (isCorrect ? 'إجابة صحيحة عبقرية! 🎉 ' : 'إجابة خاطئة! ❌ ') + explanations[qNum - 1];
+            exp.className = `explanation-box show ${isCorrect ? 'correct' : 'wrong'}`;
+            document.getElementById('nextBtn').disabled = false;
+        }
+        function nextQuestion() {
+            if (currentQ < 10) {
+                document.querySelector(`.question-card[data-q="${currentQ}"]`).classList.remove('active');
+                currentQ++;
+                document.querySelector(`.question-card[data-q="${currentQ}"]`).classList.add('active');
+                document.getElementById('progressFill').style.width = (currentQ * 10) + '%';
+                document.getElementById('nextBtn').disabled = true;
+                answered = false;
+                if (currentQ === 10) document.getElementById('nextBtn').textContent = 'عرض النتيجة النهائية 🏆';
+            } else {
+                showResults();
+            }
+        }
+        function showResults() {
+            document.querySelectorAll('.question-card').forEach(q => q.style.display = 'none');
+            document.getElementById('actionsRow').style.display = 'none';
+            document.getElementById('timerBox').style.display = 'none';
+            document.getElementById('progressFill').style.width = '100%';
+            const res = document.getElementById('resultScreen');
+            res.style.display = 'block';
+            document.getElementById('finalScore').textContent = `${score} / 100`;
+            const desc = document.getElementById('finalDesc');
+            if (score >= 90) desc.textContent = "درجة كاملة أسطورية! أنت بطل حقيقي في يوم التخرج الكبير والاحتفال 🎓🏆!";
+            else if (score >= 70) desc.textContent = "أداء رائع جداً! راجع الأسئلة التي تعثرت فيها لتكون متفوقاً 100%!";
+            else desc.textContent = "بداية جيدة! أعد المحاولة مجدداً لتثبيت مفاهيم الدرس!";
+        }
+    </script>
+</body>
+</html>
