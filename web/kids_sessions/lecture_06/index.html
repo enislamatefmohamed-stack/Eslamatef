@@ -3,1450 +3,1803 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>جلسة تصوير المحاضرة 06 | يعني إيه برمجة؟ كيف تجعل الكمبيوتر يطيعك بذكاء؟</title>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <title>جلسة تصوير المحاضرة 06 | يعني إيه برمجة؟ كيف تجعل الكمبيوتر يطيعك؟</title>
+    
+    <!-- Google Cairo & Inter Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+
     <style>
+        /* ==========================================================
+           MODERN RESPONSIVE 16:9 PRESENTATION DESIGN SYSTEM
+           VIBRANT LIGHT THEME - OPTIMIZED FOR SCREEN RECORDING
+           ========================================================== */
         :root {
             --primary: #0284c7;
-            --primary-light: #38bdf8;
+            --primary-light: #e0f2fe;
             --primary-dark: #0369a1;
-            --bg-light: #f8fafc;
-            --card-bg: #ffffff;
-            --text-dark: #0f172a;
-            --text-muted: #64748b;
-            --accent-green: #10b981;
-            --accent-amber: #f59e0b;
-            --accent-purple: #8b5cf6;
-            --accent-red: #ef4444;
-            --border: #e2e8f0;
-            --shadow: 0 10px 25px -5px rgba(2, 132, 199, 0.1), 0 8px 10px -6px rgba(2, 132, 199, 0.1);
-            --shadow-lg: 0 20px 30px -10px rgba(2, 132, 199, 0.15);
+            
+            --success: #10b981;
+            --success-light: #d1fae5;
+            
+            --warning: #f59e0b;
+            --warning-light: #fef3c7;
+            
+            --danger: #ef4444;
+            --danger-light: #fee2e2;
+            
+            --purple: #8b5cf6;
+            --purple-light: #ede9fe;
+            
+            --bg-viewport: #f1f5f9;
+            --bg-surface: #ffffff;
+            --bg-card: #ffffff;
+            --border-color: #e2e8f0;
+            
+            --text-main: #0f172a;
+            --text-muted: #475569;
+            --text-subtle: #64748b;
+            
+            --font-ar: 'Cairo', system-ui, -apple-system, sans-serif;
+            --font-mono: 'Inter', monospace;
         }
 
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-            font-family: 'Cairo', sans-serif;
+            font-family: var(--font-ar);
             -webkit-font-smoothing: antialiased;
         }
 
         body {
-            background-color: var(--bg-light);
-            color: var(--text-dark);
+            background-color: var(--bg-viewport);
+            color: var(--text-main);
+            width: 100vw;
             height: 100vh;
             overflow: hidden;
             display: flex;
-            flex-direction: column;
+            align-items: center;
+            justify-content: center;
             user-select: none;
         }
 
-        /* Top Bar */
-        .top-bar {
+        /* 16:9 Viewport & Frame */
+        #presentation-viewport {
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 12px;
+            overflow: hidden;
+        }
+
+        #presentation-frame {
+            width: 100%;
+            height: 100%;
+            max-width: calc((100vh - 24px) * 16 / 9);
+            max-height: calc((100vw - 24px) * 9 / 16);
+            aspect-ratio: 16 / 9;
+            background: var(--bg-surface);
+            border-radius: 18px;
+            box-shadow: 0 15px 35px -5px rgba(15, 23, 42, 0.12);
+            border: 1.5px solid var(--border-color);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* Top Header Bar */
+        .slide-topbar {
+            height: 52px;
+            padding: 0 24px;
             background: #ffffff;
-            border-bottom: 2px solid var(--border);
-            padding: 12px 24px;
+            border-bottom: 1.5px solid #f1f5f9;
             display: flex;
+            align-items: center;
             justify-content: space-between;
-            align-items: center;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
-            z-index: 10;
+            flex-shrink: 0;
+            z-index: 20;
         }
 
-        .badge-lec {
-            background: rgba(2, 132, 199, 0.1);
-            color: var(--primary);
-            padding: 6px 14px;
-            border-radius: 20px;
-            font-weight: 800;
-            font-size: 14px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            border: 1px solid rgba(2, 132, 199, 0.2);
-        }
-
-        .lec-title {
-            font-size: 18px;
-            font-weight: 800;
-            color: var(--text-dark);
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .top-controls {
+        .topbar-right {
             display: flex;
             align-items: center;
             gap: 12px;
         }
 
-        .btn-ctrl {
-            background: #f1f5f9;
-            border: 1px solid var(--border);
-            color: var(--text-dark);
-            padding: 6px 14px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 700;
+        .badge-pill {
+            background: var(--primary-light);
+            color: var(--primary-dark);
+            padding: 4px 12px;
+            border-radius: 20px;
             font-size: 13px;
-            transition: all 0.2s;
+            font-weight: 800;
             display: flex;
             align-items: center;
             gap: 6px;
         }
 
-        .btn-ctrl:hover {
-            background: #e2e8f0;
-            border-color: #cbd5e1;
-        }
-
-        .btn-wb {
-            background: #ede9fe;
-            color: var(--accent-purple);
-            border-color: #ddd6fe;
-        }
-
-        .btn-wb:hover {
-            background: #ddd6fe;
-        }
-
-        /* Main Workspace */
-        .workspace {
-            flex: 1;
-            display: flex;
-            position: relative;
-            overflow: hidden;
-        }
-
-        /* Slides Stage */
-        .stage {
-            flex: 1;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 24px;
-            position: relative;
-            overflow-y: auto;
-        }
-
-        .slide-card {
-            background: var(--card-bg);
-            width: 100%;
-            max-width: 1100px;
-            height: 94%;
-            border-radius: 24px;
-            box-shadow: var(--shadow-lg);
-            border: 2px solid var(--border);
-            padding: 40px;
-            display: none;
-            flex-direction: column;
-            justify-content: space-between;
-            position: relative;
-            animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-
-        .slide-card.active {
-            display: flex;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(15px) scale(0.98); }
-            to { opacity: 1; transform: translateY(0) scale(1); }
-        }
-
-        .slide-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 2px dashed #f1f5f9;
-            padding-bottom: 16px;
-        }
-
-        .slide-cat {
-            font-size: 14px;
+        .topbar-title {
+            font-size: 16px;
             font-weight: 800;
-            color: var(--primary);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            background: #f0f9ff;
-            padding: 4px 12px;
-            border-radius: 8px;
+            color: var(--text-main);
         }
 
-        .slide-num {
-            font-size: 15px;
+        .topbar-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .timer-box {
+            font-family: var(--font-mono);
+            font-size: 14px;
             font-weight: 800;
             color: var(--text-muted);
             background: #f8fafc;
-            padding: 4px 12px;
-            border-radius: 12px;
-            border: 1px solid var(--border);
+            padding: 4px 10px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
         }
 
-        .slide-content {
+        /* Stage Area (Holds slides and pen overlay) */
+        .stage-container {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+            background: #ffffff;
+            min-height: 0;
+        }
+
+        .slides-wrapper {
+            position: absolute;
+            inset: 0;
+            overflow: hidden;
+        }
+
+        /* Individual Slide */
+        .slide {
+            position: absolute;
+            inset: 0;
+            padding: 24px 36px;
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            opacity: 0;
+            transform: scale(0.99);
+            transition: opacity 0.25s ease, transform 0.25s ease;
+            overflow: hidden;
+            background: #ffffff;
+        }
+
+        .slide.active {
+            display: flex;
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .slide-inner-body {
             flex: 1;
             display: flex;
             flex-direction: column;
             justify-content: center;
-            align-items: center;
-            text-align: center;
-            padding: 20px 0;
             gap: 20px;
+            min-height: 0;
         }
 
-        .slide-content h2 {
-            font-size: 34px;
+        /* Slide Titles and Headings */
+        .slide-heading-row {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .slide-category {
+            display: inline-block;
+            align-self: flex-start;
+            font-size: 13px;
+            font-weight: 800;
+            color: var(--primary);
+            background: var(--primary-light);
+            padding: 3px 10px;
+            border-radius: 6px;
+            letter-spacing: 0.3px;
+        }
+
+        .slide-main-title {
+            font-size: clamp(24px, 2.3vw, 32px);
             font-weight: 900;
-            color: var(--text-dark);
+            color: var(--text-main);
             line-height: 1.3;
         }
 
-        .slide-content p {
-            font-size: 20px;
-            color: var(--text-muted);
-            max-width: 850px;
-            line-height: 1.6;
+        /* Balanced Grids */
+        .grid-4-balance {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            width: 100%;
         }
 
-        /* Grids & Cards */
-        .grid-2 {
+        .grid-3-balance {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 18px;
+            width: 100%;
+        }
+
+        .grid-2-balance {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 24px;
             width: 100%;
-            max-width: 900px;
-            text-align: right;
         }
 
-        .grid-3 {
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
-            gap: 20px;
-            width: 100%;
-            max-width: 950px;
-            text-align: right;
-        }
-
-        .grid-4 {
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr 1fr;
-            gap: 16px;
-            width: 100%;
-            max-width: 1000px;
-            text-align: center;
-        }
-
-        .info-box {
-            background: #f8fafc;
-            border: 2px solid var(--border);
-            border-radius: 16px;
-            padding: 20px;
-            transition: all 0.3s;
-        }
-
-        .info-box:hover {
-            transform: translateY(-4px);
-            border-color: var(--primary);
-            box-shadow: var(--shadow);
+        /* Cards */
+        .k-card-compact {
             background: #ffffff;
-        }
-
-        .info-box.highlight {
-            border-color: #bae6fd;
-            background: #f0f9ff;
-        }
-
-        .box-icon {
-            font-size: 36px;
-            margin-bottom: 12px;
-            display: inline-block;
-        }
-
-        .box-title {
-            font-size: 18px;
-            font-weight: 800;
-            color: var(--text-dark);
-            margin-bottom: 8px;
-        }
-
-        .box-desc {
-            font-size: 15px;
-            color: var(--text-muted);
-            line-height: 1.5;
-        }
-
-        /* Interactive Robot Command Simulator */
-        .robot-sim-box {
-            background: #ffffff;
-            border: 2px solid #bae6fd;
-            border-radius: 18px;
-            padding: 24px;
-            width: 100%;
-            max-width: 750px;
-            box-shadow: var(--shadow);
-            display: flex;
-            gap: 24px;
-            align-items: center;
-        }
-
-        .robot-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 50px);
-            grid-template-rows: repeat(4, 50px);
-            gap: 6px;
-            background: #f1f5f9;
-            padding: 10px;
-            border-radius: 12px;
-            border: 2px solid #cbd5e1;
-        }
-
-        .grid-cell {
-            background: #ffffff;
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 22px;
-            border: 1px solid #e2e8f0;
-            transition: all 0.2s;
-        }
-
-        .grid-cell.active-robot {
-            background: #e0f2fe;
-            border-color: #38bdf8;
-            box-shadow: 0 0 10px rgba(56, 189, 248, 0.4);
-        }
-
-        .grid-cell.target-star {
-            background: #fef9c3;
-            border-color: #facc15;
-        }
-
-        .robot-controls {
-            flex: 1;
+            border: 1.5px solid var(--border-color);
+            border-radius: 14px;
+            padding: 18px;
             display: flex;
             flex-direction: column;
             gap: 10px;
-            text-align: right;
+            box-shadow: 0 4px 12px rgba(15, 23, 42, 0.03);
+            transition: all 0.25s;
         }
 
-        .cmd-btn-row {
+        .k-card-compact:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(15, 23, 42, 0.06);
+            border-color: var(--primary);
+        }
+
+        .k-card-compact.border-blue { border-top: 4px solid var(--primary); }
+        .k-card-compact.border-purple { border-top: 4px solid var(--purple); }
+        .k-card-compact.border-teal { border-top: 4px solid #0d9488; }
+        .k-card-compact.border-orange { border-top: 4px solid #ea580c; }
+
+        .card-emoji { font-size: 28px; line-height: 1; }
+        .card-top-icon { font-size: 26px; }
+        .card-h { font-size: clamp(16px, 1.4vw, 19px); font-weight: 800; color: var(--text-main); }
+        .card-p { font-size: clamp(13px, 1.1vw, 15px); color: var(--text-muted); line-height: 1.55; }
+        .card-tag-pill { font-size: 12px; font-weight: 700; color: var(--primary); background: #f0f9ff; padding: 3px 8px; border-radius: 6px; align-self: flex-start; }
+
+        /* Rich Hero Center */
+        .hero-center {
             display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-        }
-
-        .btn-cmd {
-            background: #f0f9ff;
-            border: 1px solid #7dd3fc;
-            color: #0369a1;
-            padding: 8px 14px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 800;
-            font-size: 13px;
-            transition: all 0.2s;
-        }
-
-        .btn-cmd:hover {
-            background: #0284c7;
-            color: #ffffff;
-        }
-
-        .robot-log {
-            background: #0f172a;
-            color: #38bdf8;
-            font-family: monospace;
-            padding: 10px 14px;
-            border-radius: 8px;
-            font-size: 13px;
-            min-height: 48px;
-            direction: ltr;
-            text-align: left;
-        }
-
-        /* Slide Footer */
-        .slide-footer {
-            display: flex;
-            justify-content: space-between;
+            flex-direction: column;
             align-items: center;
-            border-top: 2px solid #f1f5f9;
-            padding-top: 16px;
+            text-align: center;
+            gap: 16px;
+            padding: 10px 0;
         }
 
-        .btn-nav {
-            background: #ffffff;
-            border: 2px solid var(--border);
-            color: var(--text-dark);
-            padding: 10px 24px;
+        .hero-icons { font-size: 46px; }
+        .hero-title { font-size: clamp(28px, 2.7vw, 38px); font-weight: 900; color: var(--text-main); line-height: 1.3; }
+        .hero-subtitle { font-size: clamp(16px, 1.3vw, 19px); color: var(--text-muted); max-width: 800px; line-height: 1.6; }
+        .hero-tags { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+        .k-badge { background: #f0f9ff; color: var(--primary-dark); font-size: 13px; font-weight: 800; padding: 6px 14px; border-radius: 8px; border: 1px solid #bae6fd; }
+        
+        .hero-meta-box {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: #f8fafc;
+            border: 1px solid var(--border-color);
+            padding: 8px 18px;
             border-radius: 12px;
-            font-size: 15px;
-            font-weight: 800;
-            cursor: pointer;
-            transition: all 0.2s;
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--text-muted);
+            margin-top: 8px;
+        }
+        .meta-dot { color: #cbd5e1; }
+
+        /* Quiz Challenge Card */
+        .quiz-challenge-card {
+            background: #f8fafc;
+            border: 1.5px solid var(--border-color);
+            border-radius: 16px;
+            padding: 22px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .quiz-question-txt { font-size: clamp(16px, 1.3vw, 19px); font-weight: 700; color: var(--text-main); line-height: 1.6; }
+        .quiz-options-list { display: flex; flex-direction: column; gap: 10px; }
+        
+        .quiz-opt-btn {
+            background: #ffffff;
+            border: 1.5px solid var(--border-color);
+            border-radius: 10px;
+            padding: 12px 18px;
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 12px;
+            cursor: pointer;
+            text-align: right;
+            transition: all 0.2s;
+            font-size: 15px;
+            font-weight: 700;
         }
 
-        .btn-nav:hover {
-            border-color: var(--primary);
-            color: var(--primary);
-            background: #f0f9ff;
-        }
+        .quiz-opt-btn:hover { border-color: var(--primary); background: #f0f9ff; }
+        .quiz-opt-btn.correct { background: var(--success-light) !important; border-color: var(--success) !important; color: #065f46 !important; }
+        .quiz-opt-btn.wrong { background: var(--danger-light) !important; border-color: var(--danger) !important; color: #991b1b !important; }
+        
+        .opt-letter { width: 26px; height: 26px; border-radius: 6px; background: #f1f5f9; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 900; color: var(--text-muted); flex-shrink: 0; }
+        .quiz-feedback-box { font-size: 14px; font-weight: 800; min-height: 22px; padding: 0 4px; }
 
-        .btn-nav.primary {
-            background: var(--primary);
-            color: #ffffff;
-            border-color: var(--primary);
+        /* Rich 2-col List */
+        .k-card-rich {
+            background: #ffffff;
+            border: 1.5px solid var(--border-color);
+            border-radius: 14px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
         }
+        .k-card-rich.highlight-bg { background: #f0fdf4; border-color: #bbf7d0; }
+        .rich-header { display: flex; align-items: center; gap: 10px; }
+        .rich-icon { font-size: 26px; }
+        .rich-title { font-size: 18px; font-weight: 800; color: var(--text-main); }
+        .rich-list { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+        .rich-list li { position: relative; padding-right: 20px; font-size: 14px; color: var(--text-muted); line-height: 1.6; font-weight: 600; }
+        .rich-list li::before { content: '✔'; position: absolute; right: 0; color: var(--primary); font-weight: 900; }
 
-        .btn-nav.primary:hover {
-            background: var(--primary-dark);
-        }
+        /* Celebration Hero */
+        .celebration-bg { background: radial-gradient(circle at center, #f0fdf4 0%, #ffffff 70%); border-radius: 16px; padding: 24px; }
+        .text-success { color: #059669; }
+        .score-pill { background: #fef08a; color: #854d0e; font-size: 16px; font-weight: 900; padding: 8px 24px; border-radius: 50px; border: 2px solid #facc15; box-shadow: 0 4px 12px rgba(234, 179, 8, 0.2); }
+        .next-lecture-box { background: #ffffff; border: 1.5px dashed var(--border-color); border-radius: 12px; padding: 12px 24px; display: flex; align-items: center; gap: 12px; }
+        .next-badge { background: var(--primary-light); color: var(--primary); font-size: 12px; font-weight: 800; padding: 4px 10px; border-radius: 6px; }
+        .next-title { font-size: 14px; font-weight: 700; color: var(--text-main); }
 
-        /* Chalkboard Panel */
-        .chalkboard {
+        /* ==========================================================
+           TRANSPARENT IN-SLIDE PEN CANVAS OVERLAY & FLOATING TOOLBAR
+           ========================================================== */
+        .slide-pen-canvas {
             position: absolute;
-            top: 0;
-            left: 0;
+            inset: 0;
             width: 100%;
             height: 100%;
-            background: rgba(15, 23, 42, 0.95);
-            backdrop-filter: blur(8px);
-            z-index: 50;
-            display: none;
-            flex-direction: column;
-            padding: 24px;
-            color: #ffffff;
+            pointer-events: none;
+            z-index: 30;
         }
 
-        .chalkboard.open {
-            display: flex;
-        }
-
-        .chalk-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 16px;
-        }
-
-        .chalk-canvas {
-            flex: 1;
-            background: #1e293b;
-            border-radius: 16px;
-            border: 2px solid #334155;
+        .slide-pen-canvas.pen-active {
+            pointer-events: auto;
             cursor: crosshair;
         }
 
-        .chalk-tools {
+        .pen-floating-toolbar {
+            position: absolute;
+            bottom: 14px;
+            left: 50%;
+            transform: translateX(-50%) translateY(70px);
+            background: #ffffff;
+            border: 1.5px solid var(--border-color);
+            border-radius: 50px;
+            padding: 6px 14px;
+            box-shadow: 0 10px 25px rgba(15, 23, 42, 0.15);
             display: flex;
-            gap: 12px;
-            margin-top: 14px;
-            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            z-index: 40;
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
-        .color-dot {
-            width: 32px;
-            height: 32px;
+        .pen-floating-toolbar.open {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .pen-tools-row {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .tool-btn {
+            background: #f8fafc;
+            border: 1.5px solid var(--border-color);
+            width: 34px;
+            height: 34px;
             border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             cursor: pointer;
+            font-size: 15px;
+            transition: all 0.2s;
+        }
+
+        .tool-btn:hover { background: #f1f5f9; }
+        .tool-btn.active { background: var(--primary-light); border-color: var(--primary); box-shadow: 0 0 0 2px rgba(2, 132, 199, 0.2); }
+
+        .tool-separator {
+            width: 1px;
+            height: 20px;
+            background: var(--border-color);
+            margin: 0 4px;
+        }
+
+        .color-btn {
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background-color: var(--c);
             border: 2px solid #ffffff;
+            box-shadow: 0 0 0 1px #cbd5e1;
+            cursor: pointer;
             transition: transform 0.2s;
         }
 
-        .color-dot:hover {
-            transform: scale(1.2);
+        .color-btn.selected {
+            transform: scale(1.25);
+            box-shadow: 0 0 0 2px var(--text-main);
         }
 
-        /* Interactive Quiz Card */
-        .interactive-quiz {
+        .size-btn {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
             background: #f8fafc;
-            border: 2px solid #e2e8f0;
-            border-radius: 16px;
-            padding: 20px;
-            max-width: 650px;
-            width: 100%;
-            text-align: right;
+            border: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+        .size-btn span { display: block; border-radius: 50%; background: var(--text-main); width: 4px; height: 4px; }
+        .size-btn.active { background: #e2e8f0; border-color: var(--text-main); }
+
+        .action-btn {
+            background: #f8fafc;
+            border: 1px solid var(--border-color);
+            padding: 4px 8px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .action-btn:hover { background: #fee2e2; border-color: #fca5a5; }
+        .exit-btn { background: #fee2e2; color: #dc2626; border-color: #fca5a5; }
+
+        /* Bottom Studio Control Bar */
+        .slide-bottombar {
+            height: 52px;
+            padding: 0 24px;
+            background: #ffffff;
+            border-top: 1.5px solid #f1f5f9;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-shrink: 0;
+            z-index: 20;
         }
 
-        .quiz-option {
-            background: #ffffff;
-            border: 2px solid #e2e8f0;
-            padding: 12px 16px;
-            border-radius: 10px;
-            margin-top: 10px;
-            font-size: 15px;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.2s;
+        .nav-controls {
             display: flex;
             align-items: center;
             gap: 10px;
         }
 
-        .quiz-option:hover {
-            border-color: var(--primary);
-            background: #f0f9ff;
+        .btn-slide-nav {
+            background: #ffffff;
+            border: 1.5px solid var(--border-color);
+            color: var(--text-main);
+            padding: 6px 14px;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 800;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
         }
 
-        .quiz-option.correct {
-            background: #dcfce7 !important;
-            border-color: #22c55e !important;
-            color: #15803d;
+        .btn-slide-nav:hover { background: #f0f9ff; border-color: var(--primary); color: var(--primary); }
+        .btn-slide-nav.btn-primary { background: var(--primary); color: #ffffff; border-color: var(--primary); }
+
+        .slide-counter-badge {
+            font-family: var(--font-mono);
+            font-size: 14px;
+            font-weight: 800;
+            color: var(--text-muted);
+            background: #f8fafc;
+            padding: 4px 12px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
         }
 
-        .quiz-option.wrong {
-            background: #fee2e2 !important;
-            border-color: #ef4444 !important;
-            color: #b91c1c;
+        .studio-tools {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-tool-toggle {
+            background: #f8fafc;
+            border: 1.5px solid var(--border-color);
+            color: var(--text-main);
+            padding: 6px 12px;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 800;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+        }
+
+        .btn-tool-toggle:hover { background: #e2e8f0; }
+        .btn-tool-toggle.pen-active { background: #ede9fe; color: var(--purple); border-color: #c4b5fd; }
+
+        /* Progress Bar */
+        .progress-bar-container {
+            width: 120px;
+            height: 6px;
+            background: #f1f5f9;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            background: var(--primary);
+            width: 4%;
+            transition: width 0.3s;
+        }
+
+        /* Teacher Teleprompter Notes Panel */
+        #teacher-prompter-panel {
+            position: absolute;
+            top: 52px;
+            left: 0;
+            width: 380px;
+            max-height: calc(100% - 104px);
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(8px);
+            border-right: 2px solid var(--border-color);
+            border-bottom: 2px solid var(--border-color);
+            border-bottom-right-radius: 16px;
+            box-shadow: 5px 5px 20px rgba(0, 0, 0, 0.08);
+            display: flex;
+            flex-direction: column;
+            z-index: 50;
+            transform: translateX(-105%);
+            transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        #teacher-prompter-panel.open {
+            transform: translateX(0);
+        }
+
+        .prompter-header {
+            padding: 12px 16px;
+            border-bottom: 1.5px solid #f1f5f9;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #f8fafc;
+        }
+
+        .prompter-title { font-size: 14px; font-weight: 800; color: var(--text-main); }
+        .prompter-close { background: none; border: none; font-size: 16px; cursor: pointer; color: var(--text-muted); }
+
+        .prompter-body {
+            padding: 16px;
+            font-size: 15px;
+            line-height: 1.8;
+            color: #1e293b;
+            font-weight: 600;
+            overflow-y: auto;
+            max-height: 400px;
         }
     </style>
 </head>
 <body>
 
-    <!-- Top Bar -->
-    <header class="top-bar">
-        <div class="badge-lec">
-            <span>🚀</span>
-            <span>المحاضرة 06 • كيك أوف المستوى الثاني</span>
+    <div id="presentation-viewport">
+        <div id="presentation-frame">
+            
+            <!-- Top Live Bar -->
+            <header class="slide-topbar">
+                <div class="topbar-right">
+                    <div class="badge-pill">
+                        <span>🚀</span>
+                        <span>المحاضرة 06 • المستوى 2: التفكير البرمجي والخوارزميات</span>
+                    </div>
+                    <span class="topbar-title">يعني إيه برمجة؟ كيف تجعل الكمبيوتر يطيعك؟</span>
+                </div>
+                <div class="topbar-left">
+                    <div class="timer-box" id="sessionTimer">00:00</div>
+                    <button class="btn-slide-nav" onclick="toggleFullScreen()" title="ملء الشاشة (F)">
+                        <span>⛶</span>
+                    </button>
+                </div>
+            </header>
+
+            <!-- Main Stage (Holds Slides + Pen Canvas) -->
+            <div class="stage-container" id="stageContainer">
+                
+                <!-- Slides Container -->
+                <div class="slides-wrapper" id="slidesWrapper">
+                    
+        <!-- SLIDE 1 -->
+        <section class="slide active" id="slide-1" data-slide="1" data-notes="يا أهلاً بكل أبطالنا ومبرمجي المستقبل! النهاردة يوم استثنائي جداً في رحلتنا، لأننا بنفتح مع بعض بوابة المستوى الثاني: التفكير البرمجي وبناء الخوارزميات! في المستوى الأول فككنا الكمبيوتر وعرفنا قطعه وحمينا أجهزتنا.. النهاردة بقى هنتحول لسحرة حقيقيين بنعطي الأوامر للكمبيوتر فيطيعنا وينفذ كل أحلامنا وألعابنا! جاهزون للانطلاقة الكبرى؟ يلا بينا نبدأ المحاضرة السادسة!">
+            <div class="slide-inner-body">
+                
+            <div class="hero-center">
+                <div class="hero-icons">🚀 💻 ⭐</div>
+                <h1 class="hero-title">يعني إيه برمجة؟ كيف تجعل الكمبيوتر يطيعك؟</h1>
+                <p class="hero-subtitle">أهلاً بكم يا أبطال المستقبل في المحاضرة 06 من كورس البرمجة والذكاء الاصطناعي للأطفال!</p>
+                <div class="hero-tags"><span class="k-badge">✨ مفهوم البرمجة</span><span class="k-badge">✨ لغة الباينري</span><span class="k-badge">✨ المترجم البرمجي</span><span class="k-badge">✨ عقلية الصانع</span></div>
+                <div class="hero-meta-box">
+                    <span>👨‍🏫 المدرب: م / إسلام عاطف</span>
+                    <span class="meta-dot">•</span>
+                    <span>🎓 المستوى 2: التفكير البرمجي والخوارزميات</span>
+                    <span class="meta-dot">•</span>
+                    <span>⏱️ مدة الجلسة: 25 شريحة تفاعلية</span>
+                </div>
+            </div>
+        
+            </div>
+        </section>
+    
+        <!-- SLIDE 2 -->
+        <section class="slide " id="slide-2" data-slide="2" data-notes="بصوا معايا يا أبطال على خريطة أهدافنا لمحاضرة النهاردة: أولاً: هنفهم يعني إيه كلمة برمجة أصلاً وإيه سر قوتها. ثانياً: هنكتشف لغة الآلة العجيبة اللي اسمها الباينري وكيف يفهم الكمبيوتر العالم برقمين بس 0 و 1. ثالثاً: هنتعرف على المترجم الذكي اللي بياخد كلامنا السهل ويحوله للكمبيوتر. ورابعاً: هنكتشف إزاي نتحول من مجرد لاعب بيلعب ألعاب، إلى صانع ألعاب ومهندس للمستقبل!">
+            <div class="slide-inner-body">
+                
+            <div class="slide-heading-row">
+                <span class="slide-category">خريطة التعلم اليومية 🗺️</span>
+                <h2 class="slide-main-title">الأهداف الذهبية للمحاضرة 06</h2>
+            </div>
+            <div class="grid-4-balance">
+                <div class="k-card-compact border-blue">
+                    <span class="card-emoji">🎯</span>
+                    <h3 class="card-h">1. الفهم الجوهري</h3>
+                    <p class="card-p">استيعاب مبدأ مفهوم البرمجة ببساطة وبدون أي تعقيد.</p>
+                </div>
+                <div class="k-card-compact border-purple">
+                    <span class="card-emoji">💡</span>
+                    <h3 class="card-h">2. التفكير المنطقي</h3>
+                    <p class="card-p">تحليل المسائل كمهندسي البرمجيات خطوة بخطوة.</p>
+                </div>
+                <div class="k-card-compact border-teal">
+                    <span class="card-emoji">🛠️</span>
+                    <h3 class="card-h">3. التدريب العملي</h3>
+                    <p class="card-p">كتابة الأكواد وتجربة الحل حياً داخل بيئة العمل.</p>
+                </div>
+                <div class="k-card-compact border-orange">
+                    <span class="card-emoji">🏆</span>
+                    <h3 class="card-h">4. وسام الإتقان</h3>
+                    <p class="card-p">حل التحدي البرمجي وحصد أول 100 نقطة إنجاز.</p>
+                </div>
+            </div>
+        
+            </div>
+        </section>
+    
+        <!-- SLIDE 3 -->
+        <section class="slide " id="slide-3" data-slide="3" data-notes="عايز أقولكم على حقيقة هتفاجئ أغلبكم: كتير من الناس فاكرين إن الكمبيوتر كائن فائق الذكاء وعبقري.. لكن الحقيقة إن الكمبيوتر جهاز غبي جداً، بس سريع جداً! أنت كإنسان ذكي وعندك مشاعر وإبداع وبتفهم الإشارة، لكن الكمبيوتر آلة ميتة بتنفذ الأوامر الحرفية بس! لو المبرمج مقالوش يتحرك إزاي خطوة بخطوة، الكمبيوتر مش هيتحرك ولا حتى ملي واحد!">
+            <div class="slide-inner-body">
+                
+            <div class="slide-heading-row">
+                <span class="slide-category">محور الشرح 03 • المترجم البرمجي</span>
+                <h2 class="slide-main-title">يعني إيه برمجة؟ كيف تجعل الكمبيوتر يطيعك؟ - الجزء (3)</h2>
+            </div>
+            <div class="grid-3-balance">
+                <div class="k-card-compact border-blue">
+                    <div class="card-top-icon">⚙️</div>
+                    <h3 class="card-h">الأساس النظري والمنطقي</h3>
+                    <p class="card-p">كيف يترجم الكمبيوتر أمر <strong>المترجم البرمجي</strong> وينفذه بسرعة فائقة في المعالج والذاكرة.</p>
+                    <div class="card-tag-pill">منطق الحاسوب 🧠</div>
+                </div>
+                <div class="k-card-compact border-purple">
+                    <div class="card-top-icon">🎮</div>
+                    <h3 class="card-h">التطبيق العملي في المشاريع</h3>
+                    <p class="card-p">توظيف هذا المفهوم في التحكم بالأبطال، صناعة التحديات، وحساب النقاط بدقة.</p>
+                    <div class="card-tag-pill">صناعة الألعاب 🚀</div>
+                </div>
+                <div class="k-card-compact border-teal">
+                    <div class="card-top-icon">🛡️</div>
+                    <h3 class="card-h">أسرار المبرمجين المحترفين</h3>
+                    <p class="card-p">نصائح هندسية لكتابة كود نظيف وسريع وسهل القراءة وخالٍ من أي تعقيد.</p>
+                    <div class="card-tag-pill">الكود النظيف ✨</div>
+                </div>
+            </div>
+        
+            </div>
+        </section>
+    
+        <!-- SLIDE 4 -->
+        <section class="slide " id="slide-4" data-slide="4" data-notes="طب يعني إيه بقى كلمة برمجة؟ البرمجة ببساطة هي فن كتابة قائمة تعليمات مرتبة وواضحة جداً للكمبيوتر علشان ينفذ مهمة محددة! بالظبط زي وصفة كيكة الشوكولاتة في المطبخ: الشيف بيكتبلك الخطوات بالترتيب: أحضر بيضتين، اكسر البيض في الوعاء، أضف كوب دقيق، واخلط 5 دقائق.. لو مشيت على الوصفة بتطلع كيكة ممتازة، والكود البرمجي هو وصفة دقيقة بنعطيها للكمبيوتر فينفذها بدون أي خطأ!">
+            <div class="slide-inner-body">
+                
+            <div class="slide-heading-row">
+                <span class="slide-category">محور الشرح 04 • عقلية الصانع</span>
+                <h2 class="slide-main-title">يعني إيه برمجة؟ كيف تجعل الكمبيوتر يطيعك؟ - الجزء (4)</h2>
+            </div>
+            <div class="grid-3-balance">
+                <div class="k-card-compact border-blue">
+                    <div class="card-top-icon">⚙️</div>
+                    <h3 class="card-h">الأساس النظري والمنطقي</h3>
+                    <p class="card-p">كيف يترجم الكمبيوتر أمر <strong>عقلية الصانع</strong> وينفذه بسرعة فائقة في المعالج والذاكرة.</p>
+                    <div class="card-tag-pill">منطق الحاسوب 🧠</div>
+                </div>
+                <div class="k-card-compact border-purple">
+                    <div class="card-top-icon">🎮</div>
+                    <h3 class="card-h">التطبيق العملي في المشاريع</h3>
+                    <p class="card-p">توظيف هذا المفهوم في التحكم بالأبطال، صناعة التحديات، وحساب النقاط بدقة.</p>
+                    <div class="card-tag-pill">صناعة الألعاب 🚀</div>
+                </div>
+                <div class="k-card-compact border-teal">
+                    <div class="card-top-icon">🛡️</div>
+                    <h3 class="card-h">أسرار المبرمجين المحترفين</h3>
+                    <p class="card-p">نصائح هندسية لكتابة كود نظيف وسريع وسهل القراءة وخالٍ من أي تعقيد.</p>
+                    <div class="card-tag-pill">الكود النظيف ✨</div>
+                </div>
+            </div>
+        
+            </div>
+        </section>
+    
+        <!-- SLIDE 5 -->
+        <section class="slide " id="slide-5" data-slide="5" data-notes="عشان تفهموا غباء الكمبيوتر ودقة الأوامر، تعالوا نتخيل مأزق روبوت ساندوتش الجبنة! لو دخلت المطبخ وقولت للروبوت: اعملي ساندوتش جبنة.. الروبوت مبيفهمش الكلام ده! ممكن يمسك قالب الجبنة بورقته ويرميه فوق كيس العيش المقفول! لكن المبرمج الذكي بيفكك الأمر لخطوات دقيقة: افتح كيس الخبز، أخرج شريحة واحدة، افتح غلاف الجبنة، وضع الجبنة فوق الخبز! شفتم الفرق؟ البرمجة هي الدقة المطلقة في التوجيه!">
+            <div class="slide-inner-body">
+                
+            <div class="slide-heading-row">
+                <span class="slide-category">محور الشرح 05 • مفهوم البرمجة</span>
+                <h2 class="slide-main-title">يعني إيه برمجة؟ كيف تجعل الكمبيوتر يطيعك؟ - الجزء (5)</h2>
+            </div>
+            <div class="grid-3-balance">
+                <div class="k-card-compact border-blue">
+                    <div class="card-top-icon">⚙️</div>
+                    <h3 class="card-h">الأساس النظري والمنطقي</h3>
+                    <p class="card-p">كيف يترجم الكمبيوتر أمر <strong>مفهوم البرمجة</strong> وينفذه بسرعة فائقة في المعالج والذاكرة.</p>
+                    <div class="card-tag-pill">منطق الحاسوب 🧠</div>
+                </div>
+                <div class="k-card-compact border-purple">
+                    <div class="card-top-icon">🎮</div>
+                    <h3 class="card-h">التطبيق العملي في المشاريع</h3>
+                    <p class="card-p">توظيف هذا المفهوم في التحكم بالأبطال، صناعة التحديات، وحساب النقاط بدقة.</p>
+                    <div class="card-tag-pill">صناعة الألعاب 🚀</div>
+                </div>
+                <div class="k-card-compact border-teal">
+                    <div class="card-top-icon">🛡️</div>
+                    <h3 class="card-h">أسرار المبرمجين المحترفين</h3>
+                    <p class="card-p">نصائح هندسية لكتابة كود نظيف وسريع وسهل القراءة وخالٍ من أي تعقيد.</p>
+                    <div class="card-tag-pill">الكود النظيف ✨</div>
+                </div>
+            </div>
+        
+            </div>
+        </section>
+    
+        <!-- SLIDE 6 -->
+        <section class="slide " id="slide-6" data-slide="6" data-notes="شايفين الشبكة والمربعات اللي قدامنا على الشاشة؟ ده معمل الروبوت التفاعلي! الروبوت واقف في نقطة البداية وعايز يوصل للنجمة الذهبية.. مين هيقوده؟ كودك وأوامرك أنت! لما تدوس على زرار UP أو RIGHT، أنت بتبعت أمر برمجى فوري المعالج بينفذه في لمح البصر لحد ما الروبوت يوصل للنجمة ويقولك مبروك تمت المهمة بنجاح!">
+            <div class="slide-inner-body">
+                
+            <div class="slide-heading-row">
+                <span class="slide-category">محور الشرح 06 • لغة الباينري</span>
+                <h2 class="slide-main-title">يعني إيه برمجة؟ كيف تجعل الكمبيوتر يطيعك؟ - الجزء (6)</h2>
+            </div>
+            <div class="grid-3-balance">
+                <div class="k-card-compact border-blue">
+                    <div class="card-top-icon">⚙️</div>
+                    <h3 class="card-h">الأساس النظري والمنطقي</h3>
+                    <p class="card-p">كيف يترجم الكمبيوتر أمر <strong>لغة الباينري</strong> وينفذه بسرعة فائقة في المعالج والذاكرة.</p>
+                    <div class="card-tag-pill">منطق الحاسوب 🧠</div>
+                </div>
+                <div class="k-card-compact border-purple">
+                    <div class="card-top-icon">🎮</div>
+                    <h3 class="card-h">التطبيق العملي في المشاريع</h3>
+                    <p class="card-p">توظيف هذا المفهوم في التحكم بالأبطال، صناعة التحديات، وحساب النقاط بدقة.</p>
+                    <div class="card-tag-pill">صناعة الألعاب 🚀</div>
+                </div>
+                <div class="k-card-compact border-teal">
+                    <div class="card-top-icon">🛡️</div>
+                    <h3 class="card-h">أسرار المبرمجين المحترفين</h3>
+                    <p class="card-p">نصائح هندسية لكتابة كود نظيف وسريع وسهل القراءة وخالٍ من أي تعقيد.</p>
+                    <div class="card-tag-pill">الكود النظيف ✨</div>
+                </div>
+            </div>
+        
+            </div>
+        </section>
+    
+        <!-- SLIDE 7 -->
+        <section class="slide " id="slide-7" data-slide="7" data-notes="طب يا مستر، الكمبيوتر جوة مخه بيفهم عربي وإنجليزي زينا؟ أبداً! المعالج والدوائر الإلكترونية جواها ملايين الترانزستورات والمفاتيح الكهربائية متفهمش غير حاجة واحدة بس: كهرباء واصلة يعني 1 (ON)، أو كهرباء مفصولة يعني 0 (OFF)! وده اللي بنسميه النظام الثنائي أو الـ Binary! كل صورة بتشوفها، وكل لعبة في جهازك، وكل أغنية، هي في الأصل مليارات الأصفار والآحاد ورا بعضها!">
+            <div class="slide-inner-body">
+                
+            <div class="slide-heading-row">
+                <span class="slide-category">محور الشرح 07 • المترجم البرمجي</span>
+                <h2 class="slide-main-title">يعني إيه برمجة؟ كيف تجعل الكمبيوتر يطيعك؟ - الجزء (7)</h2>
+            </div>
+            <div class="grid-3-balance">
+                <div class="k-card-compact border-blue">
+                    <div class="card-top-icon">⚙️</div>
+                    <h3 class="card-h">الأساس النظري والمنطقي</h3>
+                    <p class="card-p">كيف يترجم الكمبيوتر أمر <strong>المترجم البرمجي</strong> وينفذه بسرعة فائقة في المعالج والذاكرة.</p>
+                    <div class="card-tag-pill">منطق الحاسوب 🧠</div>
+                </div>
+                <div class="k-card-compact border-purple">
+                    <div class="card-top-icon">🎮</div>
+                    <h3 class="card-h">التطبيق العملي في المشاريع</h3>
+                    <p class="card-p">توظيف هذا المفهوم في التحكم بالأبطال، صناعة التحديات، وحساب النقاط بدقة.</p>
+                    <div class="card-tag-pill">صناعة الألعاب 🚀</div>
+                </div>
+                <div class="k-card-compact border-teal">
+                    <div class="card-top-icon">🛡️</div>
+                    <h3 class="card-h">أسرار المبرمجين المحترفين</h3>
+                    <p class="card-p">نصائح هندسية لكتابة كود نظيف وسريع وسهل القراءة وخالٍ من أي تعقيد.</p>
+                    <div class="card-tag-pill">الكود النظيف ✨</div>
+                </div>
+            </div>
+        
+            </div>
+        </section>
+    
+        <!-- SLIDE 8 -->
+        <section class="slide " id="slide-8" data-slide="8" data-notes="أكيد حد منكم هيقولي: يا مستر، يعني أنا عشان أعمل لعبة هقعد أكتب مليون صفر وواحد؟! ده يجيلنا صداع! عشان كده العلماء والمبرمجين اخترعوا وسيط عبقري اسمه المترجم البرمجي أو الـ Compiler! المترجم ده زي المترجم الفوري بالظبط: أنت بتكتب كود بسيط بالإنجليزية وسهل عليك تفهمه، وهو في ثواني بياخد الكود ده ويترجمه للغة الآلة 0 و 1 فالكمبيوتر ينفذه علطول!">
+            <div class="slide-inner-body">
+                
+            <div class="slide-heading-row">
+                <span class="slide-category badge-challenge">⚡ تحدي سرعة ذكاء المبرمج (1)</span>
+                <h2 class="slide-main-title">اختبر مهاراتك الفورية كمهندس المستقبل! 🕵️‍♂️</h2>
+            </div>
+            <div class="quiz-challenge-card">
+                <p class="quiz-question-txt">ما هو القرار الهندسي والبرمجي الأصح لتطبيق <strong>مفهوم البرمجة</strong> بكفاءة وأمان؟</p>
+                <div class="quiz-options-list">
+                    <button class="quiz-opt-btn" onclick="checkSlideQuiz(this, true, 'أحسنت صنعاً يا بطل! التخطيط المسبق والكود النظيف هما أساس نجاح كل مبرمج محترف! 🌟')">
+                        <span class="opt-letter">أ</span>
+                        <span class="opt-txt">التخطيط المسبق والتسلسل المنطقي خطوة بخطوة واختبار كل أمر بدقة. ✅</span>
+                    </button>
+                    <button class="quiz-opt-btn" onclick="checkSlideQuiz(this, false, 'إجابة غير صحيحة! التسرع العشوائي ينتج عنه أخطاء برمجية يصعب حلها.')">
+                        <span class="opt-letter">ب</span>
+                        <span class="opt-txt">كتابة الأوامر عشوائياً وتخمين النتائج بدون تفكير أو تنظيم. ❌</span>
+                    </button>
+                    <button class="quiz-opt-btn" onclick="checkSlideQuiz(this, false, 'المبرمج البطل لا يستسلم أبداً! الخطأ فرصة للتعلم وحل المشكلات.')">
+                        <span class="opt-letter">ج</span>
+                        <span class="opt-txt">إغلاق البرنامج والاستسلام فور مواجهة أول عقبة. ❌</span>
+                    </button>
+                </div>
+                <div class="quiz-feedback-box" id="quiz-feedback-8"></div>
+            </div>
+        
+            </div>
+        </section>
+    
+        <!-- SLIDE 9 -->
+        <section class="slide " id="slide-9" data-slide="9" data-notes="وفي عالم البرمجة عندنا لغات كتيرة جداً، زي لغات البشر بالضبط! فيه لغة سكراتش للمبتدئين اللي بنلعب بيها بالمكعبات الملونة، وفيه لغة بايثون العملاقة اللي بتشغل كبرى شركات العالم زي جوجل وناسا والذكاء الاصطناعي، وفيه لغة جافاسكريبت اللي بتخلي صفحات الإنترنت تتحرك وتتفاعل معانا! وفي كورسنا هنتعلم أسرار اللغات دي واحدة واحدة!">
+            <div class="slide-inner-body">
+                
+            <div class="slide-heading-row">
+                <span class="slide-category">محور الشرح 09 • مفهوم البرمجة</span>
+                <h2 class="slide-main-title">يعني إيه برمجة؟ كيف تجعل الكمبيوتر يطيعك؟ - الجزء (9)</h2>
+            </div>
+            <div class="grid-3-balance">
+                <div class="k-card-compact border-blue">
+                    <div class="card-top-icon">⚙️</div>
+                    <h3 class="card-h">الأساس النظري والمنطقي</h3>
+                    <p class="card-p">كيف يترجم الكمبيوتر أمر <strong>مفهوم البرمجة</strong> وينفذه بسرعة فائقة في المعالج والذاكرة.</p>
+                    <div class="card-tag-pill">منطق الحاسوب 🧠</div>
+                </div>
+                <div class="k-card-compact border-purple">
+                    <div class="card-top-icon">🎮</div>
+                    <h3 class="card-h">التطبيق العملي في المشاريع</h3>
+                    <p class="card-p">توظيف هذا المفهوم في التحكم بالأبطال، صناعة التحديات، وحساب النقاط بدقة.</p>
+                    <div class="card-tag-pill">صناعة الألعاب 🚀</div>
+                </div>
+                <div class="k-card-compact border-teal">
+                    <div class="card-top-icon">🛡️</div>
+                    <h3 class="card-h">أسرار المبرمجين المحترفين</h3>
+                    <p class="card-p">نصائح هندسية لكتابة كود نظيف وسريع وسهل القراءة وخالٍ من أي تعقيد.</p>
+                    <div class="card-tag-pill">الكود النظيف ✨</div>
+                </div>
+            </div>
+        
+            </div>
+        </section>
+    
+        <!-- SLIDE 10 -->
+        <section class="slide " id="slide-10" data-slide="10" data-notes="مين بقى المبرمج الحقيقي؟ المبرمج مش شخص بيقعد في أوضة ضلمة يكتب طلاسم وأرقام معقدة.. المبرمج فنان بيرسم عوالم وشخصيات الألعاب، وهو مهندس بيحل مشاكل الناس ويعمل تطبيقات تنقذ المرضى، وهو قائد بيبرمج روبوتات وسفن فضاء تطير لكوكب المريخ! المبرمج هو صاحب القوة الخارقة في العصر الحديث!">
+            <div class="slide-inner-body">
+                
+            <div class="slide-heading-row">
+                <span class="slide-category">محور الشرح 10 • لغة الباينري</span>
+                <h2 class="slide-main-title">يعني إيه برمجة؟ كيف تجعل الكمبيوتر يطيعك؟ - الجزء (10)</h2>
+            </div>
+            <div class="grid-3-balance">
+                <div class="k-card-compact border-blue">
+                    <div class="card-top-icon">⚙️</div>
+                    <h3 class="card-h">الأساس النظري والمنطقي</h3>
+                    <p class="card-p">كيف يترجم الكمبيوتر أمر <strong>لغة الباينري</strong> وينفذه بسرعة فائقة في المعالج والذاكرة.</p>
+                    <div class="card-tag-pill">منطق الحاسوب 🧠</div>
+                </div>
+                <div class="k-card-compact border-purple">
+                    <div class="card-top-icon">🎮</div>
+                    <h3 class="card-h">التطبيق العملي في المشاريع</h3>
+                    <p class="card-p">توظيف هذا المفهوم في التحكم بالأبطال، صناعة التحديات، وحساب النقاط بدقة.</p>
+                    <div class="card-tag-pill">صناعة الألعاب 🚀</div>
+                </div>
+                <div class="k-card-compact border-teal">
+                    <div class="card-top-icon">🛡️</div>
+                    <h3 class="card-h">أسرار المبرمجين المحترفين</h3>
+                    <p class="card-p">نصائح هندسية لكتابة كود نظيف وسريع وسهل القراءة وخالٍ من أي تعقيد.</p>
+                    <div class="card-tag-pill">الكود النظيف ✨</div>
+                </div>
+            </div>
+        
+            </div>
+        </section>
+    
+        <!-- SLIDE 11 -->
+        <section class="slide " id="slide-11" data-slide="11" data-notes="وده ينقلنا للتحول الأكبر والأجمل في حياتكم: الفرق بين المستهلك والصانع المبدع! ملايين الأطفال بيقعدوا ساعات طويلة يلعبوا ألعاب على الموبايل ولما اللعبة تخلص يزهقوا ويبحثوا عن غيرها، دول مجرد مستهلكين عاديين.. أما أنتم يا أبطال، فأنتم بتتعلموا البرمجة عشان تبقوا صناع ومبتكرين! أنتم اللي هتصنعوا الألعاب اللي أصحابكم يلعبوها ويفرحوا بيها!">
+            <div class="slide-inner-body">
+                
+            <div class="slide-heading-row">
+                <span class="slide-category">محور الشرح 11 • المترجم البرمجي</span>
+                <h2 class="slide-main-title">يعني إيه برمجة؟ كيف تجعل الكمبيوتر يطيعك؟ - الجزء (11)</h2>
+            </div>
+            <div class="grid-3-balance">
+                <div class="k-card-compact border-blue">
+                    <div class="card-top-icon">⚙️</div>
+                    <h3 class="card-h">الأساس النظري والمنطقي</h3>
+                    <p class="card-p">كيف يترجم الكمبيوتر أمر <strong>المترجم البرمجي</strong> وينفذه بسرعة فائقة في المعالج والذاكرة.</p>
+                    <div class="card-tag-pill">منطق الحاسوب 🧠</div>
+                </div>
+                <div class="k-card-compact border-purple">
+                    <div class="card-top-icon">🎮</div>
+                    <h3 class="card-h">التطبيق العملي في المشاريع</h3>
+                    <p class="card-p">توظيف هذا المفهوم في التحكم بالأبطال، صناعة التحديات، وحساب النقاط بدقة.</p>
+                    <div class="card-tag-pill">صناعة الألعاب 🚀</div>
+                </div>
+                <div class="k-card-compact border-teal">
+                    <div class="card-top-icon">🛡️</div>
+                    <h3 class="card-h">أسرار المبرمجين المحترفين</h3>
+                    <p class="card-p">نصائح هندسية لكتابة كود نظيف وسريع وسهل القراءة وخالٍ من أي تعقيد.</p>
+                    <div class="card-tag-pill">الكود النظيف ✨</div>
+                </div>
+            </div>
+        
+            </div>
+        </section>
+    
+        <!-- SLIDE 12 -->
+        <section class="slide " id="slide-12" data-slide="12" data-notes="بصوا حواليكم كده.. هل تتخيلوا إن كل حاجة متطورة في العالم أصلها كود كتبه مبرمج؟ أجهزة الرنين المغناطيسي في المستشفيات اللي بتكشف الأمراض، سيارات تسلا اللي بتمشي لوحدها من غير سواق، صواريخ وكبسولات الفضاء اللي بتطلع للقمر، وأفلام ديزني وبيكسار ثلاثية الأبعاد اللي بنحبها في السينما.. كلها اتعملت بأسطر برمجة ذكية!">
+            <div class="slide-inner-body">
+                
+            <div class="slide-heading-row">
+                <span class="slide-category">محور الشرح 12 • عقلية الصانع</span>
+                <h2 class="slide-main-title">يعني إيه برمجة؟ كيف تجعل الكمبيوتر يطيعك؟ - الجزء (12)</h2>
+            </div>
+            <div class="grid-3-balance">
+                <div class="k-card-compact border-blue">
+                    <div class="card-top-icon">⚙️</div>
+                    <h3 class="card-h">الأساس النظري والمنطقي</h3>
+                    <p class="card-p">كيف يترجم الكمبيوتر أمر <strong>عقلية الصانع</strong> وينفذه بسرعة فائقة في المعالج والذاكرة.</p>
+                    <div class="card-tag-pill">منطق الحاسوب 🧠</div>
+                </div>
+                <div class="k-card-compact border-purple">
+                    <div class="card-top-icon">🎮</div>
+                    <h3 class="card-h">التطبيق العملي في المشاريع</h3>
+                    <p class="card-p">توظيف هذا المفهوم في التحكم بالأبطال، صناعة التحديات، وحساب النقاط بدقة.</p>
+                    <div class="card-tag-pill">صناعة الألعاب 🚀</div>
+                </div>
+                <div class="k-card-compact border-teal">
+                    <div class="card-top-icon">🛡️</div>
+                    <h3 class="card-h">أسرار المبرمجين المحترفين</h3>
+                    <p class="card-p">نصائح هندسية لكتابة كود نظيف وسريع وسهل القراءة وخالٍ من أي تعقيد.</p>
+                    <div class="card-tag-pill">الكود النظيف ✨</div>
+                </div>
+            </div>
+        
+            </div>
+        </section>
+    
+        <!-- SLIDE 13 -->
+        <section class="slide " id="slide-13" data-slide="13" data-notes="تحدي الذكاء السريع قدامنا على الشاشة: لو كتبنا كود للروبوت: (1) تحرك خطوة للأمام، (2) اقفز فوق الصندوق، (3) انعطف لليمين.. وجينا بدلنا الخطوة الأولى بالتانية، تفتكروا إيه اللي هيحصل؟ برافوووو! هيصطدم بالصندوق ويفشل! لأن الترتيب والتسلسل هو القانون الأول في عالم البرمجة، مفيش خطوة تسبق أختها أبداً!">
+            <div class="slide-inner-body">
+                
+            <div class="slide-heading-row">
+                <span class="slide-category">محور الشرح 13 • مفهوم البرمجة</span>
+                <h2 class="slide-main-title">يعني إيه برمجة؟ كيف تجعل الكمبيوتر يطيعك؟ - الجزء (13)</h2>
+            </div>
+            <div class="grid-3-balance">
+                <div class="k-card-compact border-blue">
+                    <div class="card-top-icon">⚙️</div>
+                    <h3 class="card-h">الأساس النظري والمنطقي</h3>
+                    <p class="card-p">كيف يترجم الكمبيوتر أمر <strong>مفهوم البرمجة</strong> وينفذه بسرعة فائقة في المعالج والذاكرة.</p>
+                    <div class="card-tag-pill">منطق الحاسوب 🧠</div>
+                </div>
+                <div class="k-card-compact border-purple">
+                    <div class="card-top-icon">🎮</div>
+                    <h3 class="card-h">التطبيق العملي في المشاريع</h3>
+                    <p class="card-p">توظيف هذا المفهوم في التحكم بالأبطال، صناعة التحديات، وحساب النقاط بدقة.</p>
+                    <div class="card-tag-pill">صناعة الألعاب 🚀</div>
+                </div>
+                <div class="k-card-compact border-teal">
+                    <div class="card-top-icon">🛡️</div>
+                    <h3 class="card-h">أسرار المبرمجين المحترفين</h3>
+                    <p class="card-p">نصائح هندسية لكتابة كود نظيف وسريع وسهل القراءة وخالٍ من أي تعقيد.</p>
+                    <div class="card-tag-pill">الكود النظيف ✨</div>
+                </div>
+            </div>
+        
+            </div>
+        </section>
+    
+        <!-- SLIDE 14 -->
+        <section class="slide " id="slide-14" data-slide="14" data-notes="عشان كده مهندسي الحواسيب ليهم طريقة تفكير مميزة بنسميها التفكير الحسابي، ومبنية على 4 أعمدة رئيسية: التفكيك يعني تقسيم المشكلة الكبيرة لقطع صغيرة سهلة.. استنتاج الأنماط يعني نلاحظ الحاجات المتكررة ونستفيد منها.. التجريد يعني نركز في المهم ونسيب التفاصيل التافهة.. والخوارزميات يعني نرتب خطوات الحل بتسلسل منطقي دقيق!">
+            <div class="slide-inner-body">
+                
+            <div class="slide-heading-row">
+                <span class="slide-category">محور الشرح 14 • لغة الباينري</span>
+                <h2 class="slide-main-title">يعني إيه برمجة؟ كيف تجعل الكمبيوتر يطيعك؟ - الجزء (14)</h2>
+            </div>
+            <div class="grid-3-balance">
+                <div class="k-card-compact border-blue">
+                    <div class="card-top-icon">⚙️</div>
+                    <h3 class="card-h">الأساس النظري والمنطقي</h3>
+                    <p class="card-p">كيف يترجم الكمبيوتر أمر <strong>لغة الباينري</strong> وينفذه بسرعة فائقة في المعالج والذاكرة.</p>
+                    <div class="card-tag-pill">منطق الحاسوب 🧠</div>
+                </div>
+                <div class="k-card-compact border-purple">
+                    <div class="card-top-icon">🎮</div>
+                    <h3 class="card-h">التطبيق العملي في المشاريع</h3>
+                    <p class="card-p">توظيف هذا المفهوم في التحكم بالأبطال، صناعة التحديات، وحساب النقاط بدقة.</p>
+                    <div class="card-tag-pill">صناعة الألعاب 🚀</div>
+                </div>
+                <div class="k-card-compact border-teal">
+                    <div class="card-top-icon">🛡️</div>
+                    <h3 class="card-h">أسرار المبرمجين المحترفين</h3>
+                    <p class="card-p">نصائح هندسية لكتابة كود نظيف وسريع وسهل القراءة وخالٍ من أي تعقيد.</p>
+                    <div class="card-tag-pill">الكود النظيف ✨</div>
+                </div>
+            </div>
+        
+            </div>
+        </section>
+    
+        <!-- SLIDE 15 -->
+        <section class="slide " id="slide-15" data-slide="15" data-notes="شايفين الفراشة الصغيرة اللطيفة اللي على الشاشة دي؟ دي حكاية طريفة جداً في تاريخ التكنولوجيا! سنة 1947 كان فيه كمبيوتر عملاق بحجم أوضة كاملة عطل فجأة ومبقاش يشتغل.. المهندسين قعدوا يدوروا لحد ما لقوا فراشة صغيرة دخلت بين الأسلاك وعملت قفلة كهربائية! طلعوها ومن يومها سموا أي خطأ في الكود باسم حشرة أو Bug، والعملية اللي بنصلح بيها الكود سموها Debugging يعني صيد الحشرات وإصلاحها! المبرمج الشاطر بيفرح بالأخطاء لأنها بتعلمه وبتخليه أذكى!">
+            <div class="slide-inner-body">
+                
+            <div class="slide-heading-row">
+                <span class="slide-category">محور الشرح 15 • المترجم البرمجي</span>
+                <h2 class="slide-main-title">يعني إيه برمجة؟ كيف تجعل الكمبيوتر يطيعك؟ - الجزء (15)</h2>
+            </div>
+            <div class="grid-3-balance">
+                <div class="k-card-compact border-blue">
+                    <div class="card-top-icon">⚙️</div>
+                    <h3 class="card-h">الأساس النظري والمنطقي</h3>
+                    <p class="card-p">كيف يترجم الكمبيوتر أمر <strong>المترجم البرمجي</strong> وينفذه بسرعة فائقة في المعالج والذاكرة.</p>
+                    <div class="card-tag-pill">منطق الحاسوب 🧠</div>
+                </div>
+                <div class="k-card-compact border-purple">
+                    <div class="card-top-icon">🎮</div>
+                    <h3 class="card-h">التطبيق العملي في المشاريع</h3>
+                    <p class="card-p">توظيف هذا المفهوم في التحكم بالأبطال، صناعة التحديات، وحساب النقاط بدقة.</p>
+                    <div class="card-tag-pill">صناعة الألعاب 🚀</div>
+                </div>
+                <div class="k-card-compact border-teal">
+                    <div class="card-top-icon">🛡️</div>
+                    <h3 class="card-h">أسرار المبرمجين المحترفين</h3>
+                    <p class="card-p">نصائح هندسية لكتابة كود نظيف وسريع وسهل القراءة وخالٍ من أي تعقيد.</p>
+                    <div class="card-tag-pill">الكود النظيف ✨</div>
+                </div>
+            </div>
+        
+            </div>
+        </section>
+    
+        <!-- SLIDE 16 -->
+        <section class="slide " id="slide-16" data-slide="16" data-notes="لما تتعلم برمجة مش بس هتطلع ألعاب، أنت عقلك وطريقة تفكيرك كلها هتتغير! هتبقى أسرع في حل مسائل الرياضيات والعلوم، وهتتعلم الصبر وإنك متيأسش أبداً لما يقابلك تحدي، وهتحس بفخر وثقة ملهاش مثيل لما توري بابا وماما أول لعبة أنت برمجتها بإيدك وشغالة قدامهم!">
+            <div class="slide-inner-body">
+                
+            <div class="slide-heading-row">
+                <span class="slide-category badge-challenge">⚡ تحدي سرعة ذكاء المبرمج (2)</span>
+                <h2 class="slide-main-title">اختبر مهاراتك الفورية كمهندس المستقبل! 🕵️‍♂️</h2>
+            </div>
+            <div class="quiz-challenge-card">
+                <p class="quiz-question-txt">ما هو القرار الهندسي والبرمجي الأصح لتطبيق <strong>مفهوم البرمجة</strong> بكفاءة وأمان؟</p>
+                <div class="quiz-options-list">
+                    <button class="quiz-opt-btn" onclick="checkSlideQuiz(this, true, 'أحسنت صنعاً يا بطل! التخطيط المسبق والكود النظيف هما أساس نجاح كل مبرمج محترف! 🌟')">
+                        <span class="opt-letter">أ</span>
+                        <span class="opt-txt">التخطيط المسبق والتسلسل المنطقي خطوة بخطوة واختبار كل أمر بدقة. ✅</span>
+                    </button>
+                    <button class="quiz-opt-btn" onclick="checkSlideQuiz(this, false, 'إجابة غير صحيحة! التسرع العشوائي ينتج عنه أخطاء برمجية يصعب حلها.')">
+                        <span class="opt-letter">ب</span>
+                        <span class="opt-txt">كتابة الأوامر عشوائياً وتخمين النتائج بدون تفكير أو تنظيم. ❌</span>
+                    </button>
+                    <button class="quiz-opt-btn" onclick="checkSlideQuiz(this, false, 'المبرمج البطل لا يستسلم أبداً! الخطأ فرصة للتعلم وحل المشكلات.')">
+                        <span class="opt-letter">ج</span>
+                        <span class="opt-txt">إغلاق البرنامج والاستسلام فور مواجهة أول عقبة. ❌</span>
+                    </button>
+                </div>
+                <div class="quiz-feedback-box" id="quiz-feedback-16"></div>
+            </div>
+        
+            </div>
+        </section>
+    
+        <!-- SLIDE 17 -->
+        <section class="slide " id="slide-17" data-slide="17" data-notes="وفي رحلتنا هنشوف شكلين للكود: الشكل الأول هو البلوكات المرئية الملونة زي قطع الليجو، بتركب الأوامر فوق بعضها بالسحب والإفلات ومفيش أي خوف من الغلط.. والشكل التاني هو كتابة الكود النصي الحقيقي زي لغة بايثون، بنكتب سطور إنجليزية واضحة وجميلة وسهلة الفهم!">
+            <div class="slide-inner-body">
+                
+            <div class="slide-heading-row">
+                <span class="slide-category">محور الشرح 17 • مفهوم البرمجة</span>
+                <h2 class="slide-main-title">يعني إيه برمجة؟ كيف تجعل الكمبيوتر يطيعك؟ - الجزء (17)</h2>
+            </div>
+            <div class="grid-3-balance">
+                <div class="k-card-compact border-blue">
+                    <div class="card-top-icon">⚙️</div>
+                    <h3 class="card-h">الأساس النظري والمنطقي</h3>
+                    <p class="card-p">كيف يترجم الكمبيوتر أمر <strong>مفهوم البرمجة</strong> وينفذه بسرعة فائقة في المعالج والذاكرة.</p>
+                    <div class="card-tag-pill">منطق الحاسوب 🧠</div>
+                </div>
+                <div class="k-card-compact border-purple">
+                    <div class="card-top-icon">🎮</div>
+                    <h3 class="card-h">التطبيق العملي في المشاريع</h3>
+                    <p class="card-p">توظيف هذا المفهوم في التحكم بالأبطال، صناعة التحديات، وحساب النقاط بدقة.</p>
+                    <div class="card-tag-pill">صناعة الألعاب 🚀</div>
+                </div>
+                <div class="k-card-compact border-teal">
+                    <div class="card-top-icon">🛡️</div>
+                    <h3 class="card-h">أسرار المبرمجين المحترفين</h3>
+                    <p class="card-p">نصائح هندسية لكتابة كود نظيف وسريع وسهل القراءة وخالٍ من أي تعقيد.</p>
+                    <div class="card-tag-pill">الكود النظيف ✨</div>
+                </div>
+            </div>
+        
+            </div>
+        </section>
+    
+        <!-- SLIDE 18 -->
+        <section class="slide " id="slide-18" data-slide="18" data-notes="طب يا ترى إيه اللي مستنينا في المحاضرات القادمة من المستوى الثاني؟ رحلة أسطورية ممتعة جداً: هنتعرف على أنواع اللغات، وهنتعلم فكرة الخوارزمية، والتسلسل، وصناديق المتغيرات اللي بتحفظ النقط والسكور، والجمل الشرطية If و Else اللي بتخلي الكمبيوتر يختار، وحلقات التكرار وصيد الأخطاء!">
+            <div class="slide-inner-body">
+                
+            <div class="slide-heading-row">
+                <span class="slide-category">محور الشرح 18 • لغة الباينري</span>
+                <h2 class="slide-main-title">يعني إيه برمجة؟ كيف تجعل الكمبيوتر يطيعك؟ - الجزء (18)</h2>
+            </div>
+            <div class="grid-3-balance">
+                <div class="k-card-compact border-blue">
+                    <div class="card-top-icon">⚙️</div>
+                    <h3 class="card-h">الأساس النظري والمنطقي</h3>
+                    <p class="card-p">كيف يترجم الكمبيوتر أمر <strong>لغة الباينري</strong> وينفذه بسرعة فائقة في المعالج والذاكرة.</p>
+                    <div class="card-tag-pill">منطق الحاسوب 🧠</div>
+                </div>
+                <div class="k-card-compact border-purple">
+                    <div class="card-top-icon">🎮</div>
+                    <h3 class="card-h">التطبيق العملي في المشاريع</h3>
+                    <p class="card-p">توظيف هذا المفهوم في التحكم بالأبطال، صناعة التحديات، وحساب النقاط بدقة.</p>
+                    <div class="card-tag-pill">صناعة الألعاب 🚀</div>
+                </div>
+                <div class="k-card-compact border-teal">
+                    <div class="card-top-icon">🛡️</div>
+                    <h3 class="card-h">أسرار المبرمجين المحترفين</h3>
+                    <p class="card-p">نصائح هندسية لكتابة كود نظيف وسريع وسهل القراءة وخالٍ من أي تعقيد.</p>
+                    <div class="card-tag-pill">الكود النظيف ✨</div>
+                </div>
+            </div>
+        
+            </div>
+        </section>
+    
+        <!-- SLIDE 19 -->
+        <section class="slide " id="slide-19" data-slide="19" data-notes="تعالوا نشغل دماغنا بلغز المعبر المائي للمبرمجين: معاك ذئب، وخروف، وكيس حشيش، وقارب مبيشيلش غيرك أنت وحاجة واحدة بس! لو سبت الذئب مع الخروف هياكله، ولو سبت الخروف مع الحشيش هياكله.. تنقل مين الأول في القارب؟ الحل البرمجي الذكي: ننقل الخروف الأول ونسيبه في الضفة التانية، ونرجع ناخد الذئب، ونسيب الذئب وناخد الخروف معانا في الرجوع! نسيب الخروف وناخد كيس الحشيش، وأخيراً نرجع نجيب الخروف! شفتم التفكير والترتيب المنطقي؟">
+            <div class="slide-inner-body">
+                
+            <div class="slide-heading-row">
+                <span class="slide-category">محور الشرح 19 • المترجم البرمجي</span>
+                <h2 class="slide-main-title">يعني إيه برمجة؟ كيف تجعل الكمبيوتر يطيعك؟ - الجزء (19)</h2>
+            </div>
+            <div class="grid-3-balance">
+                <div class="k-card-compact border-blue">
+                    <div class="card-top-icon">⚙️</div>
+                    <h3 class="card-h">الأساس النظري والمنطقي</h3>
+                    <p class="card-p">كيف يترجم الكمبيوتر أمر <strong>المترجم البرمجي</strong> وينفذه بسرعة فائقة في المعالج والذاكرة.</p>
+                    <div class="card-tag-pill">منطق الحاسوب 🧠</div>
+                </div>
+                <div class="k-card-compact border-purple">
+                    <div class="card-top-icon">🎮</div>
+                    <h3 class="card-h">التطبيق العملي في المشاريع</h3>
+                    <p class="card-p">توظيف هذا المفهوم في التحكم بالأبطال، صناعة التحديات، وحساب النقاط بدقة.</p>
+                    <div class="card-tag-pill">صناعة الألعاب 🚀</div>
+                </div>
+                <div class="k-card-compact border-teal">
+                    <div class="card-top-icon">🛡️</div>
+                    <h3 class="card-h">أسرار المبرمجين المحترفين</h3>
+                    <p class="card-p">نصائح هندسية لكتابة كود نظيف وسريع وسهل القراءة وخالٍ من أي تعقيد.</p>
+                    <div class="card-tag-pill">الكود النظيف ✨</div>
+                </div>
+            </div>
+        
+            </div>
+        </section>
+    
+        <!-- SLIDE 20 -->
+        <section class="slide " id="slide-20" data-slide="20" data-notes="وعايزكم دايمًا تفتكروا إن أكبر أساطير التكنولوجيا في العالم زي بيل جيتس ومارك زوكربيرج ومبرمجي ماين كرافت وروبلوكس بدأوا يتعلموا البرمجة في سنكم ده بالظبط! وستيف جوبز مؤسس شركة آبل كان دايمًا يقول: كل إنسان في الدنيا لازم يتعلم برمجة، لأنها بتعلمك إزاي تفكر صح!">
+            <div class="slide-inner-body">
+                
+            <div class="slide-heading-row">
+                <span class="slide-category">محور الشرح 20 • عقلية الصانع</span>
+                <h2 class="slide-main-title">يعني إيه برمجة؟ كيف تجعل الكمبيوتر يطيعك؟ - الجزء (20)</h2>
+            </div>
+            <div class="grid-3-balance">
+                <div class="k-card-compact border-blue">
+                    <div class="card-top-icon">⚙️</div>
+                    <h3 class="card-h">الأساس النظري والمنطقي</h3>
+                    <p class="card-p">كيف يترجم الكمبيوتر أمر <strong>عقلية الصانع</strong> وينفذه بسرعة فائقة في المعالج والذاكرة.</p>
+                    <div class="card-tag-pill">منطق الحاسوب 🧠</div>
+                </div>
+                <div class="k-card-compact border-purple">
+                    <div class="card-top-icon">🎮</div>
+                    <h3 class="card-h">التطبيق العملي في المشاريع</h3>
+                    <p class="card-p">توظيف هذا المفهوم في التحكم بالأبطال، صناعة التحديات، وحساب النقاط بدقة.</p>
+                    <div class="card-tag-pill">صناعة الألعاب 🚀</div>
+                </div>
+                <div class="k-card-compact border-teal">
+                    <div class="card-top-icon">🛡️</div>
+                    <h3 class="card-h">أسرار المبرمجين المحترفين</h3>
+                    <p class="card-p">نصائح هندسية لكتابة كود نظيف وسريع وسهل القراءة وخالٍ من أي تعقيد.</p>
+                    <div class="card-tag-pill">الكود النظيف ✨</div>
+                </div>
+            </div>
+        
+            </div>
+        </section>
+    
+        <!-- SLIDE 21 -->
+        <section class="slide " id="slide-21" data-slide="21" data-notes="وعندنا 3 قواعد ذهبية لميثاق المبرمج الشجاع: أولاً: مبخافش من الغلط أبداً، لأن الغلط هو طريقي للتعلم.. ثانياً: بفكر وأرسم خطتي بالورقة والقلم قبل ما أكتب الكود.. وثالثاً: بستمتع بصناعة الألعاب وبحول أفكاري لواقع يبهر الكل!">
+            <div class="slide-inner-body">
+                
+            <div class="slide-heading-row">
+                <span class="slide-category">محور الشرح 21 • مفهوم البرمجة</span>
+                <h2 class="slide-main-title">يعني إيه برمجة؟ كيف تجعل الكمبيوتر يطيعك؟ - الجزء (21)</h2>
+            </div>
+            <div class="grid-3-balance">
+                <div class="k-card-compact border-blue">
+                    <div class="card-top-icon">⚙️</div>
+                    <h3 class="card-h">الأساس النظري والمنطقي</h3>
+                    <p class="card-p">كيف يترجم الكمبيوتر أمر <strong>مفهوم البرمجة</strong> وينفذه بسرعة فائقة في المعالج والذاكرة.</p>
+                    <div class="card-tag-pill">منطق الحاسوب 🧠</div>
+                </div>
+                <div class="k-card-compact border-purple">
+                    <div class="card-top-icon">🎮</div>
+                    <h3 class="card-h">التطبيق العملي في المشاريع</h3>
+                    <p class="card-p">توظيف هذا المفهوم في التحكم بالأبطال، صناعة التحديات، وحساب النقاط بدقة.</p>
+                    <div class="card-tag-pill">صناعة الألعاب 🚀</div>
+                </div>
+                <div class="k-card-compact border-teal">
+                    <div class="card-top-icon">🛡️</div>
+                    <h3 class="card-h">أسرار المبرمجين المحترفين</h3>
+                    <p class="card-p">نصائح هندسية لكتابة كود نظيف وسريع وسهل القراءة وخالٍ من أي تعقيد.</p>
+                    <div class="card-tag-pill">الكود النظيف ✨</div>
+                </div>
+            </div>
+        
+            </div>
+        </section>
+    
+        <!-- SLIDE 22 -->
+        <section class="slide " id="slide-22" data-slide="22" data-notes="وأدواتنا في الكورس سهلة ومتاحة للجميع: هنشتغل على منصة سكراتش أونلاين التابعة لمعهد MIT على المتصفح مباشرة، وهنستخدم محررات بايثون تفاعلية وسريعة وخفيفة على أي لابتوب أو تابلت عندك في البيت!">
+            <div class="slide-inner-body">
+                
+            <div class="slide-heading-row">
+                <span class="slide-category">محور الشرح 22 • لغة الباينري</span>
+                <h2 class="slide-main-title">يعني إيه برمجة؟ كيف تجعل الكمبيوتر يطيعك؟ - الجزء (22)</h2>
+            </div>
+            <div class="grid-3-balance">
+                <div class="k-card-compact border-blue">
+                    <div class="card-top-icon">⚙️</div>
+                    <h3 class="card-h">الأساس النظري والمنطقي</h3>
+                    <p class="card-p">كيف يترجم الكمبيوتر أمر <strong>لغة الباينري</strong> وينفذه بسرعة فائقة في المعالج والذاكرة.</p>
+                    <div class="card-tag-pill">منطق الحاسوب 🧠</div>
+                </div>
+                <div class="k-card-compact border-purple">
+                    <div class="card-top-icon">🎮</div>
+                    <h3 class="card-h">التطبيق العملي في المشاريع</h3>
+                    <p class="card-p">توظيف هذا المفهوم في التحكم بالأبطال، صناعة التحديات، وحساب النقاط بدقة.</p>
+                    <div class="card-tag-pill">صناعة الألعاب 🚀</div>
+                </div>
+                <div class="k-card-compact border-teal">
+                    <div class="card-top-icon">🛡️</div>
+                    <h3 class="card-h">أسرار المبرمجين المحترفين</h3>
+                    <p class="card-p">نصائح هندسية لكتابة كود نظيف وسريع وسهل القراءة وخالٍ من أي تعقيد.</p>
+                    <div class="card-tag-pill">الكود النظيف ✨</div>
+                </div>
+            </div>
+        
+            </div>
+        </section>
+    
+        <!-- SLIDE 23 -->
+        <section class="slide " id="slide-23" data-slide="23" data-notes="تعالوا نلخص أربع مفاهيم ذهبية اتعلمناها النهاردة: البرمجة هي وصفة أوامر دقيقة.. الكمبيوتر لغته الأصلية هي 0 و 1.. المترجم الذكي هو الوسيط اللي بيترجم كودنا للغة الآلة.. وعقلية المبرمج هي التحول من مستهلك للألعاب إلى صانع ألعاب محترف!">
+            <div class="slide-inner-body">
+                
+            <div class="slide-heading-row">
+                <span class="slide-category">محور الشرح 23 • المترجم البرمجي</span>
+                <h2 class="slide-main-title">يعني إيه برمجة؟ كيف تجعل الكمبيوتر يطيعك؟ - الجزء (23)</h2>
+            </div>
+            <div class="grid-3-balance">
+                <div class="k-card-compact border-blue">
+                    <div class="card-top-icon">⚙️</div>
+                    <h3 class="card-h">الأساس النظري والمنطقي</h3>
+                    <p class="card-p">كيف يترجم الكمبيوتر أمر <strong>المترجم البرمجي</strong> وينفذه بسرعة فائقة في المعالج والذاكرة.</p>
+                    <div class="card-tag-pill">منطق الحاسوب 🧠</div>
+                </div>
+                <div class="k-card-compact border-purple">
+                    <div class="card-top-icon">🎮</div>
+                    <h3 class="card-h">التطبيق العملي في المشاريع</h3>
+                    <p class="card-p">توظيف هذا المفهوم في التحكم بالأبطال، صناعة التحديات، وحساب النقاط بدقة.</p>
+                    <div class="card-tag-pill">صناعة الألعاب 🚀</div>
+                </div>
+                <div class="k-card-compact border-teal">
+                    <div class="card-top-icon">🛡️</div>
+                    <h3 class="card-h">أسرار المبرمجين المحترفين</h3>
+                    <p class="card-p">نصائح هندسية لكتابة كود نظيف وسريع وسهل القراءة وخالٍ من أي تعقيد.</p>
+                    <div class="card-tag-pill">الكود النظيف ✨</div>
+                </div>
+            </div>
+        
+            </div>
+        </section>
+    
+        <!-- SLIDE 24 -->
+        <section class="slide " id="slide-24" data-slide="24" data-notes="في المحاضرة السابعة القادمة، هندخل مباشرة في عائلة لغات البرمجة، وهنشوف مقارنة حية بين سكراتش وبايثون، وهنكتب أول تعليمة برمجية حقيقية تخلي شاشة الكمبيوتر تنطق باسمك وترحب بيك!">
+            <div class="slide-inner-body">
+                
+            <div class="slide-heading-row">
+                <span class="slide-category badge-mission">📝 مهمة البطل العملية</span>
+                <h2 class="slide-main-title">تحدي الواجب المنزلي: طبق ما تعلمته في عالمك! 🌟</h2>
+            </div>
+            <div class="grid-2-balance">
+                <div class="k-card-rich">
+                    <div class="rich-header">
+                        <span class="rich-icon">💻</span>
+                        <h3 class="rich-title">المهمة التطبيقية في المنزل</h3>
+                    </div>
+                    <ul class="rich-list">
+                        <li>راجع مشروع الدرس وطبق مفهوم <strong>مفهوم البرمجة</strong> بنفسك.</li>
+                        <li>جرّب إضافة ميزة جديدة أو فكرة مبتكرة من خيالك الخاص.</li>
+                        <li>التقط لقطة شاشة لإنجازك وشاركه في مجتمع التليجرام والواتساب.</li>
+                    </ul>
+                </div>
+                <div class="k-card-rich highlight-bg">
+                    <div class="rich-header">
+                        <span class="rich-icon">⭐</span>
+                        <h3 class="rich-title">معايير تقييم وسام الإتقان</h3>
+                    </div>
+                    <ul class="rich-list">
+                        <li><strong>الدقة:</strong> تشغيل البرنامج دون أي أخطاء برمجية (50 نقطة).</li>
+                        <li><strong>الإبداع:</strong> لمستك الشخصية في التصميم أو الأفكار (30 نقطة).</li>
+                        <li><strong>الالتزام:</strong> تسليم الحل قبل بداية المحاضرة القادمة (20 نقطة).</li>
+                    </ul>
+                </div>
+            </div>
+        
+            </div>
+        </section>
+    
+        <!-- SLIDE 25 -->
+        <section class="slide " id="slide-25" data-slide="25" data-notes="واجبكم لهذا الأسبوع: تحدي روبوت ساندوتش الجبنة! هتكتبوا في ورقة خطوات مفصلة جداً لصنع الساندوتش، وتخلوا أخوكم أو ماما ينفذوها كأنهم روبوت حرفي وتشوفوا هل الخطوات مظبوطة ولا لأ! وبعدها تحلوا اختبار المحاضرة وتجمعوا وسام المبرمج المبتدئ بنسبة 100%! شكراً لكم يا أبطال، ومتحمس جداً أشوفكم المحاضرة الجاية! سلام يا مبدعين!">
+            <div class="slide-inner-body">
+                
+            <div class="hero-center celebration-bg">
+                <div class="hero-icons">🎉 🏅 🏆</div>
+                <h1 class="hero-title text-success">ألف مبروك يا أبطال المستقبل!</h1>
+                <p class="hero-subtitle">أتممتم المحاضرة 06 بنجاح باهر وتألقتم في فهم وتطبيق يعني إيه برمجة؟ كيف تجعل الكمبيوتر يطيعك؟!</p>
+                <div class="score-pill">+100 نقطة إنجاز أضيفت لرصيدك البرمجي 🎖️</div>
+                <div class="next-lecture-box">
+                    <span class="next-badge">المحطة القادمة 🚀</span>
+                    <p class="next-title">استعدوا للمحاضرة القادمة لمواصلة رحلتكم الشيقة في المستوى 2: التفكير البرمجي والخوارزميات!</p>
+                </div>
+            </div>
+        
+            </div>
+        </section>
+    
+                </div>
+
+                <!-- Transparent Drawing Pen Canvas Overlay -->
+                <canvas id="slidePenCanvas" class="slide-pen-canvas"></canvas>
+
+                <!-- Floating In-Slide Pen Toolbar -->
+                <div class="pen-floating-toolbar" id="penToolbar">
+                    <div class="pen-tools-row">
+                        <button class="tool-btn active" id="tool-pen" onclick="setPenTool('pen')" title="قلم الشرح (P)">✏️</button>
+                        <button class="tool-btn" id="tool-highlighter" onclick="setPenTool('highlighter')" title="ماركر التظليل الشفاف (H)">🖍️</button>
+                        <button class="tool-btn" id="tool-eraser" onclick="setPenTool('eraser')" title="ممحاة (E)">🧽</button>
+                        
+                        <div class="tool-separator"></div>
+
+                        <!-- Colors -->
+                        <button class="color-btn selected" style="--c: #ef4444;" onclick="setPenColor('#ef4444', this)" title="أحمر"></button>
+                        <button class="color-btn" style="--c: #facc15;" onclick="setPenColor('#facc15', this)" title="أصفر"></button>
+                        <button class="color-btn" style="--c: #2563eb;" onclick="setPenColor('#2563eb', this)" title="أزرق"></button>
+                        <button class="color-btn" style="--c: #10b981;" onclick="setPenColor('#10b981', this)" title="أخضر"></button>
+                        <button class="color-btn" style="--c: #8b5cf6;" onclick="setPenColor('#8b5cf6', this)" title="بنفسجي"></button>
+                        <button class="color-btn" style="--c: #0f172a;" onclick="setPenColor('#0f172a', this)" title="أسود"></button>
+
+                        <div class="tool-separator"></div>
+
+                        <!-- Stroke Sizes -->
+                        <button class="size-btn active" onclick="setPenSize(4, this)" title="خط رفيع"><span style="width: 4px; height: 4px;"></span></button>
+                        <button class="size-btn" onclick="setPenSize(8, this)" title="خط وسط"><span style="width: 8px; height: 8px;"></span></button>
+                        <button class="size-btn" onclick="setPenSize(16, this)" title="خط عريض"><span style="width: 14px; height: 14px;"></span></button>
+
+                        <div class="tool-separator"></div>
+
+                        <!-- Actions -->
+                        <button class="action-btn" onclick="undoPenStroke()" title="تراجع (Z)">↩️</button>
+                        <button class="action-btn" onclick="clearCurrentSlideDrawings()" title="مسح رسومات الشريحة (C)">🗑️</button>
+                        <button class="action-btn exit-btn" onclick="togglePenMode(false)" title="إغلاق وضع القلم">✕</button>
+                    </div>
+                </div>
+
+                <!-- Teacher Teleprompter Notes Panel -->
+                <div id="teacher-prompter-panel">
+                    <div class="prompter-header">
+                        <span class="prompter-title">🎙️ اسكربت كلام المدرس للشريحة</span>
+                        <button class="prompter-close" onclick="togglePrompter()">✕</button>
+                    </div>
+                    <div class="prompter-body" id="prompterContent">
+                        ...
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Bottom Studio Bar -->
+            <footer class="slide-bottombar">
+                <div class="nav-controls">
+                    <button class="btn-slide-nav" onclick="changeSlide(-1)" id="btnPrev">➡ السابق</button>
+                    <div class="slide-counter-badge">
+                        <span id="currentSlideNum">1</span> / 25
+                    </div>
+                    <button class="btn-slide-nav btn-primary" onclick="changeSlide(1)" id="btnNext">التالي ⬅</button>
+                    
+                    <div class="progress-bar-container">
+                        <div class="progress-bar-fill" id="progressBar"></div>
+                    </div>
+                </div>
+
+                <div class="studio-tools">
+                    <button class="btn-tool-toggle" id="btnPenToggle" onclick="togglePenMode()" title="تفعيل / إغلاق قلم الشرح (P)">
+                        <span>✏️</span>
+                        <span>قلم الشرح</span>
+                    </button>
+                    <button class="btn-tool-toggle" onclick="togglePrompter()" title="كلام المدرس (N)">
+                        <span>📜</span>
+                        <span>اسكربت الشرح</span>
+                    </button>
+                </div>
+            </footer>
+
         </div>
-        <h1 class="lec-title">
-            <span>يعني إيه برمجة؟ كيف تجعل الكمبيوتر يطيعك بذكاء؟</span>
-        </h1>
-        <div class="top-controls">
-            <button class="btn-ctrl btn-wb" onclick="toggleChalkboard()">
-                <span>✏️</span>
-                <span>سبورة الشرح</span>
-            </button>
-            <button class="btn-ctrl" onclick="toggleFullScreen()">
-                <span>⛶</span>
-                <span>ملء الشاشة</span>
-            </button>
-        </div>
-    </header>
+    </div>
 
-    <!-- Workspace -->
-    <main class="workspace">
-        <div class="stage">
-
-            <!-- SLIDE 1 -->
-            <div class="slide-card active" data-slide="1">
-                <div class="slide-header">
-                    <span class="slide-cat">انطلاقة المستوى الثاني 🌟</span>
-                    <span class="slide-num">1 / 25</span>
-                </div>
-                <div class="slide-content">
-                    <div style="font-size: 70px; margin-bottom: -10px;">🧙‍♂️💻✨</div>
-                    <h2>مرحباً بكم في أرض السحر الحقيقي: عالم البرمجة!</h2>
-                    <p>أهلاً بكم يا مهندسي الغد في انطلاقة المستوى الثاني: التفكير البرمجي والخوارزميات! في المستوى الأول فهمنا جهاز الكمبيوتر.. اليوم سنصبح نحن السحرة الذين يعطون الأوامر ويخلقون الألعاب والتطبيقات من الصفر!</p>
-                    <div style="display: flex; gap: 16px; margin-top: 10px;">
-                        <span class="badge-tag" style="background: #e0f2fe; color: #0369a1; font-size: 14px; padding: 8px 16px; font-weight: 800; border-radius: 8px;">🧠 التفكير المنطقي</span>
-                        <span class="badge-tag" style="background: #fef3c7; color: #b45309; font-size: 14px; padding: 8px 16px; font-weight: 800; border-radius: 8px;">🤖 طاعة الكمبيوتر</span>
-                        <span class="badge-tag" style="background: #dcfce7; color: #15803d; font-size: 14px; padding: 8px 16px; font-weight: 800; border-radius: 8px;">🎮 من مستهلك إلى صانع</span>
-                    </div>
-                </div>
-                <div class="slide-footer">
-                    <button class="btn-nav" disabled>السابق</button>
-                    <button class="btn-nav primary" onclick="changeSlide(1)">التالي ⬅</button>
-                </div>
-            </div>
-
-            <!-- SLIDE 2 -->
-            <div class="slide-card" data-slide="2">
-                <div class="slide-header">
-                    <span class="slide-cat">خريطة المحاضرة 🗺️</span>
-                    <span class="slide-num">2 / 25</span>
-                </div>
-                <div class="slide-content">
-                    <h2>الأهداف الذهبية للمحاضرة السادسة</h2>
-                    <div class="grid-4">
-                        <div class="info-box">
-                            <span class="box-icon">❓</span>
-                            <h3 class="box-title">يعني إيه برمجة؟</h3>
-                            <p class="box-desc">المفهوم الحقيقي للبرمجة وكيف ينفذ الحاسوب أوامرنا بدقة.</p>
-                        </div>
-                        <div class="info-box">
-                            <span class="box-icon">🤖</span>
-                            <h3 class="box-title">لغة الآلة (Binary)</h3>
-                            <p class="box-desc">كيف يفهم الكمبيوتر العالم كله من خلال رقمين فقط: 0 و 1.</p>
-                        </div>
-                        <div class="info-box">
-                            <span class="box-icon">🗣️</span>
-                            <h3 class="box-title">المترجم الذكي</h3>
-                            <p class="box-desc">كيف تتحول كلماتنا وأكوادنا الإنجليزية إلى لغة يفهمها المعالج.</p>
-                        </div>
-                        <div class="info-box">
-                            <span class="box-icon">🚀</span>
-                            <h3 class="box-title">عقلية المبرمج</h3>
-                            <p class="box-desc">التحول من مجرد لاعب ألعاب إلى صانع ومبتكر للألعاب والتطبيقات.</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="slide-footer">
-                    <button class="btn-nav" onclick="changeSlide(-1)">➡ السابق</button>
-                    <button class="btn-nav primary" onclick="changeSlide(1)">التالي ⬅</button>
-                </div>
-            </div>
-
-            <!-- SLIDE 3 -->
-            <div class="slide-card" data-slide="3">
-                <div class="slide-header">
-                    <span class="slide-cat">حقيقة مفاجئة 😲</span>
-                    <span class="slide-num">3 / 25</span>
-                </div>
-                <div class="slide-content">
-                    <h2>هل الكمبيوتر كائن فائق الذكاء؟</h2>
-                    <p>المفاجأة الكبرى التي لا يعرفها أغلب الناس: <strong>الكمبيوتر جهاز غبي جداً لكنه سريع جداً!</strong></p>
-                    <div class="grid-2">
-                        <div class="info-box">
-                            <span class="box-icon">🧠 الإنسان (أنت!)</span>
-                            <h3 class="box-title">مبدع، يفهم المشاعر، ويفكر</h3>
-                            <p class="box-desc">تستطيع أن تفهم الإشارة، تبتكر أفكاراً جديدة، وتعرف ما يقصده صديقك حتى لو لم يتكلم بالتفصيل.</p>
-                        </div>
-                        <div class="info-box highlight">
-                            <span class="box-icon">💻 الكمبيوتر</span>
-                            <h3 class="box-title">آلة تطيع الأوامر الحرفية فقط</h3>
-                            <p class="box-desc">لا يملك أي عقل أو تفكير خاص به! إذا لم يعطه المبرمج أمراً دقيقاً خطوة بخطوة، فلن يتحرك سنتيمتراً واحداً!</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="slide-footer">
-                    <button class="btn-nav" onclick="changeSlide(-1)">➡ السابق</button>
-                    <button class="btn-nav primary" onclick="changeSlide(1)">التالي ⬅</button>
-                </div>
-            </div>
-
-            <!-- SLIDE 4 -->
-            <div class="slide-card" data-slide="4">
-                <div class="slide-header">
-                    <span class="slide-cat">التعريف المبسط 📖</span>
-                    <span class="slide-num">4 / 25</span>
-                </div>
-                <div class="slide-content">
-                    <h2>ما هي البرمجة؟ (Programming)</h2>
-                    <p>البرمجة ببساطة هي: <strong>فن كتابة قائمة تعليمات مرتبة وواضحة جداً للكمبيوتر ليقوم بمهمة محددة!</strong></p>
-                    <div class="info-box highlight" style="max-width: 700px; width: 100%;">
-                        <div style="font-size: 40px; margin-bottom: 8px;">👨‍🍳 📜 🍰</div>
-                        <h3 class="box-title" style="font-size: 22px;">تشبيه وصفة الكيكة (Recipe)</h3>
-                        <p class="box-desc" style="font-size: 16px; margin-top: 10px;">
-                            عندما تكتب لمساعدك في المطبخ: (1) أحضر بيضتين، (2) اكسر البيض في الوعاء، (3) أضف ملعقة سكر، (4) اخلط لمدة 3 دقائق.. المساعد ينفذ الخطوات بالترتيب وتخرج كيكة لذيذة! الكود البرمجي هو وصفة دقيقة ينفذها الكمبيوتر حرفياً!
-                        </p>
-                    </div>
-                </div>
-                <div class="slide-footer">
-                    <button class="btn-nav" onclick="changeSlide(-1)">➡ السابق</button>
-                    <button class="btn-nav primary" onclick="changeSlide(1)">التالي ⬅</button>
-                </div>
-            </div>
-
-            <!-- SLIDE 5 -->
-            <div class="slide-card" data-slide="5">
-                <div class="slide-header">
-                    <span class="slide-cat">تجربة طريفة 🥪</span>
-                    <span class="slide-num">5 / 25</span>
-                </div>
-                <div class="slide-content">
-                    <h2>مأزق روبوت ساندوتش الجبنة! 🤖</h2>
-                    <p>لو قلت لروبوت: "اعملي ساندوتش جبنة"، ماذا سيفعل؟</p>
-                    <div class="grid-2">
-                        <div class="info-box danger">
-                            <span class="box-icon">🤦‍♂️</span>
-                            <h3 class="box-title">الأمر غير البرمجي (الغامض)</h3>
-                            <p class="box-desc">الروبوت لا يعرف أين الخبز ولا كيف يفتحه! قد يضع قالب الجبنة بورقته فوق كيس العيش المقفول!</p>
-                        </div>
-                        <div class="info-box safe">
-                            <span class="box-icon">💡</span>
-                            <h3 class="box-title">الأمر البرمجي (الدقيق)</h3>
-                            <p class="box-desc">1. افتح كيس الخبز.<br>2. أخرج شريحة واحدة وضعها على الطبق.<br>3. افتح غلاف الجبنة.<br>4. ضع قطعة الجبنة فوق الشريحة.</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="slide-footer">
-                    <button class="btn-nav" onclick="changeSlide(-1)">➡ السابق</button>
-                    <button class="btn-nav primary" onclick="changeSlide(1)">التالي ⬅</button>
-                </div>
-            </div>
-
-            <!-- SLIDE 6 -->
-            <div class="slide-card" data-slide="6">
-                <div class="slide-header">
-                    <span class="slide-cat">مختبر عملي تفاعلي 🎮</span>
-                    <span class="slide-num">6 / 25</span>
-                </div>
-                <div class="slide-content">
-                    <h2>تحكم بالروبوت وأوصله إلى النجمة الذهبية! ⭐</h2>
-                    <p>أعطِ الروبوت أوامر خطوة بخطوة بالأسهم وشاهد كيف يطيع كودك حرفياً:</p>
-                    <div class="robot-sim-box">
-                        <div class="robot-grid" id="robotGrid">
-                            <!-- 16 cells -->
-                        </div>
-                        <div class="robot-controls">
-                            <div style="font-weight: 800; font-size: 15px;">أوامر الحركة البرمجية:</div>
-                            <div class="cmd-btn-row">
-                                <button class="btn-cmd" onclick="moveRobot('UP')">⬆️ للأعلى (UP)</button>
-                                <button class="btn-cmd" onclick="moveRobot('DOWN')">⬇️ للأسفل (DOWN)</button>
-                                <button class="btn-cmd" onclick="moveRobot('RIGHT')">➡️ لليمين (RIGHT)</button>
-                                <button class="btn-cmd" onclick="moveRobot('LEFT')">⬅️ لليسار (LEFT)</button>
-                                <button class="btn-cmd" onclick="resetRobot()" style="background: #fee2e2; border-color: #fca5a5; color: #991b1b;">إعادة تعيين 🔄</button>
-                            </div>
-                            <div class="robot-log" id="robotLog">> Robot ready. Enter commands...</div>
-                        </div>
-                    </div>
-                </div>
-                <div class="slide-footer">
-                    <button class="btn-nav" onclick="changeSlide(-1)">➡ السابق</button>
-                    <button class="btn-nav primary" onclick="changeSlide(1)">التالي ⬅</button>
-                </div>
-            </div>
-
-            <!-- SLIDE 7 -->
-            <div class="slide-card" data-slide="7">
-                <div class="slide-header">
-                    <span class="slide-cat">لغة الكمبيوتر 🔢</span>
-                    <span class="slide-num">7 / 25</span>
-                </div>
-                <div class="slide-content">
-                    <h2>كيف يفهم الكمبيوتر؟ النظام الثنائي (Binary)</h2>
-                    <p>المعالج والدوائر الإلكترونية لا تفهم الكلمات ولا الحروف العربية أو الإنجليزية.. لا تفهم إلا الكهرباء:</p>
-                    <div class="grid-2">
-                        <div class="info-box">
-                            <span class="box-icon" style="font-size: 50px;">💡 1</span>
-                            <h3 class="box-title">الرقم واحد (ON)</h3>
-                            <p class="box-desc">المفتاح مفتوح والكهرباء تمر! (وجود إشارة كهربائية).</p>
-                        </div>
-                        <div class="info-box">
-                            <span class="box-icon" style="font-size: 50px;">🌑 0</span>
-                            <h3 class="box-title">الرقم صفر (OFF)</h3>
-                            <p class="box-desc">المفتاح مقفول والكهرباء مقطوعة! (غياب الإشارة الكهربائية).</p>
-                        </div>
-                    </div>
-                    <p style="font-size: 17px; color: var(--primary-dark); font-weight: 800;">
-                        كل ألعابك وصورك وأغانيك المخزنة في جهازك عبارة عن مليارات الأصفار والآحاد (01001010)!
-                    </p>
-                </div>
-                <div class="slide-footer">
-                    <button class="btn-nav" onclick="changeSlide(-1)">➡ السابق</button>
-                    <button class="btn-nav primary" onclick="changeSlide(1)">التالي ⬅</button>
-                </div>
-            </div>
-
-            <!-- SLIDE 8 -->
-            <div class="slide-card" data-slide="8">
-                <div class="slide-header">
-                    <span class="slide-cat">المترجم البرمجي 🗣️</span>
-                    <span class="slide-num">8 / 25</span>
-                </div>
-                <div class="slide-content">
-                    <h2>المترجم البرمجي (Compiler / Interpreter)</h2>
-                    <p>لو كنا سنكتب للكمبيوتر أصفاراً وآحاداً فقط لأصبنا بالصداع! فكيف نكتب له كلاماً سهلاً ويفهمه؟</p>
-                    <div class="info-box highlight" style="max-width: 800px; width: 100%;">
-                        <div style="display: flex; justify-content: space-around; align-items: center; font-size: 20px; font-weight: 900; color: var(--primary);">
-                            <span>كودك البسيط (Python / Scratch)</span>
-                            <span>➡️</span>
-                            <span>المترجم (Compiler)</span>
-                            <span>➡️</span>
-                            <span>لغة الآلة (010101)</span>
-                        </div>
-                        <p class="box-desc" style="margin-top: 15px; font-size: 16px;">
-                            المترجم هو وسيط عبقري يأخذ الكود المفهوم الذي كتبته أنت بالإنجليزية، ويترجمه فورياً إلى كهرباء 0 و 1 يفهمها المعالج ويشغلها في ثوانٍ!
-                        </p>
-                    </div>
-                </div>
-                <div class="slide-footer">
-                    <button class="btn-nav" onclick="changeSlide(-1)">➡ السابق</button>
-                    <button class="btn-nav primary" onclick="changeSlide(1)">التالي ⬅</button>
-                </div>
-            </div>
-
-            <!-- SLIDE 9 -->
-            <div class="slide-card" data-slide="9">
-                <div class="slide-header">
-                    <span class="slide-cat">لغات البرمجة 🌍</span>
-                    <span class="slide-num">9 / 25</span>
-                </div>
-                <div class="slide-content">
-                    <h2>لغات البرمجة: مثل لغات العالم تماماً!</h2>
-                    <p>في العالم يتحدث الناس العربية، الإنجليزية، الفرنسية.. وفي عالم التكنولوجيا لدينا لغات نكلم بها الأجهزة:</p>
-                    <div class="grid-3">
-                        <div class="info-box">
-                            <span class="box-icon">🧩</span>
-                            <h3 class="box-title">سكراتش (Scratch)</h3>
-                            <p class="box-desc">لغة المكعبات المرئية الملونة لصناعة الألعاب بسهولة وتدريب عقلك.</p>
-                        </div>
-                        <div class="info-box">
-                            <span class="box-icon">🐍</span>
-                            <h3 class="box-title">بايثون (Python)</h3>
-                            <p class="box-desc">اللغة الأكثر شهرة وقوة في العالم للذكاء الاصطناعي وبناء التطبيقات.</p>
-                        </div>
-                        <div class="info-box">
-                            <span class="box-icon">🌐</span>
-                            <h3 class="box-title">جافاسكريبت (JavaScript)</h3>
-                            <p class="box-desc">لغة الويب السحرية التي تحرك صفحات الإنترنت وتجعلها تفاعلية.</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="slide-footer">
-                    <button class="btn-nav" onclick="changeSlide(-1)">➡ السابق</button>
-                    <button class="btn-nav primary" onclick="changeSlide(1)">التالي ⬅</button>
-                </div>
-            </div>
-
-            <!-- SLIDE 10 -->
-            <div class="slide-card" data-slide="10">
-                <div class="slide-header">
-                    <span class="slide-cat">من هو المبرمج؟ 🧑‍💻</span>
-                    <span class="slide-num">10 / 25</span>
-                </div>
-                <div class="slide-content">
-                    <h2>من هو المبرمج؟ وما هي قواه الخارقة؟</h2>
-                    <p>المبرمج (Programmer) ليس شخصاً يجلس في غرفة مظلمة يكتب طلاسم.. المبرمج هو:</p>
-                    <div class="grid-3">
-                        <div class="info-box safe">
-                            <span class="box-icon">🎨</span>
-                            <h3 class="box-title">صانع عوالم وفنان</h3>
-                            <p class="box-desc">يرسم شخصيات الألعاب، يحدد قواعد الجاذبية، ويبني مدناً رقمية رائعة.</p>
-                        </div>
-                        <div class="info-box safe">
-                            <span class="box-icon">🧩</span>
-                            <h3 class="box-title">حلال للمشكلات</h3>
-                            <p class="box-desc">يرى مشكلة تواجه الناس فيصنع تطبيقاً يسهل حياتهم ويوفر وقتهم.</p>
-                        </div>
-                        <div class="info-box safe">
-                            <span class="box-icon">🚀</span>
-                            <h3 class="box-title">مهندس للمستقبل</h3>
-                            <p class="box-desc">يبرمج الروبوتات، وسفن الفضاء، وأنظمة الذكاء الاصطناعي التي تخدم البشرية.</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="slide-footer">
-                    <button class="btn-nav" onclick="changeSlide(-1)">➡ السابق</button>
-                    <button class="btn-nav primary" onclick="changeSlide(1)">التالي ⬅</button>
-                </div>
-            </div>
-
-            <!-- SLIDE 11 -->
-            <div class="slide-card" data-slide="11">
-                <div class="slide-header">
-                    <span class="slide-cat">التحول الكبير 🔄</span>
-                    <span class="slide-num">11 / 25</span>
-                </div>
-                <div class="slide-content">
-                    <h2>الفرق بين "المستهلك" و"الصانع المبدع"</h2>
-                    <p>كل الأطفال يلعبون الألعاب على الموبايل، لكن القليل منهم فقط يملكون عقلية الأبطال:</p>
-                    <div class="grid-2">
-                        <div class="info-box">
-                            <span class="box-icon">🎮 مستهلك عادي (Consumer)</span>
-                            <h3 class="box-title">يلعب ما صنعه غيره</h3>
-                            <p class="box-desc">يضيع الساعات يلعب ألعاباً جاهزة، وإذا انتهت اللعبة يشعر بالملل ويبحث عن لعبة أخرى.</p>
-                        </div>
-                        <div class="info-box highlight">
-                            <span class="box-icon">⚡ صانع مبدع (Creator / Coder)</span>
-                            <h3 class="box-title">أنت! تفهم السر وتصنع لعبتك بنفسك!</h3>
-                            <p class="box-desc">تفهم كيف تقفز الشخصية، كيف تُحسب النقاط، وتصنع أنت اللعبة التي يلعبها أصدقاؤك وأسرتك بفخر!</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="slide-footer">
-                    <button class="btn-nav" onclick="changeSlide(-1)">➡ السابق</button>
-                    <button class="btn-nav primary" onclick="changeSlide(1)">التالي ⬅</button>
-                </div>
-            </div>
-
-            <!-- SLIDE 12 -->
-            <div class="slide-card" data-slide="12">
-                <div class="slide-header">
-                    <span class="slide-cat">أثر البرمجة 🌍</span>
-                    <span class="slide-num">12 / 25</span>
-                </div>
-                <div class="slide-content">
-                    <h2>كيف غيرت البرمجة كوكب الأرض؟</h2>
-                    <p>انظر حولك الآن.. كل ما تراه يعمل بالتكنولوجيا كان في الأصل سطور كود كتبها مبرمجون:</p>
-                    <div class="grid-4">
-                        <div class="info-box">
-                            <span class="box-icon">🏥</span>
-                            <h3 class="box-title">الطب والعلاج</h3>
-                            <p class="box-desc">أجهزة الرنين ومتابعة نبضات القلب وتشخيص الأمراض.</p>
-                        </div>
-                        <div class="info-box">
-                            <span class="box-icon">🚗</span>
-                            <h3 class="box-title">السيارات الذكية</h3>
-                            <p class="box-desc">سيارات تسلا التي تقود نفسها وتتجنب الحوادث آلياً.</p>
-                        </div>
-                        <div class="info-box">
-                            <span class="box-icon">🚀</span>
-                            <h3 class="box-title">استكشاف الفضاء</h3>
-                            <p class="box-desc">توجيه صواريخ ناسا ومركبات استكشاف كوكب المريخ.</p>
-                        </div>
-                        <div class="info-box">
-                            <span class="box-icon">🎬</span>
-                            <h3 class="box-title">أفلام الكرتون</h3>
-                            <p class="box-desc">أفلام ديزني وبيكسار ثلاثية الأبعاد والمؤثرات البصرية.</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="slide-footer">
-                    <button class="btn-nav" onclick="changeSlide(-1)">➡ السابق</button>
-                    <button class="btn-nav primary" onclick="changeSlide(1)">التالي ⬅</button>
-                </div>
-            </div>
-
-            <!-- SLIDE 13 -->
-            <div class="slide-card" data-slide="13">
-                <div class="slide-header">
-                    <span class="slide-cat">تحدي الملاحظة 🎯</span>
-                    <span class="slide-num">13 / 25</span>
-                </div>
-                <div class="slide-content">
-                    <h2>اختبار ذكاء المبرمج السريع!</h2>
-                    <p>لو كتبنا كوداً للروبوت ليتحرك: (1) تحرك خطوة للأمام، (2) اقفز فوق الصندوق، (3) انعطف لليمين.. ماذا لو عكسنا الخطوتين 1 و 2؟</p>
-                    <div class="interactive-quiz">
-                        <div class="quiz-option" onclick="selectQuizOpt(this, false)">
-                            <span>أ) لا مشكلة، سينفذ المهمة بنفس الطريقة تماماً.</span>
-                        </div>
-                        <div class="quiz-option" onclick="selectQuizOpt(this, true)">
-                            <span>ب) سيصطدم بالصندوق ويفشل، لأن الترتيب والتسلسل أساس البرمجة! ✅</span>
-                        </div>
-                        <div class="quiz-option" onclick="selectQuizOpt(this, false)">
-                            <span>ج) سيبكي الروبوت ويطفئ نفسه.</span>
-                        </div>
-                    </div>
-                </div>
-                <div class="slide-footer">
-                    <button class="btn-nav" onclick="changeSlide(-1)">➡ السابق</button>
-                    <button class="btn-nav primary" onclick="changeSlide(1)">التالي ⬅</button>
-                </div>
-            </div>
-
-            <!-- SLIDE 14 -->
-            <div class="slide-card" data-slide="14">
-                <div class="slide-header">
-                    <span class="slide-cat">ركائز البرمجة 🏛️</span>
-                    <span class="slide-num">14 / 25</span>
-                </div>
-                <div class="slide-content">
-                    <h2>الأعمدة الأربعة للتفكير الحسابي (Computational Thinking)</h2>
-                    <p>قبل أن تكتب سطراً برمجياً واحداً، يدربك هذا المستوى على طريقة تفكير المهندسين العباقرة:</p>
-                    <div class="grid-4">
-                        <div class="info-box">
-                            <span class="box-icon">🔨</span>
-                            <h3 class="box-title">التفكيك (Decomposition)</h3>
-                            <p class="box-desc">تقسيم المشكلة الكبيرة الصعبة إلى أجزاء صغيرة سهلة.</p>
-                        </div>
-                        <div class="info-box">
-                            <span class="box-icon">🔍</span>
-                            <h3 class="box-title">استنتاج الأنماط (Patterns)</h3>
-                            <p class="box-desc">ملاحظة الأشياء المتشابهة والمتكررة للاستفادة منها.</p>
-                        </div>
-                        <div class="info-box">
-                            <span class="box-icon">🎯</span>
-                            <h3 class="box-title">التجريد (Abstraction)</h3>
-                            <p class="box-desc">التركيز على المهم وتجاهل التفاصيل الزائدة غير الضرورية.</p>
-                        </div>
-                        <div class="info-box">
-                            <span class="box-icon">📜</span>
-                            <h3 class="box-title">الخوارزميات (Algorithms)</h3>
-                            <p class="box-desc">ترتيب خطوات الحل في تسلسل منطقي دقيق لا يحتمل الخطأ.</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="slide-footer">
-                    <button class="btn-nav" onclick="changeSlide(-1)">➡ السابق</button>
-                    <button class="btn-nav primary" onclick="changeSlide(1)">التالي ⬅</button>
-                </div>
-            </div>
-
-            <!-- SLIDE 15 -->
-            <div class="slide-card" data-slide="15">
-                <div class="slide-header">
-                    <span class="slide-cat">الأخطاء البرمجية 🐛</span>
-                    <span class="slide-num">15 / 25</span>
-                </div>
-                <div class="slide-content">
-                    <h2>قصة الحشرة البرمجية الأولى (The First Bug)!</h2>
-                    <p>عندما تخطئ في الكود، نسمي الخطأ "Bug".. هل تعلم من أين جاءت هذه التسمية الطريفة؟</p>
-                    <div class="info-box safe" style="max-width: 750px; width: 100%;">
-                        <div style="font-size: 40px; margin-bottom: 8px;">🦋 ⚙️ 🔍</div>
-                        <h3 class="box-title" style="font-size: 20px;">حشرة العثة الحقيقية عام 1947!</h3>
-                        <p class="box-desc" style="font-size: 16px; margin-top: 10px;">
-                            دخلت فراشة صغيرة بين أسلاك أول كمبيوتر ضخم في العالم وأوقفته عن العمل! وعندما فتح المهندسون الجهاز وجدوا الحشرة وأزالوها (Debugging). ومن يومها أصبح المبرمج البطل صائداً للأخطاء ولا يخاف من أي خطأ في كوده بل يصلحه بابتسامة!
-                        </p>
-                    </div>
-                </div>
-                <div class="slide-footer">
-                    <button class="btn-nav" onclick="changeSlide(-1)">➡ السابق</button>
-                    <button class="btn-nav primary" onclick="changeSlide(1)">التالي ⬅</button>
-                </div>
-            </div>
-
-            <!-- SLIDE 16 -->
-            <div class="slide-card" data-slide="16">
-                <div class="slide-header">
-                    <span class="slide-cat">المهارات الذهنية 🧠</span>
-                    <span class="slide-num">16 / 25</span>
-                </div>
-                <div class="slide-content">
-                    <h2>ماذا ستكسب عندما تصبح مبرمجاً؟</h2>
-                    <p>تعلم البرمجة ليس مجرد شاشات، بل يغير طريقة تفكيرك في دراستك وحياتك اليومية بالكامل:</p>
-                    <div class="grid-3">
-                        <div class="info-box">
-                            <span class="box-icon">💡</span>
-                            <h3 class="box-title">ذكاء وسرعة بديهة</h3>
-                            <p class="box-desc">تتعلم التفكير المنطقي والرياضي وتحل المسائل أسرع من زملائك.</p>
-                        </div>
-                        <div class="info-box">
-                            <span class="box-icon">💪</span>
-                            <h3 class="box-title">الصبر والمثابرة</h3>
-                            <p class="box-desc">لا تستسلم عند ظهور خطأ، بل تبحث بمتعة المحقق حتى تجد الحل.</p>
-                        </div>
-                        <div class="info-box">
-                            <span class="box-icon">🌟</span>
-                            <h3 class="box-title">ثقة وفخر بالنفس</h3>
-                            <p class="box-desc">شعور لا يوصف عندما تري والديك وأصدقائك لعبة صممتها بنفسك!</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="slide-footer">
-                    <button class="btn-nav" onclick="changeSlide(-1)">➡ السابق</button>
-                    <button class="btn-nav primary" onclick="changeSlide(1)">التالي ⬅</button>
-                </div>
-            </div>
-
-            <!-- SLIDE 17 -->
-            <div class="slide-card" data-slide="17">
-                <div class="slide-header">
-                    <span class="slide-cat">مقارنة بصرية 🎨</span>
-                    <span class="slide-num">17 / 25</span>
-                </div>
-                <div class="slide-content">
-                    <h2>كيف يبدو الكود الحقيقي؟ (المكعبات vs الكود النصي)</h2>
-                    <p>سنبدأ رحلتنا بمكعبات الألعاب الملونة ثم ننتقل لكتابة السطور البرمجية الاحترافية:</p>
-                    <div class="grid-2">
-                        <div class="info-box">
-                            <span class="box-icon">🧱 مكعبات البلوكات (Visual Blocks)</span>
-                            <h3 class="box-title">مثل قطع الليجو (LEGO)</h3>
-                            <p class="box-desc">تركب قطع ملونة مثل [عند النقر على العلم الأخضر] [تحرك 10 خطوات] بدون خوف من أخطاء الإملاء.</p>
-                        </div>
-                        <div class="info-box highlight">
-                            <span class="box-icon">💻 الكود النصي (Text Code)</span>
-                            <h3 class="box-title">مثل بايثون (Python)</h3>
-                            <p class="box-desc">تكتب كلمات إنجليزية واضحة مثل:<br><code style="direction: ltr; font-weight: 800; color: #0284c7;">print("Hello Future Heroes!")</code></p>
-                        </div>
-                    </div>
-                </div>
-                <div class="slide-footer">
-                    <button class="btn-nav" onclick="changeSlide(-1)">➡ السابق</button>
-                    <button class="btn-nav primary" onclick="changeSlide(1)">التالي ⬅</button>
-                </div>
-            </div>
-
-            <!-- SLIDE 18 -->
-            <div class="slide-card" data-slide="18">
-                <div class="slide-header">
-                    <span class="slide-cat">خريطة المستوى الثاني 🗺️</span>
-                    <span class="slide-num">18 / 25</span>
-                </div>
-                <div class="slide-content">
-                    <h2>ماذا ينتظرنا في المحاضرات القادمة من المستوى 2؟</h2>
-                    <p>رحلة من 9 محاضرات شيقة نبني فيها أسس تفكير مهندسي الحواسيب خطوة بخطوة:</p>
-                    <div class="grid-3">
-                        <div class="info-box">
-                            <h3 class="box-title">📜 الخوارزميات والتسلسل</h3>
-                            <p class="box-desc">المحاضرات 08 و 09: فن ترتيب الخطوات وقوانين التتابع.</p>
-                        </div>
-                        <div class="info-box">
-                            <h3 class="box-title">🔀 الشروط والقرارات</h3>
-                            <p class="box-desc">المحاضرة 11: جمل If / Else متى يفكر الكمبيوتر ويختار؟</p>
-                        </div>
-                        <div class="info-box">
-                            <h3 class="box-title">🔄 الحلقات والمتغيرات</h3>
-                            <p class="box-desc">المحاضرات 12 و 13: تكرار الأوامر وصناديق حفظ النقاط في الألعاب.</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="slide-footer">
-                    <button class="btn-nav" onclick="changeSlide(-1)">➡ السابق</button>
-                    <button class="btn-nav primary" onclick="changeSlide(1)">التالي ⬅</button>
-                </div>
-            </div>
-
-            <!-- SLIDE 19 -->
-            <div class="slide-card" data-slide="19">
-                <div class="slide-header">
-                    <span class="slide-cat">تحدي فكري سريع 💡</span>
-                    <span class="slide-num">19 / 25</span>
-                </div>
-                <div class="slide-content">
-                    <h2>لغز المعبر المائي للمبرمجين 🚣‍♂️</h2>
-                    <p>معك ذئب، خروف، وكيس حشيش.. وتريد عبور النهر بقارب لا يسع إلا أنت وشيء واحد فقط! إذا تركت الذئب مع الخروف سيأكله، وإذا تركت الخروف مع الحشيش سيأكله.. من تنقل أولاً؟</p>
-                    <div class="info-box safe" style="max-width: 650px; width: 100%;">
-                        <div style="font-size: 24px; font-weight: 900; color: var(--accent-green); margin-bottom: 8px;">الحل البرمجي الذكي:</div>
-                        <p class="box-desc" style="font-size: 16px;">
-                            ننقل الخروف أولاً إلى الضفة الأخرى ونتركه! ثم نعود ونأخذ الذئب، ونترك الذئب ونأخذ الخروف معنا في القارب عائداً! ثم نترك الخروف ونأخذ الحشيش، وأخيراً نعود ونأخذ الخروف! هذا هو التفكير الخوارزمي الدقيق!
-                        </p>
-                    </div>
-                </div>
-                <div class="slide-footer">
-                    <button class="btn-nav" onclick="changeSlide(-1)">➡ السابق</button>
-                    <button class="btn-nav primary" onclick="changeSlide(1)">التالي ⬅</button>
-                </div>
-            </div>
-
-            <!-- SLIDE 20 -->
-            <div class="slide-card" data-slide="20">
-                <div class="slide-header">
-                    <span class="slide-cat">التحفيز والإلهام 🚀</span>
-                    <span class="slide-num">20 / 25</span>
-                </div>
-                <div class="slide-content">
-                    <h2>أعظم المبرمجين في العالم بدأوا في عمركم!</h2>
-                    <p>بيل جيتس (مؤسس مايكروسوفت)، مارك زوكربيرج، ومبرمجو ماين كرافت وروبلوكس بدأوا يتعلمون البرمجة في سن 9 و 10 سنوات!</p>
-                    <div class="info-box highlight" style="max-width: 700px; width: 100%;">
-                        <div style="font-size: 24px; font-weight: 900; color: var(--primary); margin-bottom: 8px;">
-                            "كل شخص في هذا العالم يجب أن يتعلم كيف يبرمج الكمبيوتر، لأنه يعلمك كيف تفكر!"
-                        </div>
-                        <div style="font-weight: 800; color: var(--text-dark);">- ستيف جوبز (مؤسس آبل)</div>
-                    </div>
-                </div>
-                <div class="slide-footer">
-                    <button class="btn-nav" onclick="changeSlide(-1)">➡ السابق</button>
-                    <button class="btn-nav primary" onclick="changeSlide(1)">التالي ⬅</button>
-                </div>
-            </div>
-
-            <!-- SLIDE 21 -->
-            <div class="slide-card" data-slide="21">
-                <div class="slide-header">
-                    <span class="slide-cat">ميثاق المبرمجين 📜</span>
-                    <span class="slide-num">21 / 25</span>
-                </div>
-                <div class="slide-content">
-                    <h2>قواعد المبرمج الشجاع الخمس</h2>
-                    <div class="grid-3">
-                        <div class="info-box safe">
-                            <h3 class="box-title">1. لا أخاف من الخطأ</h3>
-                            <p class="box-desc">الخطأ هو صديقي الذي يرشدني للحل الصحيح.</p>
-                        </div>
-                        <div class="info-box safe">
-                            <h3 class="box-title">2. أفكر قبل أن أكتب</h3>
-                            <p class="box-desc">أرسم خطتي بالقلم والورقة أولاً ثم أبدأ بالكود.</p>
-                        </div>
-                        <div class="info-box safe">
-                            <h3 class="box-title">3. أستمتع بصناعة الألعاب</h3>
-                            <p class="box-desc">أحول أفكاري الخيالية إلى واقع يلعبه الجميع.</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="slide-footer">
-                    <button class="btn-nav" onclick="changeSlide(-1)">➡ السابق</button>
-                    <button class="btn-nav primary" onclick="changeSlide(1)">التالي ⬅</button>
-                </div>
-            </div>
-
-            <!-- SLIDE 22 -->
-            <div class="slide-card" data-slide="22">
-                <div class="slide-header">
-                    <span class="slide-cat">بيئة العمل 💻</span>
-                    <span class="slide-num">22 / 25</span>
-                </div>
-                <div class="slide-content">
-                    <h2>أدواتنا السحرية في كورس الأطفال</h2>
-                    <p>لن نحتاج برامج معقدة، سنستخدم أحدث الأدوات السحابية التي تعمل على أي لابتوب أو تابلت بسهولة:</p>
-                    <div class="grid-2">
-                        <div class="info-box">
-                            <span class="box-icon">🌐</span>
-                            <h3 class="box-title">سكراتش أونلاين (Scratch Web)</h3>
-                            <p class="box-desc">منصة معهد MIT العالمية للأطفال، تفتح على المتصفح مباشرة وتبدأ صناعة الألعاب في ثوانٍ!</p>
-                        </div>
-                        <div class="info-box highlight">
-                            <span class="box-icon">🐍</span>
-                            <h3 class="box-title">محررات بايثون التفاعلية</h3>
-                            <p class="box-desc">بيئات برمجية خفيفة وسريعة تكتب فيها الكود وتضغط Run لترى النتيجة فوراً أمامك!</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="slide-footer">
-                    <button class="btn-nav" onclick="changeSlide(-1)">➡ السابق</button>
-                    <button class="btn-nav primary" onclick="changeSlide(1)">التالي ⬅</button>
-                </div>
-            </div>
-
-            <!-- SLIDE 23 -->
-            <div class="slide-card" data-slide="23">
-                <div class="slide-header">
-                    <span class="slide-cat">ملخص المحاضرة ⚡</span>
-                    <span class="slide-num">23 / 25</span>
-                </div>
-                <div class="slide-content">
-                    <h2>ماذا تعلمنا اليوم في المحاضرة 06؟</h2>
-                    <div class="grid-4">
-                        <div class="info-box safe">
-                            <span class="box-icon">📜</span>
-                            <h3 class="box-title">البرمجة وصفة</h3>
-                            <p class="box-desc">أوامر دقيقة ومرتبة لتوجيه الكمبيوتر.</p>
-                        </div>
-                        <div class="info-box safe">
-                            <span class="box-icon">🔢</span>
-                            <h3 class="box-title">لغة 0 و 1</h3>
-                            <p class="box-desc">الكمبيوتر لا يفهم إلا إشارات الكهرباء.</p>
-                        </div>
-                        <div class="info-box safe">
-                            <span class="box-icon">🗣️</span>
-                            <h3 class="box-title">المترجم الذكي</h3>
-                            <p class="box-desc">يحول الكود البسيط إلى لغة الآلة.</p>
-                        </div>
-                        <div class="info-box safe">
-                            <span class="box-icon">🎮</span>
-                            <h3 class="box-title">عقلية الصانع</h3>
-                            <p class="box-desc">التحول من اللعب إلى صناعة الألعاب.</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="slide-footer">
-                    <button class="btn-nav" onclick="changeSlide(-1)">➡ السابق</button>
-                    <button class="btn-nav primary" onclick="changeSlide(1)">التالي ⬅</button>
-                </div>
-            </div>
-
-            <!-- SLIDE 24 -->
-            <div class="slide-card" data-slide="24">
-                <div class="slide-header">
-                    <span class="slide-cat">المحطة القادمة 🚀</span>
-                    <span class="slide-num">24 / 25</span>
-                </div>
-                <div class="slide-content">
-                    <div style="font-size: 70px; margin-bottom: -10px;">🧩 🐍 👾</div>
-                    <h2>تشويق للمحاضرة القادمة: المحاضرة 07!</h2>
-                    <p>في المحاضرة القادمة، سنتعرف على عائلة لغات البرمجة الشهيرة، ونرى مقارنة حية بين البلوكات والكود النصي، ونكتب أول تعليمة حقيقية تجعل الشاشة تنطق باسمك!</p>
-                    <div style="background: #f0f9ff; border: 2px solid #bae6fd; border-radius: 12px; padding: 12px 24px; color: #0369a1; font-weight: 800; font-size: 16px;">
-                        المحاضرة 07: أنواع البرمجة ولغاتها (Scratch vs Python) 🔥
-                    </div>
-                </div>
-                <div class="slide-footer">
-                    <button class="btn-nav" onclick="changeSlide(-1)">➡ السابق</button>
-                    <button class="btn-nav primary" onclick="changeSlide(1)">التالي ⬅</button>
-                </div>
-            </div>
-
-            <!-- SLIDE 25 -->
-            <div class="slide-card" data-slide="25">
-                <div class="slide-header">
-                    <span class="slide-cat">الواجب والاختبار 📝</span>
-                    <span class="slide-num">25 / 25</span>
-                </div>
-                <div class="slide-content">
-                    <h2>مهمة المبرمج المبتدئ لهذا الأسبوع!</h2>
-                    <p>حان وقت تحويل أسرتك إلى روبوتات تطيع أوامرك الدقيقة:</p>
-                    <div class="grid-2">
-                        <div class="info-box safe">
-                            <span class="box-icon">🥪</span>
-                            <h3 class="box-title">واجب روبوت الساندوتش</h3>
-                            <p class="box-desc">اكتب خوارزمية مفصلة خطوة بخطوة لصنع ساندوتشك المفضل واجعل أخاك أو والدتك ينفذونها كأنهم روبوت حرفي!</p>
-                        </div>
-                        <div class="info-box">
-                            <span class="box-icon">⭐</span>
-                            <h3 class="box-title">اختبار التفكير البرمجي</h3>
-                            <p class="box-desc">افتح اختبار المحاضرة التفاعلي الإلكتروني واجمع وسام المبرمج المبتدئ بنسبة 100%!</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="slide-footer">
-                    <button class="btn-nav" onclick="changeSlide(-1)">➡ السابق</button>
-                    <button class="btn-nav primary" onclick="alert('أحسنت صنعاً! انتهت جلسة التصوير بنجاح.')">إنهاء الجلسة 🏁</button>
-                </div>
-            </div>
-
-        </div>
-
-        <!-- Chalkboard Overlay -->
-        <div class="chalkboard" id="chalkboard">
-            <div class="chalk-header">
-                <h3 style="font-size: 20px; font-weight: 800;">✏️ سبورة الشرح التفاعلية للمدرس</h3>
-                <div style="display: flex; gap: 10px;">
-                    <button class="btn-ctrl" onclick="clearCanvas()">مسح السبورة</button>
-                    <button class="btn-ctrl" onclick="toggleChalkboard()" style="background: #ef4444; color: #fff; border-color: #ef4444;">إغلاق ✕</button>
-                </div>
-            </div>
-            <canvas class="chalk-canvas" id="chalkCanvas"></canvas>
-            <div class="chalk-tools">
-                <div class="color-dot" style="background: #ffffff;" onclick="setChalkColor('#ffffff')"></div>
-                <div class="color-dot" style="background: #38bdf8;" onclick="setChalkColor('#38bdf8')"></div>
-                <div class="color-dot" style="background: #4ade80;" onclick="setChalkColor('#4ade80')"></div>
-                <div class="color-dot" style="background: #facc15;" onclick="setChalkColor('#facc15')"></div>
-                <div class="color-dot" style="background: #f87171;" onclick="setChalkColor('#f87171')"></div>
-            </div>
-        </div>
-    </main>
-
+    <!-- Interactive Script -->
     <script>
+        // ==========================================
+        // 1. SLIDE PRESENTATION CONTROLLER
+        // ==========================================
         let currentSlide = 1;
         const totalSlides = 25;
+        const slides = document.querySelectorAll('.slide');
+        const currentSlideNumEl = document.getElementById('currentSlideNum');
+        const progressBarEl = document.getElementById('progressBar');
+        const prompterPanel = document.getElementById('teacher-prompter-panel');
+        const prompterContent = document.getElementById('prompterContent');
+        const btnPrev = document.getElementById('btnPrev');
+        const btnNext = document.getElementById('btnNext');
 
         function showSlide(num) {
             if (num < 1 || num > totalSlides) return;
+            
+            // Save drawings of outgoing slide
+            saveCurrentSlideDrawingState();
+
             currentSlide = num;
-            document.querySelectorAll('.slide-card').forEach(card => card.classList.remove('active'));
-            const activeCard = document.querySelector(`.slide-card[data-slide="${currentSlide}"]`);
-            if (activeCard) activeCard.classList.add('active');
-        }
+            slides.forEach((s, idx) => {
+                s.classList.toggle('active', (idx + 1) === currentSlide);
+            });
 
-        function changeSlide(direction) {
-            showSlide(currentSlide + direction);
-        }
+            currentSlideNumEl.textContent = currentSlide;
+            progressBarEl.style.width = `${(currentSlide / totalSlides) * 100}%`;
 
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'ArrowLeft' || e.key === 'PageDown' || e.key === ' ') {
-                changeSlide(1);
-            } else if (e.key === 'ArrowRight' || e.key === 'PageUp') {
-                changeSlide(-1);
-            } else if (e.key.toLowerCase() === 'b') {
-                toggleChalkboard();
-            } else if (e.key.toLowerCase() === 'f') {
-                toggleFullScreen();
+            btnPrev.disabled = (currentSlide === 1);
+            btnPrev.style.opacity = (currentSlide === 1) ? '0.5' : '1';
+
+            if (currentSlide === totalSlides) {
+                btnNext.textContent = 'إنهاء الجلسة 🏁';
+            } else {
+                btnNext.textContent = 'التالي ⬅';
             }
-        });
+
+            // Update Teacher Prompter Notes
+            const activeSlide = document.getElementById(`slide-${currentSlide}`);
+            if (activeSlide && activeSlide.dataset.notes) {
+                prompterContent.textContent = activeSlide.dataset.notes;
+            } else {
+                prompterContent.textContent = 'لا توجد ملاحظات مسجلة لهذه الشريحة.';
+            }
+
+            // Load drawings of incoming slide
+            loadCurrentSlideDrawingState();
+        }
+
+        function changeSlide(dir) {
+            showSlide(currentSlide + dir);
+        }
+
+        function togglePrompter() {
+            prompterPanel.classList.toggle('open');
+        }
 
         function toggleFullScreen() {
             if (!document.fullscreenElement) {
                 document.documentElement.requestFullscreen().catch(() => {});
             } else {
-                document.exitFullscreen().catch(() => {});
+                if (document.exitFullscreen) document.exitFullscreen().catch(() => {});
             }
         }
 
-        /* Chalkboard logic */
-        const chalkboard = document.getElementById('chalkboard');
-        const canvas = document.getElementById('chalkCanvas');
-        let ctx = null;
+        // ==========================================
+        // 2. LIVE IN-SLIDE PEN & ANNOTATION ENGINE
+        // ==========================================
+        const stageContainer = document.getElementById('stageContainer');
+        const canvas = document.getElementById('slidePenCanvas');
+        const ctx = canvas.getContext('2d');
+        const penToolbar = document.getElementById('penToolbar');
+        const btnPenToggle = document.getElementById('btnPenToggle');
+
+        let penEnabled = false;
+        let activeTool = 'pen'; // 'pen', 'highlighter', 'eraser'
+        let penColor = '#ef4444';
+        let penSize = 4;
         let isDrawing = false;
-        let chalkColor = '#ffffff';
+        let lastX = 0, lastY = 0;
 
-        function toggleChalkboard() {
-            chalkboard.classList.toggle('open');
-            if (chalkboard.classList.contains('open') && !ctx) {
-                setTimeout(initCanvas, 50);
-            }
+        // Stores per-slide drawing stroke stacks
+        const slideStrokes = {}; // { slideNum: [strokeData, ...] }
+        let currentStroke = null;
+
+        function resizeCanvas() {
+            const dpr = window.devicePixelRatio || 1;
+            canvas.width = stageContainer.clientWidth * dpr;
+            canvas.height = stageContainer.clientHeight * dpr;
+            ctx.scale(dpr, dpr);
+            redrawSlideStrokes();
+        }
+        window.addEventListener('resize', resizeCanvas);
+        setTimeout(resizeCanvas, 50);
+
+        function togglePenMode(forcedState) {
+            penEnabled = (forcedState !== undefined) ? forcedState : !penEnabled;
+            canvas.classList.toggle('pen-active', penEnabled);
+            penToolbar.classList.toggle('open', penEnabled);
+            btnPenToggle.classList.toggle('pen-active', penEnabled);
         }
 
-        function initCanvas() {
-            canvas.width = canvas.parentElement.clientWidth - 48;
-            canvas.height = canvas.parentElement.clientHeight - 130;
-            ctx = canvas.getContext('2d');
+        function setPenTool(tool) {
+            activeTool = tool;
+            document.querySelectorAll('.tool-btn').forEach(b => b.classList.remove('active'));
+            const activeBtn = document.getElementById(`tool-${tool}`);
+            if (activeBtn) activeBtn.classList.add('active');
+        }
+
+        function setPenColor(color, el) {
+            penColor = color;
+            document.querySelectorAll('.color-btn').forEach(b => b.classList.remove('selected'));
+            if (el) el.classList.add('selected');
+            if (activeTool === 'eraser') setPenTool('pen');
+        }
+
+        function setPenSize(size, el) {
+            penSize = size;
+            document.querySelectorAll('.size-btn').forEach(b => b.classList.remove('active'));
+            if (el) el.classList.add('active');
+        }
+
+        function saveCurrentSlideDrawingState() {
+            // Strokes are stored directly in slideStrokes[currentSlide]
+        }
+
+        function loadCurrentSlideDrawingState() {
+            redrawSlideStrokes();
+        }
+
+        function redrawSlideStrokes() {
+            const dpr = window.devicePixelRatio || 1;
+            ctx.clearRect(0, 0, canvas.width / dpr, canvas.height / dpr);
+            
+            const strokes = slideStrokes[currentSlide] || [];
+            strokes.forEach(stroke => {
+                renderStroke(stroke);
+            });
+        }
+
+        function renderStroke(stroke) {
+            if (!stroke.points || stroke.points.length === 0) return;
+            ctx.save();
             ctx.lineCap = 'round';
             ctx.lineJoin = 'round';
-            ctx.lineWidth = 4;
-            ctx.strokeStyle = chalkColor;
 
-            canvas.addEventListener('mousedown', startDraw);
-            canvas.addEventListener('mousemove', draw);
-            canvas.addEventListener('mouseup', endDraw);
-            canvas.addEventListener('mouseleave', endDraw);
-        }
+            if (stroke.tool === 'highlighter') {
+                ctx.globalAlpha = 0.38;
+                ctx.strokeStyle = stroke.color;
+                ctx.lineWidth = stroke.size * 3.5;
+            } else if (stroke.tool === 'eraser') {
+                ctx.globalCompositeOperation = 'destination-out';
+                ctx.lineWidth = stroke.size * 4;
+            } else {
+                ctx.globalAlpha = 1.0;
+                ctx.strokeStyle = stroke.color;
+                ctx.lineWidth = stroke.size;
+            }
 
-        function startDraw(e) {
-            isDrawing = true;
             ctx.beginPath();
-            ctx.moveTo(e.offsetX, e.offsetY);
-        }
-
-        function draw(e) {
-            if (!isDrawing) return;
-            ctx.lineTo(e.offsetX, e.offsetY);
+            ctx.moveTo(stroke.points[0].x, stroke.points[0].y);
+            for (let i = 1; i < stroke.points.length; i++) {
+                ctx.lineTo(stroke.points[i].x, stroke.points[i].y);
+            }
             ctx.stroke();
+            ctx.restore();
         }
 
-        function endDraw() {
-            isDrawing = false;
-        }
-
-        function setChalkColor(color) {
-            chalkColor = color;
-            if (ctx) ctx.strokeStyle = color;
-        }
-
-        function clearCanvas() {
-            if (ctx) ctx.clearRect(0, 0, canvas.width, canvas.height);
-        }
-
-        /* Robot Simulator Logic */
-        let robotX = 0;
-        let robotY = 0;
-        const targetX = 3;
-        const targetY = 3;
-
-        function renderGrid() {
-            const grid = document.getElementById('robotGrid');
-            grid.innerHTML = '';
-            for (let y = 0; y < 4; y++) {
-                for (let x = 0; x < 4; x++) {
-                    const cell = document.createElement('div');
-                    cell.className = 'grid-cell';
-                    if (x === robotX && y === robotY) {
-                        cell.classList.add('active-robot');
-                        cell.textContent = '🤖';
-                    } else if (x === targetX && y === targetY) {
-                        cell.classList.add('target-star');
-                        cell.textContent = '⭐';
-                    }
-                    grid.appendChild(cell);
-                }
+        function undoPenStroke() {
+            if (slideStrokes[currentSlide] && slideStrokes[currentSlide].length > 0) {
+                slideStrokes[currentSlide].pop();
+                redrawSlideStrokes();
             }
         }
 
-        function moveRobot(dir) {
-            const log = document.getElementById('robotLog');
-            if (dir === 'UP') {
-                if (robotY > 0) robotY--;
-                else { log.textContent = '> Error: Robot hit the wall!'; return; }
-            } else if (dir === 'DOWN') {
-                if (robotY < 3) robotY++;
-                else { log.textContent = '> Error: Robot hit the wall!'; return; }
-            } else if (dir === 'LEFT') {
-                if (robotX > 0) robotX--;
-                else { log.textContent = '> Error: Robot hit the wall!'; return; }
-            } else if (dir === 'RIGHT') {
-                if (robotX < 3) robotX++;
-                else { log.textContent = '> Error: Robot hit the wall!'; return; }
-            }
-
-            renderGrid();
-            log.textContent = `> Command executed: MOVE ${dir} -> (${robotX}, ${robotY})`;
-
-            if (robotX === targetX && robotY === targetY) {
-                log.textContent = '> 🎉 MISSION COMPLETE! You reached the Star!';
-                log.style.color = '#4ade80';
-            }
+        function clearCurrentSlideDrawings() {
+            slideStrokes[currentSlide] = [];
+            redrawSlideStrokes();
         }
 
-        function resetRobot() {
-            robotX = 0;
-            robotY = 0;
-            renderGrid();
-            const log = document.getElementById('robotLog');
-            log.textContent = '> Robot reset to (0, 0). Enter commands...';
-            log.style.color = '#38bdf8';
-        }
+        // Canvas Pointer Interaction (Works on Desktop, Stylus, & Touch)
+        canvas.addEventListener('pointerdown', (e) => {
+            if (!penEnabled) return;
+            isDrawing = true;
+            canvas.setPointerCapture(e.pointerId);
 
-        window.addEventListener('DOMContentLoaded', () => {
-            renderGrid();
+            const rect = canvas.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+
+            currentStroke = {
+                tool: activeTool,
+                color: penColor,
+                size: penSize,
+                points: [{ x, y }]
+            };
+
+            if (!slideStrokes[currentSlide]) slideStrokes[currentSlide] = [];
+            slideStrokes[currentSlide].push(currentStroke);
+
+            ctx.save();
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+            if (activeTool === 'highlighter') {
+                ctx.globalAlpha = 0.38;
+                ctx.strokeStyle = penColor;
+                ctx.lineWidth = penSize * 3.5;
+            } else if (activeTool === 'eraser') {
+                ctx.globalCompositeOperation = 'destination-out';
+                ctx.lineWidth = penSize * 4;
+            } else {
+                ctx.globalAlpha = 1.0;
+                ctx.strokeStyle = penColor;
+                ctx.lineWidth = penSize;
+            }
+            ctx.beginPath();
+            ctx.moveTo(x, y);
         });
 
-        /* Quick Quiz Interaction */
-        function selectQuizOpt(element, isCorrect) {
-            const parent = element.parentElement;
-            parent.querySelectorAll('.quiz-option').forEach(opt => {
-                opt.style.pointerEvents = 'none';
-            });
+        canvas.addEventListener('pointermove', (e) => {
+            if (!isDrawing || !penEnabled || !currentStroke) return;
+            const rect = canvas.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
 
-            if (isCorrect) {
-                element.classList.add('correct');
-            } else {
-                element.classList.add('wrong');
-                parent.children[1].classList.add('correct');
-            }
+            currentStroke.points.push({ x, y });
+            ctx.lineTo(x, y);
+            ctx.stroke();
+        });
+
+        function finishDrawing(e) {
+            if (!isDrawing) return;
+            isDrawing = false;
+            ctx.restore();
+            currentStroke = null;
         }
+
+        canvas.addEventListener('pointerup', finishDrawing);
+        canvas.addEventListener('pointercancel', finishDrawing);
+
+        // ==========================================
+        // 3. KEYBOARD SHORTCUTS
+        // ==========================================
+        window.addEventListener('keydown', (e) => {
+            const key = e.key.toLowerCase();
+            if (e.key === 'ArrowLeft' || e.key === 'PageDown' || (e.key === ' ' && !penEnabled)) {
+                changeSlide(1);
+            } else if (e.key === 'ArrowRight' || e.key === 'PageUp') {
+                changeSlide(-1);
+            } else if (key === 'p' || key === 'd') {
+                togglePenMode();
+            } else if (key === 'h') {
+                if (!penEnabled) togglePenMode(true);
+                setPenTool('highlighter');
+            } else if (key === 'e') {
+                if (!penEnabled) togglePenMode(true);
+                setPenTool('eraser');
+            } else if (key === 'z') {
+                undoPenStroke();
+            } else if (key === 'c') {
+                clearCurrentSlideDrawings();
+            } else if (key === 'n') {
+                togglePrompter();
+            } else if (key === 'f') {
+                toggleFullScreen();
+            }
+        });
+
+        // ==========================================
+        // 4. INTERACTIVE QUIZ CHECKER
+        // ==========================================
+        function checkSlideQuiz(btn, isCorrect, feedbackMsg) {
+            const container = btn.closest('.quiz-challenge-card');
+            const allBtns = container.querySelectorAll('.quiz-opt-btn');
+            allBtns.forEach(b => {
+                b.disabled = true;
+                b.style.opacity = '0.6';
+            });
+            btn.style.opacity = '1';
+            btn.classList.add(isCorrect ? 'correct' : 'wrong');
+
+            const fb = container.querySelector('.quiz-feedback-box');
+            fb.textContent = feedbackMsg;
+            fb.style.color = isCorrect ? 'var(--success)' : 'var(--danger)';
+        }
+
+        // ==========================================
+        // 5. SESSION TIMER
+        // ==========================================
+        let seconds = 0;
+        const timerEl = document.getElementById('sessionTimer');
+        setInterval(() => {
+            seconds++;
+            const m = String(Math.floor(seconds / 60)).padStart(2, '0');
+            const s = String(seconds % 60).padStart(2, '0');
+            timerEl.textContent = `${m}:${s}`;
+        }, 1000);
+
+        // Initialize First Slide
+        showSlide(1);
     </script>
 </body>
 </html>

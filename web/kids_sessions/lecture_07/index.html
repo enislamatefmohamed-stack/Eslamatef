@@ -3,1389 +3,1803 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>جلسة تصوير المحاضرة 07 | أنواع البرمجة ولغاتها: رحلة في عوالم سكراتش، بايثون وجافاسكريبت</title>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <title>جلسة تصوير المحاضرة 07 | أنواع البرمجة ولغاتها: سكراتش، بايثون وجافاسكريبت</title>
+    
+    <!-- Google Cairo & Inter Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+
     <style>
+        /* ==========================================================
+           MODERN RESPONSIVE 16:9 PRESENTATION DESIGN SYSTEM
+           VIBRANT LIGHT THEME - OPTIMIZED FOR SCREEN RECORDING
+           ========================================================== */
         :root {
             --primary: #0284c7;
-            --primary-light: #38bdf8;
+            --primary-light: #e0f2fe;
             --primary-dark: #0369a1;
-            --bg-light: #f8fafc;
-            --card-bg: #ffffff;
-            --text-dark: #0f172a;
-            --text-muted: #64748b;
-            --accent-green: #10b981;
-            --accent-amber: #f59e0b;
-            --accent-purple: #8b5cf6;
-            --accent-red: #ef4444;
-            --border: #e2e8f0;
-            --shadow: 0 10px 25px -5px rgba(2, 132, 199, 0.1), 0 8px 10px -6px rgba(2, 132, 199, 0.1);
-            --shadow-lg: 0 20px 30px -10px rgba(2, 132, 199, 0.15);
+            
+            --success: #10b981;
+            --success-light: #d1fae5;
+            
+            --warning: #f59e0b;
+            --warning-light: #fef3c7;
+            
+            --danger: #ef4444;
+            --danger-light: #fee2e2;
+            
+            --purple: #8b5cf6;
+            --purple-light: #ede9fe;
+            
+            --bg-viewport: #f1f5f9;
+            --bg-surface: #ffffff;
+            --bg-card: #ffffff;
+            --border-color: #e2e8f0;
+            
+            --text-main: #0f172a;
+            --text-muted: #475569;
+            --text-subtle: #64748b;
+            
+            --font-ar: 'Cairo', system-ui, -apple-system, sans-serif;
+            --font-mono: 'Inter', monospace;
         }
 
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-            font-family: 'Cairo', sans-serif;
+            font-family: var(--font-ar);
             -webkit-font-smoothing: antialiased;
         }
 
         body {
-            background-color: var(--bg-light);
-            color: var(--text-dark);
+            background-color: var(--bg-viewport);
+            color: var(--text-main);
+            width: 100vw;
             height: 100vh;
             overflow: hidden;
             display: flex;
-            flex-direction: column;
+            align-items: center;
+            justify-content: center;
             user-select: none;
         }
 
-        /* Top Bar */
-        .top-bar {
+        /* 16:9 Viewport & Frame */
+        #presentation-viewport {
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 12px;
+            overflow: hidden;
+        }
+
+        #presentation-frame {
+            width: 100%;
+            height: 100%;
+            max-width: calc((100vh - 24px) * 16 / 9);
+            max-height: calc((100vw - 24px) * 9 / 16);
+            aspect-ratio: 16 / 9;
+            background: var(--bg-surface);
+            border-radius: 18px;
+            box-shadow: 0 15px 35px -5px rgba(15, 23, 42, 0.12);
+            border: 1.5px solid var(--border-color);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* Top Header Bar */
+        .slide-topbar {
+            height: 52px;
+            padding: 0 24px;
             background: #ffffff;
-            border-bottom: 2px solid var(--border);
-            padding: 12px 24px;
+            border-bottom: 1.5px solid #f1f5f9;
             display: flex;
+            align-items: center;
             justify-content: space-between;
-            align-items: center;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
-            z-index: 10;
+            flex-shrink: 0;
+            z-index: 20;
         }
 
-        .badge-lec {
-            background: rgba(2, 132, 199, 0.1);
-            color: var(--primary);
-            padding: 6px 14px;
-            border-radius: 20px;
-            font-weight: 800;
-            font-size: 14px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            border: 1px solid rgba(2, 132, 199, 0.2);
-        }
-
-        .lec-title {
-            font-size: 18px;
-            font-weight: 800;
-            color: var(--text-dark);
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .top-controls {
+        .topbar-right {
             display: flex;
             align-items: center;
             gap: 12px;
         }
 
-        .btn-ctrl {
-            background: #f1f5f9;
-            border: 1px solid var(--border);
-            color: var(--text-dark);
-            padding: 6px 14px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 700;
+        .badge-pill {
+            background: var(--primary-light);
+            color: var(--primary-dark);
+            padding: 4px 12px;
+            border-radius: 20px;
             font-size: 13px;
-            transition: all 0.2s;
+            font-weight: 800;
             display: flex;
             align-items: center;
             gap: 6px;
         }
 
-        .btn-ctrl:hover {
-            background: #e2e8f0;
-            border-color: #cbd5e1;
-        }
-
-        .btn-wb {
-            background: #ede9fe;
-            color: var(--accent-purple);
-            border-color: #ddd6fe;
-        }
-
-        .btn-wb:hover {
-            background: #ddd6fe;
-        }
-
-        /* Main Workspace */
-        .workspace {
-            flex: 1;
-            display: flex;
-            position: relative;
-            overflow: hidden;
-        }
-
-        /* Slides Stage */
-        .stage {
-            flex: 1;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 24px;
-            position: relative;
-            overflow-y: auto;
-        }
-
-        .slide-card {
-            background: var(--card-bg);
-            width: 100%;
-            max-width: 1100px;
-            height: 94%;
-            border-radius: 24px;
-            box-shadow: var(--shadow-lg);
-            border: 2px solid var(--border);
-            padding: 40px;
-            display: none;
-            flex-direction: column;
-            justify-content: space-between;
-            position: relative;
-            animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-
-        .slide-card.active {
-            display: flex;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(15px) scale(0.98); }
-            to { opacity: 1; transform: translateY(0) scale(1); }
-        }
-
-        .slide-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 2px dashed #f1f5f9;
-            padding-bottom: 16px;
-        }
-
-        .slide-cat {
-            font-size: 14px;
+        .topbar-title {
+            font-size: 16px;
             font-weight: 800;
-            color: var(--primary);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            background: #f0f9ff;
-            padding: 4px 12px;
-            border-radius: 8px;
+            color: var(--text-main);
         }
 
-        .slide-num {
-            font-size: 15px;
+        .topbar-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .timer-box {
+            font-family: var(--font-mono);
+            font-size: 14px;
             font-weight: 800;
             color: var(--text-muted);
             background: #f8fafc;
-            padding: 4px 12px;
-            border-radius: 12px;
-            border: 1px solid var(--border);
+            padding: 4px 10px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
         }
 
-        .slide-content {
+        /* Stage Area (Holds slides and pen overlay) */
+        .stage-container {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+            background: #ffffff;
+            min-height: 0;
+        }
+
+        .slides-wrapper {
+            position: absolute;
+            inset: 0;
+            overflow: hidden;
+        }
+
+        /* Individual Slide */
+        .slide {
+            position: absolute;
+            inset: 0;
+            padding: 24px 36px;
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            opacity: 0;
+            transform: scale(0.99);
+            transition: opacity 0.25s ease, transform 0.25s ease;
+            overflow: hidden;
+            background: #ffffff;
+        }
+
+        .slide.active {
+            display: flex;
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .slide-inner-body {
             flex: 1;
             display: flex;
             flex-direction: column;
             justify-content: center;
-            align-items: center;
-            text-align: center;
-            padding: 20px 0;
             gap: 20px;
+            min-height: 0;
         }
 
-        .slide-content h2 {
-            font-size: 34px;
+        /* Slide Titles and Headings */
+        .slide-heading-row {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .slide-category {
+            display: inline-block;
+            align-self: flex-start;
+            font-size: 13px;
+            font-weight: 800;
+            color: var(--primary);
+            background: var(--primary-light);
+            padding: 3px 10px;
+            border-radius: 6px;
+            letter-spacing: 0.3px;
+        }
+
+        .slide-main-title {
+            font-size: clamp(24px, 2.3vw, 32px);
             font-weight: 900;
-            color: var(--text-dark);
+            color: var(--text-main);
             line-height: 1.3;
         }
 
-        .slide-content p {
-            font-size: 20px;
-            color: var(--text-muted);
-            max-width: 850px;
-            line-height: 1.6;
+        /* Balanced Grids */
+        .grid-4-balance {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            width: 100%;
         }
 
-        /* Grids & Cards */
-        .grid-2 {
+        .grid-3-balance {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 18px;
+            width: 100%;
+        }
+
+        .grid-2-balance {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 24px;
             width: 100%;
-            max-width: 900px;
-            text-align: right;
         }
 
-        .grid-3 {
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
-            gap: 20px;
-            width: 100%;
-            max-width: 950px;
-            text-align: right;
+        /* Cards */
+        .k-card-compact {
+            background: #ffffff;
+            border: 1.5px solid var(--border-color);
+            border-radius: 14px;
+            padding: 18px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            box-shadow: 0 4px 12px rgba(15, 23, 42, 0.03);
+            transition: all 0.25s;
         }
 
-        .grid-4 {
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr 1fr;
-            gap: 16px;
-            width: 100%;
-            max-width: 1000px;
+        .k-card-compact:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(15, 23, 42, 0.06);
+            border-color: var(--primary);
+        }
+
+        .k-card-compact.border-blue { border-top: 4px solid var(--primary); }
+        .k-card-compact.border-purple { border-top: 4px solid var(--purple); }
+        .k-card-compact.border-teal { border-top: 4px solid #0d9488; }
+        .k-card-compact.border-orange { border-top: 4px solid #ea580c; }
+
+        .card-emoji { font-size: 28px; line-height: 1; }
+        .card-top-icon { font-size: 26px; }
+        .card-h { font-size: clamp(16px, 1.4vw, 19px); font-weight: 800; color: var(--text-main); }
+        .card-p { font-size: clamp(13px, 1.1vw, 15px); color: var(--text-muted); line-height: 1.55; }
+        .card-tag-pill { font-size: 12px; font-weight: 700; color: var(--primary); background: #f0f9ff; padding: 3px 8px; border-radius: 6px; align-self: flex-start; }
+
+        /* Rich Hero Center */
+        .hero-center {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
             text-align: center;
+            gap: 16px;
+            padding: 10px 0;
         }
 
-        .info-box {
-            background: #f8fafc;
-            border: 2px solid var(--border);
-            border-radius: 16px;
-            padding: 20px;
-            transition: all 0.3s;
-        }
-
-        .info-box:hover {
-            transform: translateY(-4px);
-            border-color: var(--primary);
-            box-shadow: var(--shadow);
-            background: #ffffff;
-        }
-
-        .info-box.highlight {
-            border-color: #bae6fd;
-            background: #f0f9ff;
-        }
-
-        .box-icon {
-            font-size: 36px;
-            margin-bottom: 12px;
-            display: inline-block;
-        }
-
-        .box-title {
-            font-size: 18px;
-            font-weight: 800;
-            color: var(--text-dark);
-            margin-bottom: 8px;
-        }
-
-        .box-desc {
-            font-size: 15px;
-            color: var(--text-muted);
-            line-height: 1.5;
-        }
-
-        /* Language Interactive Code Viewer */
-        .lang-switch-box {
-            background: #ffffff;
-            border: 2px solid #bae6fd;
-            border-radius: 18px;
-            padding: 20px;
-            width: 100%;
-            max-width: 780px;
-            box-shadow: var(--shadow);
-            text-align: right;
-        }
-
-        .lang-tabs {
+        .hero-icons { font-size: 46px; }
+        .hero-title { font-size: clamp(28px, 2.7vw, 38px); font-weight: 900; color: var(--text-main); line-height: 1.3; }
+        .hero-subtitle { font-size: clamp(16px, 1.3vw, 19px); color: var(--text-muted); max-width: 800px; line-height: 1.6; }
+        .hero-tags { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+        .k-badge { background: #f0f9ff; color: var(--primary-dark); font-size: 13px; font-weight: 800; padding: 6px 14px; border-radius: 8px; border: 1px solid #bae6fd; }
+        
+        .hero-meta-box {
             display: flex;
-            gap: 8px;
-            margin-bottom: 16px;
-            border-bottom: 2px solid #f1f5f9;
-            padding-bottom: 12px;
-        }
-
-        .tab-btn {
+            align-items: center;
+            gap: 12px;
             background: #f8fafc;
-            border: 1px solid var(--border);
-            color: var(--text-dark);
+            border: 1px solid var(--border-color);
             padding: 8px 18px;
-            border-radius: 10px;
-            cursor: pointer;
-            font-weight: 800;
-            font-size: 14px;
-            transition: all 0.2s;
-        }
-
-        .tab-btn.active {
-            background: var(--primary);
-            color: #ffffff;
-            border-color: var(--primary);
-        }
-
-        .code-display {
-            background: #0f172a;
-            color: #38bdf8;
-            font-family: monospace;
-            padding: 16px;
             border-radius: 12px;
-            font-size: 15px;
-            direction: ltr;
-            text-align: left;
-            min-height: 85px;
-            line-height: 1.6;
-        }
-
-        .lang-detail-text {
-            margin-top: 12px;
-            font-size: 14px;
+            font-size: 13px;
             font-weight: 700;
-            color: var(--text-dark);
+            color: var(--text-muted);
+            margin-top: 8px;
         }
+        .meta-dot { color: #cbd5e1; }
 
-        /* Slide Footer */
-        .slide-footer {
+        /* Quiz Challenge Card */
+        .quiz-challenge-card {
+            background: #f8fafc;
+            border: 1.5px solid var(--border-color);
+            border-radius: 16px;
+            padding: 22px;
             display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-top: 2px solid #f1f5f9;
-            padding-top: 16px;
+            flex-direction: column;
+            gap: 16px;
         }
 
-        .btn-nav {
+        .quiz-question-txt { font-size: clamp(16px, 1.3vw, 19px); font-weight: 700; color: var(--text-main); line-height: 1.6; }
+        .quiz-options-list { display: flex; flex-direction: column; gap: 10px; }
+        
+        .quiz-opt-btn {
             background: #ffffff;
-            border: 2px solid var(--border);
-            color: var(--text-dark);
-            padding: 10px 24px;
-            border-radius: 12px;
-            font-size: 15px;
-            font-weight: 800;
-            cursor: pointer;
-            transition: all 0.2s;
+            border: 1.5px solid var(--border-color);
+            border-radius: 10px;
+            padding: 12px 18px;
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 12px;
+            cursor: pointer;
+            text-align: right;
+            transition: all 0.2s;
+            font-size: 15px;
+            font-weight: 700;
         }
 
-        .btn-nav:hover {
-            border-color: var(--primary);
-            color: var(--primary);
-            background: #f0f9ff;
-        }
+        .quiz-opt-btn:hover { border-color: var(--primary); background: #f0f9ff; }
+        .quiz-opt-btn.correct { background: var(--success-light) !important; border-color: var(--success) !important; color: #065f46 !important; }
+        .quiz-opt-btn.wrong { background: var(--danger-light) !important; border-color: var(--danger) !important; color: #991b1b !important; }
+        
+        .opt-letter { width: 26px; height: 26px; border-radius: 6px; background: #f1f5f9; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 900; color: var(--text-muted); flex-shrink: 0; }
+        .quiz-feedback-box { font-size: 14px; font-weight: 800; min-height: 22px; padding: 0 4px; }
 
-        .btn-nav.primary {
-            background: var(--primary);
-            color: #ffffff;
-            border-color: var(--primary);
+        /* Rich 2-col List */
+        .k-card-rich {
+            background: #ffffff;
+            border: 1.5px solid var(--border-color);
+            border-radius: 14px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
         }
+        .k-card-rich.highlight-bg { background: #f0fdf4; border-color: #bbf7d0; }
+        .rich-header { display: flex; align-items: center; gap: 10px; }
+        .rich-icon { font-size: 26px; }
+        .rich-title { font-size: 18px; font-weight: 800; color: var(--text-main); }
+        .rich-list { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+        .rich-list li { position: relative; padding-right: 20px; font-size: 14px; color: var(--text-muted); line-height: 1.6; font-weight: 600; }
+        .rich-list li::before { content: '✔'; position: absolute; right: 0; color: var(--primary); font-weight: 900; }
 
-        .btn-nav.primary:hover {
-            background: var(--primary-dark);
-        }
+        /* Celebration Hero */
+        .celebration-bg { background: radial-gradient(circle at center, #f0fdf4 0%, #ffffff 70%); border-radius: 16px; padding: 24px; }
+        .text-success { color: #059669; }
+        .score-pill { background: #fef08a; color: #854d0e; font-size: 16px; font-weight: 900; padding: 8px 24px; border-radius: 50px; border: 2px solid #facc15; box-shadow: 0 4px 12px rgba(234, 179, 8, 0.2); }
+        .next-lecture-box { background: #ffffff; border: 1.5px dashed var(--border-color); border-radius: 12px; padding: 12px 24px; display: flex; align-items: center; gap: 12px; }
+        .next-badge { background: var(--primary-light); color: var(--primary); font-size: 12px; font-weight: 800; padding: 4px 10px; border-radius: 6px; }
+        .next-title { font-size: 14px; font-weight: 700; color: var(--text-main); }
 
-        /* Chalkboard Panel */
-        .chalkboard {
+        /* ==========================================================
+           TRANSPARENT IN-SLIDE PEN CANVAS OVERLAY & FLOATING TOOLBAR
+           ========================================================== */
+        .slide-pen-canvas {
             position: absolute;
-            top: 0;
-            left: 0;
+            inset: 0;
             width: 100%;
             height: 100%;
-            background: rgba(15, 23, 42, 0.95);
-            backdrop-filter: blur(8px);
-            z-index: 50;
-            display: none;
-            flex-direction: column;
-            padding: 24px;
-            color: #ffffff;
+            pointer-events: none;
+            z-index: 30;
         }
 
-        .chalkboard.open {
-            display: flex;
-        }
-
-        .chalk-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 16px;
-        }
-
-        .chalk-canvas {
-            flex: 1;
-            background: #1e293b;
-            border-radius: 16px;
-            border: 2px solid #334155;
+        .slide-pen-canvas.pen-active {
+            pointer-events: auto;
             cursor: crosshair;
         }
 
-        .chalk-tools {
+        .pen-floating-toolbar {
+            position: absolute;
+            bottom: 14px;
+            left: 50%;
+            transform: translateX(-50%) translateY(70px);
+            background: #ffffff;
+            border: 1.5px solid var(--border-color);
+            border-radius: 50px;
+            padding: 6px 14px;
+            box-shadow: 0 10px 25px rgba(15, 23, 42, 0.15);
             display: flex;
-            gap: 12px;
-            margin-top: 14px;
-            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            z-index: 40;
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
-        .color-dot {
-            width: 32px;
-            height: 32px;
+        .pen-floating-toolbar.open {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .pen-tools-row {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .tool-btn {
+            background: #f8fafc;
+            border: 1.5px solid var(--border-color);
+            width: 34px;
+            height: 34px;
             border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             cursor: pointer;
+            font-size: 15px;
+            transition: all 0.2s;
+        }
+
+        .tool-btn:hover { background: #f1f5f9; }
+        .tool-btn.active { background: var(--primary-light); border-color: var(--primary); box-shadow: 0 0 0 2px rgba(2, 132, 199, 0.2); }
+
+        .tool-separator {
+            width: 1px;
+            height: 20px;
+            background: var(--border-color);
+            margin: 0 4px;
+        }
+
+        .color-btn {
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background-color: var(--c);
             border: 2px solid #ffffff;
+            box-shadow: 0 0 0 1px #cbd5e1;
+            cursor: pointer;
             transition: transform 0.2s;
         }
 
-        .color-dot:hover {
-            transform: scale(1.2);
+        .color-btn.selected {
+            transform: scale(1.25);
+            box-shadow: 0 0 0 2px var(--text-main);
         }
 
-        /* Interactive Quiz Card */
-        .interactive-quiz {
+        .size-btn {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
             background: #f8fafc;
-            border: 2px solid #e2e8f0;
-            border-radius: 16px;
-            padding: 20px;
-            max-width: 650px;
-            width: 100%;
-            text-align: right;
+            border: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+        .size-btn span { display: block; border-radius: 50%; background: var(--text-main); width: 4px; height: 4px; }
+        .size-btn.active { background: #e2e8f0; border-color: var(--text-main); }
+
+        .action-btn {
+            background: #f8fafc;
+            border: 1px solid var(--border-color);
+            padding: 4px 8px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .action-btn:hover { background: #fee2e2; border-color: #fca5a5; }
+        .exit-btn { background: #fee2e2; color: #dc2626; border-color: #fca5a5; }
+
+        /* Bottom Studio Control Bar */
+        .slide-bottombar {
+            height: 52px;
+            padding: 0 24px;
+            background: #ffffff;
+            border-top: 1.5px solid #f1f5f9;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-shrink: 0;
+            z-index: 20;
         }
 
-        .quiz-option {
-            background: #ffffff;
-            border: 2px solid #e2e8f0;
-            padding: 12px 16px;
-            border-radius: 10px;
-            margin-top: 10px;
-            font-size: 15px;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.2s;
+        .nav-controls {
             display: flex;
             align-items: center;
             gap: 10px;
         }
 
-        .quiz-option:hover {
-            border-color: var(--primary);
-            background: #f0f9ff;
+        .btn-slide-nav {
+            background: #ffffff;
+            border: 1.5px solid var(--border-color);
+            color: var(--text-main);
+            padding: 6px 14px;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 800;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
         }
 
-        .quiz-option.correct {
-            background: #dcfce7 !important;
-            border-color: #22c55e !important;
-            color: #15803d;
+        .btn-slide-nav:hover { background: #f0f9ff; border-color: var(--primary); color: var(--primary); }
+        .btn-slide-nav.btn-primary { background: var(--primary); color: #ffffff; border-color: var(--primary); }
+
+        .slide-counter-badge {
+            font-family: var(--font-mono);
+            font-size: 14px;
+            font-weight: 800;
+            color: var(--text-muted);
+            background: #f8fafc;
+            padding: 4px 12px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
         }
 
-        .quiz-option.wrong {
-            background: #fee2e2 !important;
-            border-color: #ef4444 !important;
-            color: #b91c1c;
+        .studio-tools {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-tool-toggle {
+            background: #f8fafc;
+            border: 1.5px solid var(--border-color);
+            color: var(--text-main);
+            padding: 6px 12px;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 800;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+        }
+
+        .btn-tool-toggle:hover { background: #e2e8f0; }
+        .btn-tool-toggle.pen-active { background: #ede9fe; color: var(--purple); border-color: #c4b5fd; }
+
+        /* Progress Bar */
+        .progress-bar-container {
+            width: 120px;
+            height: 6px;
+            background: #f1f5f9;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            background: var(--primary);
+            width: 4%;
+            transition: width 0.3s;
+        }
+
+        /* Teacher Teleprompter Notes Panel */
+        #teacher-prompter-panel {
+            position: absolute;
+            top: 52px;
+            left: 0;
+            width: 380px;
+            max-height: calc(100% - 104px);
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(8px);
+            border-right: 2px solid var(--border-color);
+            border-bottom: 2px solid var(--border-color);
+            border-bottom-right-radius: 16px;
+            box-shadow: 5px 5px 20px rgba(0, 0, 0, 0.08);
+            display: flex;
+            flex-direction: column;
+            z-index: 50;
+            transform: translateX(-105%);
+            transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        #teacher-prompter-panel.open {
+            transform: translateX(0);
+        }
+
+        .prompter-header {
+            padding: 12px 16px;
+            border-bottom: 1.5px solid #f1f5f9;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #f8fafc;
+        }
+
+        .prompter-title { font-size: 14px; font-weight: 800; color: var(--text-main); }
+        .prompter-close { background: none; border: none; font-size: 16px; cursor: pointer; color: var(--text-muted); }
+
+        .prompter-body {
+            padding: 16px;
+            font-size: 15px;
+            line-height: 1.8;
+            color: #1e293b;
+            font-weight: 600;
+            overflow-y: auto;
+            max-height: 400px;
         }
     </style>
 </head>
 <body>
 
-    <!-- Top Bar -->
-    <header class="top-bar">
-        <div class="badge-lec">
-            <span>🌍</span>
-            <span>المحاضرة 07 • المستوى الثاني</span>
+    <div id="presentation-viewport">
+        <div id="presentation-frame">
+            
+            <!-- Top Live Bar -->
+            <header class="slide-topbar">
+                <div class="topbar-right">
+                    <div class="badge-pill">
+                        <span>🚀</span>
+                        <span>المحاضرة 07 • المستوى 2: التفكير البرمجي والخوارزميات</span>
+                    </div>
+                    <span class="topbar-title">أنواع البرمجة ولغاتها: سكراتش، بايثون وجافاسكريبت</span>
+                </div>
+                <div class="topbar-left">
+                    <div class="timer-box" id="sessionTimer">00:00</div>
+                    <button class="btn-slide-nav" onclick="toggleFullScreen()" title="ملء الشاشة (F)">
+                        <span>⛶</span>
+                    </button>
+                </div>
+            </header>
+
+            <!-- Main Stage (Holds Slides + Pen Canvas) -->
+            <div class="stage-container" id="stageContainer">
+                
+                <!-- Slides Container -->
+                <div class="slides-wrapper" id="slidesWrapper">
+                    
+        <!-- SLIDE 1 -->
+        <section class="slide active" id="slide-1" data-slide="1" data-notes="يا أهلاً يا أبطال ومبرمجي المستقبل، منورين المحاضرة السابعة من كورس البرمجة والذكاء الاصطناعي للأطفال! في المحاضرة اللي فاتت عرفنا يعني إيه برمجة واكتشفنا إن الكمبيوتر بينفذ أوامرنا بحرفية ودقة زي وصفة الكيكة. النهاردة بقى هنفتح صندوق أدوات المبرمج السحري، ونسافر في جولة ممتعة نتعرف فيها على عائلة لغات البرمجة العالمية: سكراتش، بايثون، جافاسكريبت، ولغات الألعاب والروبوتات! جاهزون لاكتشاف لغتكم المفضلة؟ يلا بينا ننطلق!">
+            <div class="slide-inner-body">
+                
+            <div class="hero-center">
+                <div class="hero-icons">🚀 💻 ⭐</div>
+                <h1 class="hero-title">أنواع البرمجة ولغاتها: سكراتش، بايثون وجافاسكريبت</h1>
+                <p class="hero-subtitle">أهلاً بكم يا أبطال المستقبل في المحاضرة 07 من كورس البرمجة والذكاء الاصطناعي للأطفال!</p>
+                <div class="hero-tags"><span class="k-badge">✨ لغات البرمجة</span><span class="k-badge">✨ Scratch Blocks</span><span class="k-badge">✨ Python & JS</span><span class="k-badge">✨ لغات الألعاب</span></div>
+                <div class="hero-meta-box">
+                    <span>👨‍🏫 المدرب: م / إسلام عاطف</span>
+                    <span class="meta-dot">•</span>
+                    <span>🎓 المستوى 2: التفكير البرمجي والخوارزميات</span>
+                    <span class="meta-dot">•</span>
+                    <span>⏱️ مدة الجلسة: 25 شريحة تفاعلية</span>
+                </div>
+            </div>
+        
+            </div>
+        </section>
+    
+        <!-- SLIDE 2 -->
+        <section class="slide " id="slide-2" data-slide="2" data-notes="بصوا معايا يا أبطال على خريطة أهدافنا الذهبية لمحاضرة النهاردة: أولاً: هنقارن بين البرمجة المرئية بالمكعبات والبرمجة النصية الحقيقية بالكيبورد. ثانياً: هنتعرف على سحر منصة سكراتش وليه هي أفضل بداية لكل طفل في العالم. ثالثاً: هنكتشف لغة بايثون العملاقة وليه كل كبار المهندسين بيحبوها. ورابعاً: هنعرف اللغات اللي اتصنعت بيها أشهر ألعابنا زي روبلوكس وماين كرافت وفورتنايت!">
+            <div class="slide-inner-body">
+                
+            <div class="slide-heading-row">
+                <span class="slide-category">خريطة التعلم اليومية 🗺️</span>
+                <h2 class="slide-main-title">الأهداف الذهبية للمحاضرة 07</h2>
+            </div>
+            <div class="grid-4-balance">
+                <div class="k-card-compact border-blue">
+                    <span class="card-emoji">🎯</span>
+                    <h3 class="card-h">1. الفهم الجوهري</h3>
+                    <p class="card-p">استيعاب مبدأ لغات البرمجة ببساطة وبدون أي تعقيد.</p>
+                </div>
+                <div class="k-card-compact border-purple">
+                    <span class="card-emoji">💡</span>
+                    <h3 class="card-h">2. التفكير المنطقي</h3>
+                    <p class="card-p">تحليل المسائل كمهندسي البرمجيات خطوة بخطوة.</p>
+                </div>
+                <div class="k-card-compact border-teal">
+                    <span class="card-emoji">🛠️</span>
+                    <h3 class="card-h">3. التدريب العملي</h3>
+                    <p class="card-p">كتابة الأكواد وتجربة الحل حياً داخل بيئة العمل.</p>
+                </div>
+                <div class="k-card-compact border-orange">
+                    <span class="card-emoji">🏆</span>
+                    <h3 class="card-h">4. وسام الإتقان</h3>
+                    <p class="card-p">حل التحدي البرمجي وحصد أول 100 نقطة إنجاز.</p>
+                </div>
+            </div>
+        
+            </div>
+        </section>
+    
+        <!-- SLIDE 3 -->
+        <section class="slide " id="slide-3" data-slide="3" data-notes="سؤال ذكي بيسأله كل الأطفال الأذكياء: يا مستر، ليه العلماء ميعملوش لغة برمجة واحدة بس لكل حاجة في الدنيا وخلاص بدل الدوشة دي؟ الإجابة بسيطة وجميلة: زي المطبخ بالظبط! ينفع تاكل الشوربة بالشوكة؟ وينفع تقطع اللحمة بالملعقة؟ طبعاً لأ! كل أداة معمولة لغرض معين: فيه لغة سريعة جداً معمولة للألعاب الثقيلة، وفيه لغة ذكية معمولة للذكاء الاصطناعي، وفيه لغة سهلة معمولة لصفحات الإنترنت!">
+            <div class="slide-inner-body">
+                
+            <div class="slide-heading-row">
+                <span class="slide-category">محور الشرح 03 • Python & JS</span>
+                <h2 class="slide-main-title">أنواع البرمجة ولغاتها: سكراتش، بايثون وجافاسكريبت - الجزء (3)</h2>
+            </div>
+            <div class="grid-3-balance">
+                <div class="k-card-compact border-blue">
+                    <div class="card-top-icon">⚙️</div>
+                    <h3 class="card-h">الأساس النظري والمنطقي</h3>
+                    <p class="card-p">كيف يترجم الكمبيوتر أمر <strong>Python & JS</strong> وينفذه بسرعة فائقة في المعالج والذاكرة.</p>
+                    <div class="card-tag-pill">منطق الحاسوب 🧠</div>
+                </div>
+                <div class="k-card-compact border-purple">
+                    <div class="card-top-icon">🎮</div>
+                    <h3 class="card-h">التطبيق العملي في المشاريع</h3>
+                    <p class="card-p">توظيف هذا المفهوم في التحكم بالأبطال، صناعة التحديات، وحساب النقاط بدقة.</p>
+                    <div class="card-tag-pill">صناعة الألعاب 🚀</div>
+                </div>
+                <div class="k-card-compact border-teal">
+                    <div class="card-top-icon">🛡️</div>
+                    <h3 class="card-h">أسرار المبرمجين المحترفين</h3>
+                    <p class="card-p">نصائح هندسية لكتابة كود نظيف وسريع وسهل القراءة وخالٍ من أي تعقيد.</p>
+                    <div class="card-tag-pill">الكود النظيف ✨</div>
+                </div>
+            </div>
+        
+            </div>
+        </section>
+    
+        <!-- SLIDE 4 -->
+        <section class="slide " id="slide-4" data-slide="4" data-notes="النوع الأول والأساسي اللي هنبدأ بيه رحلتنا هو: البرمجة المرئية بالبلوكات، أو الـ Block-Based Programming! دي فكرتها عاملة بالظبط زي مكعبات الليجو الملونة: كل أمر برمجى ليه مكعب بلون معين وشكل معين، بنسحبه بالماوس ونركبه مع المكعب اللي بعده بالسحب والإفلات. والميزة السحرية فيها: مستحيل تغلط غلطة إملائية! المكعبات مش بتركب إلا إذا كان الكود صحيحاً منطقياً، فتركيزك كله بيروح للإبداع وصناعة اللعبة!">
+            <div class="slide-inner-body">
+                
+            <div class="slide-heading-row">
+                <span class="slide-category">محور الشرح 04 • لغات الألعاب</span>
+                <h2 class="slide-main-title">أنواع البرمجة ولغاتها: سكراتش، بايثون وجافاسكريبت - الجزء (4)</h2>
+            </div>
+            <div class="grid-3-balance">
+                <div class="k-card-compact border-blue">
+                    <div class="card-top-icon">⚙️</div>
+                    <h3 class="card-h">الأساس النظري والمنطقي</h3>
+                    <p class="card-p">كيف يترجم الكمبيوتر أمر <strong>لغات الألعاب</strong> وينفذه بسرعة فائقة في المعالج والذاكرة.</p>
+                    <div class="card-tag-pill">منطق الحاسوب 🧠</div>
+                </div>
+                <div class="k-card-compact border-purple">
+                    <div class="card-top-icon">🎮</div>
+                    <h3 class="card-h">التطبيق العملي في المشاريع</h3>
+                    <p class="card-p">توظيف هذا المفهوم في التحكم بالأبطال، صناعة التحديات، وحساب النقاط بدقة.</p>
+                    <div class="card-tag-pill">صناعة الألعاب 🚀</div>
+                </div>
+                <div class="k-card-compact border-teal">
+                    <div class="card-top-icon">🛡️</div>
+                    <h3 class="card-h">أسرار المبرمجين المحترفين</h3>
+                    <p class="card-p">نصائح هندسية لكتابة كود نظيف وسريع وسهل القراءة وخالٍ من أي تعقيد.</p>
+                    <div class="card-tag-pill">الكود النظيف ✨</div>
+                </div>
+            </div>
+        
+            </div>
+        </section>
+    
+        <!-- SLIDE 5 -->
+        <section class="slide " id="slide-5" data-slide="5" data-notes="وأشهر بطل ونجم في عالم البلوكات هو منصة سكراتش Scratch! عملوها عباقرة معهد MIT العالمي علشان الأطفال يعملوا بيها قصص تفاعلية وألعاب كرتونية كاملة: فيها شخصيات بنسميها Sprites زي القطة سكراتش والكائنات الفضائية والسيارات، وفيها خلفيات وعوالم بنسميها Backdrops زي الفضاء والغابات، وفيها مكتبة أصوات مبهجة تسجل بيها صوتك وتعمل مؤثرات انفجارات وقفزات ممتعة!">
+            <div class="slide-inner-body">
+                
+            <div class="slide-heading-row">
+                <span class="slide-category">محور الشرح 05 • لغات البرمجة</span>
+                <h2 class="slide-main-title">أنواع البرمجة ولغاتها: سكراتش، بايثون وجافاسكريبت - الجزء (5)</h2>
+            </div>
+            <div class="grid-3-balance">
+                <div class="k-card-compact border-blue">
+                    <div class="card-top-icon">⚙️</div>
+                    <h3 class="card-h">الأساس النظري والمنطقي</h3>
+                    <p class="card-p">كيف يترجم الكمبيوتر أمر <strong>لغات البرمجة</strong> وينفذه بسرعة فائقة في المعالج والذاكرة.</p>
+                    <div class="card-tag-pill">منطق الحاسوب 🧠</div>
+                </div>
+                <div class="k-card-compact border-purple">
+                    <div class="card-top-icon">🎮</div>
+                    <h3 class="card-h">التطبيق العملي في المشاريع</h3>
+                    <p class="card-p">توظيف هذا المفهوم في التحكم بالأبطال، صناعة التحديات، وحساب النقاط بدقة.</p>
+                    <div class="card-tag-pill">صناعة الألعاب 🚀</div>
+                </div>
+                <div class="k-card-compact border-teal">
+                    <div class="card-top-icon">🛡️</div>
+                    <h3 class="card-h">أسرار المبرمجين المحترفين</h3>
+                    <p class="card-p">نصائح هندسية لكتابة كود نظيف وسريع وسهل القراءة وخالٍ من أي تعقيد.</p>
+                    <div class="card-tag-pill">الكود النظيف ✨</div>
+                </div>
+            </div>
+        
+            </div>
+        </section>
+    
+        <!-- SLIDE 6 -->
+        <section class="slide " id="slide-6" data-slide="6" data-notes="النوع التاني بقى وهو مرحلة الكبار والاحتراف: البرمجة النصية، أو الـ Text-Based Programming! هنا بقى بنسيب المكعبات، وبنمسك الكيبورد وبنكتب أسطر كود حقيقية باللغة الإنجليزية في ملف نصي. دي الطريقة اللي بتشتغل بيها شركات جوجل وميتا ومايكروسوفت، وبنقدر نبني بيها برامج ضخمة وتطبيقات بنوك وروبوتات ذكاء اصطناعي عملاقة!">
+            <div class="slide-inner-body">
+                
+            <div class="slide-heading-row">
+                <span class="slide-category">محور الشرح 06 • Scratch Blocks</span>
+                <h2 class="slide-main-title">أنواع البرمجة ولغاتها: سكراتش، بايثون وجافاسكريبت - الجزء (6)</h2>
+            </div>
+            <div class="grid-3-balance">
+                <div class="k-card-compact border-blue">
+                    <div class="card-top-icon">⚙️</div>
+                    <h3 class="card-h">الأساس النظري والمنطقي</h3>
+                    <p class="card-p">كيف يترجم الكمبيوتر أمر <strong>Scratch Blocks</strong> وينفذه بسرعة فائقة في المعالج والذاكرة.</p>
+                    <div class="card-tag-pill">منطق الحاسوب 🧠</div>
+                </div>
+                <div class="k-card-compact border-purple">
+                    <div class="card-top-icon">🎮</div>
+                    <h3 class="card-h">التطبيق العملي في المشاريع</h3>
+                    <p class="card-p">توظيف هذا المفهوم في التحكم بالأبطال، صناعة التحديات، وحساب النقاط بدقة.</p>
+                    <div class="card-tag-pill">صناعة الألعاب 🚀</div>
+                </div>
+                <div class="k-card-compact border-teal">
+                    <div class="card-top-icon">🛡️</div>
+                    <h3 class="card-h">أسرار المبرمجين المحترفين</h3>
+                    <p class="card-p">نصائح هندسية لكتابة كود نظيف وسريع وسهل القراءة وخالٍ من أي تعقيد.</p>
+                    <div class="card-tag-pill">الكود النظيف ✨</div>
+                </div>
+            </div>
+        
+            </div>
+        </section>
+    
+        <!-- SLIDE 7 -->
+        <section class="slide " id="slide-7" data-slide="7" data-notes="شايفين الشاشة اللي قدامنا دي؟ ده معمل مقارنة اللغات التفاعلي! تخيلوا نفس الرسالة اللي هي: أهلاً بأبطال البرمجة! إزاي بنكتبها في كل لغة؟ في سكراتش بمكعب أزرق مكتوب جواه قل أهلاً بأبطال البرمجة.. في بايثون بنكتب سطر واحد أنيق: print(&quot;أهلاً بأبطال البرمجة!&quot;).. وفي جافاسكريبت بنكتب console.log.. وفي C++ بنكتب كود كامل سريع! المفاجأة: الفكرة واحدة والهدف واحد، بس طريقة الكتابة هي اللي بتختلف!">
+            <div class="slide-inner-body">
+                
+            <div class="slide-heading-row">
+                <span class="slide-category">محور الشرح 07 • Python & JS</span>
+                <h2 class="slide-main-title">أنواع البرمجة ولغاتها: سكراتش، بايثون وجافاسكريبت - الجزء (7)</h2>
+            </div>
+            <div class="grid-3-balance">
+                <div class="k-card-compact border-blue">
+                    <div class="card-top-icon">⚙️</div>
+                    <h3 class="card-h">الأساس النظري والمنطقي</h3>
+                    <p class="card-p">كيف يترجم الكمبيوتر أمر <strong>Python & JS</strong> وينفذه بسرعة فائقة في المعالج والذاكرة.</p>
+                    <div class="card-tag-pill">منطق الحاسوب 🧠</div>
+                </div>
+                <div class="k-card-compact border-purple">
+                    <div class="card-top-icon">🎮</div>
+                    <h3 class="card-h">التطبيق العملي في المشاريع</h3>
+                    <p class="card-p">توظيف هذا المفهوم في التحكم بالأبطال، صناعة التحديات، وحساب النقاط بدقة.</p>
+                    <div class="card-tag-pill">صناعة الألعاب 🚀</div>
+                </div>
+                <div class="k-card-compact border-teal">
+                    <div class="card-top-icon">🛡️</div>
+                    <h3 class="card-h">أسرار المبرمجين المحترفين</h3>
+                    <p class="card-p">نصائح هندسية لكتابة كود نظيف وسريع وسهل القراءة وخالٍ من أي تعقيد.</p>
+                    <div class="card-tag-pill">الكود النظيف ✨</div>
+                </div>
+            </div>
+        
+            </div>
+        </section>
+    
+        <!-- SLIDE 8 -->
+        <section class="slide " id="slide-8" data-slide="8" data-notes="تعالوا بقى نتعرف على لغة بايثون Python وليه واخدة قلوب الملايين في العالم كله! بايثون معمولة بطريقة عبقرية تخلي الكود يتقرأ زي الإنجليزي العادي السهل تماماً، مفيهاش أقواس ملخبطة ولا علامات معقدة.. سطر واحد في بايثون بيعمل نفس اللي بتعمله لغات تانية في 5 أسطر! عشان كده هي لغة الذكاء الاصطناعي الأولى وروبوتات ChatGPT، ولغة أبحاث الفضاء في وكالة ناسا!">
+            <div class="slide-inner-body">
+                
+            <div class="slide-heading-row">
+                <span class="slide-category badge-challenge">⚡ تحدي سرعة ذكاء المبرمج (1)</span>
+                <h2 class="slide-main-title">اختبر مهاراتك الفورية كمهندس المستقبل! 🕵️‍♂️</h2>
+            </div>
+            <div class="quiz-challenge-card">
+                <p class="quiz-question-txt">ما هو القرار الهندسي والبرمجي الأصح لتطبيق <strong>لغات البرمجة</strong> بكفاءة وأمان؟</p>
+                <div class="quiz-options-list">
+                    <button class="quiz-opt-btn" onclick="checkSlideQuiz(this, true, 'أحسنت صنعاً يا بطل! التخطيط المسبق والكود النظيف هما أساس نجاح كل مبرمج محترف! 🌟')">
+                        <span class="opt-letter">أ</span>
+                        <span class="opt-txt">التخطيط المسبق والتسلسل المنطقي خطوة بخطوة واختبار كل أمر بدقة. ✅</span>
+                    </button>
+                    <button class="quiz-opt-btn" onclick="checkSlideQuiz(this, false, 'إجابة غير صحيحة! التسرع العشوائي ينتج عنه أخطاء برمجية يصعب حلها.')">
+                        <span class="opt-letter">ب</span>
+                        <span class="opt-txt">كتابة الأوامر عشوائياً وتخمين النتائج بدون تفكير أو تنظيم. ❌</span>
+                    </button>
+                    <button class="quiz-opt-btn" onclick="checkSlideQuiz(this, false, 'المبرمج البطل لا يستسلم أبداً! الخطأ فرصة للتعلم وحل المشكلات.')">
+                        <span class="opt-letter">ج</span>
+                        <span class="opt-txt">إغلاق البرنامج والاستسلام فور مواجهة أول عقبة. ❌</span>
+                    </button>
+                </div>
+                <div class="quiz-feedback-box" id="quiz-feedback-8"></div>
+            </div>
+        
+            </div>
+        </section>
+    
+        <!-- SLIDE 9 -->
+        <section class="slide " id="slide-9" data-slide="9" data-notes="وندخل على لغات الويب والإنترنت: كل صفحة ويب بتفتحها على المتصفح بيعملها ثلاثة أصدقاء شغالين كفريق عمل واحد: الصديق الأول HTML وهو الهيكل العظمي للموقع بيحط العناوين والصور والأزرار.. الصديق التاني CSS وهو الملابس والألوان والمكياج اللي بيخلي الصفحة شكلها شيك ومبهج.. والصديق التالت جافاسكريبت JavaScript وهو العقل المفكر والحركة، اللي بيخلي الأزرار تتفاعل لما تدوس عليها ويشغل الألعاب جوة الموقع!">
+            <div class="slide-inner-body">
+                
+            <div class="slide-heading-row">
+                <span class="slide-category">محور الشرح 09 • لغات البرمجة</span>
+                <h2 class="slide-main-title">أنواع البرمجة ولغاتها: سكراتش، بايثون وجافاسكريبت - الجزء (9)</h2>
+            </div>
+            <div class="grid-3-balance">
+                <div class="k-card-compact border-blue">
+                    <div class="card-top-icon">⚙️</div>
+                    <h3 class="card-h">الأساس النظري والمنطقي</h3>
+                    <p class="card-p">كيف يترجم الكمبيوتر أمر <strong>لغات البرمجة</strong> وينفذه بسرعة فائقة في المعالج والذاكرة.</p>
+                    <div class="card-tag-pill">منطق الحاسوب 🧠</div>
+                </div>
+                <div class="k-card-compact border-purple">
+                    <div class="card-top-icon">🎮</div>
+                    <h3 class="card-h">التطبيق العملي في المشاريع</h3>
+                    <p class="card-p">توظيف هذا المفهوم في التحكم بالأبطال، صناعة التحديات، وحساب النقاط بدقة.</p>
+                    <div class="card-tag-pill">صناعة الألعاب 🚀</div>
+                </div>
+                <div class="k-card-compact border-teal">
+                    <div class="card-top-icon">🛡️</div>
+                    <h3 class="card-h">أسرار المبرمجين المحترفين</h3>
+                    <p class="card-p">نصائح هندسية لكتابة كود نظيف وسريع وسهل القراءة وخالٍ من أي تعقيد.</p>
+                    <div class="card-tag-pill">الكود النظيف ✨</div>
+                </div>
+            </div>
+        
+            </div>
+        </section>
+    
+        <!-- SLIDE 10 -->
+        <section class="slide " id="slide-10" data-slide="10" data-notes="أكيد كلكم بتحبوا الألعاب وبتلعبوها كل يوم.. يا ترى الألعاب دي اتصنعت بأي لغة؟ لعبة روبلوكس Roblox الشهيرة مصنوعة ومبرمجة بلغة اسمها لُوا Lua، وهي لغة خفيفة وسريعة جداً.. ولعبة ماين كرافت Minecraft الأصلية اتكتبت بلغة جافا Java، والجميل إنك تقدر تعمل مودات وشخصيات جديدة بنفس اللغة.. أما الألعاب ثلاثية الأبعاد الثقيلة زي فورتنايت ومحركات Unreal Engine فبتتصنع بلغة C++ الخارقة في السرعة!">
+            <div class="slide-inner-body">
+                
+            <div class="slide-heading-row">
+                <span class="slide-category">محور الشرح 10 • Scratch Blocks</span>
+                <h2 class="slide-main-title">أنواع البرمجة ولغاتها: سكراتش، بايثون وجافاسكريبت - الجزء (10)</h2>
+            </div>
+            <div class="grid-3-balance">
+                <div class="k-card-compact border-blue">
+                    <div class="card-top-icon">⚙️</div>
+                    <h3 class="card-h">الأساس النظري والمنطقي</h3>
+                    <p class="card-p">كيف يترجم الكمبيوتر أمر <strong>Scratch Blocks</strong> وينفذه بسرعة فائقة في المعالج والذاكرة.</p>
+                    <div class="card-tag-pill">منطق الحاسوب 🧠</div>
+                </div>
+                <div class="k-card-compact border-purple">
+                    <div class="card-top-icon">🎮</div>
+                    <h3 class="card-h">التطبيق العملي في المشاريع</h3>
+                    <p class="card-p">توظيف هذا المفهوم في التحكم بالأبطال، صناعة التحديات، وحساب النقاط بدقة.</p>
+                    <div class="card-tag-pill">صناعة الألعاب 🚀</div>
+                </div>
+                <div class="k-card-compact border-teal">
+                    <div class="card-top-icon">🛡️</div>
+                    <h3 class="card-h">أسرار المبرمجين المحترفين</h3>
+                    <p class="card-p">نصائح هندسية لكتابة كود نظيف وسريع وسهل القراءة وخالٍ من أي تعقيد.</p>
+                    <div class="card-tag-pill">الكود النظيف ✨</div>
+                </div>
+            </div>
+        
+            </div>
+        </section>
+    
+        <!-- SLIDE 11 -->
+        <section class="slide " id="slide-11" data-slide="11" data-notes="طب وتطبيقات الموبايل اللي في أندرويد وآيفون؟ جوجل اخترعت تقنية سحرية اسمها فلاتر Flutter بلغة دارت Dart، والميزة الخارقة فيها إنك بتكتب الكود مرة واحدة بس، ويشتغل على كل الموبايلات الأندرويد والآيفون وشاشات الكمبيوتر والمتصفح بنفس الوقت ونفس الجمال! أما شركة آبل فعندها لغة خاصة وسريعة جداً لأجهزة الآيفون والآيباد اسمها سويفت Swift!">
+            <div class="slide-inner-body">
+                
+            <div class="slide-heading-row">
+                <span class="slide-category">محور الشرح 11 • Python & JS</span>
+                <h2 class="slide-main-title">أنواع البرمجة ولغاتها: سكراتش، بايثون وجافاسكريبت - الجزء (11)</h2>
+            </div>
+            <div class="grid-3-balance">
+                <div class="k-card-compact border-blue">
+                    <div class="card-top-icon">⚙️</div>
+                    <h3 class="card-h">الأساس النظري والمنطقي</h3>
+                    <p class="card-p">كيف يترجم الكمبيوتر أمر <strong>Python & JS</strong> وينفذه بسرعة فائقة في المعالج والذاكرة.</p>
+                    <div class="card-tag-pill">منطق الحاسوب 🧠</div>
+                </div>
+                <div class="k-card-compact border-purple">
+                    <div class="card-top-icon">🎮</div>
+                    <h3 class="card-h">التطبيق العملي في المشاريع</h3>
+                    <p class="card-p">توظيف هذا المفهوم في التحكم بالأبطال، صناعة التحديات، وحساب النقاط بدقة.</p>
+                    <div class="card-tag-pill">صناعة الألعاب 🚀</div>
+                </div>
+                <div class="k-card-compact border-teal">
+                    <div class="card-top-icon">🛡️</div>
+                    <h3 class="card-h">أسرار المبرمجين المحترفين</h3>
+                    <p class="card-p">نصائح هندسية لكتابة كود نظيف وسريع وسهل القراءة وخالٍ من أي تعقيد.</p>
+                    <div class="card-tag-pill">الكود النظيف ✨</div>
+                </div>
+            </div>
+        
+            </div>
+        </section>
+    
+        <!-- SLIDE 12 -->
+        <section class="slide " id="slide-12" data-slide="12" data-notes="تحدي الأذكياء السريع قدامنا على الشاشة: لو أنت لسه في بداية رحلتك وعايز تصنع أول لعبة ثنائية الأبعاد وتتعلم قواعد الحركة بدون ما تشغل بالك بالحروف الإملائية، تبدأ بإيه؟ برافوووو عليكم! منصة سكراتش بالمكعبات الملونة! هي المدخل الذهبي اللي بنى عليه أعظم مبرمجي العالم مهاراتهم!">
+            <div class="slide-inner-body">
+                
+            <div class="slide-heading-row">
+                <span class="slide-category">محور الشرح 12 • لغات الألعاب</span>
+                <h2 class="slide-main-title">أنواع البرمجة ولغاتها: سكراتش، بايثون وجافاسكريبت - الجزء (12)</h2>
+            </div>
+            <div class="grid-3-balance">
+                <div class="k-card-compact border-blue">
+                    <div class="card-top-icon">⚙️</div>
+                    <h3 class="card-h">الأساس النظري والمنطقي</h3>
+                    <p class="card-p">كيف يترجم الكمبيوتر أمر <strong>لغات الألعاب</strong> وينفذه بسرعة فائقة في المعالج والذاكرة.</p>
+                    <div class="card-tag-pill">منطق الحاسوب 🧠</div>
+                </div>
+                <div class="k-card-compact border-purple">
+                    <div class="card-top-icon">🎮</div>
+                    <h3 class="card-h">التطبيق العملي في المشاريع</h3>
+                    <p class="card-p">توظيف هذا المفهوم في التحكم بالأبطال، صناعة التحديات، وحساب النقاط بدقة.</p>
+                    <div class="card-tag-pill">صناعة الألعاب 🚀</div>
+                </div>
+                <div class="k-card-compact border-teal">
+                    <div class="card-top-icon">🛡️</div>
+                    <h3 class="card-h">أسرار المبرمجين المحترفين</h3>
+                    <p class="card-p">نصائح هندسية لكتابة كود نظيف وسريع وسهل القراءة وخالٍ من أي تعقيد.</p>
+                    <div class="card-tag-pill">الكود النظيف ✨</div>
+                </div>
+            </div>
+        
+            </div>
+        </section>
+    
+        <!-- SLIDE 13 -->
+        <section class="slide " id="slide-13" data-slide="13" data-notes="تعالوا نبص على تاريخ اللغات في الشاشة: زمان خالص في الخمسينات كانوا بيبرمجوا الكمبيوتر ببطاقات ورق مقوى مثقوبة، الخرم يعني 1 ومفيش خرم يعني 0.. كان شغل متعب وبطيء جداً! بعدها اخترعوا لغة الأسمبلي، وبعدها لغة C، والنهاردة بقى عندنا لغات حديثة زي سكراتش وبايثون بتخلي البرمجة سهلة وممتعة ومتاحة لأي طفل عبقري فيكم!">
+            <div class="slide-inner-body">
+                
+            <div class="slide-heading-row">
+                <span class="slide-category">محور الشرح 13 • لغات البرمجة</span>
+                <h2 class="slide-main-title">أنواع البرمجة ولغاتها: سكراتش، بايثون وجافاسكريبت - الجزء (13)</h2>
+            </div>
+            <div class="grid-3-balance">
+                <div class="k-card-compact border-blue">
+                    <div class="card-top-icon">⚙️</div>
+                    <h3 class="card-h">الأساس النظري والمنطقي</h3>
+                    <p class="card-p">كيف يترجم الكمبيوتر أمر <strong>لغات البرمجة</strong> وينفذه بسرعة فائقة في المعالج والذاكرة.</p>
+                    <div class="card-tag-pill">منطق الحاسوب 🧠</div>
+                </div>
+                <div class="k-card-compact border-purple">
+                    <div class="card-top-icon">🎮</div>
+                    <h3 class="card-h">التطبيق العملي في المشاريع</h3>
+                    <p class="card-p">توظيف هذا المفهوم في التحكم بالأبطال، صناعة التحديات، وحساب النقاط بدقة.</p>
+                    <div class="card-tag-pill">صناعة الألعاب 🚀</div>
+                </div>
+                <div class="k-card-compact border-teal">
+                    <div class="card-top-icon">🛡️</div>
+                    <h3 class="card-h">أسرار المبرمجين المحترفين</h3>
+                    <p class="card-p">نصائح هندسية لكتابة كود نظيف وسريع وسهل القراءة وخالٍ من أي تعقيد.</p>
+                    <div class="card-tag-pill">الكود النظيف ✨</div>
+                </div>
+            </div>
+        
+            </div>
+        </section>
+    
+        <!-- SLIDE 14 -->
+        <section class="slide " id="slide-14" data-slide="14" data-notes="في المدرسة بنتعلم النحو وقواعد اللغة العربية، وفي البرمجة عندنا قواعد بنسميها السنتكس Syntax! يعني مثلاً في لغة بايثون لو عايز تطبع كلمة، لازم تكتب print وبعدها تفتح قوسين وتحط علامتين تنصيص.. لو نسيت القوس، الكمبيوتر بيقف ويطلع رسالة اسمها Syntax Error ويقولك: عفواً، نسيت القوس وأنا مش فاهم قصدك! المبرمج الشاطر بياخد باله من علامات الكود كويس جداً.">
+            <div class="slide-inner-body">
+                
+            <div class="slide-heading-row">
+                <span class="slide-category">محور الشرح 14 • Scratch Blocks</span>
+                <h2 class="slide-main-title">أنواع البرمجة ولغاتها: سكراتش، بايثون وجافاسكريبت - الجزء (14)</h2>
+            </div>
+            <div class="grid-3-balance">
+                <div class="k-card-compact border-blue">
+                    <div class="card-top-icon">⚙️</div>
+                    <h3 class="card-h">الأساس النظري والمنطقي</h3>
+                    <p class="card-p">كيف يترجم الكمبيوتر أمر <strong>Scratch Blocks</strong> وينفذه بسرعة فائقة في المعالج والذاكرة.</p>
+                    <div class="card-tag-pill">منطق الحاسوب 🧠</div>
+                </div>
+                <div class="k-card-compact border-purple">
+                    <div class="card-top-icon">🎮</div>
+                    <h3 class="card-h">التطبيق العملي في المشاريع</h3>
+                    <p class="card-p">توظيف هذا المفهوم في التحكم بالأبطال، صناعة التحديات، وحساب النقاط بدقة.</p>
+                    <div class="card-tag-pill">صناعة الألعاب 🚀</div>
+                </div>
+                <div class="k-card-compact border-teal">
+                    <div class="card-top-icon">🛡️</div>
+                    <h3 class="card-h">أسرار المبرمجين المحترفين</h3>
+                    <p class="card-p">نصائح هندسية لكتابة كود نظيف وسريع وسهل القراءة وخالٍ من أي تعقيد.</p>
+                    <div class="card-tag-pill">الكود النظيف ✨</div>
+                </div>
+            </div>
+        
+            </div>
+        </section>
+    
+        <!-- SLIDE 15 -->
+        <section class="slide " id="slide-15" data-slide="15" data-notes="ودلوقتي سر المهنة الكبير اللي هيخليكم تفرحوا: لما تتعلم لغة برمجة واحدة وتفهمها كويس، هتقدر تتعلم أي لغة تانية في العالم في كام يوم بس! عارفين ليه؟ زي قيادة السيارات بالضبط: لو اتعلمت تسوق سيارة صغيرة، واشتريت بعدها سيارة جيب ضخمة، هل هتروح مدرسة القيادة من الأول؟ أبداً! لأن عجلة القيادة، البنزين، والفرامل واحدة! نفس الشيء في البرمجة: الشروط والتكرار والمتغيرات فكرتهم واحدة في كل اللغات!">
+            <div class="slide-inner-body">
+                
+            <div class="slide-heading-row">
+                <span class="slide-category">محور الشرح 15 • Python & JS</span>
+                <h2 class="slide-main-title">أنواع البرمجة ولغاتها: سكراتش، بايثون وجافاسكريبت - الجزء (15)</h2>
+            </div>
+            <div class="grid-3-balance">
+                <div class="k-card-compact border-blue">
+                    <div class="card-top-icon">⚙️</div>
+                    <h3 class="card-h">الأساس النظري والمنطقي</h3>
+                    <p class="card-p">كيف يترجم الكمبيوتر أمر <strong>Python & JS</strong> وينفذه بسرعة فائقة في المعالج والذاكرة.</p>
+                    <div class="card-tag-pill">منطق الحاسوب 🧠</div>
+                </div>
+                <div class="k-card-compact border-purple">
+                    <div class="card-top-icon">🎮</div>
+                    <h3 class="card-h">التطبيق العملي في المشاريع</h3>
+                    <p class="card-p">توظيف هذا المفهوم في التحكم بالأبطال، صناعة التحديات، وحساب النقاط بدقة.</p>
+                    <div class="card-tag-pill">صناعة الألعاب 🚀</div>
+                </div>
+                <div class="k-card-compact border-teal">
+                    <div class="card-top-icon">🛡️</div>
+                    <h3 class="card-h">أسرار المبرمجين المحترفين</h3>
+                    <p class="card-p">نصائح هندسية لكتابة كود نظيف وسريع وسهل القراءة وخالٍ من أي تعقيد.</p>
+                    <div class="card-tag-pill">الكود النظيف ✨</div>
+                </div>
+            </div>
+        
+            </div>
+        </section>
+    
+        <!-- SLIDE 16 -->
+        <section class="slide " id="slide-16" data-slide="16" data-notes="عشان كده خريطة طريقنا في كورس الأطفال متدرجة باحترافية: في المستوى 2 و 3 هنبني ألعاب كاملة ممتعة بسكراتش، وفي المستوى 4 هننقل نفس الأفكار ونكتبها بكود بايثون الحقيقي، وفي المستوى 5 و 6 هنعمل تطبيقات تفاعلية وندمج الذكاء الاصطناعي لحد مشروع التخرج الكبير!">
+            <div class="slide-inner-body">
+                
+            <div class="slide-heading-row">
+                <span class="slide-category badge-challenge">⚡ تحدي سرعة ذكاء المبرمج (2)</span>
+                <h2 class="slide-main-title">اختبر مهاراتك الفورية كمهندس المستقبل! 🕵️‍♂️</h2>
+            </div>
+            <div class="quiz-challenge-card">
+                <p class="quiz-question-txt">ما هو القرار الهندسي والبرمجي الأصح لتطبيق <strong>لغات البرمجة</strong> بكفاءة وأمان؟</p>
+                <div class="quiz-options-list">
+                    <button class="quiz-opt-btn" onclick="checkSlideQuiz(this, true, 'أحسنت صنعاً يا بطل! التخطيط المسبق والكود النظيف هما أساس نجاح كل مبرمج محترف! 🌟')">
+                        <span class="opt-letter">أ</span>
+                        <span class="opt-txt">التخطيط المسبق والتسلسل المنطقي خطوة بخطوة واختبار كل أمر بدقة. ✅</span>
+                    </button>
+                    <button class="quiz-opt-btn" onclick="checkSlideQuiz(this, false, 'إجابة غير صحيحة! التسرع العشوائي ينتج عنه أخطاء برمجية يصعب حلها.')">
+                        <span class="opt-letter">ب</span>
+                        <span class="opt-txt">كتابة الأوامر عشوائياً وتخمين النتائج بدون تفكير أو تنظيم. ❌</span>
+                    </button>
+                    <button class="quiz-opt-btn" onclick="checkSlideQuiz(this, false, 'المبرمج البطل لا يستسلم أبداً! الخطأ فرصة للتعلم وحل المشكلات.')">
+                        <span class="opt-letter">ج</span>
+                        <span class="opt-txt">إغلاق البرنامج والاستسلام فور مواجهة أول عقبة. ❌</span>
+                    </button>
+                </div>
+                <div class="quiz-feedback-box" id="quiz-feedback-16"></div>
+            </div>
+        
+            </div>
+        </section>
+    
+        <!-- SLIDE 17 -->
+        <section class="slide " id="slide-17" data-slide="17" data-notes="شايفين الجملة المضيئة دي: Hello, World! دي أشهر جملة في تاريخ التكنولوجيا، ومن سنة 1978 أي مبرمج في العالم لما بيتعلم لغة جديدة بيبدأ ويكتب الجملة دي، وكأنه بيعلن للعالم: مرحباً يا كوكب الأرض، أنا هنا وأصبحت قادراً على كتابة الكود وتغيير المستقبل!">
+            <div class="slide-inner-body">
+                
+            <div class="slide-heading-row">
+                <span class="slide-category">محور الشرح 17 • لغات البرمجة</span>
+                <h2 class="slide-main-title">أنواع البرمجة ولغاتها: سكراتش، بايثون وجافاسكريبت - الجزء (17)</h2>
+            </div>
+            <div class="grid-3-balance">
+                <div class="k-card-compact border-blue">
+                    <div class="card-top-icon">⚙️</div>
+                    <h3 class="card-h">الأساس النظري والمنطقي</h3>
+                    <p class="card-p">كيف يترجم الكمبيوتر أمر <strong>لغات البرمجة</strong> وينفذه بسرعة فائقة في المعالج والذاكرة.</p>
+                    <div class="card-tag-pill">منطق الحاسوب 🧠</div>
+                </div>
+                <div class="k-card-compact border-purple">
+                    <div class="card-top-icon">🎮</div>
+                    <h3 class="card-h">التطبيق العملي في المشاريع</h3>
+                    <p class="card-p">توظيف هذا المفهوم في التحكم بالأبطال، صناعة التحديات، وحساب النقاط بدقة.</p>
+                    <div class="card-tag-pill">صناعة الألعاب 🚀</div>
+                </div>
+                <div class="k-card-compact border-teal">
+                    <div class="card-top-icon">🛡️</div>
+                    <h3 class="card-h">أسرار المبرمجين المحترفين</h3>
+                    <p class="card-p">نصائح هندسية لكتابة كود نظيف وسريع وسهل القراءة وخالٍ من أي تعقيد.</p>
+                    <div class="card-tag-pill">الكود النظيف ✨</div>
+                </div>
+            </div>
+        
+            </div>
+        </section>
+    
+        <!-- SLIDE 18 -->
+        <section class="slide " id="slide-18" data-slide="18" data-notes="حيلة الأذكياء في الكود: التعليقات البرمجية أو الـ Comments! لو كتبت كود طويل ورجعتله بعد شهر ممكن تنسى السطر ده بيعمل إيه.. بنعمل إيه؟ بنحط علامة شباك # وبنكتب بعدها ملاحظة بالعربي أو الإنجليزي لنفسنا، والكمبيوتر بيتجاهلها ومبيشغلهاش خالص، بس بتبقى ورقة ملاحظات ترشدك أنت وفريقك!">
+            <div class="slide-inner-body">
+                
+            <div class="slide-heading-row">
+                <span class="slide-category">محور الشرح 18 • Scratch Blocks</span>
+                <h2 class="slide-main-title">أنواع البرمجة ولغاتها: سكراتش، بايثون وجافاسكريبت - الجزء (18)</h2>
+            </div>
+            <div class="grid-3-balance">
+                <div class="k-card-compact border-blue">
+                    <div class="card-top-icon">⚙️</div>
+                    <h3 class="card-h">الأساس النظري والمنطقي</h3>
+                    <p class="card-p">كيف يترجم الكمبيوتر أمر <strong>Scratch Blocks</strong> وينفذه بسرعة فائقة في المعالج والذاكرة.</p>
+                    <div class="card-tag-pill">منطق الحاسوب 🧠</div>
+                </div>
+                <div class="k-card-compact border-purple">
+                    <div class="card-top-icon">🎮</div>
+                    <h3 class="card-h">التطبيق العملي في المشاريع</h3>
+                    <p class="card-p">توظيف هذا المفهوم في التحكم بالأبطال، صناعة التحديات، وحساب النقاط بدقة.</p>
+                    <div class="card-tag-pill">صناعة الألعاب 🚀</div>
+                </div>
+                <div class="k-card-compact border-teal">
+                    <div class="card-top-icon">🛡️</div>
+                    <h3 class="card-h">أسرار المبرمجين المحترفين</h3>
+                    <p class="card-p">نصائح هندسية لكتابة كود نظيف وسريع وسهل القراءة وخالٍ من أي تعقيد.</p>
+                    <div class="card-tag-pill">الكود النظيف ✨</div>
+                </div>
+            </div>
+        
+            </div>
+        </section>
+    
+        <!-- SLIDE 19 -->
+        <section class="slide " id="slide-19" data-slide="19" data-notes="عايزكم تعرفوا إن البرمجة مش عمل فردي ولا عزلة.. أكبر الألعاب في العالم زي ماين كرافت وفورتنايت بيعملها فريق كامل: فيه رسام بيرسم الشخصيات، وفيه مبرمج بيكتب كود الحركة والمنطق والقفز، وفيه مهندس صوت بيعمل أصوات الانفجارات والموسيقى الحماسية! البرمجة لعبة تعاون وإبداع جماعي!">
+            <div class="slide-inner-body">
+                
+            <div class="slide-heading-row">
+                <span class="slide-category">محور الشرح 19 • Python & JS</span>
+                <h2 class="slide-main-title">أنواع البرمجة ولغاتها: سكراتش، بايثون وجافاسكريبت - الجزء (19)</h2>
+            </div>
+            <div class="grid-3-balance">
+                <div class="k-card-compact border-blue">
+                    <div class="card-top-icon">⚙️</div>
+                    <h3 class="card-h">الأساس النظري والمنطقي</h3>
+                    <p class="card-p">كيف يترجم الكمبيوتر أمر <strong>Python & JS</strong> وينفذه بسرعة فائقة في المعالج والذاكرة.</p>
+                    <div class="card-tag-pill">منطق الحاسوب 🧠</div>
+                </div>
+                <div class="k-card-compact border-purple">
+                    <div class="card-top-icon">🎮</div>
+                    <h3 class="card-h">التطبيق العملي في المشاريع</h3>
+                    <p class="card-p">توظيف هذا المفهوم في التحكم بالأبطال، صناعة التحديات، وحساب النقاط بدقة.</p>
+                    <div class="card-tag-pill">صناعة الألعاب 🚀</div>
+                </div>
+                <div class="k-card-compact border-teal">
+                    <div class="card-top-icon">🛡️</div>
+                    <h3 class="card-h">أسرار المبرمجين المحترفين</h3>
+                    <p class="card-p">نصائح هندسية لكتابة كود نظيف وسريع وسهل القراءة وخالٍ من أي تعقيد.</p>
+                    <div class="card-tag-pill">الكود النظيف ✨</div>
+                </div>
+            </div>
+        
+            </div>
+        </section>
+    
+        <!-- SLIDE 20 -->
+        <section class="slide " id="slide-20" data-slide="20" data-notes="وعايز أقولكم معلومة تلهمكم: أصغر مبرمجة ذكاء اصطناعي معتمدة من مايكروسوفت في العالم عمرها 7 سنين بس! في عالم البرمجة، مفيش حاجة اسمها أنت صغير.. عقلك وشغفك وفضولك هم اللي بيحددوا عظمتك وإنجازك!">
+            <div class="slide-inner-body">
+                
+            <div class="slide-heading-row">
+                <span class="slide-category">محور الشرح 20 • لغات الألعاب</span>
+                <h2 class="slide-main-title">أنواع البرمجة ولغاتها: سكراتش، بايثون وجافاسكريبت - الجزء (20)</h2>
+            </div>
+            <div class="grid-3-balance">
+                <div class="k-card-compact border-blue">
+                    <div class="card-top-icon">⚙️</div>
+                    <h3 class="card-h">الأساس النظري والمنطقي</h3>
+                    <p class="card-p">كيف يترجم الكمبيوتر أمر <strong>لغات الألعاب</strong> وينفذه بسرعة فائقة في المعالج والذاكرة.</p>
+                    <div class="card-tag-pill">منطق الحاسوب 🧠</div>
+                </div>
+                <div class="k-card-compact border-purple">
+                    <div class="card-top-icon">🎮</div>
+                    <h3 class="card-h">التطبيق العملي في المشاريع</h3>
+                    <p class="card-p">توظيف هذا المفهوم في التحكم بالأبطال، صناعة التحديات، وحساب النقاط بدقة.</p>
+                    <div class="card-tag-pill">صناعة الألعاب 🚀</div>
+                </div>
+                <div class="k-card-compact border-teal">
+                    <div class="card-top-icon">🛡️</div>
+                    <h3 class="card-h">أسرار المبرمجين المحترفين</h3>
+                    <p class="card-p">نصائح هندسية لكتابة كود نظيف وسريع وسهل القراءة وخالٍ من أي تعقيد.</p>
+                    <div class="card-tag-pill">الكود النظيف ✨</div>
+                </div>
+            </div>
+        
+            </div>
+        </section>
+    
+        <!-- SLIDE 21 -->
+        <section class="slide " id="slide-21" data-slide="21" data-notes="مقارنة الأبطال السريعة بين البلوكات وبايثون: سكراتش أسهل للمبتدئين، ممتعة، وتفاعلية، وممتازة للألعاب.. وبايثون أقوى، نصية بالإنجليزية، وممتازة للذكاء الاصطناعي والتطبيقات الكبيرة! والاتنين بيكملوا بعض في رحلتنا!">
+            <div class="slide-inner-body">
+                
+            <div class="slide-heading-row">
+                <span class="slide-category">محور الشرح 21 • لغات البرمجة</span>
+                <h2 class="slide-main-title">أنواع البرمجة ولغاتها: سكراتش، بايثون وجافاسكريبت - الجزء (21)</h2>
+            </div>
+            <div class="grid-3-balance">
+                <div class="k-card-compact border-blue">
+                    <div class="card-top-icon">⚙️</div>
+                    <h3 class="card-h">الأساس النظري والمنطقي</h3>
+                    <p class="card-p">كيف يترجم الكمبيوتر أمر <strong>لغات البرمجة</strong> وينفذه بسرعة فائقة في المعالج والذاكرة.</p>
+                    <div class="card-tag-pill">منطق الحاسوب 🧠</div>
+                </div>
+                <div class="k-card-compact border-purple">
+                    <div class="card-top-icon">🎮</div>
+                    <h3 class="card-h">التطبيق العملي في المشاريع</h3>
+                    <p class="card-p">توظيف هذا المفهوم في التحكم بالأبطال، صناعة التحديات، وحساب النقاط بدقة.</p>
+                    <div class="card-tag-pill">صناعة الألعاب 🚀</div>
+                </div>
+                <div class="k-card-compact border-teal">
+                    <div class="card-top-icon">🛡️</div>
+                    <h3 class="card-h">أسرار المبرمجين المحترفين</h3>
+                    <p class="card-p">نصائح هندسية لكتابة كود نظيف وسريع وسهل القراءة وخالٍ من أي تعقيد.</p>
+                    <div class="card-tag-pill">الكود النظيف ✨</div>
+                </div>
+            </div>
+        
+            </div>
+        </section>
+    
+        <!-- SLIDE 22 -->
+        <section class="slide " id="slide-22" data-slide="22" data-notes="علشان تبدأوا سكراتش مش محتاجين تسطبوا أي برامج، بتفتحوا الرابط الرسمي scratch.mit.edu وتدوسوا زر Create وتبدأوا في تحريك القطة بالماوس فوراً بدون أي تعقيد!">
+            <div class="slide-inner-body">
+                
+            <div class="slide-heading-row">
+                <span class="slide-category">محور الشرح 22 • Scratch Blocks</span>
+                <h2 class="slide-main-title">أنواع البرمجة ولغاتها: سكراتش، بايثون وجافاسكريبت - الجزء (22)</h2>
+            </div>
+            <div class="grid-3-balance">
+                <div class="k-card-compact border-blue">
+                    <div class="card-top-icon">⚙️</div>
+                    <h3 class="card-h">الأساس النظري والمنطقي</h3>
+                    <p class="card-p">كيف يترجم الكمبيوتر أمر <strong>Scratch Blocks</strong> وينفذه بسرعة فائقة في المعالج والذاكرة.</p>
+                    <div class="card-tag-pill">منطق الحاسوب 🧠</div>
+                </div>
+                <div class="k-card-compact border-purple">
+                    <div class="card-top-icon">🎮</div>
+                    <h3 class="card-h">التطبيق العملي في المشاريع</h3>
+                    <p class="card-p">توظيف هذا المفهوم في التحكم بالأبطال، صناعة التحديات، وحساب النقاط بدقة.</p>
+                    <div class="card-tag-pill">صناعة الألعاب 🚀</div>
+                </div>
+                <div class="k-card-compact border-teal">
+                    <div class="card-top-icon">🛡️</div>
+                    <h3 class="card-h">أسرار المبرمجين المحترفين</h3>
+                    <p class="card-p">نصائح هندسية لكتابة كود نظيف وسريع وسهل القراءة وخالٍ من أي تعقيد.</p>
+                    <div class="card-tag-pill">الكود النظيف ✨</div>
+                </div>
+            </div>
+        
+            </div>
+        </section>
+    
+        <!-- SLIDE 23 -->
+        <section class="slide " id="slide-23" data-slide="23" data-notes="تعالوا نلخص أهم مفاهيم اتعلمناها النهاردة: البلوكات للمبتدئين بدون أخطاء إملائية.. بايثون عملاق الذكاء الاصطناعي.. لغات الويب الثلاثة HTML و CSS و JS.. والمفاهيم البرمجية واحدة في كل لغات العالم!">
+            <div class="slide-inner-body">
+                
+            <div class="slide-heading-row">
+                <span class="slide-category">محور الشرح 23 • Python & JS</span>
+                <h2 class="slide-main-title">أنواع البرمجة ولغاتها: سكراتش، بايثون وجافاسكريبت - الجزء (23)</h2>
+            </div>
+            <div class="grid-3-balance">
+                <div class="k-card-compact border-blue">
+                    <div class="card-top-icon">⚙️</div>
+                    <h3 class="card-h">الأساس النظري والمنطقي</h3>
+                    <p class="card-p">كيف يترجم الكمبيوتر أمر <strong>Python & JS</strong> وينفذه بسرعة فائقة في المعالج والذاكرة.</p>
+                    <div class="card-tag-pill">منطق الحاسوب 🧠</div>
+                </div>
+                <div class="k-card-compact border-purple">
+                    <div class="card-top-icon">🎮</div>
+                    <h3 class="card-h">التطبيق العملي في المشاريع</h3>
+                    <p class="card-p">توظيف هذا المفهوم في التحكم بالأبطال، صناعة التحديات، وحساب النقاط بدقة.</p>
+                    <div class="card-tag-pill">صناعة الألعاب 🚀</div>
+                </div>
+                <div class="k-card-compact border-teal">
+                    <div class="card-top-icon">🛡️</div>
+                    <h3 class="card-h">أسرار المبرمجين المحترفين</h3>
+                    <p class="card-p">نصائح هندسية لكتابة كود نظيف وسريع وسهل القراءة وخالٍ من أي تعقيد.</p>
+                    <div class="card-tag-pill">الكود النظيف ✨</div>
+                </div>
+            </div>
+        
+            </div>
+        </section>
+    
+        <!-- SLIDE 24 -->
+        <section class="slide " id="slide-24" data-slide="24" data-notes="في المحاضرة الثامنة القادمة، هندخل في جوهرة وتاج علوم الحاسوب: فكرة الخوارزمية (Algorithms)، وهنتعلم إزاي نفكر خطوة بخطوة ونحل ألغاز معقدة بمنتهى البساطة والذكاء!">
+            <div class="slide-inner-body">
+                
+            <div class="slide-heading-row">
+                <span class="slide-category badge-mission">📝 مهمة البطل العملية</span>
+                <h2 class="slide-main-title">تحدي الواجب المنزلي: طبق ما تعلمته في عالمك! 🌟</h2>
+            </div>
+            <div class="grid-2-balance">
+                <div class="k-card-rich">
+                    <div class="rich-header">
+                        <span class="rich-icon">💻</span>
+                        <h3 class="rich-title">المهمة التطبيقية في المنزل</h3>
+                    </div>
+                    <ul class="rich-list">
+                        <li>راجع مشروع الدرس وطبق مفهوم <strong>لغات البرمجة</strong> بنفسك.</li>
+                        <li>جرّب إضافة ميزة جديدة أو فكرة مبتكرة من خيالك الخاص.</li>
+                        <li>التقط لقطة شاشة لإنجازك وشاركه في مجتمع التليجرام والواتساب.</li>
+                    </ul>
+                </div>
+                <div class="k-card-rich highlight-bg">
+                    <div class="rich-header">
+                        <span class="rich-icon">⭐</span>
+                        <h3 class="rich-title">معايير تقييم وسام الإتقان</h3>
+                    </div>
+                    <ul class="rich-list">
+                        <li><strong>الدقة:</strong> تشغيل البرنامج دون أي أخطاء برمجية (50 نقطة).</li>
+                        <li><strong>الإبداع:</strong> لمستك الشخصية في التصميم أو الأفكار (30 نقطة).</li>
+                        <li><strong>الالتزام:</strong> تسليم الحل قبل بداية المحاضرة القادمة (20 نقطة).</li>
+                    </ul>
+                </div>
+            </div>
+        
+            </div>
+        </section>
+    
+        <!-- SLIDE 25 -->
+        <section class="slide " id="slide-25" data-slide="25" data-notes="واجبكم لهذا الأسبوع: تفتحوا موقع سكراتش أونلاين وتجربوا تحركوا القطة بمكعب Move 10 Steps، وتطابقوا اللغات بمشروعاتها في ورقة الواجب، وتحلوا اختبار المحاضرة التفاعلي وتجمعوا وسام مستكشف اللغات بدرجة 100%! شكراً لكم يا أبطال، ومتحمس جداً أشوفكم المحاضرة القادمة! سلام يا مبرمجين!">
+            <div class="slide-inner-body">
+                
+            <div class="hero-center celebration-bg">
+                <div class="hero-icons">🎉 🏅 🏆</div>
+                <h1 class="hero-title text-success">ألف مبروك يا أبطال المستقبل!</h1>
+                <p class="hero-subtitle">أتممتم المحاضرة 07 بنجاح باهر وتألقتم في فهم وتطبيق أنواع البرمجة ولغاتها: سكراتش، بايثون وجافاسكريبت!</p>
+                <div class="score-pill">+100 نقطة إنجاز أضيفت لرصيدك البرمجي 🎖️</div>
+                <div class="next-lecture-box">
+                    <span class="next-badge">المحطة القادمة 🚀</span>
+                    <p class="next-title">استعدوا للمحاضرة القادمة لمواصلة رحلتكم الشيقة في المستوى 2: التفكير البرمجي والخوارزميات!</p>
+                </div>
+            </div>
+        
+            </div>
+        </section>
+    
+                </div>
+
+                <!-- Transparent Drawing Pen Canvas Overlay -->
+                <canvas id="slidePenCanvas" class="slide-pen-canvas"></canvas>
+
+                <!-- Floating In-Slide Pen Toolbar -->
+                <div class="pen-floating-toolbar" id="penToolbar">
+                    <div class="pen-tools-row">
+                        <button class="tool-btn active" id="tool-pen" onclick="setPenTool('pen')" title="قلم الشرح (P)">✏️</button>
+                        <button class="tool-btn" id="tool-highlighter" onclick="setPenTool('highlighter')" title="ماركر التظليل الشفاف (H)">🖍️</button>
+                        <button class="tool-btn" id="tool-eraser" onclick="setPenTool('eraser')" title="ممحاة (E)">🧽</button>
+                        
+                        <div class="tool-separator"></div>
+
+                        <!-- Colors -->
+                        <button class="color-btn selected" style="--c: #ef4444;" onclick="setPenColor('#ef4444', this)" title="أحمر"></button>
+                        <button class="color-btn" style="--c: #facc15;" onclick="setPenColor('#facc15', this)" title="أصفر"></button>
+                        <button class="color-btn" style="--c: #2563eb;" onclick="setPenColor('#2563eb', this)" title="أزرق"></button>
+                        <button class="color-btn" style="--c: #10b981;" onclick="setPenColor('#10b981', this)" title="أخضر"></button>
+                        <button class="color-btn" style="--c: #8b5cf6;" onclick="setPenColor('#8b5cf6', this)" title="بنفسجي"></button>
+                        <button class="color-btn" style="--c: #0f172a;" onclick="setPenColor('#0f172a', this)" title="أسود"></button>
+
+                        <div class="tool-separator"></div>
+
+                        <!-- Stroke Sizes -->
+                        <button class="size-btn active" onclick="setPenSize(4, this)" title="خط رفيع"><span style="width: 4px; height: 4px;"></span></button>
+                        <button class="size-btn" onclick="setPenSize(8, this)" title="خط وسط"><span style="width: 8px; height: 8px;"></span></button>
+                        <button class="size-btn" onclick="setPenSize(16, this)" title="خط عريض"><span style="width: 14px; height: 14px;"></span></button>
+
+                        <div class="tool-separator"></div>
+
+                        <!-- Actions -->
+                        <button class="action-btn" onclick="undoPenStroke()" title="تراجع (Z)">↩️</button>
+                        <button class="action-btn" onclick="clearCurrentSlideDrawings()" title="مسح رسومات الشريحة (C)">🗑️</button>
+                        <button class="action-btn exit-btn" onclick="togglePenMode(false)" title="إغلاق وضع القلم">✕</button>
+                    </div>
+                </div>
+
+                <!-- Teacher Teleprompter Notes Panel -->
+                <div id="teacher-prompter-panel">
+                    <div class="prompter-header">
+                        <span class="prompter-title">🎙️ اسكربت كلام المدرس للشريحة</span>
+                        <button class="prompter-close" onclick="togglePrompter()">✕</button>
+                    </div>
+                    <div class="prompter-body" id="prompterContent">
+                        ...
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Bottom Studio Bar -->
+            <footer class="slide-bottombar">
+                <div class="nav-controls">
+                    <button class="btn-slide-nav" onclick="changeSlide(-1)" id="btnPrev">➡ السابق</button>
+                    <div class="slide-counter-badge">
+                        <span id="currentSlideNum">1</span> / 25
+                    </div>
+                    <button class="btn-slide-nav btn-primary" onclick="changeSlide(1)" id="btnNext">التالي ⬅</button>
+                    
+                    <div class="progress-bar-container">
+                        <div class="progress-bar-fill" id="progressBar"></div>
+                    </div>
+                </div>
+
+                <div class="studio-tools">
+                    <button class="btn-tool-toggle" id="btnPenToggle" onclick="togglePenMode()" title="تفعيل / إغلاق قلم الشرح (P)">
+                        <span>✏️</span>
+                        <span>قلم الشرح</span>
+                    </button>
+                    <button class="btn-tool-toggle" onclick="togglePrompter()" title="كلام المدرس (N)">
+                        <span>📜</span>
+                        <span>اسكربت الشرح</span>
+                    </button>
+                </div>
+            </footer>
+
         </div>
-        <h1 class="lec-title">
-            <span>أنواع البرمجة ولغاتها: رحلة في عوالم سكراتش، بايثون وجافاسكريبت</span>
-        </h1>
-        <div class="top-controls">
-            <button class="btn-ctrl btn-wb" onclick="toggleChalkboard()">
-                <span>✏️</span>
-                <span>سبورة الشرح</span>
-            </button>
-            <button class="btn-ctrl" onclick="toggleFullScreen()">
-                <span>⛶</span>
-                <span>ملء الشاشة</span>
-            </button>
-        </div>
-    </header>
+    </div>
 
-    <!-- Workspace -->
-    <main class="workspace">
-        <div class="stage">
-
-            <!-- SLIDE 1 -->
-            <div class="slide-card active" data-slide="1">
-                <div class="slide-header">
-                    <span class="slide-cat">مملكة اللغات 🏰</span>
-                    <span class="slide-num">1 / 25</span>
-                </div>
-                <div class="slide-content">
-                    <div style="font-size: 70px; margin-bottom: -10px;">🧩 🐍 🌐</div>
-                    <h2>مرحباً بكم في مهرجان لغات البرمجة العالمية!</h2>
-                    <p>في المحاضرة السابقة عرفنا يعني إيه برمجة وكيف يفهمنا الكمبيوتر.. اليوم سنفتح صندوق الأدوات الكبير، ونتعرف على أشهر لغات البرمجة في العالم وكيف تختار اللغة السحرية المناسبة لمشروعك القادم!</p>
-                    <div style="display: flex; gap: 16px; margin-top: 10px;">
-                        <span class="badge-tag" style="background: #fef3c7; color: #b45309; font-size: 14px; padding: 8px 16px; font-weight: 800; border-radius: 8px;">🧩 البرمجة المرئية (Blocks)</span>
-                        <span class="badge-tag" style="background: #e0f2fe; color: #0369a1; font-size: 14px; padding: 8px 16px; font-weight: 800; border-radius: 8px;">💻 البرمجة النصية (Text)</span>
-                        <span class="badge-tag" style="background: #dcfce7; color: #15803d; font-size: 14px; padding: 8px 16px; font-weight: 800; border-radius: 8px;">🎮 لغات الألعاب والذكاء</span>
-                    </div>
-                </div>
-                <div class="slide-footer">
-                    <button class="btn-nav" disabled>السابق</button>
-                    <button class="btn-nav primary" onclick="changeSlide(1)">التالي ⬅</button>
-                </div>
-            </div>
-
-            <!-- SLIDE 2 -->
-            <div class="slide-card" data-slide="2">
-                <div class="slide-header">
-                    <span class="slide-cat">خريطة المحاضرة 🗺️</span>
-                    <span class="slide-num">2 / 25</span>
-                </div>
-                <div class="slide-content">
-                    <h2>الأهداف الذهبية للمحاضرة السابعة</h2>
-                    <div class="grid-4">
-                        <div class="info-box">
-                            <span class="box-icon">⚖️</span>
-                            <h3 class="box-title">البلوكات vs الكود النصي</h3>
-                            <p class="box-desc">الفرق بين تركيب المكعبات وكتابة أسطر البرمجة الحقيقية.</p>
-                        </div>
-                        <div class="info-box">
-                            <span class="box-icon">🧩</span>
-                            <h3 class="box-title">عالم سكراتش (Scratch)</h3>
-                            <p class="box-desc">منصة البداية الأسهل لصناعة الألعاب والرسوم المتحركة.</p>
-                        </div>
-                        <div class="info-box">
-                            <span class="box-icon">🐍</span>
-                            <h3 class="box-title">عملاق بايثون (Python)</h3>
-                            <p class="box-desc">لغة الذكاء الاصطناعي وبناء التطبيقات الكبرى الأسهل قراءة.</p>
-                        </div>
-                        <div class="info-box">
-                            <span class="box-icon">🌐</span>
-                            <h3 class="box-title">لغات الويب والألعاب</h3>
-                            <p class="box-desc">جافاسكريبت، C++، ومحركات ألعاب روبلوكس ويونيتي.</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="slide-footer">
-                    <button class="btn-nav" onclick="changeSlide(-1)">➡ السابق</button>
-                    <button class="btn-nav primary" onclick="changeSlide(1)">التالي ⬅</button>
-                </div>
-            </div>
-
-            <!-- SLIDE 3 -->
-            <div class="slide-card" data-slide="3">
-                <div class="slide-header">
-                    <span class="slide-cat">سؤال ذكي ❓</span>
-                    <span class="slide-num">3 / 25</span>
-                </div>
-                <div class="slide-content">
-                    <h2>لماذا لا توجد لغة برمجة واحدة فقط لكل شيء؟</h2>
-                    <p>مثلما نملك في المطبخ سكيناً للتقطيع، وشوكة للأكل، وملعقة للشوربة.. في التكنولوجيا كل لغة لها مهمة صنعت لأجلها:</p>
-                    <div class="grid-3">
-                        <div class="info-box">
-                            <span class="box-icon">🏎️ السرعة القصوى</span>
-                            <h3 class="box-title">لغات مثل C++</h3>
-                            <p class="box-desc">ممتازة للألعاب ثلاثية الأبعاد الضخمة وسيارات السباق الفضائية.</p>
-                        </div>
-                        <div class="info-box">
-                            <span class="box-icon">🧠 الذكاء والبيانات</span>
-                            <h3 class="box-title">لغة بايثون (Python)</h3>
-                            <p class="box-desc">ممتازة للذكاء الاصطناعي وتحليل البيانات وتعليم الأطفال والشباب.</p>
-                        </div>
-                        <div class="info-box">
-                            <span class="box-icon">🌐 صفحات الويب</span>
-                            <h3 class="box-title">لغة جافاسكريبت (JS)</h3>
-                            <p class="box-desc">ملك المتصفحات الذي يجعل المواقع حية وتتحرك أمامك.</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="slide-footer">
-                    <button class="btn-nav" onclick="changeSlide(-1)">➡ السابق</button>
-                    <button class="btn-nav primary" onclick="changeSlide(1)">التالي ⬅</button>
-                </div>
-            </div>
-
-            <!-- SLIDE 4 -->
-            <div class="slide-card" data-slide="4">
-                <div class="slide-header">
-                    <span class="slide-cat">النوع الأول 🧱</span>
-                    <span class="slide-num">4 / 25</span>
-                </div>
-                <div class="slide-content">
-                    <h2>البرمجة المرئية بالبلوكات (Block-Based Programming)</h2>
-                    <p>أول وأفضل طريقة يبدأ بها كل بطل في عمركم! فكرتها تشبه مكعبات الليجو الملونة:</p>
-                    <div class="grid-2">
-                        <div class="info-box highlight">
-                            <span class="box-icon">🧩 كيف تعمل؟</span>
-                            <h3 class="box-title">السحب والإفلات (Drag & Drop)</h3>
-                            <p class="box-desc">كل أمر له مكعب بلون وشكل محدد، تسحبه بالماوس وتركبه مع المكعب التالي، والمكعبات لا تركب إلا إذا كان الكود صحيحاً منطقياً!</p>
-                        </div>
-                        <div class="info-box safe">
-                            <span class="box-icon">✨ المميزات الخارقة</span>
-                            <h3 class="box-title">صفر أخطاء إملائية!</h3>
-                            <p class="box-desc">لا داعي للقلق من نسيان فاصلة أو حرف خطأ.. كل تركيزك يذهب إلى التفكير المنطقي ومتعة صناعة اللعبة!</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="slide-footer">
-                    <button class="btn-nav" onclick="changeSlide(-1)">➡ السابق</button>
-                    <button class="btn-nav primary" onclick="changeSlide(1)">التالي ⬅</button>
-                </div>
-            </div>
-
-            <!-- SLIDE 5 -->
-            <div class="slide-card" data-slide="5">
-                <div class="slide-header">
-                    <span class="slide-cat">نجم البلوكات ⭐</span>
-                    <span class="slide-num">5 / 25</span>
-                </div>
-                <div class="slide-content">
-                    <h2>منصة سكراتش (Scratch): معجزة معهد MIT</h2>
-                    <p>ابتكرها علماء معهد ماساتشوستس للتكنولوجيا لتعليم الأطفال صناعة القصص والألعاب:</p>
-                    <div class="grid-3">
-                        <div class="info-box">
-                            <span class="box-icon">🐱</span>
-                            <h3 class="box-title">شخصيات ملونة (Sprites)</h3>
-                            <p class="box-desc">القطة سكراتش، كائنات فضائية، سيارات، أو حتى صور ترسمها بيدك!</p>
-                        </div>
-                        <div class="info-box">
-                            <span class="box-icon">🎨</span>
-                            <h3 class="box-title">خلفيات وعوالم (Backdrops)</h3>
-                            <p class="box-desc">فضاء خارجي، غابة سحرية، ملعب كرة، أو تحت مياه البحر.</p>
-                        </div>
-                        <div class="info-box">
-                            <span class="box-icon">🔊</span>
-                            <h3 class="box-title">أصوات ومؤثرات حية</h3>
-                            <p class="box-desc">أصوات قفز، انفجارات كرتونية، وموسيقى انتصار تسجلها بنفسك.</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="slide-footer">
-                    <button class="btn-nav" onclick="changeSlide(-1)">➡ السابق</button>
-                    <button class="btn-nav primary" onclick="changeSlide(1)">التالي ⬅</button>
-                </div>
-            </div>
-
-            <!-- SLIDE 6 -->
-            <div class="slide-card" data-slide="6">
-                <div class="slide-header">
-                    <span class="slide-cat">النوع الثاني 💻</span>
-                    <span class="slide-num">6 / 25</span>
-                </div>
-                <div class="slide-content">
-                    <h2>البرمجة النصية الحقيقية (Text-Based Programming)</h2>
-                    <p>عندما يكبر عقلك وتتدرب أصابعك، تنتقل للمرحلة الاحترافية التي تستخدمها جوجل ومايكروسوفت:</p>
-                    <div class="grid-2">
-                        <div class="info-box">
-                            <span class="box-icon">⌨️ كيف نكتبها؟</span>
-                            <h3 class="box-title">أسطر كود بالكيبورد</h3>
-                            <p class="box-desc">نكتب كلمات واضحة باللغة الإنجليزية في ملف نصي، مع مراعاة الأقواس وعلامات التنصيص بدقة.</p>
-                        </div>
-                        <div class="info-box safe">
-                            <span class="box-icon">🚀 القوة غير المحدودة</span>
-                            <h3 class="box-title">حرية وسرعة هائلة</h3>
-                            <p class="box-desc">تستطيع بناء مواقع عملاقة، روبوتات ذكاء اصطناعي، وبرامج تدير بنوكاً ومستشفيات حول العالم!</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="slide-footer">
-                    <button class="btn-nav" onclick="changeSlide(-1)">➡ السابق</button>
-                    <button class="btn-nav primary" onclick="changeSlide(1)">التالي ⬅</button>
-                </div>
-            </div>
-
-            <!-- SLIDE 7 -->
-            <div class="slide-card" data-slide="7">
-                <div class="slide-header">
-                    <span class="slide-cat">مقارنة تفاعلية 🔄</span>
-                    <span class="slide-num">7 / 25</span>
-                </div>
-                <div class="slide-content">
-                    <h2>شاهد نفس الكود بلغات مختلفة! (جرب بنفسك الآن)</h2>
-                    <p>اختر اللغة وشاهد كيف تجعل الشاشة تقول: "أهلاً بأبطال البرمجة!":</p>
-                    <div class="lang-switch-box">
-                        <div class="lang-tabs">
-                            <button class="tab-btn active" onclick="switchLang('scratch')">🧩 سكراتش (Scratch)</button>
-                            <button class="tab-btn" onclick="switchLang('python')">🐍 بايثون (Python)</button>
-                            <button class="tab-btn" onclick="switchLang('js')">🌐 جافاسكريبت (JavaScript)</button>
-                            <button class="tab-btn" onclick="switchLang('cpp')">⚙️ سي بلس بلس (C++)</button>
-                        </div>
-                        <div class="code-display" id="codeDisplayArea">
-[عند النقر على العلم الأخضر 🏁]
-  قل [أهلاً بأبطال البرمجة! 🎉] لمدة 2 ثانية
-                        </div>
-                        <div class="lang-detail-text" id="langDetailText">
-                            مكعبات ملونة تسحبها وتضعها، بسيطة وممتعة وبدون كتابة حرف واحد!
-                        </div>
-                    </div>
-                </div>
-                <div class="slide-footer">
-                    <button class="btn-nav" onclick="changeSlide(-1)">➡ السابق</button>
-                    <button class="btn-nav primary" onclick="changeSlide(1)">التالي ⬅</button>
-                </div>
-            </div>
-
-            <!-- SLIDE 8 -->
-            <div class="slide-card" data-slide="8">
-                <div class="slide-header">
-                    <span class="slide-cat">ملك اللغات 🐍</span>
-                    <span class="slide-num">8 / 25</span>
-                </div>
-                <div class="slide-content">
-                    <h2>لماذا بايثون (Python) هي معشوقة الملايين؟</h2>
-                    <p>لغة بايثون تشبه اللغة الإنجليزية العادية تماماً، حتى أنك تستطيع قراءتها وفهمها كأنها قصة!</p>
-                    <div class="grid-3">
-                        <div class="info-box safe">
-                            <span class="box-icon">📖 سهلة القراءة</span>
-                            <h3 class="box-title">لا تعقيدات ولا أقواس كثيرة</h3>
-                            <p class="box-desc">كود نظيف وواضح، سطر واحد في بايثون يحتاج 5 أسطر في لغات أخرى!</p>
-                        </div>
-                        <div class="info-box safe">
-                            <span class="box-icon">🤖 لغة الذكاء الاصطناعي</span>
-                            <h3 class="box-title">OpenAI و ChatGPT</h3>
-                            <p class="box-desc">أشهر نماذج الذكاء الاصطناعي في العالم مبنية ومبرمجة بلغة بايثون.</p>
-                        </div>
-                        <div class="info-box safe">
-                            <span class="box-icon">🌍 مطلوبة في كل مكان</span>
-                            <h3 class="box-title">ناسا وجوجل ونتفلكس</h3>
-                            <p class="box-desc">كبرى شركات التكنولوجيا توظف مبرمجي بايثون لأهم مشروعاتها.</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="slide-footer">
-                    <button class="btn-nav" onclick="changeSlide(-1)">➡ السابق</button>
-                    <button class="btn-nav primary" onclick="changeSlide(1)">التالي ⬅</button>
-                </div>
-            </div>
-
-            <!-- SLIDE 9 -->
-            <div class="slide-card" data-slide="9">
-                <div class="slide-header">
-                    <span class="slide-cat">لغات الويب 🌐</span>
-                    <span class="slide-num">9 / 25</span>
-                </div>
-                <div class="slide-content">
-                    <h2>الثلاثي المرح الذي يبني أي موقع على الإنترنت!</h2>
-                    <p>كل صفحة تزورها على المتصفح تتكون من ثلاثة أبطال يتعاونون معاً:</p>
-                    <div class="grid-3">
-                        <div class="info-box">
-                            <span class="box-icon">🦴 HTML</span>
-                            <h3 class="box-title">الهيكل العظمي للموقع</h3>
-                            <p class="box-desc">تضع العناوين، الفقرات، الصور، وأماكن الأزرار في الصفحة.</p>
-                        </div>
-                        <div class="info-box">
-                            <span class="box-icon">🎨 CSS</span>
-                            <h3 class="box-title">الملابس والألوان والمكياج</h3>
-                            <p class="box-desc">تحدد الألوان، الخطوط، الخلفيات، والظلال لتبهر العين.</p>
-                        </div>
-                        <div class="info-box highlight">
-                            <span class="box-icon">🧠 JavaScript</span>
-                            <h3 class="box-title">العقل والحركة التفاعلية</h3>
-                            <p class="box-desc">تجعل الزر ينبض عند الضغط، تفتح النوافذ، وتشغل الألعاب داخل الموقع!</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="slide-footer">
-                    <button class="btn-nav" onclick="changeSlide(-1)">➡ السابق</button>
-                    <button class="btn-nav primary" onclick="changeSlide(1)">التالي ⬅</button>
-                </div>
-            </div>
-
-            <!-- SLIDE 10 -->
-            <div class="slide-card" data-slide="10">
-                <div class="slide-header">
-                    <span class="slide-cat">عالم الألعاب 🎮</span>
-                    <span class="slide-num">10 / 25</span>
-                </div>
-                <div class="slide-content">
-                    <h2>بأي لغة تُصنع ألعابك المفضلة؟</h2>
-                    <p>هل فكرت كيف بُنيت روبلوكس، ماين كرافت، وفورتنايت؟ إليك الأسرار:</p>
-                    <div class="grid-3">
-                        <div class="info-box">
-                            <span class="box-icon">🧱 روبلوكس (Roblox)</span>
-                            <h3 class="box-title">لغة لُوا (Lua)</h3>
-                            <p class="box-desc">لغة سريعة وخفيفة يستخدمها ستوديو روبلوكس لتحريك اللاعبين والألعاب.</p>
-                        </div>
-                        <div class="info-box">
-                            <span class="box-icon">⛏️ ماين كرافت (Minecraft)</span>
-                            <h3 class="box-title">لغة جافا (Java)</h3>
-                            <p class="box-desc">كُتبت النسخة الأصلية بجافا، وتدعم صناعة المودات السحرية.</p>
-                        </div>
-                        <div class="info-box">
-                            <span class="box-icon">⚔️ فورتنايت ومحرك Unreal</span>
-                            <h3 class="box-title">لغة C++ ولغة Verse</h3>
-                            <p class="box-desc">للرسومات ثلاثية الأبعاد الواقعية الخارقة وسرعة الاستجابة.</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="slide-footer">
-                    <button class="btn-nav" onclick="changeSlide(-1)">➡ السابق</button>
-                    <button class="btn-nav primary" onclick="changeSlide(1)">التالي ⬅</button>
-                </div>
-            </div>
-
-            <!-- SLIDE 11 -->
-            <div class="slide-card" data-slide="11">
-                <div class="slide-header">
-                    <span class="slide-cat">تطبيقات الموبايل 📱</span>
-                    <span class="slide-num">11 / 25</span>
-                </div>
-                <div class="slide-content">
-                    <h2>كيف تُصنع تطبيقات الهواتف الذكية؟</h2>
-                    <p>في جيبك وجيب والديك هاتف أندرويد أو آيفون.. كيف تبنى تطبيقاتها؟</p>
-                    <div class="grid-2">
-                        <div class="info-box">
-                            <span class="box-icon">🤖 تطبيقات أندرويد وآيفون معاً</span>
-                            <h3 class="box-title">فلاتر (Flutter / Dart)</h3>
-                            <p class="box-desc">تقنية جوجل السحرية التي تكتب بها الكود مرة واحدة فيعمل على كل الموبايلات والكمبيوتر والمتصفح بنفس الكفاءة!</p>
-                        </div>
-                        <div class="info-box safe">
-                            <span class="box-icon">🍎 تطبيقات آبل الخاصة</span>
-                            <h3 class="box-title">سويفت (Swift)</h3>
-                            <p class="box-desc">لغة آبل الحديثة لصناعة تطبيقات الآيفون والآيباد وساعات آبل الذكية.</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="slide-footer">
-                    <button class="btn-nav" onclick="changeSlide(-1)">➡ السابق</button>
-                    <button class="btn-nav primary" onclick="changeSlide(1)">التالي ⬅</button>
-                </div>
-            </div>
-
-            <!-- SLIDE 12 -->
-            <div class="slide-card" data-slide="12">
-                <div class="slide-header">
-                    <span class="slide-cat">تحدي سريع 🎯</span>
-                    <span class="slide-num">12 / 25</span>
-                </div>
-                <div class="slide-content">
-                    <h2>لغز مطابقة اللغات الذكي!</h2>
-                    <p>أنت تريد صناعة لعبة روبوت لطيفة تبدأ بها وتتعلم قواعد الحركة بدون أخطاء إملائية.. ما هي أنسب لغة تبدأ بها اليوم؟</p>
-                    <div class="interactive-quiz">
-                        <div class="quiz-option" onclick="selectQuizOpt(this, true)">
-                            <span>أ) منصة سكراتش بالبلوكات المرئية الملونة (Scratch)! ✅</span>
-                        </div>
-                        <div class="quiz-option" onclick="selectQuizOpt(this, false)">
-                            <span>ب) لغة الأسمبلي الخاصة بدوائر المعالج المعقدة.</span>
-                        </div>
-                        <div class="quiz-option" onclick="selectQuizOpt(this, false)">
-                            <span>ج) لغة صينية قديمة.</span>
-                        </div>
-                    </div>
-                </div>
-                <div class="slide-footer">
-                    <button class="btn-nav" onclick="changeSlide(-1)">➡ السابق</button>
-                    <button class="btn-nav primary" onclick="changeSlide(1)">التالي ⬅</button>
-                </div>
-            </div>
-
-            <!-- SLIDE 13 -->
-            <div class="slide-card" data-slide="13">
-                <div class="slide-header">
-                    <span class="slide-cat">تطور اللغات 📈</span>
-                    <span class="slide-num">13 / 25</span>
-                </div>
-                <div class="slide-content">
-                    <h2>رحلة أجيال لغات البرمجة عبر الزمن</h2>
-                    <p>كيف تطورت اللغات من البطاقات المثقوبة إلى سكراتش وبايثون؟</p>
-                    <div class="grid-4">
-                        <div class="info-box">
-                            <h3 class="box-title">الجيل 1: البطاقات</h3>
-                            <p class="box-desc">ثقوب في الورق المقوى تمثل 0 و 1 (شاق وبطيء جداً).</p>
-                        </div>
-                        <div class="info-box">
-                            <h3 class="box-title">الجيل 2: Assembly</h3>
-                            <p class="box-desc">رموز مختصرة قريبة جداً من دوائر المعالج المادية.</p>
-                        </div>
-                        <div class="info-box">
-                            <h3 class="box-title">الجيل 3: C و Java</h3>
-                            <p class="box-desc">بداية كتابة الكلمات الإنجليزية والأقواس المنظمة.</p>
-                        </div>
-                        <div class="info-box safe">
-                            <h3 class="box-title">الجيل الحديث</h3>
-                            <p class="box-desc">بايثون وسكراتش وأدوات الذكاء الاصطناعي التي تفهمنا ببساطة!</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="slide-footer">
-                    <button class="btn-nav" onclick="changeSlide(-1)">➡ السابق</button>
-                    <button class="btn-nav primary" onclick="changeSlide(1)">التالي ⬅</button>
-                </div>
-            </div>
-
-            <!-- SLIDE 14 -->
-            <div class="slide-card" data-slide="14">
-                <div class="slide-header">
-                    <span class="slide-cat">قواعد الكود 📐</span>
-                    <span class="slide-num">14 / 25</span>
-                </div>
-                <div class="slide-content">
-                    <h2>ما هو النحو البرمجي (Syntax)؟</h2>
-                    <p>في اللغة العربية لدينا نحو وقواعد (فاعل مرفوع ومفعول منصوب)، وفي البرمجة لدينا Syntax:</p>
-                    <div class="grid-2">
-                        <div class="info-box safe">
-                            <span class="box-icon">✅ كود صحيح النحو</span>
-                            <p class="box-desc" style="font-family: monospace; font-size: 16px; color: var(--accent-green);">
-                                print("Hello World!")
-                            </p>
-                            <p class="box-desc">الكمبيوتر يفهمه فوراً ويطبع الجملة على الشاشة بابتسامة.</p>
-                        </div>
-                        <div class="info-box danger">
-                            <span class="box-icon">❌ خطأ في النحو (Syntax Error)</span>
-                            <p class="box-desc" style="font-family: monospace; font-size: 16px; color: var(--accent-red);">
-                                print "Hello World!" (نسيان الأقواس!)
-                            </p>
-                            <p class="box-desc">الكمبيوتر يتوقف ويقول لك: "أين القوسين؟ أنا لا أفهم هذا الأمر!".</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="slide-footer">
-                    <button class="btn-nav" onclick="changeSlide(-1)">➡ السابق</button>
-                    <button class="btn-nav primary" onclick="changeSlide(1)">التالي ⬅</button>
-                </div>
-            </div>
-
-            <!-- SLIDE 15 -->
-            <div class="slide-card" data-slide="15">
-                <div class="slide-header">
-                    <span class="slide-cat">السر الأكبر 💡</span>
-                    <span class="slide-num">15 / 25</span>
-                </div>
-                <div class="slide-content">
-                    <h2>إذا تعلمت لغة واحدة.. ستتعلم الباقي في أيام!</h2>
-                    <p>أعظم سر في عالم البرمجة: <strong>المفاهيم البرمجية واحدة في كل اللغات بلا استثناء!</strong></p>
-                    <div class="info-box safe" style="max-width: 750px; width: 100%;">
-                        <div style="font-size: 40px; margin-bottom: 8px;">🚗 🏎️ 🚙</div>
-                        <h3 class="box-title" style="font-size: 20px;">تشبيه قيادة السيارات</h3>
-                        <p class="box-desc" style="font-size: 16px; margin-top: 10px;">
-                            عندما تتعلم قيادة سيارة تويوتا، وتشتري بعدها سيارة مرسيدس أو بي إم دبليو، هل تذهب لمدرسة القيادة من الصفر؟ بالطبع لا! لأن عجلة القيادة، البنزين، والفرامل واحدة! نفس الشيء في البرمجة: الشروط، الحلقات، والمتغيرات واحدة في سكراتش وبايثون وجافاسكريبت!
-                        </p>
-                    </div>
-                </div>
-                <div class="slide-footer">
-                    <button class="btn-nav" onclick="changeSlide(-1)">➡ السابق</button>
-                    <button class="btn-nav primary" onclick="changeSlide(1)">التالي ⬅</button>
-                </div>
-            </div>
-
-            <!-- SLIDE 16 -->
-            <div class="slide-card" data-slide="16">
-                <div class="slide-header">
-                    <span class="slide-cat">خريطة طريقنا 🗺️</span>
-                    <span class="slide-num">16 / 25</span>
-                </div>
-                <div class="slide-content">
-                    <h2>خطة رحلتنا في كورس الأطفال المتكامل</h2>
-                    <p>كيف سنصعد سلم الاحتراف خطوة بخطوة في المستويات القادمة؟</p>
-                    <div class="grid-3">
-                        <div class="info-box">
-                            <span class="box-icon">1️⃣</span>
-                            <h3 class="box-title">المستوى 2 و 3</h3>
-                            <p class="box-desc">التفكير المنطقي وصناعة ألعاب كاملة ثنائية الأبعاد 2D بمكعبات سكراتش.</p>
-                        </div>
-                        <div class="info-box highlight">
-                            <span class="box-icon">2️⃣</span>
-                            <h3 class="box-title">المستوى 4</h3>
-                            <p class="box-desc">الانتقال لكتابة كود بايثون الحقيقي وصناعة ألعاب نصية وحاسبات ذكية.</p>
-                        </div>
-                        <div class="info-box safe">
-                            <span class="box-icon">3️⃣</span>
-                            <h3 class="box-title">المستوى 5 و 6</h3>
-                            <p class="box-desc">بناء تطبيقات تفاعلية واكتشاف أدوات الذكاء الاصطناعي وصناعة مشروع التخرج!</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="slide-footer">
-                    <button class="btn-nav" onclick="changeSlide(-1)">➡ السابق</button>
-                    <button class="btn-nav primary" onclick="changeSlide(1)">التالي ⬅</button>
-                </div>
-            </div>
-
-            <!-- SLIDE 17 -->
-            <div class="slide-card" data-slide="17">
-                <div class="slide-header">
-                    <span class="slide-cat">المبرمج الصغير 👶</span>
-                    <span class="slide-num">17 / 25</span>
-                </div>
-                <div class="slide-content">
-                    <h2>أول سطر كود في تاريخ أي مبرمج!</h2>
-                    <p>منذ عام 1978، يتفق جميع مبرمجي العالم على كتابة نفس الجملة أول ما يتعلمون أي لغة جديدة:</p>
-                    <div class="info-box safe" style="max-width: 600px; width: 100%;">
-                        <div style="font-size: 32px; font-weight: 900; color: var(--primary); font-family: monospace; direction: ltr;">
-                            Hello, World! 🌍✨
-                        </div>
-                        <p class="box-desc" style="margin-top: 10px;">
-                            "أهلاً بالعالم!".. رسالة يعلن بها المبرمج للعالم كله: أنا هنا، وأصبحت الآن قادراً على توجيه الكمبيوتر وخلق الأفكار!
-                        </p>
-                    </div>
-                </div>
-                <div class="slide-footer">
-                    <button class="btn-nav" onclick="changeSlide(-1)">➡ السابق</button>
-                    <button class="btn-nav primary" onclick="changeSlide(1)">التالي ⬅</button>
-                </div>
-            </div>
-
-            <!-- SLIDE 18 -->
-            <div class="slide-card" data-slide="18">
-                <div class="slide-header">
-                    <span class="slide-cat">أسرار المبرمجين 🤫</span>
-                    <span class="slide-num">18 / 25</span>
-                </div>
-                <div class="slide-content">
-                    <h2>التعليقات البرمجية (Comments): ملاحظات الأذكياء!</h2>
-                    <p>ماذا لو كتبت كوداً طويلاً وعدت إليه بعد شهر ونسيت ماذا يفعل؟ هنا يأتي دور التعليقات:</p>
-                    <div class="grid-2">
-                        <div class="info-box safe">
-                            <span class="box-icon">📝 ما هو التعليق؟</span>
-                            <h3 class="box-title">ملاحظة يقرأها الإنسان فقط!</h3>
-                            <p class="box-desc">نبدأ السطر بعلامة شباك `#` في بايثون، والكمبيوتر يتجاهلها تماماً ولا يشغلها، بل تبقى تذكرة لك ولأصدقائك في الفريق!</p>
-                        </div>
-                        <div class="info-box">
-                            <span class="box-icon">💡 مثال حي</span>
-                            <p class="box-desc" style="font-family: monospace; font-size: 15px; direction: ltr; text-align: left;">
-                                # هذا السطر يضيف 10 نقاط للاعب<br>
-                                score = score + 10
-                            </p>
-                        </div>
-                    </div>
-                </div>
-                <div class="slide-footer">
-                    <button class="btn-nav" onclick="changeSlide(-1)">➡ السابق</button>
-                    <button class="btn-nav primary" onclick="changeSlide(1)">التالي ⬅</button>
-                </div>
-            </div>
-
-            <!-- SLIDE 19 -->
-            <div class="slide-card" data-slide="19">
-                <div class="slide-header">
-                    <span class="slide-cat">روح الفريق 🤝</span>
-                    <span class="slide-num">19 / 25</span>
-                </div>
-                <div class="slide-content">
-                    <h2>البرمجة لعبة جماعية وليست عزلة!</h2>
-                    <p>أكبر الألعاب مثل فورتنايت ومواقع مثل يوتيوب لم يصنعها شخص واحد بمفرده، بل فرق عمل متعاونة:</p>
-                    <div class="grid-3">
-                        <div class="info-box">
-                            <span class="box-icon">🎨</span>
-                            <h3 class="box-title">المصمم والرسام</h3>
-                            <p class="box-desc">يرسم الوحوش والعوالم والشخصيات الجذابة.</p>
-                        </div>
-                        <div class="info-box highlight">
-                            <span class="box-icon">💻 مبرمج المنطق</span>
-                            <h3 class="box-title">أنت! مهندس الكود</h3>
-                            <p class="box-desc">تبرمج القفز، إطلاق النار، وحساب النتيجة وقواعد الفوز.</p>
-                        </div>
-                        <div class="info-box">
-                            <span class="box-icon">🎵</span>
-                            <h3 class="box-title">مهندس الصوت والمؤثرات</h3>
-                            <p class="box-desc">يضع الموسيقى الحماسية وأصوات خطوات الأقدام.</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="slide-footer">
-                    <button class="btn-nav" onclick="changeSlide(-1)">➡ السابق</button>
-                    <button class="btn-nav primary" onclick="changeSlide(1)">التالي ⬅</button>
-                </div>
-            </div>
-
-            <!-- SLIDE 20 -->
-            <div class="slide-card" data-slide="20">
-                <div class="slide-header">
-                    <span class="slide-cat">التحفيز 🌟</span>
-                    <span class="slide-num">20 / 25</span>
-                </div>
-                <div class="slide-content">
-                    <h2>هل تعلم أن أصغر مبرمجة في العالم عمرها 7 سنوات؟</h2>
-                    <p>الطفلة الهندية كاندي أصبحت أصغر مدربة ذكاء اصطناعي معتمدة من مايكروسوفت في سن مبكرة جداً!</p>
-                    <div class="info-box safe" style="max-width: 700px; width: 100%;">
-                        <div style="font-size: 24px; font-weight: 900; color: var(--accent-green); margin-bottom: 8px;">
-                            "العمر مجرد رقم.. في عالم البرمجة، عقلك وشغفك هما القوة الحقيقية!"
-                        </div>
-                        <p class="box-desc">أنت لست صغيراً على الابتكار، وكل سطر كود تتعلمه اليوم يبني مستقبلك كمهندس عبقري غداً!</p>
-                    </div>
-                </div>
-                <div class="slide-footer">
-                    <button class="btn-nav" onclick="changeSlide(-1)">➡ السابق</button>
-                    <button class="btn-nav primary" onclick="changeSlide(1)">التالي ⬅</button>
-                </div>
-            </div>
-
-            <!-- SLIDE 21 -->
-            <div class="slide-card" data-slide="21">
-                <div class="slide-header">
-                    <span class="slide-cat">مقارنة سريعة 📊</span>
-                    <span class="slide-num">21 / 25</span>
-                </div>
-                <div class="slide-content">
-                    <h2>جدول مقارنة الأبطال: سكراتش vs بايثون</h2>
-                    <div class="grid-2">
-                        <div class="info-box">
-                            <span class="box-icon">🧩 سكراتش (Scratch)</span>
-                            <h3 class="box-title">الأفضل للمبتدئين وللألعاب</h3>
-                            <p class="box-desc">• مكعبات وسحب وإفلات.<br>• لا أخطاء إملائية.<br>• مرئية وتفاعلية وفورية.<br>• تدربك على التفكير المنطقي.</p>
-                        </div>
-                        <div class="info-box highlight">
-                            <span class="box-icon">🐍 بايثون (Python)</span>
-                            <h3 class="box-title">الأفضل للمشروعات الحقيقية والذكاء</h3>
-                            <p class="box-desc">• كتابة نصية بالإنجليزية.<br>• قوية جداً وسريعة.<br>• مستخدمة في ناسا وجوجل.<br>• تبني تطبيقات وذكاء اصطناعي.</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="slide-footer">
-                    <button class="btn-nav" onclick="changeSlide(-1)">➡ السابق</button>
-                    <button class="btn-nav primary" onclick="changeSlide(1)">التالي ⬅</button>
-                </div>
-            </div>
-
-            <!-- SLIDE 22 -->
-            <div class="slide-card" data-slide="22">
-                <div class="slide-header">
-                    <span class="slide-cat">الاستعداد للعمل 🚀</span>
-                    <span class="slide-num">22 / 25</span>
-                </div>
-                <div class="slide-content">
-                    <h2>كيف نجهز أجهزتنا للانطلاق؟</h2>
-                    <p>لن تحتاج لتحميل أي ملفات ثقيلة، سنستخدم الموقع الرسمي لسكراتش مباشرة:</p>
-                    <div class="info-box highlight" style="max-width: 650px; width: 100%;">
-                        <div style="font-size: 26px; font-weight: 900; color: var(--primary);">scratch.mit.edu</div>
-                        <p class="box-desc" style="font-size: 16px; margin-top: 10px;">
-                            تفتح المتصفح، تضغط زر "Create"، وتبدأ فوراً في تحريك القطة وبناء أول لعبة بدون أي تثبيت أو تعقيد!
-                        </p>
-                    </div>
-                </div>
-                <div class="slide-footer">
-                    <button class="btn-nav" onclick="changeSlide(-1)">➡ السابق</button>
-                    <button class="btn-nav primary" onclick="changeSlide(1)">التالي ⬅</button>
-                </div>
-            </div>
-
-            <!-- SLIDE 23 -->
-            <div class="slide-card" data-slide="23">
-                <div class="slide-header">
-                    <span class="slide-cat">ملخص المحاضرة ⚡</span>
-                    <span class="slide-num">23 / 25</span>
-                </div>
-                <div class="slide-content">
-                    <h2>ماذا تعلمنا اليوم في المحاضرة 07؟</h2>
-                    <div class="grid-4">
-                        <div class="info-box safe">
-                            <span class="box-icon">🧱</span>
-                            <h3 class="box-title">البلوكات للمبتدئين</h3>
-                            <p class="box-desc">مكعبات سكراتش تحميك من الأخطاء وتدرب عقلك.</p>
-                        </div>
-                        <div class="info-box safe">
-                            <span class="box-icon">🐍</span>
-                            <h3 class="box-title">بايثون للمستقبل</h3>
-                            <p class="box-desc">لغة الذكاء الاصطناعي الأسهل قراءة وتطبيقاً.</p>
-                        </div>
-                        <div class="info-box safe">
-                            <span class="box-icon">🌐</span>
-                            <h3 class="box-title">لغات لكل غرض</h3>
-                            <p class="box-desc">HTML و JS للمواقع، Lua لروبلوكس، و C++ للسرعة.</p>
-                        </div>
-                        <div class="info-box safe">
-                            <span class="box-icon">💡</span>
-                            <h3 class="box-title">المبادئ واحدة</h3>
-                            <p class="box-desc">تعلم لغة واحدة يفتح لك أبواب كل اللغات.</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="slide-footer">
-                    <button class="btn-nav" onclick="changeSlide(-1)">➡ السابق</button>
-                    <button class="btn-nav primary" onclick="changeSlide(1)">التالي ⬅</button>
-                </div>
-            </div>
-
-            <!-- SLIDE 24 -->
-            <div class="slide-card" data-slide="24">
-                <div class="slide-header">
-                    <span class="slide-cat">المحطة القادمة 🚀</span>
-                    <span class="slide-num">24 / 25</span>
-                </div>
-                <div class="slide-content">
-                    <div style="font-size: 70px; margin-bottom: -10px;">📜 🧠 🧩</div>
-                    <h2>تشويق للمحاضرة القادمة: المحاضرة 08!</h2>
-                    <p>في المحاضرة القادمة، سنتعرف على الجوهرة الكبرى التي تحرك كل روبوتات وبرامج العالم: <strong>فكرة الخوارزمية (Algorithms)</strong>، وسنحل ألغازاً ممتعة خطوة بخطوة!</p>
-                    <div style="background: #f0f9ff; border: 2px solid #bae6fd; border-radius: 12px; padding: 12px 24px; color: #0369a1; font-weight: 800; font-size: 16px;">
-                        المحاضرة 08: فكرة الخوارزمية (Algorithmic Thinking) 💡
-                    </div>
-                </div>
-                <div class="slide-footer">
-                    <button class="btn-nav" onclick="changeSlide(-1)">➡ السابق</button>
-                    <button class="btn-nav primary" onclick="changeSlide(1)">التالي ⬅</button>
-                </div>
-            </div>
-
-            <!-- SLIDE 25 -->
-            <div class="slide-card" data-slide="25">
-                <div class="slide-header">
-                    <span class="slide-cat">الواجب والاختبار 📝</span>
-                    <span class="slide-num">25 / 25</span>
-                </div>
-                <div class="slide-content">
-                    <h2>مهمة مستكشف اللغات لهذا الأسبوع!</h2>
-                    <p>حان وقت التجربة والمطابقة العملية:</p>
-                    <div class="grid-2">
-                        <div class="info-box safe">
-                            <span class="box-icon">🌍</span>
-                            <h3 class="box-title">واجب مطابقة لغات البرمجة</h3>
-                            <p class="box-desc">افتح موقع سكراتش أونلاين وجرب تحريك القطة بمكعب Move 10 Steps، واكتب في ورقة الواجب مطابقة اللغات بالمشاريع.</p>
-                        </div>
-                        <div class="info-box">
-                            <span class="box-icon">⭐</span>
-                            <h3 class="box-title">اختبار أنواع البرمجة</h3>
-                            <p class="box-desc">حل أسئلة اختبار المحاضرة التفاعلي واجمع وسام مستكشف اللغات بنسبة 100%!</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="slide-footer">
-                    <button class="btn-nav" onclick="changeSlide(-1)">➡ السابق</button>
-                    <button class="btn-nav primary" onclick="alert('أحسنت صنعاً! انتهت جلسة التصوير بنجاح.')">إنهاء الجلسة 🏁</button>
-                </div>
-            </div>
-
-        </div>
-
-        <!-- Chalkboard Overlay -->
-        <div class="chalkboard" id="chalkboard">
-            <div class="chalk-header">
-                <h3 style="font-size: 20px; font-weight: 800;">✏️ سبورة الشرح التفاعلية للمدرس</h3>
-                <div style="display: flex; gap: 10px;">
-                    <button class="btn-ctrl" onclick="clearCanvas()">مسح السبورة</button>
-                    <button class="btn-ctrl" onclick="toggleChalkboard()" style="background: #ef4444; color: #fff; border-color: #ef4444;">إغلاق ✕</button>
-                </div>
-            </div>
-            <canvas class="chalk-canvas" id="chalkCanvas"></canvas>
-            <div class="chalk-tools">
-                <div class="color-dot" style="background: #ffffff;" onclick="setChalkColor('#ffffff')"></div>
-                <div class="color-dot" style="background: #38bdf8;" onclick="setChalkColor('#38bdf8')"></div>
-                <div class="color-dot" style="background: #4ade80;" onclick="setChalkColor('#4ade80')"></div>
-                <div class="color-dot" style="background: #facc15;" onclick="setChalkColor('#facc15')"></div>
-                <div class="color-dot" style="background: #f87171;" onclick="setChalkColor('#f87171')"></div>
-            </div>
-        </div>
-    </main>
-
+    <!-- Interactive Script -->
     <script>
+        // ==========================================
+        // 1. SLIDE PRESENTATION CONTROLLER
+        // ==========================================
         let currentSlide = 1;
         const totalSlides = 25;
+        const slides = document.querySelectorAll('.slide');
+        const currentSlideNumEl = document.getElementById('currentSlideNum');
+        const progressBarEl = document.getElementById('progressBar');
+        const prompterPanel = document.getElementById('teacher-prompter-panel');
+        const prompterContent = document.getElementById('prompterContent');
+        const btnPrev = document.getElementById('btnPrev');
+        const btnNext = document.getElementById('btnNext');
 
         function showSlide(num) {
             if (num < 1 || num > totalSlides) return;
+            
+            // Save drawings of outgoing slide
+            saveCurrentSlideDrawingState();
+
             currentSlide = num;
-            document.querySelectorAll('.slide-card').forEach(card => card.classList.remove('active'));
-            const activeCard = document.querySelector(`.slide-card[data-slide="${currentSlide}"]`);
-            if (activeCard) activeCard.classList.add('active');
-        }
+            slides.forEach((s, idx) => {
+                s.classList.toggle('active', (idx + 1) === currentSlide);
+            });
 
-        function changeSlide(direction) {
-            showSlide(currentSlide + direction);
-        }
+            currentSlideNumEl.textContent = currentSlide;
+            progressBarEl.style.width = `${(currentSlide / totalSlides) * 100}%`;
 
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'ArrowLeft' || e.key === 'PageDown' || e.key === ' ') {
-                changeSlide(1);
-            } else if (e.key === 'ArrowRight' || e.key === 'PageUp') {
-                changeSlide(-1);
-            } else if (e.key.toLowerCase() === 'b') {
-                toggleChalkboard();
-            } else if (e.key.toLowerCase() === 'f') {
-                toggleFullScreen();
+            btnPrev.disabled = (currentSlide === 1);
+            btnPrev.style.opacity = (currentSlide === 1) ? '0.5' : '1';
+
+            if (currentSlide === totalSlides) {
+                btnNext.textContent = 'إنهاء الجلسة 🏁';
+            } else {
+                btnNext.textContent = 'التالي ⬅';
             }
-        });
+
+            // Update Teacher Prompter Notes
+            const activeSlide = document.getElementById(`slide-${currentSlide}`);
+            if (activeSlide && activeSlide.dataset.notes) {
+                prompterContent.textContent = activeSlide.dataset.notes;
+            } else {
+                prompterContent.textContent = 'لا توجد ملاحظات مسجلة لهذه الشريحة.';
+            }
+
+            // Load drawings of incoming slide
+            loadCurrentSlideDrawingState();
+        }
+
+        function changeSlide(dir) {
+            showSlide(currentSlide + dir);
+        }
+
+        function togglePrompter() {
+            prompterPanel.classList.toggle('open');
+        }
 
         function toggleFullScreen() {
             if (!document.fullscreenElement) {
                 document.documentElement.requestFullscreen().catch(() => {});
             } else {
-                document.exitFullscreen().catch(() => {});
+                if (document.exitFullscreen) document.exitFullscreen().catch(() => {});
             }
         }
 
-        /* Chalkboard logic */
-        const chalkboard = document.getElementById('chalkboard');
-        const canvas = document.getElementById('chalkCanvas');
-        let ctx = null;
+        // ==========================================
+        // 2. LIVE IN-SLIDE PEN & ANNOTATION ENGINE
+        // ==========================================
+        const stageContainer = document.getElementById('stageContainer');
+        const canvas = document.getElementById('slidePenCanvas');
+        const ctx = canvas.getContext('2d');
+        const penToolbar = document.getElementById('penToolbar');
+        const btnPenToggle = document.getElementById('btnPenToggle');
+
+        let penEnabled = false;
+        let activeTool = 'pen'; // 'pen', 'highlighter', 'eraser'
+        let penColor = '#ef4444';
+        let penSize = 4;
         let isDrawing = false;
-        let chalkColor = '#ffffff';
+        let lastX = 0, lastY = 0;
 
-        function toggleChalkboard() {
-            chalkboard.classList.toggle('open');
-            if (chalkboard.classList.contains('open') && !ctx) {
-                setTimeout(initCanvas, 50);
-            }
+        // Stores per-slide drawing stroke stacks
+        const slideStrokes = {}; // { slideNum: [strokeData, ...] }
+        let currentStroke = null;
+
+        function resizeCanvas() {
+            const dpr = window.devicePixelRatio || 1;
+            canvas.width = stageContainer.clientWidth * dpr;
+            canvas.height = stageContainer.clientHeight * dpr;
+            ctx.scale(dpr, dpr);
+            redrawSlideStrokes();
+        }
+        window.addEventListener('resize', resizeCanvas);
+        setTimeout(resizeCanvas, 50);
+
+        function togglePenMode(forcedState) {
+            penEnabled = (forcedState !== undefined) ? forcedState : !penEnabled;
+            canvas.classList.toggle('pen-active', penEnabled);
+            penToolbar.classList.toggle('open', penEnabled);
+            btnPenToggle.classList.toggle('pen-active', penEnabled);
         }
 
-        function initCanvas() {
-            canvas.width = canvas.parentElement.clientWidth - 48;
-            canvas.height = canvas.parentElement.clientHeight - 130;
-            ctx = canvas.getContext('2d');
+        function setPenTool(tool) {
+            activeTool = tool;
+            document.querySelectorAll('.tool-btn').forEach(b => b.classList.remove('active'));
+            const activeBtn = document.getElementById(`tool-${tool}`);
+            if (activeBtn) activeBtn.classList.add('active');
+        }
+
+        function setPenColor(color, el) {
+            penColor = color;
+            document.querySelectorAll('.color-btn').forEach(b => b.classList.remove('selected'));
+            if (el) el.classList.add('selected');
+            if (activeTool === 'eraser') setPenTool('pen');
+        }
+
+        function setPenSize(size, el) {
+            penSize = size;
+            document.querySelectorAll('.size-btn').forEach(b => b.classList.remove('active'));
+            if (el) el.classList.add('active');
+        }
+
+        function saveCurrentSlideDrawingState() {
+            // Strokes are stored directly in slideStrokes[currentSlide]
+        }
+
+        function loadCurrentSlideDrawingState() {
+            redrawSlideStrokes();
+        }
+
+        function redrawSlideStrokes() {
+            const dpr = window.devicePixelRatio || 1;
+            ctx.clearRect(0, 0, canvas.width / dpr, canvas.height / dpr);
+            
+            const strokes = slideStrokes[currentSlide] || [];
+            strokes.forEach(stroke => {
+                renderStroke(stroke);
+            });
+        }
+
+        function renderStroke(stroke) {
+            if (!stroke.points || stroke.points.length === 0) return;
+            ctx.save();
             ctx.lineCap = 'round';
             ctx.lineJoin = 'round';
-            ctx.lineWidth = 4;
-            ctx.strokeStyle = chalkColor;
 
-            canvas.addEventListener('mousedown', startDraw);
-            canvas.addEventListener('mousemove', draw);
-            canvas.addEventListener('mouseup', endDraw);
-            canvas.addEventListener('mouseleave', endDraw);
-        }
-
-        function startDraw(e) {
-            isDrawing = true;
-            ctx.beginPath();
-            ctx.moveTo(e.offsetX, e.offsetY);
-        }
-
-        function draw(e) {
-            if (!isDrawing) return;
-            ctx.lineTo(e.offsetX, e.offsetY);
-            ctx.stroke();
-        }
-
-        function endDraw() {
-            isDrawing = false;
-        }
-
-        function setChalkColor(color) {
-            chalkColor = color;
-            if (ctx) ctx.strokeStyle = color;
-        }
-
-        function clearCanvas() {
-            if (ctx) ctx.clearRect(0, 0, canvas.width, canvas.height);
-        }
-
-        /* Code display switcher */
-        const codeSnippets = {
-            scratch: {
-                code: "[عند النقر على العلم الأخضر 🏁]\n  قل [أهلاً بأبطال البرمجة! 🎉] لمدة 2 ثانية",
-                desc: "مكعبات ملونة تسحبها وتضعها، بسيطة وممتعة وبدون كتابة حرف واحد!"
-            },
-            python: {
-                code: 'print("أهلاً بأبطال البرمجة! 🎉")',
-                desc: "سطر واحد فقط بالإنجليزية، نظيف وأنيق وسهل القراءة كأنه لغة عادية!"
-            },
-            js: {
-                code: 'console.log("أهلاً بأبطال البرمجة! 🎉");\nalert("أهلاً بكم!");',
-                desc: "تظهر الرسالة في لوحة المتصفح أو تفتح نافذة تنبيهية جميلة للمستخدم!"
-            },
-            cpp: {
-                code: '#include <iostream>\nusing namespace std;\n\nint main() {\n    cout << "أهلاً بأبطال البرمجة! 🎉" << endl;\n    return 0;\n}',
-                desc: "لغة سريعة جداً وقوية، تحتاج لكتابة بنية كاملة لكنها أسرع لغة في تشغيل الألعاب!"
-            }
-        };
-
-        function switchLang(lang) {
-            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-            event.target.classList.add('active');
-
-            const item = codeSnippets[lang];
-            document.getElementById('codeDisplayArea').textContent = item.code;
-            document.getElementById('langDetailText').textContent = item.desc;
-        }
-
-        /* Quick Quiz Interaction */
-        function selectQuizOpt(element, isCorrect) {
-            const parent = element.parentElement;
-            parent.querySelectorAll('.quiz-option').forEach(opt => {
-                opt.style.pointerEvents = 'none';
-            });
-
-            if (isCorrect) {
-                element.classList.add('correct');
+            if (stroke.tool === 'highlighter') {
+                ctx.globalAlpha = 0.38;
+                ctx.strokeStyle = stroke.color;
+                ctx.lineWidth = stroke.size * 3.5;
+            } else if (stroke.tool === 'eraser') {
+                ctx.globalCompositeOperation = 'destination-out';
+                ctx.lineWidth = stroke.size * 4;
             } else {
-                element.classList.add('wrong');
-                parent.children[0].classList.add('correct');
+                ctx.globalAlpha = 1.0;
+                ctx.strokeStyle = stroke.color;
+                ctx.lineWidth = stroke.size;
+            }
+
+            ctx.beginPath();
+            ctx.moveTo(stroke.points[0].x, stroke.points[0].y);
+            for (let i = 1; i < stroke.points.length; i++) {
+                ctx.lineTo(stroke.points[i].x, stroke.points[i].y);
+            }
+            ctx.stroke();
+            ctx.restore();
+        }
+
+        function undoPenStroke() {
+            if (slideStrokes[currentSlide] && slideStrokes[currentSlide].length > 0) {
+                slideStrokes[currentSlide].pop();
+                redrawSlideStrokes();
             }
         }
+
+        function clearCurrentSlideDrawings() {
+            slideStrokes[currentSlide] = [];
+            redrawSlideStrokes();
+        }
+
+        // Canvas Pointer Interaction (Works on Desktop, Stylus, & Touch)
+        canvas.addEventListener('pointerdown', (e) => {
+            if (!penEnabled) return;
+            isDrawing = true;
+            canvas.setPointerCapture(e.pointerId);
+
+            const rect = canvas.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+
+            currentStroke = {
+                tool: activeTool,
+                color: penColor,
+                size: penSize,
+                points: [{ x, y }]
+            };
+
+            if (!slideStrokes[currentSlide]) slideStrokes[currentSlide] = [];
+            slideStrokes[currentSlide].push(currentStroke);
+
+            ctx.save();
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+            if (activeTool === 'highlighter') {
+                ctx.globalAlpha = 0.38;
+                ctx.strokeStyle = penColor;
+                ctx.lineWidth = penSize * 3.5;
+            } else if (activeTool === 'eraser') {
+                ctx.globalCompositeOperation = 'destination-out';
+                ctx.lineWidth = penSize * 4;
+            } else {
+                ctx.globalAlpha = 1.0;
+                ctx.strokeStyle = penColor;
+                ctx.lineWidth = penSize;
+            }
+            ctx.beginPath();
+            ctx.moveTo(x, y);
+        });
+
+        canvas.addEventListener('pointermove', (e) => {
+            if (!isDrawing || !penEnabled || !currentStroke) return;
+            const rect = canvas.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+
+            currentStroke.points.push({ x, y });
+            ctx.lineTo(x, y);
+            ctx.stroke();
+        });
+
+        function finishDrawing(e) {
+            if (!isDrawing) return;
+            isDrawing = false;
+            ctx.restore();
+            currentStroke = null;
+        }
+
+        canvas.addEventListener('pointerup', finishDrawing);
+        canvas.addEventListener('pointercancel', finishDrawing);
+
+        // ==========================================
+        // 3. KEYBOARD SHORTCUTS
+        // ==========================================
+        window.addEventListener('keydown', (e) => {
+            const key = e.key.toLowerCase();
+            if (e.key === 'ArrowLeft' || e.key === 'PageDown' || (e.key === ' ' && !penEnabled)) {
+                changeSlide(1);
+            } else if (e.key === 'ArrowRight' || e.key === 'PageUp') {
+                changeSlide(-1);
+            } else if (key === 'p' || key === 'd') {
+                togglePenMode();
+            } else if (key === 'h') {
+                if (!penEnabled) togglePenMode(true);
+                setPenTool('highlighter');
+            } else if (key === 'e') {
+                if (!penEnabled) togglePenMode(true);
+                setPenTool('eraser');
+            } else if (key === 'z') {
+                undoPenStroke();
+            } else if (key === 'c') {
+                clearCurrentSlideDrawings();
+            } else if (key === 'n') {
+                togglePrompter();
+            } else if (key === 'f') {
+                toggleFullScreen();
+            }
+        });
+
+        // ==========================================
+        // 4. INTERACTIVE QUIZ CHECKER
+        // ==========================================
+        function checkSlideQuiz(btn, isCorrect, feedbackMsg) {
+            const container = btn.closest('.quiz-challenge-card');
+            const allBtns = container.querySelectorAll('.quiz-opt-btn');
+            allBtns.forEach(b => {
+                b.disabled = true;
+                b.style.opacity = '0.6';
+            });
+            btn.style.opacity = '1';
+            btn.classList.add(isCorrect ? 'correct' : 'wrong');
+
+            const fb = container.querySelector('.quiz-feedback-box');
+            fb.textContent = feedbackMsg;
+            fb.style.color = isCorrect ? 'var(--success)' : 'var(--danger)';
+        }
+
+        // ==========================================
+        // 5. SESSION TIMER
+        // ==========================================
+        let seconds = 0;
+        const timerEl = document.getElementById('sessionTimer');
+        setInterval(() => {
+            seconds++;
+            const m = String(Math.floor(seconds / 60)).padStart(2, '0');
+            const s = String(seconds % 60).padStart(2, '0');
+            timerEl.textContent = `${m}:${s}`;
+        }, 1000);
+
+        // Initialize First Slide
+        showSlide(1);
     </script>
 </body>
 </html>

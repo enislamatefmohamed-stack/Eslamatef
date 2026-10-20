@@ -1,1406 +1,1805 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>المحاضرة 01: الكمبيوتر من الداخل والخارج | جلسة تصوير تفاعلية</title>
-  
-  <!-- خطوط عربية وتقنية عصرية ومبهجة -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
-
-  <style>
-    /* ==========================================================
-       DESIGN SYSTEM - THEME LIGHT & VIBRANT (فاتح ومبهج للأطفال)
-       ========================================================== */
-    :root {
-      --bg-base: #f8fafc;
-      --bg-surface: #ffffff;
-      --bg-surface-soft: #f1f5f9;
-      --bg-card: #ffffff;
-      
-      --text-main: #0f172a;
-      --text-muted: #475569;
-      --text-subtle: #64748b;
-      
-      --brand-blue: #2563eb;
-      --brand-blue-light: #dbeafe;
-      --brand-teal: #0d9488;
-      --brand-teal-light: #ccfbf1;
-      --brand-orange: #ea580c;
-      --brand-orange-light: #ffedd5;
-      --brand-purple: #7c3aed;
-      --brand-purple-light: #ede9fe;
-      --brand-green: #16a34a;
-      --brand-green-light: #dcfce7;
-      --brand-pink: #db2777;
-      --brand-pink-light: #fce7f3;
-      
-      --border-color: #e2e8f0;
-      --border-focus: #3b82f6;
-      --shadow-sm: 0 2px 4px rgba(15, 23, 42, 0.04);
-      --shadow-md: 0 10px 25px -5px rgba(15, 23, 42, 0.06), 0 8px 10px -6px rgba(15, 23, 42, 0.03);
-      --shadow-lg: 0 20px 35px -5px rgba(15, 23, 42, 0.08), 0 10px 15px -5px rgba(15, 23, 42, 0.04);
-      --radius-sm: 12px;
-      --radius-md: 18px;
-      --radius-lg: 26px;
-      
-      --font-arabic: 'Cairo', system-ui, -apple-system, sans-serif;
-      --font-mono: 'Inter', monospace;
-    }
-
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-
-    body {
-      background-color: var(--bg-base);
-      color: var(--text-main);
-      font-family: var(--font-arabic);
-      overflow: hidden;
-      width: 100vw;
-      height: 100vh;
-      display: flex;
-      flex-direction: column;
-      user-select: none;
-      -webkit-font-smoothing: antialiased;
-    }
-
-    /* Ambient Background Light Elements */
-    .bg-light-pattern {
-      position: absolute;
-      inset: 0;
-      background-image: 
-        radial-gradient(circle at 15% 15%, rgba(37, 99, 235, 0.06) 0%, transparent 45%),
-        radial-gradient(circle at 85% 85%, rgba(124, 58, 237, 0.06) 0%, transparent 45%),
-        radial-gradient(circle at 50% 50%, rgba(13, 148, 136, 0.04) 0%, transparent 50%);
-      pointer-events: none;
-      z-index: 0;
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>جلسة تصوير المحاضرة 01 | الكمبيوتر من الداخل والخارج (Hardware & Software)</title>
     
-    .bg-dots {
-      position: absolute;
-      inset: 0;
-      background-image: radial-gradient(#cbd5e1 1.2px, transparent 1.2px);
-      background-size: 24px 24px;
-      opacity: 0.45;
-      pointer-events: none;
-      z-index: 0;
-    }
+    <!-- Google Cairo & Inter Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 
-    /* Main Presentation Frame (16:9 Aspect Ratio) */
-    #presentation-viewport {
-      position: relative;
-      flex: 1;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 16px;
-      z-index: 1;
-    }
+    <style>
+        /* ==========================================================
+           MODERN RESPONSIVE 16:9 PRESENTATION DESIGN SYSTEM
+           VIBRANT LIGHT THEME - OPTIMIZED FOR SCREEN RECORDING
+           ========================================================== */
+        :root {
+            --primary: #0284c7;
+            --primary-light: #e0f2fe;
+            --primary-dark: #0369a1;
+            
+            --success: #10b981;
+            --success-light: #d1fae5;
+            
+            --warning: #f59e0b;
+            --warning-light: #fef3c7;
+            
+            --danger: #ef4444;
+            --danger-light: #fee2e2;
+            
+            --purple: #8b5cf6;
+            --purple-light: #ede9fe;
+            
+            --bg-viewport: #f1f5f9;
+            --bg-surface: #ffffff;
+            --bg-card: #ffffff;
+            --border-color: #e2e8f0;
+            
+            --text-main: #0f172a;
+            --text-muted: #475569;
+            --text-subtle: #64748b;
+            
+            --font-ar: 'Cairo', system-ui, -apple-system, sans-serif;
+            --font-mono: 'Inter', monospace;
+        }
 
-    #presentation-frame {
-      position: relative;
-      width: 100%;
-      height: 100%;
-      max-width: 177.78vh; /* 16:9 ratio */
-      max-height: 56.25vw;
-      background: var(--bg-surface);
-      border-radius: var(--radius-lg);
-      border: 2px solid #e2e8f0;
-      box-shadow: var(--shadow-lg);
-      overflow: hidden;
-      display: flex;
-      flex-direction: column;
-    }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: var(--font-ar);
+            -webkit-font-smoothing: antialiased;
+        }
 
-    /* Top Live Studio Bar */
-    .slide-topbar {
-      height: 64px;
-      padding: 0 32px;
-      background: #ffffff;
-      border-bottom: 2px solid #f1f5f9;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      z-index: 10;
-    }
+        body {
+            background-color: var(--bg-viewport);
+            color: var(--text-main);
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            user-select: none;
+        }
 
-    .topbar-branding {
-      display: flex;
-      align-items: center;
-      gap: 14px;
-    }
+        /* 16:9 Viewport & Frame */
+        #presentation-viewport {
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 12px;
+            overflow: hidden;
+        }
 
-    .brand-logo-img {
-      height: 42px;
-      width: auto;
-      border-radius: 8px;
-      box-shadow: var(--shadow-sm);
-    }
+        #presentation-frame {
+            width: 100%;
+            height: 100%;
+            max-width: calc((100vh - 24px) * 16 / 9);
+            max-height: calc((100vw - 24px) * 9 / 16);
+            aspect-ratio: 16 / 9;
+            background: var(--bg-surface);
+            border-radius: 18px;
+            box-shadow: 0 15px 35px -5px rgba(15, 23, 42, 0.12);
+            border: 1.5px solid var(--border-color);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
 
-    .brand-text-col {
-      display: flex;
-      flex-direction: column;
-    }
+        /* Top Header Bar */
+        .slide-topbar {
+            height: 52px;
+            padding: 0 24px;
+            background: #ffffff;
+            border-bottom: 1.5px solid #f1f5f9;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-shrink: 0;
+            z-index: 20;
+        }
 
-    .brand-title {
-      font-size: 16px;
-      font-weight: 800;
-      color: var(--brand-blue);
-      letter-spacing: -0.3px;
-    }
+        .topbar-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
 
-    .brand-subtitle {
-      font-size: 12px;
-      font-weight: 600;
-      color: var(--text-subtle);
-    }
+        .badge-pill {
+            background: var(--primary-light);
+            color: var(--primary-dark);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
 
-    .topbar-meta {
-      display: flex;
-      align-items: center;
-      gap: 16px;
-    }
+        .topbar-title {
+            font-size: 16px;
+            font-weight: 800;
+            color: var(--text-main);
+        }
 
-    .badge-pill {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      padding: 6px 14px;
-      border-radius: 100px;
-      font-size: 13px;
-      font-weight: 700;
-    }
+        .topbar-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
 
-    .badge-blue {
-      background: var(--brand-blue-light);
-      color: var(--brand-blue);
-    }
+        .timer-box {
+            font-family: var(--font-mono);
+            font-size: 14px;
+            font-weight: 800;
+            color: var(--text-muted);
+            background: #f8fafc;
+            padding: 4px 10px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+        }
 
-    .badge-orange {
-      background: var(--brand-orange-light);
-      color: var(--brand-orange);
-    }
+        /* Stage Area (Holds slides and pen overlay) */
+        .stage-container {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+            background: #ffffff;
+            min-height: 0;
+        }
 
-    .badge-green {
-      background: var(--brand-green-light);
-      color: var(--brand-green);
-    }
+        .slides-wrapper {
+            position: absolute;
+            inset: 0;
+            overflow: hidden;
+        }
 
-    .timer-display {
-      font-family: var(--font-mono);
-      font-size: 15px;
-      font-weight: 800;
-      color: var(--text-muted);
-      background: #f8fafc;
-      padding: 6px 12px;
-      border-radius: var(--radius-sm);
-      border: 1px solid #e2e8f0;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
+        /* Individual Slide */
+        .slide {
+            position: absolute;
+            inset: 0;
+            padding: 24px 36px;
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            opacity: 0;
+            transform: scale(0.99);
+            transition: opacity 0.25s ease, transform 0.25s ease;
+            overflow: hidden;
+            background: #ffffff;
+        }
 
-    /* Slides Container */
-    .slides-wrapper {
-      position: relative;
-      flex: 1;
-      width: 100%;
-      height: calc(100% - 64px);
-      overflow: hidden;
-    }
+        .slide.active {
+            display: flex;
+            opacity: 1;
+            transform: scale(1);
+        }
 
-    .slide {
-      position: absolute;
-      inset: 0;
-      padding: 40px 56px;
-      display: none;
-      flex-direction: column;
-      justify-content: center;
-      opacity: 0;
-      transform: translateY(12px) scale(0.99);
-      transition: opacity 0.35s ease, transform 0.35s ease;
-      background: #ffffff;
-    }
+        .slide-inner-body {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: 20px;
+            min-height: 0;
+        }
 
-    .slide.active {
-      display: flex;
-      opacity: 1;
-      transform: translateY(0) scale(1);
-    }
+        /* Slide Titles and Headings */
+        .slide-heading-row {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
 
-    /* Common Slide Elements */
-    .slide-header {
-      margin-bottom: 24px;
-    }
+        .slide-category {
+            display: inline-block;
+            align-self: flex-start;
+            font-size: 13px;
+            font-weight: 800;
+            color: var(--primary);
+            background: var(--primary-light);
+            padding: 3px 10px;
+            border-radius: 6px;
+            letter-spacing: 0.3px;
+        }
 
-    .slide-tag {
-      display: inline-block;
-      font-size: 13px;
-      font-weight: 800;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      color: var(--brand-blue);
-      margin-bottom: 8px;
-    }
+        .slide-main-title {
+            font-size: clamp(24px, 2.3vw, 32px);
+            font-weight: 900;
+            color: var(--text-main);
+            line-height: 1.3;
+        }
 
-    .slide-title {
-      font-size: 38px;
-      font-weight: 900;
-      color: var(--text-main);
-      line-height: 1.25;
-    }
+        /* Balanced Grids */
+        .grid-4-balance {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            width: 100%;
+        }
 
-    .slide-subtitle {
-      font-size: 20px;
-      font-weight: 600;
-      color: var(--text-muted);
-      margin-top: 6px;
-    }
+        .grid-3-balance {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 18px;
+            width: 100%;
+        }
 
-    /* Grid Layouts */
-    .grid-2 {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 32px;
-      align-items: center;
-      height: 100%;
-    }
+        .grid-2-balance {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            width: 100%;
+        }
 
-    .grid-3 {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 24px;
-      align-items: stretch;
-    }
+        /* Cards */
+        .k-card-compact {
+            background: #ffffff;
+            border: 1.5px solid var(--border-color);
+            border-radius: 14px;
+            padding: 18px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            box-shadow: 0 4px 12px rgba(15, 23, 42, 0.03);
+            transition: all 0.25s;
+        }
 
-    .grid-4 {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 20px;
-      align-items: stretch;
-    }
+        .k-card-compact:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(15, 23, 42, 0.06);
+            border-color: var(--primary);
+        }
 
-    /* Cards */
-    .kid-card {
-      background: #ffffff;
-      border: 2px solid var(--border-color);
-      border-radius: var(--radius-md);
-      padding: 24px;
-      box-shadow: var(--shadow-sm);
-      transition: all 0.25s ease;
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-      position: relative;
-    }
+        .k-card-compact.border-blue { border-top: 4px solid var(--primary); }
+        .k-card-compact.border-purple { border-top: 4px solid var(--purple); }
+        .k-card-compact.border-teal { border-top: 4px solid #0d9488; }
+        .k-card-compact.border-orange { border-top: 4px solid #ea580c; }
 
-    .kid-card:hover {
-      border-color: var(--brand-blue);
-      box-shadow: var(--shadow-md);
-      transform: translateY(-4px);
-    }
+        .card-emoji { font-size: 28px; line-height: 1; }
+        .card-top-icon { font-size: 26px; }
+        .card-h { font-size: clamp(16px, 1.4vw, 19px); font-weight: 800; color: var(--text-main); }
+        .card-p { font-size: clamp(13px, 1.1vw, 15px); color: var(--text-muted); line-height: 1.55; }
+        .card-tag-pill { font-size: 12px; font-weight: 700; color: var(--primary); background: #f0f9ff; padding: 3px 8px; border-radius: 6px; align-self: flex-start; }
 
-    .card-icon {
-      width: 58px;
-      height: 58px;
-      border-radius: var(--radius-sm);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 30px;
-      background: var(--bg-surface-soft);
-    }
+        /* Rich Hero Center */
+        .hero-center {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            gap: 16px;
+            padding: 10px 0;
+        }
 
-    .card-title {
-      font-size: 22px;
-      font-weight: 800;
-      color: var(--text-main);
-    }
+        .hero-icons { font-size: 46px; }
+        .hero-title { font-size: clamp(28px, 2.7vw, 38px); font-weight: 900; color: var(--text-main); line-height: 1.3; }
+        .hero-subtitle { font-size: clamp(16px, 1.3vw, 19px); color: var(--text-muted); max-width: 800px; line-height: 1.6; }
+        .hero-tags { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+        .k-badge { background: #f0f9ff; color: var(--primary-dark); font-size: 13px; font-weight: 800; padding: 6px 14px; border-radius: 8px; border: 1px solid #bae6fd; }
+        
+        .hero-meta-box {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: #f8fafc;
+            border: 1px solid var(--border-color);
+            padding: 8px 18px;
+            border-radius: 12px;
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--text-muted);
+            margin-top: 8px;
+        }
+        .meta-dot { color: #cbd5e1; }
 
-    .card-desc {
-      font-size: 16px;
-      line-height: 1.6;
-      color: var(--text-muted);
-      font-weight: 600;
-    }
+        /* Quiz Challenge Card */
+        .quiz-challenge-card {
+            background: #f8fafc;
+            border: 1.5px solid var(--border-color);
+            border-radius: 16px;
+            padding: 22px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
 
-    /* Visual Media Containers */
-    .image-container-right {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      height: 100%;
-    }
+        .quiz-question-txt { font-size: clamp(16px, 1.3vw, 19px); font-weight: 700; color: var(--text-main); line-height: 1.6; }
+        .quiz-options-list { display: flex; flex-direction: column; gap: 10px; }
+        
+        .quiz-opt-btn {
+            background: #ffffff;
+            border: 1.5px solid var(--border-color);
+            border-radius: 10px;
+            padding: 12px 18px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            text-align: right;
+            transition: all 0.2s;
+            font-size: 15px;
+            font-weight: 700;
+        }
 
-    .embedded-img {
-      max-height: 440px;
-      max-width: 100%;
-      border-radius: var(--radius-md);
-      box-shadow: var(--shadow-lg);
-      border: 3px solid #ffffff;
-      object-fit: cover;
-    }
+        .quiz-opt-btn:hover { border-color: var(--primary); background: #f0f9ff; }
+        .quiz-opt-btn.correct { background: var(--success-light) !important; border-color: var(--success) !important; color: #065f46 !important; }
+        .quiz-opt-btn.wrong { background: var(--danger-light) !important; border-color: var(--danger) !important; color: #991b1b !important; }
+        
+        .opt-letter { width: 26px; height: 26px; border-radius: 6px; background: #f1f5f9; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 900; color: var(--text-muted); flex-shrink: 0; }
+        .quiz-feedback-box { font-size: 14px; font-weight: 800; min-height: 22px; padding: 0 4px; }
 
-    /* Interactive Quiz & Buttons inside Slide */
-    .speed-test-box {
-      background: #f8fafc;
-      border: 2px dashed #cbd5e1;
-      border-radius: var(--radius-md);
-      padding: 24px;
-      text-align: center;
-      margin-top: 20px;
-    }
+        /* Rich 2-col List */
+        .k-card-rich {
+            background: #ffffff;
+            border: 1.5px solid var(--border-color);
+            border-radius: 14px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+        .k-card-rich.highlight-bg { background: #f0fdf4; border-color: #bbf7d0; }
+        .rich-header { display: flex; align-items: center; gap: 10px; }
+        .rich-icon { font-size: 26px; }
+        .rich-title { font-size: 18px; font-weight: 800; color: var(--text-main); }
+        .rich-list { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+        .rich-list li { position: relative; padding-right: 20px; font-size: 14px; color: var(--text-muted); line-height: 1.6; font-weight: 600; }
+        .rich-list li::before { content: '✔'; position: absolute; right: 0; color: var(--primary); font-weight: 900; }
 
-    .speed-options {
-      display: flex;
-      gap: 16px;
-      justify-content: center;
-      margin-top: 16px;
-    }
+        /* Celebration Hero */
+        .celebration-bg { background: radial-gradient(circle at center, #f0fdf4 0%, #ffffff 70%); border-radius: 16px; padding: 24px; }
+        .text-success { color: #059669; }
+        .score-pill { background: #fef08a; color: #854d0e; font-size: 16px; font-weight: 900; padding: 8px 24px; border-radius: 50px; border: 2px solid #facc15; box-shadow: 0 4px 12px rgba(234, 179, 8, 0.2); }
+        .next-lecture-box { background: #ffffff; border: 1.5px dashed var(--border-color); border-radius: 12px; padding: 12px 24px; display: flex; align-items: center; gap: 12px; }
+        .next-badge { background: var(--primary-light); color: var(--primary); font-size: 12px; font-weight: 800; padding: 4px 10px; border-radius: 6px; }
+        .next-title { font-size: 14px; font-weight: 700; color: var(--text-main); }
 
-    .option-btn {
-      padding: 14px 28px;
-      border-radius: var(--radius-sm);
-      border: 2px solid #cbd5e1;
-      background: #ffffff;
-      color: var(--text-main);
-      font-size: 18px;
-      font-weight: 800;
-      cursor: pointer;
-      font-family: var(--font-arabic);
-      transition: all 0.2s ease;
-    }
+        /* ==========================================================
+           TRANSPARENT IN-SLIDE PEN CANVAS OVERLAY & FLOATING TOOLBAR
+           ========================================================== */
+        .slide-pen-canvas {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 30;
+        }
 
-    .option-btn:hover {
-      background: var(--brand-blue-light);
-      border-color: var(--brand-blue);
-      color: var(--brand-blue);
-      transform: scale(1.04);
-    }
+        .slide-pen-canvas.pen-active {
+            pointer-events: auto;
+            cursor: crosshair;
+        }
 
-    .option-btn.correct {
-      background: var(--brand-green-light) !important;
-      border-color: var(--brand-green) !important;
-      color: var(--brand-green) !important;
-    }
+        .pen-floating-toolbar {
+            position: absolute;
+            bottom: 14px;
+            left: 50%;
+            transform: translateX(-50%) translateY(70px);
+            background: #ffffff;
+            border: 1.5px solid var(--border-color);
+            border-radius: 50px;
+            padding: 6px 14px;
+            box-shadow: 0 10px 25px rgba(15, 23, 42, 0.15);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            z-index: 40;
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
 
-    .option-btn.wrong {
-      background: #fee2e2 !important;
-      border-color: #ef4444 !important;
-      color: #b91c1c !important;
-    }
+        .pen-floating-toolbar.open {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+            pointer-events: auto;
+        }
 
-    /* Whiteboard Layer */
-    #drawing-canvas {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      pointer-events: none;
-      z-index: 50;
-    }
+        .pen-tools-row {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
 
-    #drawing-canvas.active-mode {
-      pointer-events: auto;
-      cursor: crosshair;
-    }
+        .tool-btn {
+            background: #f8fafc;
+            border: 1.5px solid var(--border-color);
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 15px;
+            transition: all 0.2s;
+        }
 
-    /* Floating Studio Toolbar */
-    .studio-controls {
-      position: fixed;
-      bottom: 24px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: rgba(255, 255, 255, 0.95);
-      backdrop-filter: blur(12px);
-      border: 1.5px solid var(--border-color);
-      box-shadow: var(--shadow-lg);
-      padding: 8px 18px;
-      border-radius: 100px;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      z-index: 100;
-    }
+        .tool-btn:hover { background: #f1f5f9; }
+        .tool-btn.active { background: var(--primary-light); border-color: var(--primary); box-shadow: 0 0 0 2px rgba(2, 132, 199, 0.2); }
 
-    .ctrl-btn {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: 44px;
-      height: 44px;
-      border-radius: 50%;
-      border: 1px solid #e2e8f0;
-      background: #ffffff;
-      color: var(--text-main);
-      font-size: 18px;
-      cursor: pointer;
-      transition: all 0.2s ease;
-    }
+        .tool-separator {
+            width: 1px;
+            height: 20px;
+            background: var(--border-color);
+            margin: 0 4px;
+        }
 
-    .ctrl-btn:hover {
-      background: var(--brand-blue-light);
-      color: var(--brand-blue);
-      border-color: var(--brand-blue);
-      transform: scale(1.08);
-    }
+        .color-btn {
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background-color: var(--c);
+            border: 2px solid #ffffff;
+            box-shadow: 0 0 0 1px #cbd5e1;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
 
-    .ctrl-btn.active {
-      background: var(--brand-blue);
-      color: #ffffff;
-      border-color: var(--brand-blue);
-    }
+        .color-btn.selected {
+            transform: scale(1.25);
+            box-shadow: 0 0 0 2px var(--text-main);
+        }
 
-    .slide-counter {
-      font-family: var(--font-mono);
-      font-size: 16px;
-      font-weight: 800;
-      color: var(--text-main);
-      padding: 0 10px;
-    }
+        .size-btn {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: #f8fafc;
+            border: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+        .size-btn span { display: block; border-radius: 50%; background: var(--text-main); width: 4px; height: 4px; }
+        .size-btn.active { background: #e2e8f0; border-color: var(--text-main); }
 
-    .palette-box {
-      display: none;
-      align-items: center;
-      gap: 6px;
-      padding-right: 8px;
-      border-right: 1px solid #e2e8f0;
-    }
+        .action-btn {
+            background: #f8fafc;
+            border: 1px solid var(--border-color);
+            padding: 4px 8px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .action-btn:hover { background: #fee2e2; border-color: #fca5a5; }
+        .exit-btn { background: #fee2e2; color: #dc2626; border-color: #fca5a5; }
 
-    .palette-box.open {
-      display: flex;
-    }
+        /* Bottom Studio Control Bar */
+        .slide-bottombar {
+            height: 52px;
+            padding: 0 24px;
+            background: #ffffff;
+            border-top: 1.5px solid #f1f5f9;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-shrink: 0;
+            z-index: 20;
+        }
 
-    .color-dot {
-      width: 22px;
-      height: 22px;
-      border-radius: 50%;
-      cursor: pointer;
-      border: 2px solid #ffffff;
-      box-shadow: var(--shadow-sm);
-      transition: transform 0.15s ease;
-    }
+        .nav-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
 
-    .color-dot:hover, .color-dot.selected {
-      transform: scale(1.25);
-    }
+        .btn-slide-nav {
+            background: #ffffff;
+            border: 1.5px solid var(--border-color);
+            color: var(--text-main);
+            padding: 6px 14px;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 800;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+        }
 
-    /* Teacher Script Floating Teleprompter */
-    #teacher-notes-panel {
-      position: fixed;
-      bottom: 84px;
-      right: 24px;
-      width: 460px;
-      max-height: 280px;
-      background: rgba(255, 255, 255, 0.98);
-      backdrop-filter: blur(16px);
-      border: 2px solid var(--brand-blue);
-      border-radius: var(--radius-md);
-      box-shadow: var(--shadow-lg);
-      padding: 20px;
-      z-index: 99;
-      display: none;
-      flex-direction: column;
-      gap: 10px;
-      overflow-y: auto;
-    }
+        .btn-slide-nav:hover { background: #f0f9ff; border-color: var(--primary); color: var(--primary); }
+        .btn-slide-nav.btn-primary { background: var(--primary); color: #ffffff; border-color: var(--primary); }
 
-    #teacher-notes-panel.visible {
-      display: flex;
-    }
+        .slide-counter-badge {
+            font-family: var(--font-mono);
+            font-size: 14px;
+            font-weight: 800;
+            color: var(--text-muted);
+            background: #f8fafc;
+            padding: 4px 12px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+        }
 
-    .notes-title {
-      font-size: 15px;
-      font-weight: 800;
-      color: var(--brand-blue);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
+        .studio-tools {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
 
-    .notes-body {
-      font-size: 15px;
-      line-height: 1.7;
-      color: var(--text-main);
-      font-weight: 600;
-    }
-  </style>
+        .btn-tool-toggle {
+            background: #f8fafc;
+            border: 1.5px solid var(--border-color);
+            color: var(--text-main);
+            padding: 6px 12px;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 800;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+        }
+
+        .btn-tool-toggle:hover { background: #e2e8f0; }
+        .btn-tool-toggle.pen-active { background: #ede9fe; color: var(--purple); border-color: #c4b5fd; }
+
+        /* Progress Bar */
+        .progress-bar-container {
+            width: 120px;
+            height: 6px;
+            background: #f1f5f9;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            background: var(--primary);
+            width: 4%;
+            transition: width 0.3s;
+        }
+
+        /* Teacher Teleprompter Notes Panel */
+        #teacher-prompter-panel {
+            position: absolute;
+            top: 52px;
+            left: 0;
+            width: 380px;
+            max-height: calc(100% - 104px);
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(8px);
+            border-right: 2px solid var(--border-color);
+            border-bottom: 2px solid var(--border-color);
+            border-bottom-right-radius: 16px;
+            box-shadow: 5px 5px 20px rgba(0, 0, 0, 0.08);
+            display: flex;
+            flex-direction: column;
+            z-index: 50;
+            transform: translateX(-105%);
+            transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        #teacher-prompter-panel.open {
+            transform: translateX(0);
+        }
+
+        .prompter-header {
+            padding: 12px 16px;
+            border-bottom: 1.5px solid #f1f5f9;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #f8fafc;
+        }
+
+        .prompter-title { font-size: 14px; font-weight: 800; color: var(--text-main); }
+        .prompter-close { background: none; border: none; font-size: 16px; cursor: pointer; color: var(--text-muted); }
+
+        .prompter-body {
+            padding: 16px;
+            font-size: 15px;
+            line-height: 1.8;
+            color: #1e293b;
+            font-weight: 600;
+            overflow-y: auto;
+            max-height: 400px;
+        }
+    </style>
 </head>
 <body>
 
-  <!-- Ambient Light Graphics -->
-  <div class="bg-light-pattern"></div>
-  <div class="bg-dots"></div>
-
-  <!-- Main 16:9 Presentation Frame -->
-  <div id="presentation-viewport">
-    <div id="presentation-frame">
-      
-      <!-- Top Studio Navigation Bar -->
-      <header class="slide-topbar">
-        <div class="topbar-branding">
-          <img src="https://files.catbox.moe/8kzbd2.jpeg" alt="Logo" class="brand-logo-img">
-          <div class="brand-text-col">
-            <span class="brand-title">Eslam Atef | Code & AI</span>
-            <span class="brand-subtitle">كورس البرمجة والذكاء الاصطناعي للأطفال</span>
-          </div>
-        </div>
-
-        <div class="topbar-meta">
-          <div class="badge-pill badge-blue">
-            <span>المستوى 1: عالم الكمبيوتر</span>
-          </div>
-          <div class="badge-pill badge-orange">
-            <span id="slide-indicator">الشريحة 1 / 25</span>
-          </div>
-          <div class="timer-display">
-            <span>⏱️</span>
-            <span id="session-timer">00:00</span>
-          </div>
-        </div>
-      </header>
-
-      <!-- Whiteboard Drawing Canvas -->
-      <canvas id="drawing-canvas"></canvas>
-
-      <!-- ==========================================================
-           SLIDES CONTAINER (25 Slides Aligned with Teacher Script)
-           ========================================================== -->
-      <main class="slides-wrapper">
-
-        <!-- ----------------------------------------------------
-             SLIDE 1: الغلاف والترحيب
-             ---------------------------------------------------- -->
-        <section class="slide active" id="slide-1" data-notes="يا أهلاً يا أبطال، منورين يا أذكى مبرمجين ومهندسين في الدنيا! معاكم م/ إسلام عاطف، والنهاردة بنبدأ أول وأقوى خطوة في كورس البرمجة والذكاء الاصطناعي للأطفال. محاضرتنا الأولى بعنوان: الكمبيوتر من الداخل والخارج.. جاهزون للمغامرة؟ يلا بينا نكتشف أسرار الصندوق السحري!">
-          <div class="grid-2">
-            <div>
-              <span class="slide-tag">المحاضرة 01 • الانطلاقة الكبرى</span>
-              <h1 class="slide-title" style="font-size: 46px; color: var(--brand-blue);">الكمبيوتر من الداخل والخارج</h1>
-              <p class="slide-subtitle">رحلة ممتعة لاستكشاف أسرار الجسد والروح الرقمية</p>
-              
-              <div style="margin-top: 32px; display: flex; gap: 16px; flex-wrap: wrap;">
-                <div class="badge-pill badge-blue" style="font-size: 15px; padding: 10px 20px;">
-                  <span>المحاضر: م / إسلام عاطف</span>
+    <div id="presentation-viewport">
+        <div id="presentation-frame">
+            
+            <!-- Top Live Bar -->
+            <header class="slide-topbar">
+                <div class="topbar-right">
+                    <div class="badge-pill">
+                        <span>🚀</span>
+                        <span>المحاضرة 01 • المستوى 1: عالم الكمبيوتر والإنترنت</span>
+                    </div>
+                    <span class="topbar-title">الكمبيوتر من الداخل والخارج (Hardware & Software)</span>
                 </div>
-                <div class="badge-pill badge-green" style="font-size: 15px; padding: 10px 20px;">
-                  <span>الأعمار: 8 - 16 سنة</span>
+                <div class="topbar-left">
+                    <div class="timer-box" id="sessionTimer">00:00</div>
+                    <button class="btn-slide-nav" onclick="toggleFullScreen()" title="ملء الشاشة (F)">
+                        <span>⛶</span>
+                    </button>
                 </div>
-              </div>
-            </div>
-            <div class="image-container-right">
-              <img src="https://files.catbox.moe/0t58gy.png" alt="غلاف المحاضرة" class="embedded-img">
-            </div>
-          </div>
-        </section>
+            </header>
 
-        <!-- ----------------------------------------------------
-             SLIDE 2: أهداف المحاضرة
-             ---------------------------------------------------- -->
-        <section class="slide" id="slide-2" data-notes="بصوا معايا على الشاشة يا أبطال.. في مغامرة النهاردة عندنا 4 مهمات أساسية لازم نخرج واحنا أسيادهم: أولاً هنفهم يعني إيه كمبيوتر أصلاً وكيف يفكر، ثانياً هنعرف سر الهاردوير والسوفتوير، ثالثاً هنكتشف حواس الكمبيوتر من خلال وحدات الإدخال والإخراج، ورابعاً هنتعرف على المايسترو نظام التشغيل.">
-          <div class="slide-header">
-            <span class="slide-tag">خارطة اليوم</span>
-            <h2 class="slide-title">مهمات أبطالنا في محاضرة اليوم 🎯</h2>
-          </div>
-          <div class="grid-4">
-            <div class="kid-card">
-              <div class="card-icon" style="background: var(--brand-blue-light); color: var(--brand-blue);">🧠</div>
-              <h3 class="card-title">1. عقل الكمبيوتر</h3>
-              <p class="card-desc">كيف يفكر الحاسوب ولماذا هو مطيع وسريع كالصاروخ؟</p>
-            </div>
-            <div class="kid-card">
-              <div class="card-icon" style="background: var(--brand-orange-light); color: var(--brand-orange);">⚡</div>
-              <h3 class="card-title">2. الجسد والروح</h3>
-              <p class="card-desc">الفرق الذهبي بين الهاردوير (الملموس) والسوفتوير (البرامج).</p>
-            </div>
-            <div class="kid-card">
-              <div class="card-icon" style="background: var(--brand-green-light); color: var(--brand-green);">🎮</div>
-              <h3 class="card-title">3. الحواس الرقمية</h3>
-              <p class="card-desc">وحدات الإدخال (عيون وآذان) ووحدات الإخراج (اللسان والشاشة).</p>
-            </div>
-            <div class="kid-card">
-              <div class="card-icon" style="background: var(--brand-purple-light); color: var(--brand-purple);">👑</div>
-              <h3 class="card-title">4. المايسترو الكبير</h3>
-              <p class="card-desc">نظام التشغيل (Windows & Android) وكيف يدير الأجهزة.</p>
-            </div>
-          </div>
-        </section>
-
-        <!-- ----------------------------------------------------
-             SLIDE 3: مين فينا بيحب الألعاب؟
-             ---------------------------------------------------- -->
-        <section class="slide" id="slide-3" data-notes="قبل ما ندخل في الغويط.. عايز أسألكم سؤال سريع: مين هنا بيحب يلعب ألعاب؟ روبلوكس؟ ماين كرافت؟ ألعاب العربيات والسباق على الموبايل؟ شايف كل الأيادي مرفوعة وبحماس! طب عمر حد فيكم فكر وهو دايس على الشاشة ومركز في اللعبة: يا ترى إيه اللي بيحصل جوة الجهاز ده؟ وإزاي اللعبة دي اتعملت؟">
-          <div class="grid-2">
-            <div>
-              <span class="slide-tag">سؤال البداية</span>
-              <h2 class="slide-title">مين هنا بيحب الألعاب والجيمز؟ 🎮</h2>
-              <p class="slide-subtitle">روبلوكس؟ ماين كرافت؟ ألعاب السباق على الموبايل؟</p>
-              
-              <div style="margin-top: 28px;" class="kid-card">
-                <p style="font-size: 20px; font-weight: 700; color: var(--brand-purple);">
-                  💡 فكرت قبل كده إيه اللي بيحصل جوه الجهاز في اللحظة اللي بتدوس فيها على الزرار؟ وإزاي الشخصية بتتحرك بالسرعة دي؟
-                </p>
-              </div>
-            </div>
-            <div class="image-container-right">
-              <img src="https://files.catbox.moe/4e6ta5.png" alt="ألعاب الأطفال" class="embedded-img">
-            </div>
-          </div>
-        </section>
-
-        <!-- ----------------------------------------------------
-             SLIDE 4: الكمبيوتر كائن خارق.. ولا غبي؟
-             ---------------------------------------------------- -->
-        <section class="slide" id="slide-4" data-notes="النهاردة جاي أقولكم سر خطير أول مرة تسمعوه: الكمبيوتر في الحقيقة كائن غبي جداً ومبيعرفش يعمل أي حاجة لوحده إطلاقاً! متستغربوش! الكمبيوتر لو قعد مليون سنة مش هيعرف يجيب لنفسه كوباية مية، ولا هيكتب اسمه! أومال خارق ليه؟ لأنه سريع كسرعة الصاروخ، وبينفذ مليارات العمليات في ثانية واحدة.. بس بشرط: إحنا اللي نديله الأمر الصح!">
-          <div class="grid-2">
-            <div>
-              <span class="slide-tag">سر المبرمجين الأذكياء</span>
-              <h2 class="slide-title">هل الكمبيوتر كائن خارق.. أم غبي؟ 🤖</h2>
-              
-              <div style="margin-top: 24px; display: flex; flex-direction: column; gap: 16px;">
-                <div class="kid-card" style="border-right: 6px solid #ef4444;">
-                  <h4 style="font-size: 20px; color: #dc2626;">❌ الحقيقة الأولى: لا يفكر بمفرده!</h4>
-                  <p class="card-desc">لو تركته مليون سنة، لن يشرب كوب ماء ولن يكتب اسمه بمفرده!</p>
+            <!-- Main Stage (Holds Slides + Pen Canvas) -->
+            <div class="stage-container" id="stageContainer">
+                
+                <!-- Slides Container -->
+                <div class="slides-wrapper" id="slidesWrapper">
+                    
+        <!-- SLIDE 1 -->
+        <section class="slide active" id="slide-1" data-slide="1" data-notes="يا أهلاً يا أبطال، منورين يا أذكى مبرمجين ومهندسين في الدنيا! معاكم م/ إسلام عاطف، والنهاردة بنبدأ أول وأقوى خطوة في كورس البرمجة والذكاء الاصطناعي للأطفال. محاضرتنا الأولى بعنوان: الكمبيوتر من الداخل والخارج.. جاهزون للمغامرة؟ يلا بينا نكتشف أسرار الصندوق السحري!">
+            <div class="slide-inner-body">
+                
+            <div class="hero-center">
+                <div class="hero-icons">🚀 💻 ⭐</div>
+                <h1 class="hero-title">الكمبيوتر من الداخل والخارج (Hardware & Software)</h1>
+                <p class="hero-subtitle">أهلاً بكم يا أبطال المستقبل في المحاضرة 01 من كورس البرمجة والذكاء الاصطناعي للأطفال!</p>
+                <div class="hero-tags"><span class="k-badge">✨ Hardware</span><span class="k-badge">✨ Software</span><span class="k-badge">✨ CPU & RAM</span><span class="k-badge">✨ Input & Output</span></div>
+                <div class="hero-meta-box">
+                    <span>👨‍🏫 المدرب: م / إسلام عاطف</span>
+                    <span class="meta-dot">•</span>
+                    <span>🎓 المستوى 1: عالم الكمبيوتر والإنترنت</span>
+                    <span class="meta-dot">•</span>
+                    <span>⏱️ مدة الجلسة: 25 شريحة تفاعلية</span>
                 </div>
-                <div class="kid-card" style="border-right: 6px solid #16a34a;">
-                  <h4 style="font-size: 20px; color: #16a34a;">⚡ الحقيقة الثانية: سريع ومطيع كالصاروخ!</h4>
-                  <p class="card-desc">ينفذ مليارات العمليات في ثانية واحدة، ولكن فقط بالأمر الذي نعطيه له نحن المبرمجين!</p>
-                </div>
-              </div>
             </div>
-            <div class="image-container-right">
-              <img src="https://files.catbox.moe/yudv8l.png" alt="تفكير الكمبيوتر" class="embedded-img">
+        
             </div>
-          </div>
         </section>
-
-        <!-- ----------------------------------------------------
-             SLIDE 5: ما هو الكمبيوتر الحقيقي؟
-             ---------------------------------------------------- -->
-        <section class="slide" id="slide-5" data-notes="تعالوا نلخص فكرة الكمبيوتر في جملة واحدة يا مهندسين: الكمبيوتر هو آلة إلكترونية بتاخد مننا بيانات Data زي ضغطة زرار أو صورة.. تشغل مخها وتعمل لها معالجة Processing في جزء من الثانية.. وتطلعلنا مخرجات ومعلومات Output نشوفها على الشاشة أو نسمعها في السماعات!">
-          <div class="slide-header" style="text-align: center;">
-            <span class="slide-tag">المعادلة الثلاثية السحرية</span>
-            <h2 class="slide-title">كيف يعمل أي كمبيوتر في العالم؟ (I - P - O)</h2>
-          </div>
-          <div class="grid-3" style="margin-top: 20px;">
-            <div class="kid-card" style="text-align: center; border-top: 6px solid var(--brand-blue);">
-              <div class="card-icon" style="margin: 0 auto; background: var(--brand-blue-light); color: var(--brand-blue);">📥</div>
-              <h3 class="card-title">1. الإدخال (Input)</h3>
-              <p class="card-desc">تدخل له الحروف، النقرات، الصوت، أو الصورة.</p>
-            </div>
-            <div class="kid-card" style="text-align: center; border-top: 6px solid var(--brand-orange);">
-              <div class="card-icon" style="margin: 0 auto; background: var(--brand-orange-light); color: var(--brand-orange);">⚙️</div>
-              <h3 class="card-title">2. المعالجة (Processing)</h3>
-              <p class="card-desc">المعالج يحسب ويفكر ويجهز النتيجة في لحظة.</p>
-            </div>
-            <div class="kid-card" style="text-align: center; border-top: 6px solid var(--brand-green);">
-              <div class="card-icon" style="margin: 0 auto; background: var(--brand-green-light); color: var(--brand-green);">📤</div>
-              <h3 class="card-title">3. الإخراج (Output)</h3>
-              <p class="card-desc">تظهر الشخصية في اللعبة أو يخرج الصوت من السماعات.</p>
-            </div>
-          </div>
-        </section>
-
-        <!-- ----------------------------------------------------
-             SLIDE 6: آلة الزمن: كمبيوتر زمان مقابل اليوم
-             ---------------------------------------------------- -->
-        <section class="slide" id="slide-6" data-notes="شايفين الصورة دي؟ زمان أول كمبيوتر اتعمل في العالم كان اسمه ENIAC.. كان واخد أوضة نوم كاملة، وزنه أطنان، ومليان لمبات وأسلاك ضخمة! شوفوا بقى النهاردة بفضل العلم والبرمجة: الكمبيوتر بقى في جيبك على هيئة موبايل، وفي إيدك على هيئة ساعة ذكية، وبقوة أكبر آلاف المرات!">
-          <div class="grid-2">
-            <div>
-              <span class="slide-tag">آلة الزمن الرقمية</span>
-              <h2 class="slide-title">رحلة تطور الحواسيب عبر الزمن ⏳</h2>
-              
-              <div style="margin-top: 24px; display: flex; flex-direction: column; gap: 16px;">
-                <div class="kid-card">
-                  <h4 style="color: var(--text-muted); font-size: 18px;">🏛️ كمبيوتر زمان (ENIAC):</h4>
-                  <p class="card-desc">بحجم غرفة نوم كاملة، وزنه 30 طناً، ويسخن بسرعة البركان!</p>
-                </div>
-                <div class="kid-card" style="border: 2px solid var(--brand-teal);">
-                  <h4 style="color: var(--brand-teal); font-size: 18px;">📱 كمبيوتر اليوم:</h4>
-                  <p class="card-desc">ساعة ذكية في معصمك، وموبايل في جيبك بقوة تفوق حواسيب صعود القمر آلاف المرات!</p>
-                </div>
-              </div>
-            </div>
-            <div class="image-container-right">
-              <img src="https://files.catbox.moe/8t5fqy.png" alt="رحلة الكمبيوتر" class="embedded-img">
-            </div>
-          </div>
-        </section>
-
-        <!-- ----------------------------------------------------
-             SLIDE 7: الجسد والروح: الهاردوير والسوفتوير
-             ---------------------------------------------------- -->
-        <section class="slide" id="slide-7" data-notes="دلوقتي بقى ركزوا معايا في أهم قاعدة في عالم التكنولوجيا: الكمبيوتر مقسوم نصين: نص اسمه Hardware هاردوير.. وده جسد الجهاز، ونص اسمه Software سوفتوير.. وده روح الجهاز وعقله. ومن غير الجسد مفيش جهاز، ومن غير الروح الجهاز ده مجرد حتة حديدة ملهاش أي عازة!">
-          <div class="slide-header" style="text-align: center;">
-            <span class="slide-tag">القاعدة الذهبية الكبرى</span>
-            <h2 class="slide-title">الكمبيوتر = جسد (Hardware) + روح (Software)</h2>
-          </div>
-          <div class="grid-2" style="margin-top: 24px;">
-            <div class="kid-card" style="background: #eff6ff; border-color: var(--brand-blue); text-align: center;">
-              <div class="card-icon" style="margin: 0 auto; background: var(--brand-blue); color: #fff;">🖥️</div>
-              <h3 class="card-title" style="color: var(--brand-blue);">الهاردوير (Hardware)</h3>
-              <p style="font-size: 20px; font-weight: 800; color: var(--text-main);">الجسد المادي الملموس</p>
-              <p class="card-desc">الشاشة، الأسلاك، الماوس، الكيبورد، والكيسة وكل مسمار بداخلها.</p>
-            </div>
-            <div class="kid-card" style="background: #fdf2f8; border-color: var(--brand-pink); text-align: center;">
-              <div class="card-icon" style="margin: 0 auto; background: var(--brand-pink); color: #fff;">💡</div>
-              <h3 class="card-title" style="color: var(--brand-pink);">السوفتوير (Software)</h3>
-              <p style="font-size: 20px; font-weight: 800; color: var(--text-main);">الروح والعقل والأفكار</p>
-              <p class="card-desc">الألعاب، نظام الويندوز، التطبيقات، وأكواد البرمجة التي تدير كل شيء.</p>
-            </div>
-          </div>
-        </section>
-
-        <!-- ----------------------------------------------------
-             SLIDE 8: أبطال الهاردوير (ما تلمسه يدك)
-             ---------------------------------------------------- -->
-        <section class="slide" id="slide-8" data-notes="أي حاجة في الكمبيوتر تقدر تلمسها بإيدك، تخبط عليها، أو لو وقعت تعمل صوت.. دي هاردوير! زي إيه؟ الشاشة الزجاجية اللي بنشوف عليها، لوحة المفاتيح اللي بنكتب عليها، الماوس اللي بنمسكه بإيدنا، والكيسة والأسلاك اللي شايلة كل القطع.">
-          <div class="slide-header">
-            <span class="slide-tag">فريق الهاردوير</span>
-            <h2 class="slide-title">أبطال الهاردوير: كل ما تلمسه يداك 🖐️</h2>
-          </div>
-          <div class="grid-4">
-            <div class="kid-card">
-              <div class="card-icon">🖥️</div>
-              <h4 class="card-title">الشاشة</h4>
-              <p class="card-desc">زجاج وإلكترونيات تلمسها وتعرض لك الصورة.</p>
-            </div>
-            <div class="kid-card">
-              <div class="card-icon">⌨️</div>
-              <h4 class="card-title">لوحة المفاتيح</h4>
-              <p class="card-desc">أزرار بلاستيكية تضغط عليها بأصابعك.</p>
-            </div>
-            <div class="kid-card">
-              <div class="card-icon">🖱️</div>
-              <h4 class="card-title">الفأرة (الماوس)</h4>
-              <p class="card-desc">جسم ملموس تحركه بيدك فوق المكتب.</p>
-            </div>
-            <div class="kid-card">
-              <div class="card-icon">🔌</div>
-              <h4 class="card-title">الكيسة والأسلاك</h4>
-              <p class="card-desc">الصندوق المعدني الذي يحمي العقل الداخلي.</p>
-            </div>
-          </div>
-        </section>
-
-        <!-- ----------------------------------------------------
-             SLIDE 9: أبطال السوفتوير (الروح والأفكار)
-             ---------------------------------------------------- -->
-        <section class="slide" id="slide-9" data-notes="طب السوفتوير بقى؟ دي الأشياء اللي عايشة جوة الشاشة ومتقدرش تلمسها بإيدك خالص! زي الألعاب: سونيك وماريو وروبلوكس.. هل تقدر تمسك سونيك وتحطه في جيبك؟ وزي المتصفح جوجل كروم، والفيديوهات، والويندوز.. دي برامج وأكواد ذكية مصنوعة بالفكر.">
-          <div class="slide-header">
-            <span class="slide-tag">فريق السوفتوير</span>
-            <h2 class="slide-title">أبطال السوفتوير: الأفكار التي لا تُلمس 🌟</h2>
-          </div>
-          <div class="grid-3">
-            <div class="kid-card">
-              <div class="card-icon" style="background: #ede9fe; color: var(--brand-purple);">👾</div>
-              <h3 class="card-title">ألعاب الفيديو</h3>
-              <p class="card-desc">ماينكرافت وروبلوكس وسونيك؛ شخصيات ذكية تعيش بالداخل.</p>
-            </div>
-            <div class="kid-card">
-              <div class="card-icon" style="background: #e0f2fe; color: var(--brand-blue);">🌐</div>
-              <h3 class="card-title">متصفح الإنترنت</h3>
-              <p class="card-desc">جوجل كروم الذي يسافر بك حول العالم بدون أجنحة.</p>
-            </div>
-            <div class="kid-card">
-              <div class="card-icon" style="background: #fef3c7; color: var(--brand-orange);">💻</div>
-              <h3 class="card-title">نظام الويندوز</h3>
-              <p class="card-desc">البرنامج الأساسي الذي يجعل الشاشة تفتح وتعمل.</p>
-            </div>
-          </div>
-        </section>
-
-        <!-- ----------------------------------------------------
-             SLIDE 10: سؤال الأذكياء: ماريو في الجيب!
-             ---------------------------------------------------- -->
-        <section class="slide" id="slide-10" data-notes="شايفين السؤال العبقري ده؟ هل تقدر تحط شخصية ماريو في جيبك؟ لأ طبعاً! أنت تقدر تحط دراع البلايستيشن أو الموبايل في جيبك لأنهم هاردوير.. لكن ماريو نفسه سوفتوير عايش جوة الذاكرة ومبرمج بالأكواد!">
-          <div class="grid-2">
-            <div>
-              <span class="slide-tag">تحدي الذكاء السريع</span>
-              <h2 class="slide-title">هل تستطيع وضع شخصية "ماريو" في جيبك؟ 🤔</h2>
-              
-              <div style="margin-top: 24px;" class="kid-card">
-                <p style="font-size: 22px; font-weight: 800; color: var(--brand-blue); line-height: 1.6;">
-                  الجواب السحري: <br>
-                  تستطيع وضع <span style="color: var(--brand-orange);">ذراع البلايستيشن</span> في جيبك لأنه (Hardware ملموس).. <br>
-                  أما <span style="color: var(--brand-pink);">ماريو</span> فهو (Software) يعيش كأكواد داخل الذاكرة!
-                </p>
-              </div>
-            </div>
-            <div class="image-container-right">
-              <img src="https://files.catbox.moe/yudv8l.png" alt="سؤال الذكاء" class="embedded-img">
-            </div>
-          </div>
-        </section>
-
-        <!-- ----------------------------------------------------
-             SLIDE 11: جسم الإنسان vs الكمبيوتر
-             ---------------------------------------------------- -->
-        <section class="slide" id="slide-11" data-notes="شوفوا الشبه الرهيب بيننا وبين الكمبيوتر: عينك وإيدك وودنك ورجلك.. حاجات ملموسة بنسميها في الكمبيوتر Hardware. أفكارك وذكرياتك وفرحتك وحزنك.. حاجات مش ملموسة بنسميها في الكمبيوتر Software. سبحان الله، المبرمجين والمهندسين صمموا الكمبيوتر بحيث يشبه عقل وجسد الإنسان تماماً!">
-          <div class="slide-header" style="text-align: center;">
-            <span class="slide-tag">التطابق المذهل</span>
-            <h2 class="slide-title">المقارنة العبقرية: جسم الإنسان ضد الكمبيوتر 🧑‍💻</h2>
-          </div>
-          <div class="grid-2" style="margin-top: 24px;">
-            <div class="kid-card">
-              <h3 class="card-title" style="color: var(--brand-teal);">جسم الإنسان 👤</h3>
-              <p class="card-desc"><strong>الجسد (الأعضاء):</strong> اليدان، العينان، القلب، والعظام = هاردوير.</p>
-              <p class="card-desc"><strong>الروح (الأفكار):</strong> الذكريات، المشاعر، المعرفة، واللغات = سوفتوير.</p>
-            </div>
-            <div class="kid-card">
-              <h3 class="card-title" style="color: var(--brand-blue);">الكمبيوتر 💻</h3>
-              <p class="card-desc"><strong>العتاد (الأجزاء):</strong> الشاشة، الماوس، الأسلاك، والمعالج = هاردوير.</p>
-              <p class="card-desc"><strong>البرامج (الأكواد):</strong> الويندوز، الألعاب، الخوارزميات، والبيانات = سوفتوير.</p>
-            </div>
-          </div>
-        </section>
-
-        <!-- ----------------------------------------------------
-             SLIDE 12: لغز الحواس: وحدات الإدخال والإخراج
-             ---------------------------------------------------- -->
-        <section class="slide" id="slide-12" data-notes="دلوقتي بقى لغز المليون جنيه: إزاي الكمبيوتر بيحس بينا وبيكلمنا؟ عن طريق فريقين كبار: فريق بياخد المعلومات مننا ويدخلها جوة الجهاز اسمه: وحدات الإدخال Input Units، وفريق بيطلع النتيجة من جوة الجهاز ويوريها لنا اسمه: وحدات الإخراج Output Units.">
-          <div class="slide-header" style="text-align: center;">
-            <span class="slide-tag">الحواس الرقمية</span>
-            <h2 class="slide-title">كيف يحس بنا الكمبيوتر وكيف يحدثنا؟ 🔄</h2>
-          </div>
-          <div class="grid-2" style="margin-top: 24px;">
-            <div class="kid-card" style="border-right: 6px solid var(--brand-blue); text-align: center;">
-              <div class="card-icon" style="margin: 0 auto; background: var(--brand-blue-light); color: var(--brand-blue);">👂</div>
-              <h3 class="card-title">وحدات الإدخال (Input Units)</h3>
-              <p class="card-desc">تنقل صوتك ونقراتك وصورتك من العالم الخارجي إلى داخل عقل الحاسوب.</p>
-            </div>
-            <div class="kid-card" style="border-right: 6px solid var(--brand-green); text-align: center;">
-              <div class="card-icon" style="margin: 0 auto; background: var(--brand-green-light); color: var(--brand-green);">🗣️</div>
-              <h3 class="card-title">وحدات الإخراج (Output Units)</h3>
-              <p class="card-desc">تنقل الرسومات والأصوات والنتائج من داخل الحاسوب إلى عينيك وأذنيك.</p>
-            </div>
-          </div>
-        </section>
-
-        <!-- ----------------------------------------------------
-             SLIDE 13: عيون وآذان الكمبيوتر (وحدات الإدخال)
-             ---------------------------------------------------- -->
-        <section class="slide" id="slide-13" data-notes="بصوا على الشريحة معايا: الكيبورد بتدخل الحروف والأرقام، الماوس بيدخل الضغطات والنقرات ومكان الحركة، المايكروفون بيدخل صوتك وكلامك للجهاز، والكاميرا بتدخل صورتك وملامحك. كل دول شغالين كمدخلات Input زي ودان وعين الإنسان بالظبط!">
-          <div class="slide-header">
-            <span class="slide-tag">وحدات الإدخال</span>
-            <h2 class="slide-title">عيون وآذان الكمبيوتر: وحدات الإدخال (Input) 📥</h2>
-          </div>
-          <div class="grid-4">
-            <div class="kid-card">
-              <div class="card-icon">⌨️</div>
-              <h4 class="card-title">لوحة المفاتيح</h4>
-              <p class="card-desc">تدخل الحروف، الكلمات، وأرقام الأكواد.</p>
-            </div>
-            <div class="kid-card">
-              <div class="card-icon">🖱️</div>
-              <h4 class="card-title">الفأرة (الماوس)</h4>
-              <p class="card-desc">تدخل إحداثيات الحركة والنقرات المباشرة.</p>
-            </div>
-            <div class="kid-card">
-              <div class="card-icon">🎙️</div>
-              <h4 class="card-title">المايكروفون</h4>
-              <p class="card-desc">يدخل صوتك لتتحدث مع أصدقائك في اللعبة.</p>
-            </div>
-            <div class="kid-card">
-              <div class="card-icon">📷</div>
-              <h4 class="card-title">الكاميرا</h4>
-              <p class="card-desc">تلتقط صورتك وفيديوهاتك وتدخلها للجهاز.</p>
-            </div>
-          </div>
-        </section>
-
-        <!-- ----------------------------------------------------
-             SLIDE 14: لسان وشاشة الكمبيوتر (وحدات الإخراج)
-             ---------------------------------------------------- -->
-        <section class="slide" id="slide-14" data-notes="طب الكمبيوتر لما يحب يجاوبك ويرد عليك، بيستخدم إيه؟ الشاشة بتطلع لك الألوان والصور والمشاهد، السماعات بتطلع لك الأصوات والموسيقى وانفجارات اللعبة، والطابعة البرنتر بتطلع لك الورق والرسومات ملموسة في يدك. دول كلهم شغالين كمخرجات Output!">
-          <div class="slide-header">
-            <span class="slide-tag">وحدات الإخراج</span>
-            <h2 class="slide-title">لسان وشاشة الكمبيوتر: وحدات الإخراج (Output) 📤</h2>
-          </div>
-          <div class="grid-3">
-            <div class="kid-card">
-              <div class="card-icon">🖥️</div>
-              <h3 class="card-title">شاشة العرض (Monitor)</h3>
-              <p class="card-desc">تخرج لك كل الألوان والمؤثرات البصرية وألعابك بجودة عالية.</p>
-            </div>
-            <div class="kid-card">
-              <div class="card-icon">🔊</div>
-              <h3 class="card-title">مكبرات الصوت (Speakers)</h3>
-              <p class="card-desc">تخرج المؤثرات الصوتية والموسيقى وصوت المدرس في الدرس.</p>
-            </div>
-            <div class="kid-card">
-              <div class="card-icon">🖨️</div>
-              <h3 class="card-title">الطابعة (Printer)</h3>
-              <p class="card-desc">تخرج المستندات والرسومات من الشاشة إلى ورق في يدك.</p>
-            </div>
-          </div>
-        </section>
-
-        <!-- ----------------------------------------------------
-             SLIDE 15: تحدي السرعة 1 (المايكروفون)
-             ---------------------------------------------------- -->
-        <section class="slide" id="slide-15" data-notes="يلا نلعب تحدي السرعة التفاعلي يا أبطال! قدامكم سؤال على الشاشة: المايكروفون اللي بنتكلم فيه واحنا بنلعب.. Input ولا Output؟ مين يجاوب أسرع؟ برافوووو! وحدة إدخال Input Unit لأنه بياخد صوتك ويدخله جوة اللعبة!">
-          <div class="slide-header" style="text-align: center;">
-            <span class="slide-tag">تحدي السرعة 1</span>
-            <h2 class="slide-title">المايكروفون: وحدة إدخال أم إخراج؟ 🎙️</h2>
-          </div>
-          <div class="speed-test-box">
-            <p style="font-size: 24px; font-weight: 800; color: var(--text-main);">
-              عندما تتحدث مع زملائك في اللعبة، المايكروفون يرسل صوتك إلى أين؟
-            </p>
-            <div class="speed-options">
-              <button class="option-btn" onclick="checkOption(this, true, 'ممتاز يا بطل! المايكروفون يدخل صوتك للجهاز (Input) 🌟')">إدخال (Input Unit) ✅</button>
-              <button class="option-btn" onclick="checkOption(this, false, 'فكر تاني يا صديقي! هل المايكروفون يخرج أصواتاً أم يستقبل صوتك؟')">إخراج (Output Unit) ❌</button>
-            </div>
-            <div class="option-feedback" style="margin-top: 16px; font-size: 20px; font-weight: 800;"></div>
-          </div>
-        </section>
-
-        <!-- ----------------------------------------------------
-             SLIDE 16: تحدي السرعة 2 (السماعات)
-             ---------------------------------------------------- -->
-        <section class="slide" id="slide-16" data-notes="السؤال التاني للأذكياء فقط: السماعات الكبيرة اللي بنسمع منها صوت الانفجار والأغاني.. Input ولا Output؟ يا عيني على الإجابات الصح! وحدة إخراج Output Unit لأنها بتطلع الصوت من جوة الجهاز لودانك!">
-          <div class="slide-header" style="text-align: center;">
-            <span class="slide-tag">تحدي السرعة 2</span>
-            <h2 class="slide-title">السماعات الكبيرة: إدخال أم إخراج؟ 🎧</h2>
-          </div>
-          <div class="speed-test-box">
-            <p style="font-size: 24px; font-weight: 800; color: var(--text-main);">
-              أصوات الموسيقى وحركة السيارات تخرج من داخل الكمبيوتر إلى أذنيك!
-            </p>
-            <div class="speed-options">
-              <button class="option-btn" onclick="checkOption(this, false, 'حاول مجدداً! الصوت يخرج من الجهاز إليك وليس العكس.')">إدخال (Input Unit) ❌</button>
-              <button class="option-btn" onclick="checkOption(this, true, 'عبقري! السماعات وحدة إخراج تخرج الأصوات لآذاننا (Output) 🚀')">إخراج (Output Unit) ✅</button>
-            </div>
-            <div class="option-feedback" style="margin-top: 16px; font-size: 20px; font-weight: 800;"></div>
-          </div>
-        </section>
-
-        <!-- ----------------------------------------------------
-             SLIDE 17: داخل الكيسة: مخ الكمبيوتر CPU
-             ---------------------------------------------------- -->
-        <section class="slide" id="slide-17" data-notes="تعالوا نفتح الكيسة سوا ونشوف إيه اللي جوة الصندوق السحري ده! أهم قطعة مربعة صغيرة اسمها: المعالج CPU. ده يا سادة مخ الكمبيوتر وقلبه النابض! هو اللي بيجمع ويطرح ويفكر وينفذ كل أمر برمجي في أجزاء من المليار من الثانية!">
-          <div class="grid-2">
-            <div>
-              <span class="slide-tag">القلب والعقل النابض</span>
-              <h2 class="slide-title">المعالج (CPU): عقل الكمبيوتر الخارق 🧠⚡</h2>
-              
-              <div style="margin-top: 24px; display: flex; flex-direction: column; gap: 14px;">
-                <div class="kid-card">
-                  <h4 style="font-size: 19px; color: var(--brand-blue);">ماذا يفعل المعالج؟</h4>
-                  <p class="card-desc">يستقبل كل ضغطة ماوس وكل أمر ويحسب النتائج في أجزاء من المليار من الثانية!</p>
-                </div>
-                <div class="kid-card">
-                  <h4 style="font-size: 19px; color: var(--brand-orange);">السرعة الخارقة:</h4>
-                  <p class="card-desc">يقاس بالجيجاهرتز (GHz).. معالج 3.5 GHz ينفذ 3,500,000,000 عملية في ثانية واحدة!</p>
-                </div>
-              </div>
-            </div>
-            <div class="image-container-right">
-              <img src="https://files.catbox.moe/0t58gy.png" alt="المعالج والعتاد" class="embedded-img">
-            </div>
-          </div>
-        </section>
-
-        <!-- ----------------------------------------------------
-             SLIDE 18: الرامات مقابل الهارد ديسك
-             ---------------------------------------------------- -->
-        <section class="slide" id="slide-18" data-notes="عندنا جوة نوعين من الذاكرة: الرامات RAM عاملة زي سطح المكتب.. سريعة جداً، بتشيل اللعبة المفتوحة دلوقتي، بس لو الكهربا قطعت بتنسى كل حاجة! أما الهارد ديسك Storage ده الدولاب الكبير والمخزن الدائم اللي بيحفظ ألعابك وصورك لسنين طويلة حتى لو طفيت الجهاز!">
-          <div class="slide-header" style="text-align: center;">
-            <span class="slide-tag">لغز الذاكرة السحري</span>
-            <h2 class="slide-title">الرامات (RAM) مقابل القرص الصلب (Storage) 📦</h2>
-          </div>
-          <div class="grid-2" style="margin-top: 24px;">
-            <div class="kid-card" style="border-top: 6px solid var(--brand-orange);">
-              <h3 class="card-title" style="color: var(--brand-orange);">الرامات (RAM) ⚡</h3>
-              <p style="font-weight: 800; font-size: 18px;">مثل "سطح مكتب المذاكرة"</p>
-              <p class="card-desc">سريعة جداً كالبرق، تحمل البرامج المفتوحة الآن فقط، وتفقد بياناتها فور انقطاع الكهرباء.</p>
-            </div>
-            <div class="kid-card" style="border-top: 6px solid var(--brand-teal);">
-              <h3 class="card-title" style="color: var(--brand-teal);">القرص الصلب (SSD / HDD) 🗄️</h3>
-              <p style="font-weight: 800; font-size: 18px;">مثل "خزانة ودولاب الكتب"</p>
-              <p class="card-desc">تخزين دائم وآمن؛ يحفظ ألعابك وملفاتك ونظام التشغيل لسنوات طويلة حتى لو أطفأت الجهاز.</p>
-            </div>
-          </div>
-        </section>
-
-        <!-- ----------------------------------------------------
-             SLIDE 19: اللوحة الأم (Motherboard)
-             ---------------------------------------------------- -->
-        <section class="slide" id="slide-19" data-notes="شايفين اللوحة الخضراء الكبيرة اللي راكب عليها كل حاجة دي؟ دي اسمها اللوحة الأم Motherboard، وعاملة بالظبط زي شوارع وكباري المدينة.. هي اللي بتربط المعالج بالرامات بالهارد ديسك بالشاشة، وتخليهم يكلموا بعض بسرعة البرق!">
-          <div class="grid-2">
-            <div>
-              <span class="slide-tag">المدينة الرقمية</span>
-              <h2 class="slide-title">اللوحة الأم (Motherboard): سفينة الفضاء والشوارع 🚀</h2>
-              
-              <div style="margin-top: 24px;" class="kid-card">
-                <p style="font-size: 19px; line-height: 1.7; color: var(--text-main); font-weight: 700;">
-                  سُميت بالـ <span style="color: var(--brand-blue);">Motherboard</span> لأنها مثل الأم الحنونة التي تجمع كل أفراد العائلة في بيت واحد؛ تربط المعالج بالذاكرة وبكرت الشاشة عبر مسارات نحاسية سريعة تتدفق فيها البيانات كالنور!
-                </p>
-              </div>
-            </div>
-            <div class="image-container-right">
-              <img src="https://files.catbox.moe/0t58gy.png" alt="المازربورد" class="embedded-img">
-            </div>
-          </div>
-        </section>
-
-        <!-- ----------------------------------------------------
-             SLIDE 20: المدير الكبير: نظام التشغيل (OS)
-             ---------------------------------------------------- -->
-        <section class="slide" id="slide-20" data-notes="كل القطع دي محتاجة مدير ينظمها، مين المدير ده بقى؟ نظام التشغيل Operating System! ده عامل زي مدير المدرسة أو مايسترو الأوركسترا.. هو اللي بيقول للشاشة اعرضي دلوقتي، وللصوت اخرج هنا، وللبرنامج افتح هنا. من غيره القطع هتقعد تتخانق ومحدش هيفهم التاني!">
-          <div class="grid-2">
-            <div>
-              <span class="slide-tag">المايسترو الحكيم</span>
-              <h2 class="slide-title">نظام التشغيل (Operating System): مدير المدرسة الكبير 👑</h2>
-              
-              <div style="margin-top: 24px; display: flex; flex-direction: column; gap: 14px;">
-                <div class="kid-card">
-                  <h4 style="font-size: 19px; color: var(--brand-purple);">ماذا يحدث بدون نظام التشغيل؟</h4>
-                  <p class="card-desc">ستتصارع القطع، ولن يفهم المعالج ماذا تريده الشاشة، وسيتحول الجهاز لقطعة حديد صامتة!</p>
-                </div>
-                <div class="kid-card">
-                  <h4 style="font-size: 19px; color: var(--brand-green);">وظيفة المايسترو:</h4>
-                  <p class="card-desc">يوزع الذاكرة بعدالة، ويعطي كل برنامج وقته المناسب ليعمل بسلاسة وأمان.</p>
-                </div>
-              </div>
-            </div>
-            <div class="image-container-right">
-              <img src="https://files.catbox.moe/y98jh5.png" alt="نظام التشغيل" class="embedded-img">
-            </div>
-          </div>
-        </section>
-
-        <!-- ----------------------------------------------------
-             SLIDE 21: عائلة أنظمة التشغيل
-             ---------------------------------------------------- -->
-        <section class="slide" id="slide-21" data-notes="أنظمة التشغيل موجودة في كل أجهزتنا: الويندوز Windows في أجهزة الكمبيوتر واللاب توب، الأندرويد Android في معظم الموبايلات وشاشات التلفزيون، والـ iOS والـ macOS في أجهزة الآيفون والماك من أبل. كلهم مدراء شطار بيسهلوا حياتنا مع التكنولوجيا!">
-          <div class="slide-header">
-            <span class="slide-tag">عائلة الأنظمة</span>
-            <h2 class="slide-title">أشهر أنظمة التشغيل في حياتنا اليومية 🌍</h2>
-          </div>
-          <div class="grid-3">
-            <div class="kid-card" style="text-align: center;">
-              <div class="card-icon" style="margin: 0 auto; color: #0284c7; background: #e0f2fe;">🪟</div>
-              <h3 class="card-title">Windows</h3>
-              <p class="card-desc">ملك أجهزة الكمبيوتر والمكتبيات واللاب توب حول العالم.</p>
-            </div>
-            <div class="kid-card" style="text-align: center;">
-              <div class="card-icon" style="margin: 0 auto; color: #16a34a; background: #dcfce7;">🤖</div>
-              <h3 class="card-title">Android</h3>
-              <p class="card-desc">النظام الأخضر الذكي المنتشر في ملايين الهواتف والشاشات.</p>
-            </div>
-            <div class="kid-card" style="text-align: center;">
-              <div class="card-icon" style="margin: 0 auto; color: #475569; background: #f1f5f9;">🍏</div>
-              <h3 class="card-title">Apple (iOS / macOS)</h3>
-              <p class="card-desc">أنظمة الأناقة في أجهزة الآيفون والآيباد وحواسيب الماك.</p>
-            </div>
-          </div>
-        </section>
-
-        <!-- ----------------------------------------------------
-             SLIDE 22: لغز العباقرة: شاشة الموبايل التاتش!
-             ---------------------------------------------------- -->
-        <section class="slide" id="slide-22" data-notes="طب سؤال العباقرة بقى: شاشة الموبايل التاتش اللي بنلعب بيها.. Input ولا Output؟ مين البطل اللي يعرف؟ الشاشة التاتش دي يا سادة اختراع عبقري جمع الاتنين سوا! هي Output لأنها بتعرض لك الألوان واللعبة.. وفي نفس الوقت Input لأنك بتلمسها بإصبعك وتديها أوامر!">
-          <div class="grid-2">
-            <div>
-              <span class="slide-tag">لغز الأبطال الخارقين</span>
-              <h2 class="slide-title">شاشة الموبايل التاتش: إدخال أم إخراج؟ 📱⚡</h2>
-              
-              <div style="margin-top: 24px;" class="kid-card" style="border: 3px solid var(--brand-purple);">
-                <h3 class="card-title" style="color: var(--brand-purple);">الابتكار المزدوج (Two in One)!</h3>
-                <p class="card-desc" style="font-size: 19px; line-height: 1.7;">
-                  <strong>1. إخراج (Output):</strong> لأنها تعرض لك صورة اللعبة والفيديوهات بألوان زاهية.<br>
-                  <strong>2. إدخال (Input):</strong> لأنها تشعر بلمسات أصابعك وتستقبل منك الأوامر فوراً!
-                </p>
-              </div>
-            </div>
-            <div class="image-container-right">
-              <img src="https://files.catbox.moe/bh2ore.png" alt="الشاشة التاتش" class="embedded-img">
-            </div>
-          </div>
-        </section>
-
-        <!-- ----------------------------------------------------
-             SLIDE 23: النشاط العملي: ساعد الروبوت سبارك!
-             ---------------------------------------------------- -->
-        <section class="slide" id="slide-23" data-notes="ودلوقتي جه وقت الشغل والعملي يا مهندسين! قدامكم على أجهزتكم النشاط التفاعلي: عندنا شخصية الروبوت سبارك تايهة ومحتاجة تجمع أجزاء جسمها علشان تشتغل. هنطابق كل مكون بوظيفته، ونفرز مين شغال Input ومين Output.. وأول واحد هيخلص هياخد لقب مهندس المحاضرة وأول 100 نقطة!">
-          <div class="slide-header" style="text-align: center;">
-            <span class="slide-tag">المهمة الهندسية التفاعلية</span>
-            <h2 class="slide-title">تحدي الروبوت سبارك: ركّب المكونات الصحيحة! 🛠️</h2>
-          </div>
-          <div class="grid-3" style="margin-top: 20px;">
-            <div class="kid-card" style="border-right: 6px solid var(--brand-blue);">
-              <h4 style="font-size: 18px; color: var(--brand-blue);">المهمة 1: العقل المفكر</h4>
-              <p class="card-desc">اختر المعالج المناسب (CPU) وقم بتركيبه في المكان المخصص على اللوحة الأم.</p>
-            </div>
-            <div class="kid-card" style="border-right: 6px solid var(--brand-orange);">
-              <h4 style="font-size: 18px; color: var(--brand-orange);">المهمة 2: شريحة الذاكرة</h4>
-              <p class="card-desc">ركّب ذكريات الرام (RAM) السريعة لكي يستطيع الروبوت التحرك بلا تأخير.</p>
-            </div>
-            <div class="kid-card" style="border-right: 6px solid var(--brand-green);">
-              <h4 style="font-size: 18px; color: var(--brand-green);">المهمة 3: توصيل الحواس</h4>
-              <p class="card-desc">اربط الكاميرا والمايكروفون والشاشات لتكتمل حواس الروبوت بالكامل!</p>
-            </div>
-          </div>
-        </section>
-
-        <!-- ----------------------------------------------------
-             SLIDE 24: تحدي البطل المنزلي
-             ---------------------------------------------------- -->
-        <section class="slide" id="slide-24" data-notes="قبل ما نختم، عندي ليكم تحدي بوليسي للأبطال في البيت: عايزك تمشي في البيت زي المحقق الذكي، وتكتشف 10 أجهزة فيها كمبيوتر داخلي مخفي! فكر في الغسالة الأوتوماتيك، الميكروويف، التكييف، التلفزيون، والسيارة. اكتبهم في كشكول الأبطال وهنراجعهم سوا في بداية الحصة الجاية!">
-          <div class="grid-2">
-            <div>
-              <span class="slide-tag">مهمة المحقق الذكي</span>
-              <h2 class="slide-title">تحدي الأبطال المنزلي: ابحث عن العقول الخفية! 🕵️‍♂️🔍</h2>
-              
-              <div style="margin-top: 24px;" class="kid-card">
-                <p style="font-size: 20px; font-weight: 700; color: var(--text-main); line-height: 1.7;">
-                  امشِ في غرف منزلك وابحث عن <strong>3 أجهزة ذكية</strong> تحتوي على كمبيوتر مخفي بداخلها (مثال: الغسالة الذكية، الميكروويف، التلفزيون الذكي).. <br>
-                  واكتب لكل جهاز: ما هي وحدة إدخاله، وما هي وحدة إخراجه! 🏆
-                </p>
-              </div>
-            </div>
-            <div class="image-container-right">
-              <img src="https://files.catbox.moe/8t5fqy.png" alt="التحدي المنزلي" class="embedded-img">
-            </div>
-          </div>
-        </section>
-
-        <!-- ----------------------------------------------------
-             SLIDE 25: الاحتفال وخاتمة المحاضرة
-             ---------------------------------------------------- -->
-        <section class="slide" id="slide-25" data-notes="أنا فخور جداً بيكم وبذكائكم النهاردة يا أبطال المستقبل! النهاردة بدأنا أول خطوة وبقينا نفهم الكمبيوتر من الداخل والخارج. كل بطل فيكم يستحق أول وسام وأول 100 نقطة في رصيده معانا.. المحاضرة الجاية مغامرتنا هتكون: استخدام الكمبيوتر بذكاء وتنظيم الملفات باحتراف. أشوفكم على خير يا مبدعين، وسلام عليكم!">
-          <div class="grid-2">
-            <div>
-              <span class="slide-tag">إنجاز رائع ومستحق!</span>
-              <h2 class="slide-title" style="color: var(--brand-green);">ألف مبروك يا أبطال المستقبل! 🎉🏅</h2>
-              <p class="slide-subtitle">أتممتم المحاضرة 01 بنجاح وتألّق واكتسبتم أول 100 نقطة</p>
-              
-              <div style="margin-top: 24px;" class="kid-card">
-                <p style="font-size: 20px; font-weight: 800; color: var(--brand-blue);">
-                  موعدنا في المحاضرة 02: <br>
-                  "استخدام الكمبيوتر بذكاء واحتراف المبرمجين" 🚀
-                </p>
-              </div>
-            </div>
-            <div class="image-container-right">
-              <img src="https://files.catbox.moe/c5u0fs.png" alt="احتفال التخرج والتفوق" class="embedded-img">
-            </div>
-          </div>
-        </section>
-
-      </main>
-    </div>
-  </div>
-
-  <!-- Teacher Teleprompter Floating Panel -->
-  <aside id="teacher-notes-panel">
-    <div class="notes-title">
-      <span>🎙️ اسكربت كلام المدرس (المتحدث)</span>
-      <button onclick="toggleTeacherNotes()" style="background: none; border: none; font-size: 16px; cursor: pointer;">✕</button>
-    </div>
-    <div class="notes-body" id="teacher-notes-content">
-      ...
-    </div>
-  </aside>
-
-  <!-- Floating Studio Controls Toolbar -->
-  <div class="studio-controls">
-    <button class="ctrl-btn" onclick="prevSlide()" title="الشريحة السابقة (السهم الأيسر)">➡️</button>
-    <div class="slide-counter">
-      <span id="current-slide-num">1</span> / 25
-    </div>
-    <button class="ctrl-btn" onclick="nextSlide()" title="الشريحة التالية (مسطرة أو السهم الأيمن)">⬅️</button>
-
-    <div style="width: 1px; height: 24px; background: #e2e8f0; margin: 0 4px;"></div>
-
-    <!-- Whiteboard Toggle & Palette -->
-    <button class="ctrl-btn" id="btn-draw" onclick="toggleDrawingMode()" title="تفعيل السبورة الذكية للشرح">✏️</button>
     
-    <div class="palette-box" id="palette-box">
-      <div class="color-dot selected" style="background: #1d4ed8;" onclick="setDrawColor('#1d4ed8', this)"></div>
-      <div class="color-dot" style="background: #dc2626;" onclick="setDrawColor('#dc2626', this)"></div>
-      <div class="color-dot" style="background: #16a34a;" onclick="setDrawColor('#16a34a', this)"></div>
-      <div class="color-dot" style="background: #ea580c;" onclick="setDrawColor('#ea580c', this)"></div>
-      <div class="color-dot" style="background: #9333ea;" onclick="setDrawColor('#9333ea', this)"></div>
-      <div class="color-dot" style="background: #0f172a;" onclick="setDrawColor('#0f172a', this)"></div>
-      <button class="ctrl-btn" style="width: 32px; height: 32px; font-size: 13px;" onclick="clearCanvas()" title="مسح السبورة">🗑️</button>
+        <!-- SLIDE 2 -->
+        <section class="slide " id="slide-2" data-slide="2" data-notes="بصوا معايا على الشاشة يا أبطال.. في مغامرة النهاردة عندنا 4 مهمات أساسية لازم نخرج واحنا أسيادهم: أولاً: هنفهم يعني إيه كمبيوتر أصلاً وكيف يفكر. ثانياً: هنعرف سر الهاردوير والسوفتوير وإيه الفرق بينهم. ثالثاً: هنكتشف حواس الكمبيوتر من خلال وحدات الإدخال والإخراج. ورابعاً: هنتعرف على المايسترو والمدير الكبير اللي اسمه نظام التشغيل. مركزين؟ انطلقنا!">
+            <div class="slide-inner-body">
+                
+            <div class="slide-heading-row">
+                <span class="slide-category">خريطة التعلم اليومية 🗺️</span>
+                <h2 class="slide-main-title">الأهداف الذهبية للمحاضرة 01</h2>
+            </div>
+            <div class="grid-4-balance">
+                <div class="k-card-compact border-blue">
+                    <span class="card-emoji">🎯</span>
+                    <h3 class="card-h">1. الفهم الجوهري</h3>
+                    <p class="card-p">استيعاب مبدأ Hardware ببساطة وبدون أي تعقيد.</p>
+                </div>
+                <div class="k-card-compact border-purple">
+                    <span class="card-emoji">💡</span>
+                    <h3 class="card-h">2. التفكير المنطقي</h3>
+                    <p class="card-p">تحليل المسائل كمهندسي البرمجيات خطوة بخطوة.</p>
+                </div>
+                <div class="k-card-compact border-teal">
+                    <span class="card-emoji">🛠️</span>
+                    <h3 class="card-h">3. التدريب العملي</h3>
+                    <p class="card-p">كتابة الأكواد وتجربة الحل حياً داخل بيئة العمل.</p>
+                </div>
+                <div class="k-card-compact border-orange">
+                    <span class="card-emoji">🏆</span>
+                    <h3 class="card-h">4. وسام الإتقان</h3>
+                    <p class="card-p">حل التحدي البرمجي وحصد أول 100 نقطة إنجاز.</p>
+                </div>
+            </div>
+        
+            </div>
+        </section>
+    
+        <!-- SLIDE 3 -->
+        <section class="slide " id="slide-3" data-slide="3" data-notes="قبل ما ندخل في الغويط.. عايز أسألكم سؤال سريع: مين هنا بيحب يلعب ألعاب؟ روبلوكس؟ ماين كرافت؟ ألعاب العربيات والسباق على الموبايل؟ شايف كل الأيادي مرفوعة وبحماس! طب عمر حد فيكم فكر وهو دايس على الشاشة ومركز في اللعبة: يا ترى إيه اللي بيحصل جوة الجهاز ده؟ وإزاي اللعبة دي اتعملت؟">
+            <div class="slide-inner-body">
+                
+            <div class="slide-heading-row">
+                <span class="slide-category">محور الشرح 03 • CPU & RAM</span>
+                <h2 class="slide-main-title">الكمبيوتر من الداخل والخارج (Hardware & Software) - الجزء (3)</h2>
+            </div>
+            <div class="grid-3-balance">
+                <div class="k-card-compact border-blue">
+                    <div class="card-top-icon">⚙️</div>
+                    <h3 class="card-h">الأساس النظري والمنطقي</h3>
+                    <p class="card-p">كيف يترجم الكمبيوتر أمر <strong>CPU & RAM</strong> وينفذه بسرعة فائقة في المعالج والذاكرة.</p>
+                    <div class="card-tag-pill">منطق الحاسوب 🧠</div>
+                </div>
+                <div class="k-card-compact border-purple">
+                    <div class="card-top-icon">🎮</div>
+                    <h3 class="card-h">التطبيق العملي في المشاريع</h3>
+                    <p class="card-p">توظيف هذا المفهوم في التحكم بالأبطال، صناعة التحديات، وحساب النقاط بدقة.</p>
+                    <div class="card-tag-pill">صناعة الألعاب 🚀</div>
+                </div>
+                <div class="k-card-compact border-teal">
+                    <div class="card-top-icon">🛡️</div>
+                    <h3 class="card-h">أسرار المبرمجين المحترفين</h3>
+                    <p class="card-p">نصائح هندسية لكتابة كود نظيف وسريع وسهل القراءة وخالٍ من أي تعقيد.</p>
+                    <div class="card-tag-pill">الكود النظيف ✨</div>
+                </div>
+            </div>
+        
+            </div>
+        </section>
+    
+        <!-- SLIDE 4 -->
+        <section class="slide " id="slide-4" data-slide="4" data-notes="النهاردة جاي أقولكم سر خطير أول مرة تسمعوه: الكمبيوتر في الحقيقة كائن غبي جداً ومبيعرفش يعمل أي حاجة لوحده إطلاقاً! متستغربوش! الكمبيوتر لو قعد مليون سنة مش هيعرف يجيب لنفسه كوباية مية، ولا هيكتب اسمه! أومال خارق ليه؟ لأنه سريع كسرعة الصاروخ، وبينفذ مليارات العمليات في ثانية واحدة.. بس بشرط: إحنا اللي نديله الأمر الصح!">
+            <div class="slide-inner-body">
+                
+            <div class="slide-heading-row">
+                <span class="slide-category">محور الشرح 04 • Input & Output</span>
+                <h2 class="slide-main-title">الكمبيوتر من الداخل والخارج (Hardware & Software) - الجزء (4)</h2>
+            </div>
+            <div class="grid-3-balance">
+                <div class="k-card-compact border-blue">
+                    <div class="card-top-icon">⚙️</div>
+                    <h3 class="card-h">الأساس النظري والمنطقي</h3>
+                    <p class="card-p">كيف يترجم الكمبيوتر أمر <strong>Input & Output</strong> وينفذه بسرعة فائقة في المعالج والذاكرة.</p>
+                    <div class="card-tag-pill">منطق الحاسوب 🧠</div>
+                </div>
+                <div class="k-card-compact border-purple">
+                    <div class="card-top-icon">🎮</div>
+                    <h3 class="card-h">التطبيق العملي في المشاريع</h3>
+                    <p class="card-p">توظيف هذا المفهوم في التحكم بالأبطال، صناعة التحديات، وحساب النقاط بدقة.</p>
+                    <div class="card-tag-pill">صناعة الألعاب 🚀</div>
+                </div>
+                <div class="k-card-compact border-teal">
+                    <div class="card-top-icon">🛡️</div>
+                    <h3 class="card-h">أسرار المبرمجين المحترفين</h3>
+                    <p class="card-p">نصائح هندسية لكتابة كود نظيف وسريع وسهل القراءة وخالٍ من أي تعقيد.</p>
+                    <div class="card-tag-pill">الكود النظيف ✨</div>
+                </div>
+            </div>
+        
+            </div>
+        </section>
+    
+        <!-- SLIDE 5 -->
+        <section class="slide " id="slide-5" data-slide="5" data-notes="تعالوا نلخص فكرة الكمبيوتر في جملة واحدة يا مهندسين: الكمبيوتر هو آلة إلكترونية بتاخد مننا بيانات داتا زي ضغطة زرار أو صورة.. تشغل مخها وتعمل لها معالجة في جزء من الثانية.. وتطلعلنا مخرجات ومعلومات أوت بوت نشوفها على الشاشة أو نسمعها في السماعات!">
+            <div class="slide-inner-body">
+                
+            <div class="slide-heading-row">
+                <span class="slide-category">محور الشرح 05 • Hardware</span>
+                <h2 class="slide-main-title">الكمبيوتر من الداخل والخارج (Hardware & Software) - الجزء (5)</h2>
+            </div>
+            <div class="grid-3-balance">
+                <div class="k-card-compact border-blue">
+                    <div class="card-top-icon">⚙️</div>
+                    <h3 class="card-h">الأساس النظري والمنطقي</h3>
+                    <p class="card-p">كيف يترجم الكمبيوتر أمر <strong>Hardware</strong> وينفذه بسرعة فائقة في المعالج والذاكرة.</p>
+                    <div class="card-tag-pill">منطق الحاسوب 🧠</div>
+                </div>
+                <div class="k-card-compact border-purple">
+                    <div class="card-top-icon">🎮</div>
+                    <h3 class="card-h">التطبيق العملي في المشاريع</h3>
+                    <p class="card-p">توظيف هذا المفهوم في التحكم بالأبطال، صناعة التحديات، وحساب النقاط بدقة.</p>
+                    <div class="card-tag-pill">صناعة الألعاب 🚀</div>
+                </div>
+                <div class="k-card-compact border-teal">
+                    <div class="card-top-icon">🛡️</div>
+                    <h3 class="card-h">أسرار المبرمجين المحترفين</h3>
+                    <p class="card-p">نصائح هندسية لكتابة كود نظيف وسريع وسهل القراءة وخالٍ من أي تعقيد.</p>
+                    <div class="card-tag-pill">الكود النظيف ✨</div>
+                </div>
+            </div>
+        
+            </div>
+        </section>
+    
+        <!-- SLIDE 6 -->
+        <section class="slide " id="slide-6" data-slide="6" data-notes="شايفين الصورة دي؟ زمان أول كمبيوتر اتعمل في العالم كان اسمه إنياك.. كان واخد أوضة نوم كاملة، وزنه أطنان، ومليان لمبات وأسلاك ضخمة! شوفوا بقى النهاردة بفضل العلم والبرمجة: الكمبيوتر بقى في جيبك على هيئة موبايل، وفي إيدك على هيئة ساعة ذكية، وبقوة أكبر آلاف المرات!">
+            <div class="slide-inner-body">
+                
+            <div class="slide-heading-row">
+                <span class="slide-category">محور الشرح 06 • Software</span>
+                <h2 class="slide-main-title">الكمبيوتر من الداخل والخارج (Hardware & Software) - الجزء (6)</h2>
+            </div>
+            <div class="grid-3-balance">
+                <div class="k-card-compact border-blue">
+                    <div class="card-top-icon">⚙️</div>
+                    <h3 class="card-h">الأساس النظري والمنطقي</h3>
+                    <p class="card-p">كيف يترجم الكمبيوتر أمر <strong>Software</strong> وينفذه بسرعة فائقة في المعالج والذاكرة.</p>
+                    <div class="card-tag-pill">منطق الحاسوب 🧠</div>
+                </div>
+                <div class="k-card-compact border-purple">
+                    <div class="card-top-icon">🎮</div>
+                    <h3 class="card-h">التطبيق العملي في المشاريع</h3>
+                    <p class="card-p">توظيف هذا المفهوم في التحكم بالأبطال، صناعة التحديات، وحساب النقاط بدقة.</p>
+                    <div class="card-tag-pill">صناعة الألعاب 🚀</div>
+                </div>
+                <div class="k-card-compact border-teal">
+                    <div class="card-top-icon">🛡️</div>
+                    <h3 class="card-h">أسرار المبرمجين المحترفين</h3>
+                    <p class="card-p">نصائح هندسية لكتابة كود نظيف وسريع وسهل القراءة وخالٍ من أي تعقيد.</p>
+                    <div class="card-tag-pill">الكود النظيف ✨</div>
+                </div>
+            </div>
+        
+            </div>
+        </section>
+    
+        <!-- SLIDE 7 -->
+        <section class="slide " id="slide-7" data-slide="7" data-notes="دلوقتي بقى ركزوا معايا في أهم قاعدة في عالم التكنولوجيا: الكمبيوتر مقسوم نصين: نص اسمه هاردوير وده جسد الجهاز، ونص اسمه سوفتوير وده روح الجهاز وعقله. ومن غير الجسد مفيش جهاز، ومن غير الروح الجهاز ده مجرد حتة حديدة ملهاش أي عازة!">
+            <div class="slide-inner-body">
+                
+            <div class="slide-heading-row">
+                <span class="slide-category">محور الشرح 07 • CPU & RAM</span>
+                <h2 class="slide-main-title">الكمبيوتر من الداخل والخارج (Hardware & Software) - الجزء (7)</h2>
+            </div>
+            <div class="grid-3-balance">
+                <div class="k-card-compact border-blue">
+                    <div class="card-top-icon">⚙️</div>
+                    <h3 class="card-h">الأساس النظري والمنطقي</h3>
+                    <p class="card-p">كيف يترجم الكمبيوتر أمر <strong>CPU & RAM</strong> وينفذه بسرعة فائقة في المعالج والذاكرة.</p>
+                    <div class="card-tag-pill">منطق الحاسوب 🧠</div>
+                </div>
+                <div class="k-card-compact border-purple">
+                    <div class="card-top-icon">🎮</div>
+                    <h3 class="card-h">التطبيق العملي في المشاريع</h3>
+                    <p class="card-p">توظيف هذا المفهوم في التحكم بالأبطال، صناعة التحديات، وحساب النقاط بدقة.</p>
+                    <div class="card-tag-pill">صناعة الألعاب 🚀</div>
+                </div>
+                <div class="k-card-compact border-teal">
+                    <div class="card-top-icon">🛡️</div>
+                    <h3 class="card-h">أسرار المبرمجين المحترفين</h3>
+                    <p class="card-p">نصائح هندسية لكتابة كود نظيف وسريع وسهل القراءة وخالٍ من أي تعقيد.</p>
+                    <div class="card-tag-pill">الكود النظيف ✨</div>
+                </div>
+            </div>
+        
+            </div>
+        </section>
+    
+        <!-- SLIDE 8 -->
+        <section class="slide " id="slide-8" data-slide="8" data-notes="أي حاجة في الكمبيوتر تقدر تلمسها بإيدك، تخبط عليها، أو لو وقعت تعمل صوت.. دي هاردوير! زي إيه؟ الشاشة الزجاجية اللي بنشوف عليها، لوحة المفاتيح اللي بنكتب عليها، الماوس اللي بنمسكه بإيدنا، والكيسة والأسلاك اللي شايلة كل القطع.">
+            <div class="slide-inner-body">
+                
+            <div class="slide-heading-row">
+                <span class="slide-category badge-challenge">⚡ تحدي سرعة ذكاء المبرمج (1)</span>
+                <h2 class="slide-main-title">اختبر مهاراتك الفورية كمهندس المستقبل! 🕵️‍♂️</h2>
+            </div>
+            <div class="quiz-challenge-card">
+                <p class="quiz-question-txt">ما هو القرار الهندسي والبرمجي الأصح لتطبيق <strong>Hardware</strong> بكفاءة وأمان؟</p>
+                <div class="quiz-options-list">
+                    <button class="quiz-opt-btn" onclick="checkSlideQuiz(this, true, 'أحسنت صنعاً يا بطل! التخطيط المسبق والكود النظيف هما أساس نجاح كل مبرمج محترف! 🌟')">
+                        <span class="opt-letter">أ</span>
+                        <span class="opt-txt">التخطيط المسبق والتسلسل المنطقي خطوة بخطوة واختبار كل أمر بدقة. ✅</span>
+                    </button>
+                    <button class="quiz-opt-btn" onclick="checkSlideQuiz(this, false, 'إجابة غير صحيحة! التسرع العشوائي ينتج عنه أخطاء برمجية يصعب حلها.')">
+                        <span class="opt-letter">ب</span>
+                        <span class="opt-txt">كتابة الأوامر عشوائياً وتخمين النتائج بدون تفكير أو تنظيم. ❌</span>
+                    </button>
+                    <button class="quiz-opt-btn" onclick="checkSlideQuiz(this, false, 'المبرمج البطل لا يستسلم أبداً! الخطأ فرصة للتعلم وحل المشكلات.')">
+                        <span class="opt-letter">ج</span>
+                        <span class="opt-txt">إغلاق البرنامج والاستسلام فور مواجهة أول عقبة. ❌</span>
+                    </button>
+                </div>
+                <div class="quiz-feedback-box" id="quiz-feedback-8"></div>
+            </div>
+        
+            </div>
+        </section>
+    
+        <!-- SLIDE 9 -->
+        <section class="slide " id="slide-9" data-slide="9" data-notes="طب السوفتوير بقى؟ دي الأشياء اللي عايشة جوة الشاشة ومتقدرش تلمسها بإيدك خالص! زي الألعاب: سونيك وماريو وروبلوكس.. هل تقدر تمسك سونيك وتحطه في جيبك؟ وزي المتصفح جوجل كروم، والفيديوهات، والويندوز.. دي برامج وأكواد ذكية مصنوعة بالفكر.">
+            <div class="slide-inner-body">
+                
+            <div class="slide-heading-row">
+                <span class="slide-category">محور الشرح 09 • Hardware</span>
+                <h2 class="slide-main-title">الكمبيوتر من الداخل والخارج (Hardware & Software) - الجزء (9)</h2>
+            </div>
+            <div class="grid-3-balance">
+                <div class="k-card-compact border-blue">
+                    <div class="card-top-icon">⚙️</div>
+                    <h3 class="card-h">الأساس النظري والمنطقي</h3>
+                    <p class="card-p">كيف يترجم الكمبيوتر أمر <strong>Hardware</strong> وينفذه بسرعة فائقة في المعالج والذاكرة.</p>
+                    <div class="card-tag-pill">منطق الحاسوب 🧠</div>
+                </div>
+                <div class="k-card-compact border-purple">
+                    <div class="card-top-icon">🎮</div>
+                    <h3 class="card-h">التطبيق العملي في المشاريع</h3>
+                    <p class="card-p">توظيف هذا المفهوم في التحكم بالأبطال، صناعة التحديات، وحساب النقاط بدقة.</p>
+                    <div class="card-tag-pill">صناعة الألعاب 🚀</div>
+                </div>
+                <div class="k-card-compact border-teal">
+                    <div class="card-top-icon">🛡️</div>
+                    <h3 class="card-h">أسرار المبرمجين المحترفين</h3>
+                    <p class="card-p">نصائح هندسية لكتابة كود نظيف وسريع وسهل القراءة وخالٍ من أي تعقيد.</p>
+                    <div class="card-tag-pill">الكود النظيف ✨</div>
+                </div>
+            </div>
+        
+            </div>
+        </section>
+    
+        <!-- SLIDE 10 -->
+        <section class="slide " id="slide-10" data-slide="10" data-notes="شايفين السؤال العبقري ده؟ هل تقدر تحط شخصية ماريو في جيبك؟ لأ طبعاً! أنت تقدر تحط دراع البلايستيشن أو الموبايل في جيبك لأنهم هاردوير.. لكن ماريو نفسه سوفتوير عايش جوة الذاكرة ومبرمج بالأكواد!">
+            <div class="slide-inner-body">
+                
+            <div class="slide-heading-row">
+                <span class="slide-category">محور الشرح 10 • Software</span>
+                <h2 class="slide-main-title">الكمبيوتر من الداخل والخارج (Hardware & Software) - الجزء (10)</h2>
+            </div>
+            <div class="grid-3-balance">
+                <div class="k-card-compact border-blue">
+                    <div class="card-top-icon">⚙️</div>
+                    <h3 class="card-h">الأساس النظري والمنطقي</h3>
+                    <p class="card-p">كيف يترجم الكمبيوتر أمر <strong>Software</strong> وينفذه بسرعة فائقة في المعالج والذاكرة.</p>
+                    <div class="card-tag-pill">منطق الحاسوب 🧠</div>
+                </div>
+                <div class="k-card-compact border-purple">
+                    <div class="card-top-icon">🎮</div>
+                    <h3 class="card-h">التطبيق العملي في المشاريع</h3>
+                    <p class="card-p">توظيف هذا المفهوم في التحكم بالأبطال، صناعة التحديات، وحساب النقاط بدقة.</p>
+                    <div class="card-tag-pill">صناعة الألعاب 🚀</div>
+                </div>
+                <div class="k-card-compact border-teal">
+                    <div class="card-top-icon">🛡️</div>
+                    <h3 class="card-h">أسرار المبرمجين المحترفين</h3>
+                    <p class="card-p">نصائح هندسية لكتابة كود نظيف وسريع وسهل القراءة وخالٍ من أي تعقيد.</p>
+                    <div class="card-tag-pill">الكود النظيف ✨</div>
+                </div>
+            </div>
+        
+            </div>
+        </section>
+    
+        <!-- SLIDE 11 -->
+        <section class="slide " id="slide-11" data-slide="11" data-notes="شوفوا الشبه الرهيب بيننا وبين الكمبيوتر: عينك وإيدك وودنك ورجلك.. حاجات ملموسة بنسميها في الكمبيوتر هاردوير. أفكارك وذكرياتك وفرحتك وحزنك.. حاجات مش ملموسة بنسميها في الكمبيوتر سوفتوير. سبحان الله، المبرمجين والمهندسين صمموا الكمبيوتر بحيث يشبه عقل وجسد الإنسان تماماً!">
+            <div class="slide-inner-body">
+                
+            <div class="slide-heading-row">
+                <span class="slide-category">محور الشرح 11 • CPU & RAM</span>
+                <h2 class="slide-main-title">الكمبيوتر من الداخل والخارج (Hardware & Software) - الجزء (11)</h2>
+            </div>
+            <div class="grid-3-balance">
+                <div class="k-card-compact border-blue">
+                    <div class="card-top-icon">⚙️</div>
+                    <h3 class="card-h">الأساس النظري والمنطقي</h3>
+                    <p class="card-p">كيف يترجم الكمبيوتر أمر <strong>CPU & RAM</strong> وينفذه بسرعة فائقة في المعالج والذاكرة.</p>
+                    <div class="card-tag-pill">منطق الحاسوب 🧠</div>
+                </div>
+                <div class="k-card-compact border-purple">
+                    <div class="card-top-icon">🎮</div>
+                    <h3 class="card-h">التطبيق العملي في المشاريع</h3>
+                    <p class="card-p">توظيف هذا المفهوم في التحكم بالأبطال، صناعة التحديات، وحساب النقاط بدقة.</p>
+                    <div class="card-tag-pill">صناعة الألعاب 🚀</div>
+                </div>
+                <div class="k-card-compact border-teal">
+                    <div class="card-top-icon">🛡️</div>
+                    <h3 class="card-h">أسرار المبرمجين المحترفين</h3>
+                    <p class="card-p">نصائح هندسية لكتابة كود نظيف وسريع وسهل القراءة وخالٍ من أي تعقيد.</p>
+                    <div class="card-tag-pill">الكود النظيف ✨</div>
+                </div>
+            </div>
+        
+            </div>
+        </section>
+    
+        <!-- SLIDE 12 -->
+        <section class="slide " id="slide-12" data-slide="12" data-notes="دلوقتي بقى لغز المليون جنيه: إزاي الكمبيوتر بيحس بينا وبيكلمنا؟ عن طريق فريقين كبار: فريق بياخد المعلومات مننا ويدخلها جوة الجهاز اسمه وحدات الإدخال إنبوت. وفريق بيطلع النتيجة من جوة الجهاز ويوريها لنا اسمه وحدات الإخراج أوت بوت.">
+            <div class="slide-inner-body">
+                
+            <div class="slide-heading-row">
+                <span class="slide-category">محور الشرح 12 • Input & Output</span>
+                <h2 class="slide-main-title">الكمبيوتر من الداخل والخارج (Hardware & Software) - الجزء (12)</h2>
+            </div>
+            <div class="grid-3-balance">
+                <div class="k-card-compact border-blue">
+                    <div class="card-top-icon">⚙️</div>
+                    <h3 class="card-h">الأساس النظري والمنطقي</h3>
+                    <p class="card-p">كيف يترجم الكمبيوتر أمر <strong>Input & Output</strong> وينفذه بسرعة فائقة في المعالج والذاكرة.</p>
+                    <div class="card-tag-pill">منطق الحاسوب 🧠</div>
+                </div>
+                <div class="k-card-compact border-purple">
+                    <div class="card-top-icon">🎮</div>
+                    <h3 class="card-h">التطبيق العملي في المشاريع</h3>
+                    <p class="card-p">توظيف هذا المفهوم في التحكم بالأبطال، صناعة التحديات، وحساب النقاط بدقة.</p>
+                    <div class="card-tag-pill">صناعة الألعاب 🚀</div>
+                </div>
+                <div class="k-card-compact border-teal">
+                    <div class="card-top-icon">🛡️</div>
+                    <h3 class="card-h">أسرار المبرمجين المحترفين</h3>
+                    <p class="card-p">نصائح هندسية لكتابة كود نظيف وسريع وسهل القراءة وخالٍ من أي تعقيد.</p>
+                    <div class="card-tag-pill">الكود النظيف ✨</div>
+                </div>
+            </div>
+        
+            </div>
+        </section>
+    
+        <!-- SLIDE 13 -->
+        <section class="slide " id="slide-13" data-slide="13" data-notes="بصوا على الشريحة معايا: الكيبورد بتدخل الحروف والأرقام. الماوس بيدخل الضغطات والنقرات ومكان الحركة. المايكروفون بيدخل صوتك وكلامك للجهاز. والكاميرا بتدخل صورتك وملامحك. كل دول شغالين كمدخلات زي ودان وعين الإنسان بالظبط!">
+            <div class="slide-inner-body">
+                
+            <div class="slide-heading-row">
+                <span class="slide-category">محور الشرح 13 • Hardware</span>
+                <h2 class="slide-main-title">الكمبيوتر من الداخل والخارج (Hardware & Software) - الجزء (13)</h2>
+            </div>
+            <div class="grid-3-balance">
+                <div class="k-card-compact border-blue">
+                    <div class="card-top-icon">⚙️</div>
+                    <h3 class="card-h">الأساس النظري والمنطقي</h3>
+                    <p class="card-p">كيف يترجم الكمبيوتر أمر <strong>Hardware</strong> وينفذه بسرعة فائقة في المعالج والذاكرة.</p>
+                    <div class="card-tag-pill">منطق الحاسوب 🧠</div>
+                </div>
+                <div class="k-card-compact border-purple">
+                    <div class="card-top-icon">🎮</div>
+                    <h3 class="card-h">التطبيق العملي في المشاريع</h3>
+                    <p class="card-p">توظيف هذا المفهوم في التحكم بالأبطال، صناعة التحديات، وحساب النقاط بدقة.</p>
+                    <div class="card-tag-pill">صناعة الألعاب 🚀</div>
+                </div>
+                <div class="k-card-compact border-teal">
+                    <div class="card-top-icon">🛡️</div>
+                    <h3 class="card-h">أسرار المبرمجين المحترفين</h3>
+                    <p class="card-p">نصائح هندسية لكتابة كود نظيف وسريع وسهل القراءة وخالٍ من أي تعقيد.</p>
+                    <div class="card-tag-pill">الكود النظيف ✨</div>
+                </div>
+            </div>
+        
+            </div>
+        </section>
+    
+        <!-- SLIDE 14 -->
+        <section class="slide " id="slide-14" data-slide="14" data-notes="طب الكمبيوتر لما يحب يجاوبك ويرد عليك، بيستخدم إيه؟ الشاشة بتطلع لك الألوان والصور والمشاهد. السماعات بتطلع لك الأصوات والموسيقى وانفجارات اللعبة. والطابعة البرنتر بتطلع لك الورق والرسومات ملموسة في يدك. دول كلهم شغالين كمخرجات أوت بوت!">
+            <div class="slide-inner-body">
+                
+            <div class="slide-heading-row">
+                <span class="slide-category">محور الشرح 14 • Software</span>
+                <h2 class="slide-main-title">الكمبيوتر من الداخل والخارج (Hardware & Software) - الجزء (14)</h2>
+            </div>
+            <div class="grid-3-balance">
+                <div class="k-card-compact border-blue">
+                    <div class="card-top-icon">⚙️</div>
+                    <h3 class="card-h">الأساس النظري والمنطقي</h3>
+                    <p class="card-p">كيف يترجم الكمبيوتر أمر <strong>Software</strong> وينفذه بسرعة فائقة في المعالج والذاكرة.</p>
+                    <div class="card-tag-pill">منطق الحاسوب 🧠</div>
+                </div>
+                <div class="k-card-compact border-purple">
+                    <div class="card-top-icon">🎮</div>
+                    <h3 class="card-h">التطبيق العملي في المشاريع</h3>
+                    <p class="card-p">توظيف هذا المفهوم في التحكم بالأبطال، صناعة التحديات، وحساب النقاط بدقة.</p>
+                    <div class="card-tag-pill">صناعة الألعاب 🚀</div>
+                </div>
+                <div class="k-card-compact border-teal">
+                    <div class="card-top-icon">🛡️</div>
+                    <h3 class="card-h">أسرار المبرمجين المحترفين</h3>
+                    <p class="card-p">نصائح هندسية لكتابة كود نظيف وسريع وسهل القراءة وخالٍ من أي تعقيد.</p>
+                    <div class="card-tag-pill">الكود النظيف ✨</div>
+                </div>
+            </div>
+        
+            </div>
+        </section>
+    
+        <!-- SLIDE 15 -->
+        <section class="slide " id="slide-15" data-slide="15" data-notes="يلا نلعب تحدي السرعة التفاعلي يا أبطال! قدامكم سؤال على الشاشة: المايكروفون اللي بنتكلم فيه واحنا بنلعب.. إنبوت ولا أوت بوت؟ مين يجاوب أسرع؟ برافوووو! وحدة إدخال إنبوت، لأنه بياخد صوتك ويدخله جوة اللعبة!">
+            <div class="slide-inner-body">
+                
+            <div class="slide-heading-row">
+                <span class="slide-category">محور الشرح 15 • CPU & RAM</span>
+                <h2 class="slide-main-title">الكمبيوتر من الداخل والخارج (Hardware & Software) - الجزء (15)</h2>
+            </div>
+            <div class="grid-3-balance">
+                <div class="k-card-compact border-blue">
+                    <div class="card-top-icon">⚙️</div>
+                    <h3 class="card-h">الأساس النظري والمنطقي</h3>
+                    <p class="card-p">كيف يترجم الكمبيوتر أمر <strong>CPU & RAM</strong> وينفذه بسرعة فائقة في المعالج والذاكرة.</p>
+                    <div class="card-tag-pill">منطق الحاسوب 🧠</div>
+                </div>
+                <div class="k-card-compact border-purple">
+                    <div class="card-top-icon">🎮</div>
+                    <h3 class="card-h">التطبيق العملي في المشاريع</h3>
+                    <p class="card-p">توظيف هذا المفهوم في التحكم بالأبطال، صناعة التحديات، وحساب النقاط بدقة.</p>
+                    <div class="card-tag-pill">صناعة الألعاب 🚀</div>
+                </div>
+                <div class="k-card-compact border-teal">
+                    <div class="card-top-icon">🛡️</div>
+                    <h3 class="card-h">أسرار المبرمجين المحترفين</h3>
+                    <p class="card-p">نصائح هندسية لكتابة كود نظيف وسريع وسهل القراءة وخالٍ من أي تعقيد.</p>
+                    <div class="card-tag-pill">الكود النظيف ✨</div>
+                </div>
+            </div>
+        
+            </div>
+        </section>
+    
+        <!-- SLIDE 16 -->
+        <section class="slide " id="slide-16" data-slide="16" data-notes="السؤال التاني للأذكياء فقط: السماعات الكبيرة اللي بنسمع منها صوت الانفجار والأغاني.. إنبوت ولا أوت بوت؟ يا عيني على الإجابات الصح! وحدة إخراج أوت بوت، لأنها بتطلع الصوت من جوة الجهاز لودانك!">
+            <div class="slide-inner-body">
+                
+            <div class="slide-heading-row">
+                <span class="slide-category badge-challenge">⚡ تحدي سرعة ذكاء المبرمج (2)</span>
+                <h2 class="slide-main-title">اختبر مهاراتك الفورية كمهندس المستقبل! 🕵️‍♂️</h2>
+            </div>
+            <div class="quiz-challenge-card">
+                <p class="quiz-question-txt">ما هو القرار الهندسي والبرمجي الأصح لتطبيق <strong>Hardware</strong> بكفاءة وأمان؟</p>
+                <div class="quiz-options-list">
+                    <button class="quiz-opt-btn" onclick="checkSlideQuiz(this, true, 'أحسنت صنعاً يا بطل! التخطيط المسبق والكود النظيف هما أساس نجاح كل مبرمج محترف! 🌟')">
+                        <span class="opt-letter">أ</span>
+                        <span class="opt-txt">التخطيط المسبق والتسلسل المنطقي خطوة بخطوة واختبار كل أمر بدقة. ✅</span>
+                    </button>
+                    <button class="quiz-opt-btn" onclick="checkSlideQuiz(this, false, 'إجابة غير صحيحة! التسرع العشوائي ينتج عنه أخطاء برمجية يصعب حلها.')">
+                        <span class="opt-letter">ب</span>
+                        <span class="opt-txt">كتابة الأوامر عشوائياً وتخمين النتائج بدون تفكير أو تنظيم. ❌</span>
+                    </button>
+                    <button class="quiz-opt-btn" onclick="checkSlideQuiz(this, false, 'المبرمج البطل لا يستسلم أبداً! الخطأ فرصة للتعلم وحل المشكلات.')">
+                        <span class="opt-letter">ج</span>
+                        <span class="opt-txt">إغلاق البرنامج والاستسلام فور مواجهة أول عقبة. ❌</span>
+                    </button>
+                </div>
+                <div class="quiz-feedback-box" id="quiz-feedback-16"></div>
+            </div>
+        
+            </div>
+        </section>
+    
+        <!-- SLIDE 17 -->
+        <section class="slide " id="slide-17" data-slide="17" data-notes="تعالوا نفتح الكيسة سوا ونشوف إيه اللي جوة الصندوق السحري ده! أهم قطعة مربعة صغيرة اسمها: المعالج سي بي يو. ده يا سادة مخ الكمبيوتر وقلبه النابض! هو اللي بيجمع ويطرح ويفكر وينفذ كل أمر برمجي في أجزاء من المليار من الثانية!">
+            <div class="slide-inner-body">
+                
+            <div class="slide-heading-row">
+                <span class="slide-category">محور الشرح 17 • Hardware</span>
+                <h2 class="slide-main-title">الكمبيوتر من الداخل والخارج (Hardware & Software) - الجزء (17)</h2>
+            </div>
+            <div class="grid-3-balance">
+                <div class="k-card-compact border-blue">
+                    <div class="card-top-icon">⚙️</div>
+                    <h3 class="card-h">الأساس النظري والمنطقي</h3>
+                    <p class="card-p">كيف يترجم الكمبيوتر أمر <strong>Hardware</strong> وينفذه بسرعة فائقة في المعالج والذاكرة.</p>
+                    <div class="card-tag-pill">منطق الحاسوب 🧠</div>
+                </div>
+                <div class="k-card-compact border-purple">
+                    <div class="card-top-icon">🎮</div>
+                    <h3 class="card-h">التطبيق العملي في المشاريع</h3>
+                    <p class="card-p">توظيف هذا المفهوم في التحكم بالأبطال، صناعة التحديات، وحساب النقاط بدقة.</p>
+                    <div class="card-tag-pill">صناعة الألعاب 🚀</div>
+                </div>
+                <div class="k-card-compact border-teal">
+                    <div class="card-top-icon">🛡️</div>
+                    <h3 class="card-h">أسرار المبرمجين المحترفين</h3>
+                    <p class="card-p">نصائح هندسية لكتابة كود نظيف وسريع وسهل القراءة وخالٍ من أي تعقيد.</p>
+                    <div class="card-tag-pill">الكود النظيف ✨</div>
+                </div>
+            </div>
+        
+            </div>
+        </section>
+    
+        <!-- SLIDE 18 -->
+        <section class="slide " id="slide-18" data-slide="18" data-notes="عندنا جوة نوعين من الذاكرة: الرامات عاملة زي سطح المكتب.. سريعة جداً، بتشيل اللعبة المفتوحة دلوقتي، بس لو الكهربا قطعت بتنسى كل حاجة! أما الهارد ديسك: ده الدولاب الكبير والمخزن الدائم اللي بيحفظ ألعابك وصورك لسنين طويلة حتى لو طفيت الجهاز!">
+            <div class="slide-inner-body">
+                
+            <div class="slide-heading-row">
+                <span class="slide-category">محور الشرح 18 • Software</span>
+                <h2 class="slide-main-title">الكمبيوتر من الداخل والخارج (Hardware & Software) - الجزء (18)</h2>
+            </div>
+            <div class="grid-3-balance">
+                <div class="k-card-compact border-blue">
+                    <div class="card-top-icon">⚙️</div>
+                    <h3 class="card-h">الأساس النظري والمنطقي</h3>
+                    <p class="card-p">كيف يترجم الكمبيوتر أمر <strong>Software</strong> وينفذه بسرعة فائقة في المعالج والذاكرة.</p>
+                    <div class="card-tag-pill">منطق الحاسوب 🧠</div>
+                </div>
+                <div class="k-card-compact border-purple">
+                    <div class="card-top-icon">🎮</div>
+                    <h3 class="card-h">التطبيق العملي في المشاريع</h3>
+                    <p class="card-p">توظيف هذا المفهوم في التحكم بالأبطال، صناعة التحديات، وحساب النقاط بدقة.</p>
+                    <div class="card-tag-pill">صناعة الألعاب 🚀</div>
+                </div>
+                <div class="k-card-compact border-teal">
+                    <div class="card-top-icon">🛡️</div>
+                    <h3 class="card-h">أسرار المبرمجين المحترفين</h3>
+                    <p class="card-p">نصائح هندسية لكتابة كود نظيف وسريع وسهل القراءة وخالٍ من أي تعقيد.</p>
+                    <div class="card-tag-pill">الكود النظيف ✨</div>
+                </div>
+            </div>
+        
+            </div>
+        </section>
+    
+        <!-- SLIDE 19 -->
+        <section class="slide " id="slide-19" data-slide="19" data-notes="شايفين اللوحة الخضراء الكبيرة اللي راكب عليها كل حاجة دي؟ دي اسمها اللوحة الأم ماذربورد، وعاملة بالظبط زي شوارع وكباري المدينة.. هي اللي بتربط المعالج بالرامات بالهارد ديسك بالشاشة، وتخليهم يكلموا بعض بسرعة البرق!">
+            <div class="slide-inner-body">
+                
+            <div class="slide-heading-row">
+                <span class="slide-category">محور الشرح 19 • CPU & RAM</span>
+                <h2 class="slide-main-title">الكمبيوتر من الداخل والخارج (Hardware & Software) - الجزء (19)</h2>
+            </div>
+            <div class="grid-3-balance">
+                <div class="k-card-compact border-blue">
+                    <div class="card-top-icon">⚙️</div>
+                    <h3 class="card-h">الأساس النظري والمنطقي</h3>
+                    <p class="card-p">كيف يترجم الكمبيوتر أمر <strong>CPU & RAM</strong> وينفذه بسرعة فائقة في المعالج والذاكرة.</p>
+                    <div class="card-tag-pill">منطق الحاسوب 🧠</div>
+                </div>
+                <div class="k-card-compact border-purple">
+                    <div class="card-top-icon">🎮</div>
+                    <h3 class="card-h">التطبيق العملي في المشاريع</h3>
+                    <p class="card-p">توظيف هذا المفهوم في التحكم بالأبطال، صناعة التحديات، وحساب النقاط بدقة.</p>
+                    <div class="card-tag-pill">صناعة الألعاب 🚀</div>
+                </div>
+                <div class="k-card-compact border-teal">
+                    <div class="card-top-icon">🛡️</div>
+                    <h3 class="card-h">أسرار المبرمجين المحترفين</h3>
+                    <p class="card-p">نصائح هندسية لكتابة كود نظيف وسريع وسهل القراءة وخالٍ من أي تعقيد.</p>
+                    <div class="card-tag-pill">الكود النظيف ✨</div>
+                </div>
+            </div>
+        
+            </div>
+        </section>
+    
+        <!-- SLIDE 20 -->
+        <section class="slide " id="slide-20" data-slide="20" data-notes="كل القطع دي محتاجة مدير ينظمها، مين المدير ده بقى؟ نظام التشغيل أوبريتنج سيستم! ده عامل زي مدير المدرسة أو مايسترو الأوركسترا.. هو اللي بيقول للشاشة اعرضي دلوقتي، وللصوت اخرج هنا، وللبرنامج افتح هنا. من غيره القطع هتقعد تتخانق ومحدش هيفهم التاني!">
+            <div class="slide-inner-body">
+                
+            <div class="slide-heading-row">
+                <span class="slide-category">محور الشرح 20 • Input & Output</span>
+                <h2 class="slide-main-title">الكمبيوتر من الداخل والخارج (Hardware & Software) - الجزء (20)</h2>
+            </div>
+            <div class="grid-3-balance">
+                <div class="k-card-compact border-blue">
+                    <div class="card-top-icon">⚙️</div>
+                    <h3 class="card-h">الأساس النظري والمنطقي</h3>
+                    <p class="card-p">كيف يترجم الكمبيوتر أمر <strong>Input & Output</strong> وينفذه بسرعة فائقة في المعالج والذاكرة.</p>
+                    <div class="card-tag-pill">منطق الحاسوب 🧠</div>
+                </div>
+                <div class="k-card-compact border-purple">
+                    <div class="card-top-icon">🎮</div>
+                    <h3 class="card-h">التطبيق العملي في المشاريع</h3>
+                    <p class="card-p">توظيف هذا المفهوم في التحكم بالأبطال، صناعة التحديات، وحساب النقاط بدقة.</p>
+                    <div class="card-tag-pill">صناعة الألعاب 🚀</div>
+                </div>
+                <div class="k-card-compact border-teal">
+                    <div class="card-top-icon">🛡️</div>
+                    <h3 class="card-h">أسرار المبرمجين المحترفين</h3>
+                    <p class="card-p">نصائح هندسية لكتابة كود نظيف وسريع وسهل القراءة وخالٍ من أي تعقيد.</p>
+                    <div class="card-tag-pill">الكود النظيف ✨</div>
+                </div>
+            </div>
+        
+            </div>
+        </section>
+    
+        <!-- SLIDE 21 -->
+        <section class="slide " id="slide-21" data-slide="21" data-notes="أنظمة التشغيل موجودة في كل أجهزتنا: الويندوز في أجهزة الكمبيوتر واللاب توب، الأندرويد في معظم الموبايلات وشاشات التلفزيون، والـ iOS والـ macOS في أجهزة الآيفون والماك من أبل. كلهم مدراء شطار بيسهلوا حياتنا مع التكنولوجيا!">
+            <div class="slide-inner-body">
+                
+            <div class="slide-heading-row">
+                <span class="slide-category">محور الشرح 21 • Hardware</span>
+                <h2 class="slide-main-title">الكمبيوتر من الداخل والخارج (Hardware & Software) - الجزء (21)</h2>
+            </div>
+            <div class="grid-3-balance">
+                <div class="k-card-compact border-blue">
+                    <div class="card-top-icon">⚙️</div>
+                    <h3 class="card-h">الأساس النظري والمنطقي</h3>
+                    <p class="card-p">كيف يترجم الكمبيوتر أمر <strong>Hardware</strong> وينفذه بسرعة فائقة في المعالج والذاكرة.</p>
+                    <div class="card-tag-pill">منطق الحاسوب 🧠</div>
+                </div>
+                <div class="k-card-compact border-purple">
+                    <div class="card-top-icon">🎮</div>
+                    <h3 class="card-h">التطبيق العملي في المشاريع</h3>
+                    <p class="card-p">توظيف هذا المفهوم في التحكم بالأبطال، صناعة التحديات، وحساب النقاط بدقة.</p>
+                    <div class="card-tag-pill">صناعة الألعاب 🚀</div>
+                </div>
+                <div class="k-card-compact border-teal">
+                    <div class="card-top-icon">🛡️</div>
+                    <h3 class="card-h">أسرار المبرمجين المحترفين</h3>
+                    <p class="card-p">نصائح هندسية لكتابة كود نظيف وسريع وسهل القراءة وخالٍ من أي تعقيد.</p>
+                    <div class="card-tag-pill">الكود النظيف ✨</div>
+                </div>
+            </div>
+        
+            </div>
+        </section>
+    
+        <!-- SLIDE 22 -->
+        <section class="slide " id="slide-22" data-slide="22" data-notes="طب سؤال العباقرة بقى: شاشة الموبايل التاتش اللي بنلعب بيها.. إنبوت ولا أوت بوت؟ مين البطل اللي يعرف؟ الشاشة التاتش دي يا سادة اختراع عبقري جمع الاتنين سوا! هي أوت بوت لأنها بتعرض لك الألوان واللعبة.. وفي نفس الوقت إنبوت لأنك بتلمسها بإصبعك وتديها أوامر!">
+            <div class="slide-inner-body">
+                
+            <div class="slide-heading-row">
+                <span class="slide-category">محور الشرح 22 • Software</span>
+                <h2 class="slide-main-title">الكمبيوتر من الداخل والخارج (Hardware & Software) - الجزء (22)</h2>
+            </div>
+            <div class="grid-3-balance">
+                <div class="k-card-compact border-blue">
+                    <div class="card-top-icon">⚙️</div>
+                    <h3 class="card-h">الأساس النظري والمنطقي</h3>
+                    <p class="card-p">كيف يترجم الكمبيوتر أمر <strong>Software</strong> وينفذه بسرعة فائقة في المعالج والذاكرة.</p>
+                    <div class="card-tag-pill">منطق الحاسوب 🧠</div>
+                </div>
+                <div class="k-card-compact border-purple">
+                    <div class="card-top-icon">🎮</div>
+                    <h3 class="card-h">التطبيق العملي في المشاريع</h3>
+                    <p class="card-p">توظيف هذا المفهوم في التحكم بالأبطال، صناعة التحديات، وحساب النقاط بدقة.</p>
+                    <div class="card-tag-pill">صناعة الألعاب 🚀</div>
+                </div>
+                <div class="k-card-compact border-teal">
+                    <div class="card-top-icon">🛡️</div>
+                    <h3 class="card-h">أسرار المبرمجين المحترفين</h3>
+                    <p class="card-p">نصائح هندسية لكتابة كود نظيف وسريع وسهل القراءة وخالٍ من أي تعقيد.</p>
+                    <div class="card-tag-pill">الكود النظيف ✨</div>
+                </div>
+            </div>
+        
+            </div>
+        </section>
+    
+        <!-- SLIDE 23 -->
+        <section class="slide " id="slide-23" data-slide="23" data-notes="ودلوقتي جه وقت الشغل والعملي يا مهندسين! قدامكم على أجهزتكم النشاط التفاعلي: عندنا شخصية الروبوت سبارك تايهة ومحتاجة تجمع أجزاء جسمها علشان تشتغل. هنطابق كل مكون بوظيفته، ونفرز مين شغال إنبوت ومين أوت بوت.. وأول واحد هيخلص هياخد لقب مهندس المحاضرة وأول 100 نقطة!">
+            <div class="slide-inner-body">
+                
+            <div class="slide-heading-row">
+                <span class="slide-category">محور الشرح 23 • CPU & RAM</span>
+                <h2 class="slide-main-title">الكمبيوتر من الداخل والخارج (Hardware & Software) - الجزء (23)</h2>
+            </div>
+            <div class="grid-3-balance">
+                <div class="k-card-compact border-blue">
+                    <div class="card-top-icon">⚙️</div>
+                    <h3 class="card-h">الأساس النظري والمنطقي</h3>
+                    <p class="card-p">كيف يترجم الكمبيوتر أمر <strong>CPU & RAM</strong> وينفذه بسرعة فائقة في المعالج والذاكرة.</p>
+                    <div class="card-tag-pill">منطق الحاسوب 🧠</div>
+                </div>
+                <div class="k-card-compact border-purple">
+                    <div class="card-top-icon">🎮</div>
+                    <h3 class="card-h">التطبيق العملي في المشاريع</h3>
+                    <p class="card-p">توظيف هذا المفهوم في التحكم بالأبطال، صناعة التحديات، وحساب النقاط بدقة.</p>
+                    <div class="card-tag-pill">صناعة الألعاب 🚀</div>
+                </div>
+                <div class="k-card-compact border-teal">
+                    <div class="card-top-icon">🛡️</div>
+                    <h3 class="card-h">أسرار المبرمجين المحترفين</h3>
+                    <p class="card-p">نصائح هندسية لكتابة كود نظيف وسريع وسهل القراءة وخالٍ من أي تعقيد.</p>
+                    <div class="card-tag-pill">الكود النظيف ✨</div>
+                </div>
+            </div>
+        
+            </div>
+        </section>
+    
+        <!-- SLIDE 24 -->
+        <section class="slide " id="slide-24" data-slide="24" data-notes="قبل ما نختم، عندي ليكم تحدي بوليسي للأبطال في البيت: عايزك تمشي في البيت زي المحقق الذكي، وتكتشف 10 أجهزة فيها كمبيوتر داخلي مخفي! فكر في الغسالة الأوتوماتيك، الميكروويف، التكييف، التلفزيون، والسيارة. اكتبهم في كشكول الأبطال وهنراجعهم سوا في بداية الحصة الجاية!">
+            <div class="slide-inner-body">
+                
+            <div class="slide-heading-row">
+                <span class="slide-category badge-mission">📝 مهمة البطل العملية</span>
+                <h2 class="slide-main-title">تحدي الواجب المنزلي: طبق ما تعلمته في عالمك! 🌟</h2>
+            </div>
+            <div class="grid-2-balance">
+                <div class="k-card-rich">
+                    <div class="rich-header">
+                        <span class="rich-icon">💻</span>
+                        <h3 class="rich-title">المهمة التطبيقية في المنزل</h3>
+                    </div>
+                    <ul class="rich-list">
+                        <li>راجع مشروع الدرس وطبق مفهوم <strong>Hardware</strong> بنفسك.</li>
+                        <li>جرّب إضافة ميزة جديدة أو فكرة مبتكرة من خيالك الخاص.</li>
+                        <li>التقط لقطة شاشة لإنجازك وشاركه في مجتمع التليجرام والواتساب.</li>
+                    </ul>
+                </div>
+                <div class="k-card-rich highlight-bg">
+                    <div class="rich-header">
+                        <span class="rich-icon">⭐</span>
+                        <h3 class="rich-title">معايير تقييم وسام الإتقان</h3>
+                    </div>
+                    <ul class="rich-list">
+                        <li><strong>الدقة:</strong> تشغيل البرنامج دون أي أخطاء برمجية (50 نقطة).</li>
+                        <li><strong>الإبداع:</strong> لمستك الشخصية في التصميم أو الأفكار (30 نقطة).</li>
+                        <li><strong>الالتزام:</strong> تسليم الحل قبل بداية المحاضرة القادمة (20 نقطة).</li>
+                    </ul>
+                </div>
+            </div>
+        
+            </div>
+        </section>
+    
+        <!-- SLIDE 25 -->
+        <section class="slide " id="slide-25" data-slide="25" data-notes="أنا فخور جداً بيكم وبذكائكم النهاردة يا أبطال المستقبل! النهاردة بدأنا أول خطوة وبقينا نفهم الكمبيوتر من الداخل والخارج. كل بطل فيكم يستحق أول وسام وأول 100 نقطة في رصيده معانا.. المحاضرة الجاية مغامرتنا هتكون: استخدام الكمبيوتر بذكاء وتنظيم الملفات باحتراف. أشوفكم على خير يا مبدعين، وسلام عليكم!">
+            <div class="slide-inner-body">
+                
+            <div class="hero-center celebration-bg">
+                <div class="hero-icons">🎉 🏅 🏆</div>
+                <h1 class="hero-title text-success">ألف مبروك يا أبطال المستقبل!</h1>
+                <p class="hero-subtitle">أتممتم المحاضرة 01 بنجاح باهر وتألقتم في فهم وتطبيق الكمبيوتر من الداخل والخارج (Hardware & Software)!</p>
+                <div class="score-pill">+100 نقطة إنجاز أضيفت لرصيدك البرمجي 🎖️</div>
+                <div class="next-lecture-box">
+                    <span class="next-badge">المحطة القادمة 🚀</span>
+                    <p class="next-title">استعدوا للمحاضرة القادمة لمواصلة رحلتكم الشيقة في المستوى 1: عالم الكمبيوتر والإنترنت!</p>
+                </div>
+            </div>
+        
+            </div>
+        </section>
+    
+                </div>
+
+                <!-- Transparent Drawing Pen Canvas Overlay -->
+                <canvas id="slidePenCanvas" class="slide-pen-canvas"></canvas>
+
+                <!-- Floating In-Slide Pen Toolbar -->
+                <div class="pen-floating-toolbar" id="penToolbar">
+                    <div class="pen-tools-row">
+                        <button class="tool-btn active" id="tool-pen" onclick="setPenTool('pen')" title="قلم الشرح (P)">✏️</button>
+                        <button class="tool-btn" id="tool-highlighter" onclick="setPenTool('highlighter')" title="ماركر التظليل الشفاف (H)">🖍️</button>
+                        <button class="tool-btn" id="tool-eraser" onclick="setPenTool('eraser')" title="ممحاة (E)">🧽</button>
+                        
+                        <div class="tool-separator"></div>
+
+                        <!-- Colors -->
+                        <button class="color-btn selected" style="--c: #ef4444;" onclick="setPenColor('#ef4444', this)" title="أحمر"></button>
+                        <button class="color-btn" style="--c: #facc15;" onclick="setPenColor('#facc15', this)" title="أصفر"></button>
+                        <button class="color-btn" style="--c: #2563eb;" onclick="setPenColor('#2563eb', this)" title="أزرق"></button>
+                        <button class="color-btn" style="--c: #10b981;" onclick="setPenColor('#10b981', this)" title="أخضر"></button>
+                        <button class="color-btn" style="--c: #8b5cf6;" onclick="setPenColor('#8b5cf6', this)" title="بنفسجي"></button>
+                        <button class="color-btn" style="--c: #0f172a;" onclick="setPenColor('#0f172a', this)" title="أسود"></button>
+
+                        <div class="tool-separator"></div>
+
+                        <!-- Stroke Sizes -->
+                        <button class="size-btn active" onclick="setPenSize(4, this)" title="خط رفيع"><span style="width: 4px; height: 4px;"></span></button>
+                        <button class="size-btn" onclick="setPenSize(8, this)" title="خط وسط"><span style="width: 8px; height: 8px;"></span></button>
+                        <button class="size-btn" onclick="setPenSize(16, this)" title="خط عريض"><span style="width: 14px; height: 14px;"></span></button>
+
+                        <div class="tool-separator"></div>
+
+                        <!-- Actions -->
+                        <button class="action-btn" onclick="undoPenStroke()" title="تراجع (Z)">↩️</button>
+                        <button class="action-btn" onclick="clearCurrentSlideDrawings()" title="مسح رسومات الشريحة (C)">🗑️</button>
+                        <button class="action-btn exit-btn" onclick="togglePenMode(false)" title="إغلاق وضع القلم">✕</button>
+                    </div>
+                </div>
+
+                <!-- Teacher Teleprompter Notes Panel -->
+                <div id="teacher-prompter-panel">
+                    <div class="prompter-header">
+                        <span class="prompter-title">🎙️ اسكربت كلام المدرس للشريحة</span>
+                        <button class="prompter-close" onclick="togglePrompter()">✕</button>
+                    </div>
+                    <div class="prompter-body" id="prompterContent">
+                        ...
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Bottom Studio Bar -->
+            <footer class="slide-bottombar">
+                <div class="nav-controls">
+                    <button class="btn-slide-nav" onclick="changeSlide(-1)" id="btnPrev">➡ السابق</button>
+                    <div class="slide-counter-badge">
+                        <span id="currentSlideNum">1</span> / 25
+                    </div>
+                    <button class="btn-slide-nav btn-primary" onclick="changeSlide(1)" id="btnNext">التالي ⬅</button>
+                    
+                    <div class="progress-bar-container">
+                        <div class="progress-bar-fill" id="progressBar"></div>
+                    </div>
+                </div>
+
+                <div class="studio-tools">
+                    <button class="btn-tool-toggle" id="btnPenToggle" onclick="togglePenMode()" title="تفعيل / إغلاق قلم الشرح (P)">
+                        <span>✏️</span>
+                        <span>قلم الشرح</span>
+                    </button>
+                    <button class="btn-tool-toggle" onclick="togglePrompter()" title="كلام المدرس (N)">
+                        <span>📜</span>
+                        <span>اسكربت الشرح</span>
+                    </button>
+                </div>
+            </footer>
+
+        </div>
     </div>
 
-    <div style="width: 1px; height: 24px; background: #e2e8f0; margin: 0 4px;"></div>
+    <!-- Interactive Script -->
+    <script>
+        // ==========================================
+        // 1. SLIDE PRESENTATION CONTROLLER
+        // ==========================================
+        let currentSlide = 1;
+        const totalSlides = 25;
+        const slides = document.querySelectorAll('.slide');
+        const currentSlideNumEl = document.getElementById('currentSlideNum');
+        const progressBarEl = document.getElementById('progressBar');
+        const prompterPanel = document.getElementById('teacher-prompter-panel');
+        const prompterContent = document.getElementById('prompterContent');
+        const btnPrev = document.getElementById('btnPrev');
+        const btnNext = document.getElementById('btnNext');
 
-    <button class="ctrl-btn" id="btn-notes" onclick="toggleTeacherNotes()" title="إظهار / إخفاء كلام المدرس">📜</button>
-    <button class="ctrl-btn" onclick="toggleFullScreen()" title="ملء الشاشة">⛶</button>
-  </div>
+        function showSlide(num) {
+            if (num < 1 || num > totalSlides) return;
+            
+            // Save drawings of outgoing slide
+            saveCurrentSlideDrawingState();
 
-  <script>
-    // ==========================================
-    // SLIDE PRESENTATION STATE & CONTROLLER
-    // ==========================================
-    const totalSlides = 25;
-    let currentSlide = 1;
-    let drawingMode = false;
-    let currentColor = '#1d4ed8';
-    let isDrawing = false;
-    let lastX = 0;
-    let lastY = 0;
+            currentSlide = num;
+            slides.forEach((s, idx) => {
+                s.classList.toggle('active', (idx + 1) === currentSlide);
+            });
 
-    const slides = document.querySelectorAll('.slide');
-    const indicator = document.getElementById('slide-indicator');
-    const counterNum = document.getElementById('current-slide-num');
-    const notesPanel = document.getElementById('teacher-notes-panel');
-    const notesContent = document.getElementById('teacher-notes-content');
-    const canvas = document.getElementById('drawing-canvas');
-    const ctx = canvas.getContext('2d');
-    const btnDraw = document.getElementById('btn-draw');
-    const paletteBox = document.getElementById('palette-box');
+            currentSlideNumEl.textContent = currentSlide;
+            progressBarEl.style.width = `${(currentSlide / totalSlides) * 100}%`;
 
-    // Resize canvas
-    function resizeCanvas() {
-      canvas.width = canvas.parentElement.clientWidth;
-      canvas.height = canvas.parentElement.clientHeight;
-    }
-    window.addEventListener('resize', resizeCanvas);
-    resizeCanvas();
+            btnPrev.disabled = (currentSlide === 1);
+            btnPrev.style.opacity = (currentSlide === 1) ? '0.5' : '1';
 
-    function updateSlide() {
-      slides.forEach((s, idx) => {
-        s.classList.toggle('active', (idx + 1) === currentSlide);
-      });
-      indicator.textContent = `الشريحة ${currentSlide} / ${totalSlides}`;
-      counterNum.textContent = currentSlide;
+            if (currentSlide === totalSlides) {
+                btnNext.textContent = 'إنهاء الجلسة 🏁';
+            } else {
+                btnNext.textContent = 'التالي ⬅';
+            }
 
-      // Update Teacher Notes
-      const activeSlideEl = document.getElementById(`slide-${currentSlide}`);
-      if (activeSlideEl && activeSlideEl.dataset.notes) {
-        notesContent.textContent = activeSlideEl.dataset.notes;
-      } else {
-        notesContent.textContent = 'لا توجد ملاحظات لهذه الشريحة.';
-      }
-    }
+            // Update Teacher Prompter Notes
+            const activeSlide = document.getElementById(`slide-${currentSlide}`);
+            if (activeSlide && activeSlide.dataset.notes) {
+                prompterContent.textContent = activeSlide.dataset.notes;
+            } else {
+                prompterContent.textContent = 'لا توجد ملاحظات مسجلة لهذه الشريحة.';
+            }
 
-    function nextSlide() {
-      if (currentSlide < totalSlides) {
-        currentSlide++;
-        updateSlide();
-      }
-    }
+            // Load drawings of incoming slide
+            loadCurrentSlideDrawingState();
+        }
 
-    function prevSlide() {
-      if (currentSlide > 1) {
-        currentSlide--;
-        updateSlide();
-      }
-    }
+        function changeSlide(dir) {
+            showSlide(currentSlide + dir);
+        }
 
-    // Keyboard navigation
-    window.addEventListener('keydown', (e) => {
-      if (e.key === 'ArrowLeft' || e.key === 'PageDown' || e.key === ' ') {
-        nextSlide();
-      } else if (e.key === 'ArrowRight' || e.key === 'PageUp') {
-        prevSlide();
-      } else if (e.key === 'd' || e.key === 'D' || e.key === 'ي') {
-        toggleDrawingMode();
-      } else if (e.key === 'n' || e.key === 'N' || e.key === 'ى') {
-        toggleTeacherNotes();
-      } else if (e.key === 'c' || e.key === 'C' || e.key === 'ؤ') {
-        clearCanvas();
-      }
-    });
+        function togglePrompter() {
+            prompterPanel.classList.toggle('open');
+        }
 
-    // Drawing Whiteboard Features
-    function toggleDrawingMode() {
-      drawingMode = !drawingMode;
-      canvas.classList.toggle('active-mode', drawingMode);
-      btnDraw.classList.toggle('active', drawingMode);
-      paletteBox.classList.toggle('open', drawingMode);
-    }
+        function toggleFullScreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(() => {});
+            } else {
+                if (document.exitFullscreen) document.exitFullscreen().catch(() => {});
+            }
+        }
 
-    function setDrawColor(color, el) {
-      currentColor = color;
-      document.querySelectorAll('.color-dot').forEach(d => d.classList.remove('selected'));
-      if (el) el.classList.add('selected');
-    }
+        // ==========================================
+        // 2. LIVE IN-SLIDE PEN & ANNOTATION ENGINE
+        // ==========================================
+        const stageContainer = document.getElementById('stageContainer');
+        const canvas = document.getElementById('slidePenCanvas');
+        const ctx = canvas.getContext('2d');
+        const penToolbar = document.getElementById('penToolbar');
+        const btnPenToggle = document.getElementById('btnPenToggle');
 
-    function clearCanvas() {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-    }
+        let penEnabled = false;
+        let activeTool = 'pen'; // 'pen', 'highlighter', 'eraser'
+        let penColor = '#ef4444';
+        let penSize = 4;
+        let isDrawing = false;
+        let lastX = 0, lastY = 0;
 
-    canvas.addEventListener('mousedown', (e) => {
-      if (!drawingMode) return;
-      isDrawing = true;
-      const rect = canvas.getBoundingClientRect();
-      lastX = e.clientX - rect.left;
-      lastY = e.clientY - rect.top;
-    });
+        // Stores per-slide drawing stroke stacks
+        const slideStrokes = {}; // { slideNum: [strokeData, ...] }
+        let currentStroke = null;
 
-    canvas.addEventListener('mousemove', (e) => {
-      if (!isDrawing || !drawingMode) return;
-      const rect = canvas.getBoundingClientRect();
-      const x = e.clientX - rect.left;
-      const y = e.clientY - rect.top;
+        function resizeCanvas() {
+            const dpr = window.devicePixelRatio || 1;
+            canvas.width = stageContainer.clientWidth * dpr;
+            canvas.height = stageContainer.clientHeight * dpr;
+            ctx.scale(dpr, dpr);
+            redrawSlideStrokes();
+        }
+        window.addEventListener('resize', resizeCanvas);
+        setTimeout(resizeCanvas, 50);
 
-      ctx.beginPath();
-      ctx.moveTo(lastX, lastY);
-      ctx.lineTo(x, y);
-      ctx.strokeStyle = currentColor;
-      ctx.lineWidth = 4;
-      ctx.lineCap = 'round';
-      ctx.stroke();
+        function togglePenMode(forcedState) {
+            penEnabled = (forcedState !== undefined) ? forcedState : !penEnabled;
+            canvas.classList.toggle('pen-active', penEnabled);
+            penToolbar.classList.toggle('open', penEnabled);
+            btnPenToggle.classList.toggle('pen-active', penEnabled);
+        }
 
-      lastX = x;
-      lastY = y;
-    });
+        function setPenTool(tool) {
+            activeTool = tool;
+            document.querySelectorAll('.tool-btn').forEach(b => b.classList.remove('active'));
+            const activeBtn = document.getElementById(`tool-${tool}`);
+            if (activeBtn) activeBtn.classList.add('active');
+        }
 
-    window.addEventListener('mouseup', () => { isDrawing = false; });
+        function setPenColor(color, el) {
+            penColor = color;
+            document.querySelectorAll('.color-btn').forEach(b => b.classList.remove('selected'));
+            if (el) el.classList.add('selected');
+            if (activeTool === 'eraser') setPenTool('pen');
+        }
 
-    // Interactive Option Checker for Quiz Slides
-    function checkOption(btn, isCorrect, feedbackMsg) {
-      const container = btn.closest('.speed-test-box');
-      const allBtns = container.querySelectorAll('.option-btn');
-      allBtns.forEach(b => {
-        b.disabled = true;
-        b.style.opacity = '0.6';
-      });
-      btn.style.opacity = '1';
-      btn.classList.add(isCorrect ? 'correct' : 'wrong');
+        function setPenSize(size, el) {
+            penSize = size;
+            document.querySelectorAll('.size-btn').forEach(b => b.classList.remove('active'));
+            if (el) el.classList.add('active');
+        }
 
-      const fb = container.querySelector('.option-feedback');
-      fb.textContent = feedbackMsg;
-      fb.style.color = isCorrect ? 'var(--brand-green)' : '#dc2626';
-    }
+        function saveCurrentSlideDrawingState() {
+            // Strokes are stored directly in slideStrokes[currentSlide]
+        }
 
-    // Teacher Notes Toggle
-    function toggleTeacherNotes() {
-      notesPanel.classList.toggle('visible');
-    }
+        function loadCurrentSlideDrawingState() {
+            redrawSlideStrokes();
+        }
 
-    // Full Screen Toggle
-    function toggleFullScreen() {
-      if (!document.fullscreenElement) {
-        document.documentElement.requestFullscreen().catch(() => {});
-      } else {
-        if (document.exitFullscreen) document.exitFullscreen();
-      }
-    }
+        function redrawSlideStrokes() {
+            const dpr = window.devicePixelRatio || 1;
+            ctx.clearRect(0, 0, canvas.width / dpr, canvas.height / dpr);
+            
+            const strokes = slideStrokes[currentSlide] || [];
+            strokes.forEach(stroke => {
+                renderStroke(stroke);
+            });
+        }
 
-    // Session Timer
-    let secondsElapsed = 0;
-    const timerEl = document.getElementById('session-timer');
-    setInterval(() => {
-      secondsElapsed++;
-      const m = String(Math.floor(secondsElapsed / 60)).padStart(2, '0');
-      const s = String(secondsElapsed % 60).padStart(2, '0');
-      timerEl.textContent = `${m}:${s}`;
-    }, 1000);
+        function renderStroke(stroke) {
+            if (!stroke.points || stroke.points.length === 0) return;
+            ctx.save();
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
 
-    // Initial load
-    updateSlide();
-  </script>
+            if (stroke.tool === 'highlighter') {
+                ctx.globalAlpha = 0.38;
+                ctx.strokeStyle = stroke.color;
+                ctx.lineWidth = stroke.size * 3.5;
+            } else if (stroke.tool === 'eraser') {
+                ctx.globalCompositeOperation = 'destination-out';
+                ctx.lineWidth = stroke.size * 4;
+            } else {
+                ctx.globalAlpha = 1.0;
+                ctx.strokeStyle = stroke.color;
+                ctx.lineWidth = stroke.size;
+            }
+
+            ctx.beginPath();
+            ctx.moveTo(stroke.points[0].x, stroke.points[0].y);
+            for (let i = 1; i < stroke.points.length; i++) {
+                ctx.lineTo(stroke.points[i].x, stroke.points[i].y);
+            }
+            ctx.stroke();
+            ctx.restore();
+        }
+
+        function undoPenStroke() {
+            if (slideStrokes[currentSlide] && slideStrokes[currentSlide].length > 0) {
+                slideStrokes[currentSlide].pop();
+                redrawSlideStrokes();
+            }
+        }
+
+        function clearCurrentSlideDrawings() {
+            slideStrokes[currentSlide] = [];
+            redrawSlideStrokes();
+        }
+
+        // Canvas Pointer Interaction (Works on Desktop, Stylus, & Touch)
+        canvas.addEventListener('pointerdown', (e) => {
+            if (!penEnabled) return;
+            isDrawing = true;
+            canvas.setPointerCapture(e.pointerId);
+
+            const rect = canvas.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+
+            currentStroke = {
+                tool: activeTool,
+                color: penColor,
+                size: penSize,
+                points: [{ x, y }]
+            };
+
+            if (!slideStrokes[currentSlide]) slideStrokes[currentSlide] = [];
+            slideStrokes[currentSlide].push(currentStroke);
+
+            ctx.save();
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+            if (activeTool === 'highlighter') {
+                ctx.globalAlpha = 0.38;
+                ctx.strokeStyle = penColor;
+                ctx.lineWidth = penSize * 3.5;
+            } else if (activeTool === 'eraser') {
+                ctx.globalCompositeOperation = 'destination-out';
+                ctx.lineWidth = penSize * 4;
+            } else {
+                ctx.globalAlpha = 1.0;
+                ctx.strokeStyle = penColor;
+                ctx.lineWidth = penSize;
+            }
+            ctx.beginPath();
+            ctx.moveTo(x, y);
+        });
+
+        canvas.addEventListener('pointermove', (e) => {
+            if (!isDrawing || !penEnabled || !currentStroke) return;
+            const rect = canvas.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+
+            currentStroke.points.push({ x, y });
+            ctx.lineTo(x, y);
+            ctx.stroke();
+        });
+
+        function finishDrawing(e) {
+            if (!isDrawing) return;
+            isDrawing = false;
+            ctx.restore();
+            currentStroke = null;
+        }
+
+        canvas.addEventListener('pointerup', finishDrawing);
+        canvas.addEventListener('pointercancel', finishDrawing);
+
+        // ==========================================
+        // 3. KEYBOARD SHORTCUTS
+        // ==========================================
+        window.addEventListener('keydown', (e) => {
+            const key = e.key.toLowerCase();
+            if (e.key === 'ArrowLeft' || e.key === 'PageDown' || (e.key === ' ' && !penEnabled)) {
+                changeSlide(1);
+            } else if (e.key === 'ArrowRight' || e.key === 'PageUp') {
+                changeSlide(-1);
+            } else if (key === 'p' || key === 'd') {
+                togglePenMode();
+            } else if (key === 'h') {
+                if (!penEnabled) togglePenMode(true);
+                setPenTool('highlighter');
+            } else if (key === 'e') {
+                if (!penEnabled) togglePenMode(true);
+                setPenTool('eraser');
+            } else if (key === 'z') {
+                undoPenStroke();
+            } else if (key === 'c') {
+                clearCurrentSlideDrawings();
+            } else if (key === 'n') {
+                togglePrompter();
+            } else if (key === 'f') {
+                toggleFullScreen();
+            }
+        });
+
+        // ==========================================
+        // 4. INTERACTIVE QUIZ CHECKER
+        // ==========================================
+        function checkSlideQuiz(btn, isCorrect, feedbackMsg) {
+            const container = btn.closest('.quiz-challenge-card');
+            const allBtns = container.querySelectorAll('.quiz-opt-btn');
+            allBtns.forEach(b => {
+                b.disabled = true;
+                b.style.opacity = '0.6';
+            });
+            btn.style.opacity = '1';
+            btn.classList.add(isCorrect ? 'correct' : 'wrong');
+
+            const fb = container.querySelector('.quiz-feedback-box');
+            fb.textContent = feedbackMsg;
+            fb.style.color = isCorrect ? 'var(--success)' : 'var(--danger)';
+        }
+
+        // ==========================================
+        // 5. SESSION TIMER
+        // ==========================================
+        let seconds = 0;
+        const timerEl = document.getElementById('sessionTimer');
+        setInterval(() => {
+            seconds++;
+            const m = String(Math.floor(seconds / 60)).padStart(2, '0');
+            const s = String(seconds % 60).padStart(2, '0');
+            timerEl.textContent = `${m}:${s}`;
+        }, 1000);
+
+        // Initialize First Slide
+        showSlide(1);
+    </script>
 </body>
 </html>
