@@ -107,13 +107,15 @@ class KidsCourseSessionsData {
     ),
     KidsSessionItem(
       number: 5,
-      title: "الأمان الرقمي والخصوصية",
+      title: "الأمان الرقمي والخصوصية: كيف تصبح درعاً سيبرانياً لا يُخترق؟",
       levelNumber: 1,
       levelName: "المستوى 1: عالم الكمبيوتر والإنترنت",
       description: "كلمات المرور القوية، تجنب فخاخ التصيد الاحتيالي، وحماية بياناتك وصورك.",
       slidesCount: 25,
-      isReady: false,
-      topics: ["كلمات المرور", "التصيد الاحتيالي", "الخصوصية", "الهوية الرقمية"],
+      isReady: true,
+      webUrl: "kids_sessions/lecture_05/index.html",
+      quizUrl: "kids_sessions/lecture_05/quiz.html",
+      topics: ["كلمات المرور", "التصيد الاحتيالي", "الخصوصية", "الهوية الرقمية", "2FA"],
     ),
 
     // ----------------------------------------------------

@@ -1,0 +1,1487 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>جلسة تصوير المحاضرة 05 | الأمان الرقمي والخصوصية: كيف تصبح درعاً سيبرانياً لا يُخترق؟</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #0284c7;
+            --primary-light: #38bdf8;
+            --primary-dark: #0369a1;
+            --bg-light: #f8fafc;
+            --card-bg: #ffffff;
+            --text-dark: #0f172a;
+            --text-muted: #64748b;
+            --accent-green: #10b981;
+            --accent-amber: #f59e0b;
+            --accent-purple: #8b5cf6;
+            --accent-red: #ef4444;
+            --border: #e2e8f0;
+            --shadow: 0 10px 25px -5px rgba(2, 132, 199, 0.1), 0 8px 10px -6px rgba(2, 132, 199, 0.1);
+            --shadow-lg: 0 20px 30px -10px rgba(2, 132, 199, 0.15);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Cairo', sans-serif;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        body {
+            background-color: var(--bg-light);
+            color: var(--text-dark);
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            user-select: none;
+        }
+
+        /* Top Bar */
+        .top-bar {
+            background: #ffffff;
+            border-bottom: 2px solid var(--border);
+            padding: 12px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+            z-index: 10;
+        }
+
+        .badge-lec {
+            background: rgba(2, 132, 199, 0.1);
+            color: var(--primary);
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-weight: 800;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border: 1px solid rgba(2, 132, 199, 0.2);
+        }
+
+        .lec-title {
+            font-size: 18px;
+            font-weight: 800;
+            color: var(--text-dark);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .top-controls {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .btn-ctrl {
+            background: #f1f5f9;
+            border: 1px solid var(--border);
+            color: var(--text-dark);
+            padding: 6px 14px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 13px;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-ctrl:hover {
+            background: #e2e8f0;
+            border-color: #cbd5e1;
+        }
+
+        .btn-wb {
+            background: #ede9fe;
+            color: var(--accent-purple);
+            border-color: #ddd6fe;
+        }
+
+        .btn-wb:hover {
+            background: #ddd6fe;
+        }
+
+        /* Main Workspace */
+        .workspace {
+            flex: 1;
+            display: flex;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Slides Stage */
+        .stage {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 24px;
+            position: relative;
+            overflow-y: auto;
+        }
+
+        .slide-card {
+            background: var(--card-bg);
+            width: 100%;
+            max-width: 1100px;
+            height: 94%;
+            border-radius: 24px;
+            box-shadow: var(--shadow-lg);
+            border: 2px solid var(--border);
+            padding: 40px;
+            display: none;
+            flex-direction: column;
+            justify-content: space-between;
+            position: relative;
+            animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .slide-card.active {
+            display: flex;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(15px) scale(0.98); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        .slide-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px dashed #f1f5f9;
+            padding-bottom: 16px;
+        }
+
+        .slide-cat {
+            font-size: 14px;
+            font-weight: 800;
+            color: var(--primary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            background: #f0f9ff;
+            padding: 4px 12px;
+            border-radius: 8px;
+        }
+
+        .slide-num {
+            font-size: 15px;
+            font-weight: 800;
+            color: var(--text-muted);
+            background: #f8fafc;
+            padding: 4px 12px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+        }
+
+        .slide-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 20px 0;
+            gap: 20px;
+        }
+
+        .slide-content h2 {
+            font-size: 34px;
+            font-weight: 900;
+            color: var(--text-dark);
+            line-height: 1.3;
+        }
+
+        .slide-content p {
+            font-size: 20px;
+            color: var(--text-muted);
+            max-width: 850px;
+            line-height: 1.6;
+        }
+
+        /* Rich Elements */
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            width: 100%;
+            max-width: 900px;
+            text-align: right;
+        }
+
+        .grid-3 {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 20px;
+            width: 100%;
+            max-width: 950px;
+            text-align: right;
+        }
+
+        .grid-4 {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr 1fr;
+            gap: 16px;
+            width: 100%;
+            max-width: 1000px;
+            text-align: center;
+        }
+
+        .info-box {
+            background: #f8fafc;
+            border: 2px solid var(--border);
+            border-radius: 16px;
+            padding: 20px;
+            transition: all 0.3s;
+        }
+
+        .info-box:hover {
+            transform: translateY(-4px);
+            border-color: var(--primary);
+            box-shadow: var(--shadow);
+            background: #ffffff;
+        }
+
+        .info-box.danger {
+            border-color: #fecaca;
+            background: #fff5f5;
+        }
+
+        .info-box.danger:hover {
+            border-color: var(--accent-red);
+            background: #fef2f2;
+        }
+
+        .info-box.safe {
+            border-color: #bbf7d0;
+            background: #f0fdf4;
+        }
+
+        .info-box.safe:hover {
+            border-color: var(--accent-green);
+            background: #ecfdf5;
+        }
+
+        .box-icon {
+            font-size: 36px;
+            margin-bottom: 12px;
+            display: inline-block;
+        }
+
+        .box-title {
+            font-size: 18px;
+            font-weight: 800;
+            color: var(--text-dark);
+            margin-bottom: 8px;
+        }
+
+        .box-desc {
+            font-size: 15px;
+            color: var(--text-muted);
+            line-height: 1.5;
+        }
+
+        .badge-tag {
+            display: inline-block;
+            font-size: 12px;
+            font-weight: 800;
+            padding: 3px 10px;
+            border-radius: 6px;
+            margin-top: 10px;
+        }
+
+        .badge-danger {
+            background: #fee2e2;
+            color: #b91c1c;
+        }
+
+        .badge-safe {
+            background: #dcfce7;
+            color: #15803d;
+        }
+
+        /* Password Tester Widget inside Slide */
+        .pwd-tester-box {
+            background: #ffffff;
+            border: 2px solid #bae6fd;
+            border-radius: 18px;
+            padding: 24px;
+            width: 100%;
+            max-width: 650px;
+            box-shadow: var(--shadow);
+        }
+
+        .pwd-input-wrap {
+            position: relative;
+            margin: 15px 0;
+        }
+
+        .pwd-input-wrap input {
+            width: 100%;
+            padding: 14px 20px;
+            font-size: 18px;
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            font-family: monospace;
+            text-align: center;
+            direction: ltr;
+            letter-spacing: 2px;
+            outline: none;
+            transition: all 0.2s;
+        }
+
+        .pwd-input-wrap input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(2, 132, 199, 0.15);
+        }
+
+        .pwd-meter-bar {
+            height: 10px;
+            background: #e2e8f0;
+            border-radius: 6px;
+            overflow: hidden;
+            margin: 12px 0 8px;
+        }
+
+        .pwd-meter-fill {
+            height: 100%;
+            width: 0%;
+            background: var(--accent-red);
+            transition: width 0.3s, background-color 0.3s;
+        }
+
+        .pwd-status {
+            font-size: 15px;
+            font-weight: 800;
+            color: var(--text-dark);
+        }
+
+        /* Phishing Email Simulation */
+        .phish-card {
+            background: #ffffff;
+            border: 2px solid #fecaca;
+            border-radius: 16px;
+            padding: 20px;
+            max-width: 600px;
+            text-align: right;
+            box-shadow: var(--shadow);
+            position: relative;
+        }
+
+        .phish-header {
+            border-bottom: 1px solid #fee2e2;
+            padding-bottom: 10px;
+            margin-bottom: 12px;
+            font-size: 13px;
+            color: #64748b;
+        }
+
+        .phish-body {
+            font-size: 16px;
+            line-height: 1.6;
+            color: #1e293b;
+        }
+
+        .phish-btn {
+            background: #ef4444;
+            color: #ffffff;
+            font-weight: 800;
+            padding: 10px 20px;
+            border-radius: 8px;
+            display: inline-block;
+            margin-top: 14px;
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        .red-flag {
+            background: #fee2e2;
+            color: #991b1b;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: 800;
+            border: 1px dashed #f87171;
+        }
+
+        /* Slide Footer Controls */
+        .slide-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-top: 2px solid #f1f5f9;
+            padding-top: 16px;
+        }
+
+        .btn-nav {
+            background: #ffffff;
+            border: 2px solid var(--border);
+            color: var(--text-dark);
+            padding: 10px 24px;
+            border-radius: 12px;
+            font-size: 15px;
+            font-weight: 800;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-nav:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+            background: #f0f9ff;
+        }
+
+        .btn-nav.primary {
+            background: var(--primary);
+            color: #ffffff;
+            border-color: var(--primary);
+        }
+
+        .btn-nav.primary:hover {
+            background: var(--primary-dark);
+        }
+
+        /* Chalkboard Panel */
+        .chalkboard {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(8px);
+            z-index: 50;
+            display: none;
+            flex-direction: column;
+            padding: 24px;
+            color: #ffffff;
+        }
+
+        .chalkboard.open {
+            display: flex;
+        }
+
+        .chalk-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .chalk-canvas {
+            flex: 1;
+            background: #1e293b;
+            border-radius: 16px;
+            border: 2px solid #334155;
+            cursor: crosshair;
+        }
+
+        .chalk-tools {
+            display: flex;
+            gap: 12px;
+            margin-top: 14px;
+            justify-content: center;
+        }
+
+        .color-dot {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 2px solid #ffffff;
+            transition: transform 0.2s;
+        }
+
+        .color-dot:hover {
+            transform: scale(1.2);
+        }
+
+        /* Quick Quiz Card inside Slide */
+        .interactive-quiz {
+            background: #f8fafc;
+            border: 2px solid #e2e8f0;
+            border-radius: 16px;
+            padding: 20px;
+            max-width: 650px;
+            width: 100%;
+            text-align: right;
+        }
+
+        .quiz-option {
+            background: #ffffff;
+            border: 2px solid #e2e8f0;
+            padding: 12px 16px;
+            border-radius: 10px;
+            margin-top: 10px;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .quiz-option:hover {
+            border-color: var(--primary);
+            background: #f0f9ff;
+        }
+
+        .quiz-option.correct {
+            background: #dcfce7 !important;
+            border-color: #22c55e !important;
+            color: #15803d;
+        }
+
+        .quiz-option.wrong {
+            background: #fee2e2 !important;
+            border-color: #ef4444 !important;
+            color: #b91c1c;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Top Bar -->
+    <header class="top-bar">
+        <div class="badge-lec">
+            <span>🛡️</span>
+            <span>المحاضرة 05 • المستوى الأول</span>
+        </div>
+        <h1 class="lec-title">
+            <span>الأمان الرقمي والخصوصية: كيف تصبح درعاً سيبرانياً لا يُخترق؟</span>
+        </h1>
+        <div class="top-controls">
+            <button class="btn-ctrl btn-wb" onclick="toggleChalkboard()">
+                <span>✏️</span>
+                <span>سبورة الشرح</span>
+            </button>
+            <button class="btn-ctrl" onclick="toggleFullScreen()">
+                <span>⛶</span>
+                <span>ملء الشاشة</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- Workspace -->
+    <main class="workspace">
+        <div class="stage">
+
+            <!-- SLIDE 1 -->
+            <div class="slide-card active" data-slide="1">
+                <div class="slide-header">
+                    <span class="slide-cat">مقدمة الأبطال السيبرانيين 🛡️</span>
+                    <span class="slide-num">1 / 25</span>
+                </div>
+                <div class="slide-content">
+                    <div style="font-size: 70px; margin-bottom: -10px;">🏰</div>
+                    <h2>قلعة الفضاء الرقمي: مرحباً بأبطال الأمان!</h2>
+                    <p>أهلاً بكم يا حماة المستقبل في مسك ختام المستوى الأول! بنينا الكمبيوتر، وفهمنا الإنترنت، وعرفنا كيف تتواصل الشبكات.. اليوم سنتعلم كيف نحمي كل هذا بقفل سحري ودرع سيبراني لا يمكن لأي مخترق كسره!</p>
+                    <div style="display: flex; gap: 16px; margin-top: 10px;">
+                        <span class="badge-tag badge-safe" style="font-size: 14px; padding: 8px 16px;">🔑 كلمات المرور الحديدية</span>
+                        <span class="badge-tag badge-danger" style="font-size: 14px; padding: 8px 16px;">🎣 فخاخ التصيد الاحتيالي</span>
+                        <span class="badge-tag badge-safe" style="font-size: 14px; padding: 8px 16px;">🛡️ الخصوصية والهوية الرقمية</span>
+                    </div>
+                </div>
+                <div class="slide-footer">
+                    <button class="btn-nav" disabled>السابق</button>
+                    <button class="btn-nav primary" onclick="changeSlide(1)">التالي ⬅</button>
+                </div>
+            </div>
+
+            <!-- SLIDE 2 -->
+            <div class="slide-card" data-slide="2">
+                <div class="slide-header">
+                    <span class="slide-cat">خريطة المحاضرة 🗺️</span>
+                    <span class="slide-num">2 / 25</span>
+                </div>
+                <div class="slide-content">
+                    <h2>الأهداف الذهبية للمحاضرة الخامسة</h2>
+                    <div class="grid-4">
+                        <div class="info-box">
+                            <span class="box-icon">🔐</span>
+                            <h3 class="box-title">كلمات المرور الخارقة</h3>
+                            <p class="box-desc">صناعة باسورد فولاذي مستحيل التخمين وطريقة حفظه الذكية.</p>
+                        </div>
+                        <div class="info-box">
+                            <span class="box-icon">🎣</span>
+                            <h3 class="box-title">كشف فخاخ التصيد</h3>
+                            <p class="box-desc">صيد الروابط المزيفة ورسائل الجوائز الوهمية والخدع الرقمية.</p>
+                        </div>
+                        <div class="info-box">
+                            <span class="box-icon">🎭</span>
+                            <h3 class="box-title">حماية الخصوصية</h3>
+                            <p class="box-desc">البيانات التي لا يجوز نشرها إطلاقاً وصورتك الرقمية.</p>
+                        </div>
+                        <div class="info-box">
+                            <span class="box-icon">🦠</span>
+                            <h3 class="box-title">الفيروسات ومكافحتها</h3>
+                            <p class="box-desc">برامج الحماية Antivirus وتحديث الأنظمة باستمرار.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="slide-footer">
+                    <button class="btn-nav" onclick="changeSlide(-1)">➡ السابق</button>
+                    <button class="btn-nav primary" onclick="changeSlide(1)">التالي ⬅</button>
+                </div>
+            </div>
+
+            <!-- SLIDE 3 -->
+            <div class="slide-card" data-slide="3">
+                <div class="slide-header">
+                    <span class="slide-cat">لماذا نحتاج الأمان؟ 🚪</span>
+                    <span class="slide-num">3 / 25</span>
+                </div>
+                <div class="slide-content">
+                    <h2>هل تترك باب بيتك مفتوحاً للغرباء؟</h2>
+                    <p>بالطبع لا! نقفل باب البيت بالمفتاح لحماية أسرتنا وأغراضنا الثمينة. جهازك وحسابك على الإنترنت مثل شقتك بالضبط، يحتوي على صورك، رسائلك، ألعابك، وبيانات بابا وماما!</p>
+                    <div class="grid-2">
+                        <div class="info-box danger">
+                            <span class="box-icon">🔓</span>
+                            <h3 class="box-title">جهاز بدون حماية</h3>
+                            <p class="box-desc">مثل بيت بلا أبواب، يمكن لأي متطفل الدخول وسرقة ألعابك وحساباتك أو إتلاف ملفاتك.</p>
+                        </div>
+                        <div class="info-box safe">
+                            <span class="box-icon">🔒</span>
+                            <h3 class="box-title">جهاز محصن بوعي</h3>
+                            <p class="box-desc">قلعة حصينة بقفل مشفر وجدار حماية لا ينفذ منه أي متسلل أبداً!</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="slide-footer">
+                    <button class="btn-nav" onclick="changeSlide(-1)">➡ السابق</button>
+                    <button class="btn-nav primary" onclick="changeSlide(1)">التالي ⬅</button>
+                </div>
+            </div>
+
+            <!-- SLIDE 4 -->
+            <div class="slide-card" data-slide="4">
+                <div class="slide-header">
+                    <span class="slide-cat">كلمات المرور 🔑</span>
+                    <span class="slide-num">4 / 25</span>
+                </div>
+                <div class="slide-content">
+                    <h2>أسوأ كلمات مرور في العالم! ❌</h2>
+                    <p>المخترقون يملكون برامج روبوتية خارقة تجرب ملايين الكلمات في الثانية الواحدة. إذا كانت كلمة سرك واحدة من هذه، فسيتم اختراقها في 0.001 ثانية!</p>
+                    <div class="grid-3">
+                        <div class="info-box danger">
+                            <span class="box-icon">💀</span>
+                            <h3 class="box-title">123456</h3>
+                            <p class="box-desc">الرقم الأكثر استخداماً واختراقاً في تاريخ الإنترنت عالمياً!</p>
+                        </div>
+                        <div class="info-box danger">
+                            <span class="box-icon">⌨️</span>
+                            <h3 class="box-title">qwerty</h3>
+                            <p class="box-desc">أول صف أزرار في الكيبورد، أول شيء يجربه روبوت الاختراق.</p>
+                        </div>
+                        <div class="info-box danger">
+                            <span class="box-icon">👶</span>
+                            <h3 class="box-title">اسمك أو تاريخ ميلادك</h3>
+                            <p class="box-desc">مثل ahmed2014، أي شخص يعرفك يستطيع تخمينها بسهولة تامة!</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="slide-footer">
+                    <button class="btn-nav" onclick="changeSlide(-1)">➡ السابق</button>
+                    <button class="btn-nav primary" onclick="changeSlide(1)">التالي ⬅</button>
+                </div>
+            </div>
+
+            <!-- SLIDE 5 -->
+            <div class="slide-card" data-slide="5">
+                <div class="slide-header">
+                    <span class="slide-cat">معادلة الباسورد الخارق 🧪</span>
+                    <span class="slide-num">5 / 25</span>
+                </div>
+                <div class="slide-content">
+                    <h2>خلطة القفل الفولاذي: المكونات الأربعة!</h2>
+                    <p>حتى تكون كلمة مرورك خارقة وتحتاج أجهزة الكمبيوتر إلى 100 سنة لكسرها، يجب أن تحتوي على المكونات الأربعة التالية:</p>
+                    <div class="grid-4">
+                        <div class="info-box safe">
+                            <span class="box-icon">🔠</span>
+                            <h3 class="box-title">حروف كبيرة</h3>
+                            <p class="box-desc">Uppercase Letters مثل: A, K, Z</p>
+                        </div>
+                        <div class="info-box safe">
+                            <span class="box-icon">🔡</span>
+                            <h3 class="box-title">حروف صغيرة</h3>
+                            <p class="box-desc">Lowercase Letters مثل: b, m, x</p>
+                        </div>
+                        <div class="info-box safe">
+                            <span class="box-icon">🔢</span>
+                            <h3 class="box-title">أرقام متنوعة</h3>
+                            <p class="box-desc">Numbers عشوائية مثل: 7, 3, 9</p>
+                        </div>
+                        <div class="info-box safe">
+                            <span class="box-icon">✨</span>
+                            <h3 class="box-title">رموز خاصة</h3>
+                            <p class="box-desc">Symbols سحرية مثل: @, #, $, %</p>
+                        </div>
+                    </div>
+                    <p style="font-size: 16px; color: var(--primary-dark); font-weight: 800;">💡 شرط ذهبي إضافي: لا تقل كلمة المرور عن 12 إلى 16 خانة!</p>
+                </div>
+                <div class="slide-footer">
+                    <button class="btn-nav" onclick="changeSlide(-1)">➡ السابق</button>
+                    <button class="btn-nav primary" onclick="changeSlide(1)">التالي ⬅</button>
+                </div>
+            </div>
+
+            <!-- SLIDE 6 -->
+            <div class="slide-card" data-slide="6">
+                <div class="slide-header">
+                    <span class="slide-cat">حيلة العباقرة 🧠</span>
+                    <span class="slide-num">6 / 25</span>
+                </div>
+                <div class="slide-content">
+                    <h2>حيلة جملة المرور السرية (Passphrase)</h2>
+                    <p>كيف أحفظ باسورد طويل بدون ما أنساه؟ الحل هو تحويل جملة عربية تحبها إلى كلمة سر إنجليزية ورموز!</p>
+                    <div class="info-box safe" style="max-width: 700px; width: 100%;">
+                        <div style="font-size: 18px; font-weight: 800; color: var(--text-dark); margin-bottom: 10px;">
+                            الجملة: <span>"أنا أحب أكل البيتزا يوم الجمعة الساعة 5!"</span>
+                        </div>
+                        <div style="font-size: 24px; font-weight: 900; color: var(--primary); font-family: monospace; letter-spacing: 2px;">
+                            I#Love!Pizza@Friday#5
+                        </div>
+                        <p class="box-desc" style="margin-top: 10px;">باسورد مكون من 21 خانة، به رموز وحروف وأرقام، سهل عليك تذكره ومستحيل على أي هاكر تخمينه!</p>
+                    </div>
+                </div>
+                <div class="slide-footer">
+                    <button class="btn-nav" onclick="changeSlide(-1)">➡ السابق</button>
+                    <button class="btn-nav primary" onclick="changeSlide(1)">التالي ⬅</button>
+                </div>
+            </div>
+
+            <!-- SLIDE 7 -->
+            <div class="slide-card" data-slide="7">
+                <div class="slide-header">
+                    <span class="slide-cat">مختبر عملي تفاعلي 🧪</span>
+                    <span class="slide-num">7 / 25</span>
+                </div>
+                <div class="slide-content">
+                    <h2>مقياس قوة كلمة المرور (جرب بنفسك الآن!)</h2>
+                    <p>اكتب أي كلمة مرور وشاهد كيف يقيمها الروبوت السيبراني في الوقت الحقيقي:</p>
+                    <div class="pwd-tester-box">
+                        <div class="pwd-input-wrap">
+                            <input type="text" id="demoPwdInput" placeholder="اكتب كلمة مرور تجريبية هنا..." oninput="testPassword(this.value)">
+                        </div>
+                        <div class="pwd-meter-bar">
+                            <div class="pwd-meter-fill" id="pwdMeterFill"></div>
+                        </div>
+                        <div class="pwd-status" id="pwdStatusText">أدخل كلمة مرور لاختبارها...</div>
+                    </div>
+                </div>
+                <div class="slide-footer">
+                    <button class="btn-nav" onclick="changeSlide(-1)">➡ السابق</button>
+                    <button class="btn-nav primary" onclick="changeSlide(1)">التالي ⬅</button>
+                </div>
+            </div>
+
+            <!-- SLIDE 8 -->
+            <div class="slide-card" data-slide="8">
+                <div class="slide-header">
+                    <span class="slide-cat">التحقق بخطوتين 🛡️</span>
+                    <span class="slide-num">8 / 25</span>
+                </div>
+                <div class="slide-content">
+                    <h2>المصادقة الثنائية (2FA): القفل المزدوج الخارق!</h2>
+                    <p>تخيل لو عرف أحد كلمة سرك بالصدفة، هل يستطيع فتح حسابك؟ ليس إذا كنت مفعلاً لخاصية 2FA!</p>
+                    <div class="grid-2">
+                        <div class="info-box">
+                            <span class="box-icon">1️⃣</span>
+                            <h3 class="box-title">الخطوة الأولى: الباسورد</h3>
+                            <p class="box-desc">الشيء الذي تعرفه (كلمة المرور السرية التي تدخلها في الموقع).</p>
+                        </div>
+                        <div class="info-box safe">
+                            <span class="box-icon">2️⃣</span>
+                            <h3 class="box-title">الخطوة الثانية: كود الهاتف</h3>
+                            <p class="box-desc">رسالة نصية SMS أو إشعار فوري على موبايل بابا يحتوي على كود سري من 6 أرقام صالح لدقيقة واحدة فقط!</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="slide-footer">
+                    <button class="btn-nav" onclick="changeSlide(-1)">➡ السابق</button>
+                    <button class="btn-nav primary" onclick="changeSlide(1)">التالي ⬅</button>
+                </div>
+            </div>
+
+            <!-- SLIDE 9 -->
+            <div class="slide-card" data-slide="9">
+                <div class="slide-header">
+                    <span class="slide-cat">فخاخ الإنترنت 🎣</span>
+                    <span class="slide-num">9 / 25</span>
+                </div>
+                <div class="slide-content">
+                    <h2>ما هو التصيد الاحتيالي (Phishing)؟</h2>
+                    <p>التصيد هو خدعة يقوم بها المحتالون برمي "طُعم" مغري (مثل سمكة جائعة) ليجعلوك تبتلع الصنارة وتكتب كلمة سرك بنفسك دون أن تشعر!</p>
+                    <div class="grid-3">
+                        <div class="info-box danger">
+                            <span class="box-icon">🎁</span>
+                            <h3 class="box-title">فخ الجوائز الوهمية</h3>
+                            <p class="box-desc">"مبروك! ربحت آيفون 16 أو 10,000 روبوكس مجاناً، اضغط هنا فوراً!"</p>
+                        </div>
+                        <div class="info-box danger">
+                            <span class="box-icon">⚠️</span>
+                            <h3 class="box-title">فخ التخويف المستعجل</h3>
+                            <p class="box-desc">"حسابك سيُحذف بعد 10 دقائق إذا لم تسجل دخولك عبر هذا الرابط الآن!"</p>
+                        </div>
+                        <div class="info-box danger">
+                            <span class="box-icon">🎭</span>
+                            <h3 class="box-title">انتحال شخصية صديق</h3>
+                            <p class="box-desc">رسالة من حساب مسروق: "أنا صديقك عمر، ابعتلي الكود اللي وصل لموبايلك بسرعة!"</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="slide-footer">
+                    <button class="btn-nav" onclick="changeSlide(-1)">➡ السابق</button>
+                    <button class="btn-nav primary" onclick="changeSlide(1)">التالي ⬅</button>
+                </div>
+            </div>
+
+            <!-- SLIDE 10 -->
+            <div class="slide-card" data-slide="10">
+                <div class="slide-header">
+                    <span class="slide-cat">محاكاة عملية 🕵️‍♂️</span>
+                    <span class="slide-num">10 / 25</span>
+                </div>
+                <div class="slide-content">
+                    <h2>تشريح رسالة احتيالية حقيقية</h2>
+                    <p>بصفتك محققاً سيبرانياً، انظر إلى هذه الرسالة المزيفة واستخرج العلامات الحمراء (Red Flags):</p>
+                    <div class="phish-card">
+                        <div class="phish-header">
+                            من: <span class="red-flag">security@robl0x-free-robux.xyz</span> • الموضوع: حسابك في خطر!
+                        </div>
+                        <div class="phish-body">
+                            مرحباً يا بطل! تم تعليق حسابك مؤقتاً. اضغط على الزر بالأسفل واكتب الباسورد فوراً لإلغاء التعليق واستلام <span class="red-flag">1000 عملة مجانية</span> خلال 5 دقائق فقط وإلا سيتم إغلاق الحساب نهائياً!
+                        </div>
+                        <a href="javascript:void(0)" class="phish-btn">تسجيل الدخول الآن ⚠️</a>
+                    </div>
+                    <div style="font-size: 14px; color: var(--accent-red); font-weight: 800; margin-top: 8px;">
+                        العلامات المكشوفة: إيميل غريب مزيف (.xyz)، إغراء بجوائز مجانية، واستعجال وتهديد بالحذف!
+                    </div>
+                </div>
+                <div class="slide-footer">
+                    <button class="btn-nav" onclick="changeSlide(-1)">➡ السابق</button>
+                    <button class="btn-nav primary" onclick="changeSlide(1)">التالي ⬅</button>
+                </div>
+            </div>
+
+            <!-- SLIDE 11 -->
+            <div class="slide-card" data-slide="11">
+                <div class="slide-header">
+                    <span class="slide-cat">فحص الروابط 🔗</span>
+                    <span class="slide-num">11 / 25</span>
+                </div>
+                <div class="slide-content">
+                    <h2>خدعة الروابط المتشابهة (Typosquatting)</h2>
+                    <p>المخترقون يغيرون حرفاً واحداً صغيراً في اسم الموقع ليخدعوا عينيك السريعتين!</p>
+                    <div class="grid-2">
+                        <div class="info-box safe">
+                            <span class="box-icon">✅</span>
+                            <h3 class="box-title">الموقع الحقيقي الرسمي</h3>
+                            <p class="box-desc" style="font-family: monospace; font-size: 18px; color: var(--accent-green);">google.com</p>
+                            <p class="box-desc" style="font-family: monospace; font-size: 18px; color: var(--accent-green);">roblox.com</p>
+                        </div>
+                        <div class="info-box danger">
+                            <span class="box-icon">❌</span>
+                            <h3 class="box-title">الفخ المزيف الخبيث</h3>
+                            <p class="box-desc" style="font-family: monospace; font-size: 18px; color: var(--accent-red);">g00gle.com (استبدال o برقم صفر!)</p>
+                            <p class="box-desc" style="font-family: monospace; font-size: 18px; color: var(--accent-red);">robl0x-login.tk (حروف ناقصة ودومين مشبوه)</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="slide-footer">
+                    <button class="btn-nav" onclick="changeSlide(-1)">➡ السابق</button>
+                    <button class="btn-nav primary" onclick="changeSlide(1)">التالي ⬅</button>
+                </div>
+            </div>
+
+            <!-- SLIDE 12 -->
+            <div class="slide-card" data-slide="12">
+                <div class="slide-header">
+                    <span class="slide-cat">تحدي سريع 🎯</span>
+                    <span class="slide-num">12 / 25</span>
+                </div>
+                <div class="slide-content">
+                    <h2>اختبار ذكاء المحقق السيبراني!</h2>
+                    <p>وصلتك رسالة على واتساب من رقم مجهول تقول: "مبروك! اضغط هنا وسجل بياناتك لربح بلايستيشن 5!"، ماذا تفعل؟</p>
+                    <div class="interactive-quiz">
+                        <div class="quiz-option" onclick="selectQuizOpt(this, false)">
+                            <span>أ) أضغط فوراً على الرابط وأكتب بياناتي لأستلم الجائزة!</span>
+                        </div>
+                        <div class="quiz-option" onclick="selectQuizOpt(this, true)">
+                            <span>ب) أتجاهل الرسالة تماماً، أحظر الرقم، وأخبر ماما أو بابا فوراً. ✅</span>
+                        </div>
+                        <div class="quiz-option" onclick="selectQuizOpt(this, false)">
+                            <span>ج) أرسل الرسالة لكل أصدقائي في المدرسة ليجربوها أيضاً!</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="slide-footer">
+                    <button class="btn-nav" onclick="changeSlide(-1)">➡ السابق</button>
+                    <button class="btn-nav primary" onclick="changeSlide(1)">التالي ⬅</button>
+                </div>
+            </div>
+
+            <!-- SLIDE 13 -->
+            <div class="slide-card" data-slide="13">
+                <div class="slide-header">
+                    <span class="slide-cat">الخصوصية الشخصية 🎭</span>
+                    <span class="slide-num">13 / 25</span>
+                </div>
+                <div class="slide-content">
+                    <h2>أسرارك الرقمية: ما هي البيانات المحرم نشرها؟</h2>
+                    <p>هناك معلومات شخصية حساسة خاصة بك وأسرتك، لا يجوز مشاركتها مع أي شخص في الألعاب أو المنتديات أو السوشيال ميديا أبداً:</p>
+                    <div class="grid-4">
+                        <div class="info-box danger">
+                            <span class="box-icon">🏠</span>
+                            <h3 class="box-title">عنوان بيتك ومدرستك</h3>
+                            <p class="box-desc">لا تشارك الشارع أو رقم العمارة أو اسم مدرستك مع الغرباء.</p>
+                        </div>
+                        <div class="info-box danger">
+                            <span class="box-icon">📞</span>
+                            <h3 class="box-title">رقم الهاتف</h3>
+                            <p class="box-desc">أرقام موبايلك وموبايل والديك سر عائلي لا يُنشر عاماً.</p>
+                        </div>
+                        <div class="info-box danger">
+                            <span class="box-icon">💳</span>
+                            <h3 class="box-title">فيزا وبطاقات البنك</h3>
+                            <p class="box-desc">أرقام بطاقات بابا البنكية وكود الـ CVV السري خلف البطاقة.</p>
+                        </div>
+                        <div class="info-box danger">
+                            <span class="box-icon">🔑</span>
+                            <h3 class="box-title">كلمات المرور والإيميل</h3>
+                            <p class="box-desc">لا تعطِ باسوردك حتى لأعز أصدقائك، فكلمة المرور خاصة بك وحدك.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="slide-footer">
+                    <button class="btn-nav" onclick="changeSlide(-1)">➡ السابق</button>
+                    <button class="btn-nav primary" onclick="changeSlide(1)">التالي ⬅</button>
+                </div>
+            </div>
+
+            <!-- SLIDE 14 -->
+            <div class="slide-card" data-slide="14">
+                <div class="slide-header">
+                    <span class="slide-cat">حماية الصور 📸</span>
+                    <span class="slide-num">14 / 25</span>
+                </div>
+                <div class="slide-content">
+                    <h2>الصور العائلية والفيديو: فكر قبل أن تنشر!</h2>
+                    <p>قاعدة ذهبية في عالم الإنترنت: "كل ما يُنشر على النت يظل على النت للأبد حتى لو حذفته!"</p>
+                    <div class="grid-2">
+                        <div class="info-box danger">
+                            <span class="box-icon">⚠️</span>
+                            <h3 class="box-title">احذر من خلفيات الصور!</h3>
+                            <p class="box-desc">قد تصور صورة وتظهر في خلفيتها أوراق رسمية، شهادات ميلاد، عنوان بيتك من البلكونة، أو ملابس مدرستك التي تكشف مكانك.</p>
+                        </div>
+                        <div class="info-box safe">
+                            <span class="box-icon">👨‍👩‍👧‍👦</span>
+                            <h3 class="box-title">استئذان الأسرة دائماً</h3>
+                            <p class="box-desc">قبل رفع أي صورة لك أو لأحد إخوتك على أي منصة، اعرضها أولاً على بابا وماما وخذ موافقتهم الواضحة.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="slide-footer">
+                    <button class="btn-nav" onclick="changeSlide(-1)">➡ السابق</button>
+                    <button class="btn-nav primary" onclick="changeSlide(1)">التالي ⬅</button>
+                </div>
+            </div>
+
+            <!-- SLIDE 15 -->
+            <div class="slide-card" data-slide="15">
+                <div class="slide-header">
+                    <span class="slide-cat">البصمة الرقمية 👣</span>
+                    <span class="slide-num">15 / 25</span>
+                </div>
+                <div class="slide-content">
+                    <h2>بصمتك الرقمية (Digital Footprint)</h2>
+                    <p>مثل من يمشي على شاطئ رملي رطب ويترك أثراً وراءه، كل تعليق تكتبه، فيديو تشاهده، أو منشور تشاركه يترك أثراً رقمياً يدوم للأبد ويحدد سمعتك في المستقبل كمهندس ومبرمج!</p>
+                    <div class="info-box safe" style="max-width: 750px; width: 100%;">
+                        <div class="box-title" style="font-size: 20px;">قاعدة التفكير الثلاثي قبل النقر أو التعليق (T.H.I.N.K):</div>
+                        <div style="display: flex; justify-content: space-around; margin-top: 15px; font-weight: 800; font-size: 16px;">
+                            <span>✨ هل هذا حقيقي ومفيد؟</span>
+                            <span>❤️ هل هو مهذب ولطيف؟</span>
+                            <span>🛡️ هل هو آمن ولا يؤذي أحداً؟</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="slide-footer">
+                    <button class="btn-nav" onclick="changeSlide(-1)">➡ السابق</button>
+                    <button class="btn-nav primary" onclick="changeSlide(1)">التالي ⬅</button>
+                </div>
+            </div>
+
+            <!-- SLIDE 16 -->
+            <div class="slide-card" data-slide="16">
+                <div class="slide-header">
+                    <span class="slide-cat">عالم الفيروسات 🦠</span>
+                    <span class="slide-num">16 / 25</span>
+                </div>
+                <div class="slide-content">
+                    <h2>ما هو فيروس الكمبيوتر (Malware)؟</h2>
+                    <p>الفيروس ليس كائناً حياً، بل هو برنامج كود خبيث كتبه شخص سيئ ليتسلل إلى جهازك، يكرر نفسه، ويبطئ جهازك أو يتجسس على ملفاتك!</p>
+                    <div class="grid-3">
+                        <div class="info-box danger">
+                            <span class="box-icon">🐴</span>
+                            <h3 class="box-title">حصان طروادة (Trojan)</h3>
+                            <p class="box-desc">يظهر وكأنه لعبة حلوة مجانية أو فيلم كرتون، لكن داخله فيروس مدمر!</p>
+                        </div>
+                        <div class="info-box danger">
+                            <span class="box-icon">🔒</span>
+                            <h3 class="box-title">برامج الفدية (Ransomware)</h3>
+                            <p class="box-desc">تقفل كل ملفات الكمبيوتر وتشفرها وتطلب أموالاً لفك القفل.</p>
+                        </div>
+                        <div class="info-box danger">
+                            <span class="box-icon">🕵️</span>
+                            <h3 class="box-title">برامج التجسس (Spyware)</h3>
+                            <p class="box-desc">تسجل سراً ما تكتبه على الكيبورد وتسرق الباسوردات.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="slide-footer">
+                    <button class="btn-nav" onclick="changeSlide(-1)">➡ السابق</button>
+                    <button class="btn-nav primary" onclick="changeSlide(1)">التالي ⬅</button>
+                </div>
+            </div>
+
+            <!-- SLIDE 17 -->
+            <div class="slide-card" data-slide="17">
+                <div class="slide-header">
+                    <span class="slide-cat">أبواب تسلل الفيروسات 🚪</span>
+                    <span class="slide-num">17 / 25</span>
+                </div>
+                <div class="slide-content">
+                    <h2>كيف تدخل الفيروسات إلى أجهزتنا؟</h2>
+                    <p>الفيروس لا يدخل لوحده من الهواء، بل يدخل غالباً بسبب خطأ بشري غير منتبه:</p>
+                    <div class="grid-3">
+                        <div class="info-box">
+                            <span class="box-icon">📥</span>
+                            <h3 class="box-title">تحميل ألعاب مكركة ومقرصنة</h3>
+                            <p class="box-desc">تحميل ألعاب مدفوعة مجاناً من مواقع مجهولة أكبر سبب لدخول الفيروسات.</p>
+                        </div>
+                        <div class="info-box">
+                            <span class="box-icon">💾</span>
+                            <h3 class="box-title">فلاشات USB غير موثوقة</h3>
+                            <p class="box-desc">توصيل فلاشة صديقك بجهازك قبل فحصها ببرنامج الأمان قد ينقل العدوى فوراً.</p>
+                        </div>
+                        <div class="info-box">
+                            <span class="box-icon">🖱️</span>
+                            <h3 class="box-title">إعلانات النوافذ المنبثقة</h3>
+                            <p class="box-desc">الضغط على "جهازك مصاب بـ 5 فيروسات اضغط هنا للتنظيف!" هو الفيروس بعينه!</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="slide-footer">
+                    <button class="btn-nav" onclick="changeSlide(-1)">➡ السابق</button>
+                    <button class="btn-nav primary" onclick="changeSlide(1)">التالي ⬅</button>
+                </div>
+            </div>
+
+            <!-- SLIDE 18 -->
+            <div class="slide-card" data-slide="18">
+                <div class="slide-header">
+                    <span class="slide-cat">جيش الدفاع 🛡️</span>
+                    <span class="slide-num">18 / 25</span>
+                </div>
+                <div class="slide-content">
+                    <h2>برامج مكافحة الفيروسات (Antivirus)</h2>
+                    <p>برنامج الأمان هو الحارس الشخصي لجهازك، يفحص كل ملف تقوم بتنزيله ويمنع أي كود خبيث من الاقتراب!</p>
+                    <div class="grid-2">
+                        <div class="info-box safe">
+                            <span class="box-icon">🛡️</span>
+                            <h3 class="box-title">Windows Defender</h3>
+                            <p class="box-desc">الدرع المدمج المجاني القوي داخل نظام ويندوز، يعمل في الخلفية 24 ساعة ويحميك تلقائياً دون أي تكلفة إضافية.</p>
+                        </div>
+                        <div class="info-box safe">
+                            <span class="box-icon">🔄</span>
+                            <h3 class="box-title">الفحص الدوري (Full Scan)</h3>
+                            <p class="box-desc">عمل فحص شامل لكامل القرص الصلب مرة كل أسبوع للتأكد من خلو النظام من أي ملف مشبوه.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="slide-footer">
+                    <button class="btn-nav" onclick="changeSlide(-1)">➡ السابق</button>
+                    <button class="btn-nav primary" onclick="changeSlide(1)">التالي ⬅</button>
+                </div>
+            </div>
+
+            <!-- SLIDE 19 -->
+            <div class="slide-card" data-slide="19">
+                <div class="slide-header">
+                    <span class="slide-cat">الترقيع الأمني 🩹</span>
+                    <span class="slide-num">19 / 25</span>
+                </div>
+                <div class="slide-content">
+                    <h2>لماذا يجب تحديث النظام والتطبيقات فوراً؟</h2>
+                    <p>هل تضايقك رسالة "يتوفر تحديث جديد لويندوز أو للمتصفح"؟ لا تؤجلها أبداً بعد اليوم!</p>
+                    <div class="info-box safe" style="max-width: 750px; width: 100%;">
+                        <div style="font-size: 40px; margin-bottom: 8px;">🏰 🔨</div>
+                        <h3 class="box-title" style="font-size: 22px;">إصلاح الشقوق في جدار القلعة!</h3>
+                        <p class="box-desc" style="font-size: 16px; margin-top: 10px;">
+                            عندما يكتشف مهندسو جوجل أو مايكروسوفت ثغرة أمنية صغيرة في البرنامج، يرسلون تحديثاً فورياً يسد هذه الثغرة. إذا لم تقم بالتحديث، تظل الثغرة مفتوحة أمام أي متطفل ليستغلها!
+                        </p>
+                    </div>
+                </div>
+                <div class="slide-footer">
+                    <button class="btn-nav" onclick="changeSlide(-1)">➡ السابق</button>
+                    <button class="btn-nav primary" onclick="changeSlide(1)">التالي ⬅</button>
+                </div>
+            </div>
+
+            <!-- SLIDE 20 -->
+            <div class="slide-card" data-slide="20">
+                <div class="slide-header">
+                    <span class="slide-cat">شبكات الكافيهات ☕</span>
+                    <span class="slide-num">20 / 25</span>
+                </div>
+                <div class="slide-content">
+                    <h2>خطر الواي فاي العام (Public Wi-Fi)</h2>
+                    <p>شبكات الواي فاي المفتوحة بدون كلمة سر في الكافيهات، المطارات، والمولات خطيرة جداً.. لماذا؟</p>
+                    <div class="grid-2">
+                        <div class="info-box danger">
+                            <span class="box-icon">📡</span>
+                            <h3 class="box-title">شبكة مكشوفة للجميع</h3>
+                            <p class="box-desc">أي شخص متصل بنفس الشبكة المفتوحة ومعه أدوات تنصت يستطيع رؤية البيانات غير المشفرة التي ترسلها وتستقبلها.</p>
+                        </div>
+                        <div class="info-box safe">
+                            <span class="box-icon">🛡️</span>
+                            <h3 class="box-title">قاعدة الأمان الذهبية</h3>
+                            <p class="box-desc">لا تفتح حساباتك الشخصية أو تدفع بالفيزا على شبكة واي فاي عامة، واستخدم شبكة بيانات هاتفك الخاصة أو VPN مشفر!</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="slide-footer">
+                    <button class="btn-nav" onclick="changeSlide(-1)">➡ السابق</button>
+                    <button class="btn-nav primary" onclick="changeSlide(1)">التالي ⬅</button>
+                </div>
+            </div>
+
+            <!-- SLIDE 21 -->
+            <div class="slide-card" data-slide="21">
+                <div class="slide-header">
+                    <span class="slide-cat">التعامل مع المتنمرين 🚫</span>
+                    <span class="slide-num">21 / 25</span>
+                </div>
+                <div class="slide-content">
+                    <h2>التنمر الإلكتروني (Cyberbullying): كيف تتصرف؟</h2>
+                    <p>إذا صادفت شخصاً وقحاً أو متنمراً في أي لعبة أو منصة يكتب لك كلاماً مزعجاً، تذكر الخطوات الثلاث السحرية:</p>
+                    <div class="grid-3">
+                        <div class="info-box">
+                            <span class="box-icon">1️⃣ 🛑</span>
+                            <h3 class="box-title">لا ترد عليه أبداً</h3>
+                            <p class="box-desc">المتنمر يتغذى على غضبك ورأيك. الصمت والتجاهل التام يحبطه فوراً.</p>
+                        </div>
+                        <div class="info-box">
+                            <span class="box-icon">2️⃣ 🚫</span>
+                            <h3 class="box-title">احظره وبلّغ (Block & Report)</h3>
+                            <p class="box-desc">اضغط زر الحظر حتى لا تراه مجدداً، وأرسل بلاغاً لإدارة اللعبة ليحاسبوه.</p>
+                        </div>
+                        <div class="info-box safe">
+                            <span class="box-icon">3️⃣ 🗣️</span>
+                            <h3 class="box-title">أخبر شخصاً كبيراً تثق به</h3>
+                            <p class="box-desc">احكِ لبابا وماما أو معلمك فوراً، تذكر دائماً: لست وحدك وأنت محمي!</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="slide-footer">
+                    <button class="btn-nav" onclick="changeSlide(-1)">➡ السابق</button>
+                    <button class="btn-nav primary" onclick="changeSlide(1)">التالي ⬅</button>
+                </div>
+            </div>
+
+            <!-- SLIDE 22 -->
+            <div class="slide-card" data-slide="22">
+                <div class="slide-header">
+                    <span class="slide-cat">ميثاق الأبطال 📜</span>
+                    <span class="slide-num">22 / 25</span>
+                </div>
+                <div class="slide-content">
+                    <h2>وثيقة المواطنة الرقمية الصالحة للأبطال</h2>
+                    <p>المبرمج البطل ليس فقط ذكياً في كتابة الكود، بل هو صاحب أخلاق رفيعة ونموذج يُحتذى به:</p>
+                    <div class="grid-2">
+                        <div class="info-box safe">
+                            <span class="box-icon">🤝</span>
+                            <h3 class="box-title">احترام خصوصية الآخرين</h3>
+                            <p class="box-desc">لا تحاول التلصص على شاشة صديقك أو فتح أجهزته دون إذنه الصريح.</p>
+                        </div>
+                        <div class="info-box safe">
+                            <span class="box-icon">💡</span>
+                            <h3 class="box-title">نشر الإيجابية والمساعدة</h3>
+                            <p class="box-desc">ساعد زملائك المبتدئين بالمعلومات، ولا تنشر شائعات أو أخباراً مجهولة المصدر.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="slide-footer">
+                    <button class="btn-nav" onclick="changeSlide(-1)">➡ السابق</button>
+                    <button class="btn-nav primary" onclick="changeSlide(1)">التالي ⬅</button>
+                </div>
+            </div>
+
+            <!-- SLIDE 23 -->
+            <div class="slide-card" data-slide="23">
+                <div class="slide-header">
+                    <span class="slide-cat">المراجعة السريعة ⚡</span>
+                    <span class="slide-num">23 / 25</span>
+                </div>
+                <div class="slide-content">
+                    <h2>ملخص القواعد الذهبية لحمايتك الرقمية</h2>
+                    <div class="grid-4">
+                        <div class="info-box safe">
+                            <span class="box-icon">🔐</span>
+                            <h3 class="box-title">باسورد قوي</h3>
+                            <p class="box-desc">+16 خانة، رموز وأرقام، و2FA مفعّل دائماً.</p>
+                        </div>
+                        <div class="info-box safe">
+                            <span class="box-icon">🚫</span>
+                            <h3 class="box-title">لا تضغط روابط مجهولة</h3>
+                            <p class="box-desc">لا توجد جوائز مجانية عشوائية على الإنترنت.</p>
+                        </div>
+                        <div class="info-box safe">
+                            <span class="box-icon">🤐</span>
+                            <h3 class="box-title">بياناتك خط أحمر</h3>
+                            <p class="box-desc">عنوانك ورقمك وصورك لا تُنشر للغرباء.</p>
+                        </div>
+                        <div class="info-box safe">
+                            <span class="box-icon">🔄</span>
+                            <h3 class="box-title">حدّث برامجك</h3>
+                            <p class="box-desc">التحديثات المستمرة تسد ثغرات الحماية.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="slide-footer">
+                    <button class="btn-nav" onclick="changeSlide(-1)">➡ السابق</button>
+                    <button class="btn-nav primary" onclick="changeSlide(1)">التالي ⬅</button>
+                </div>
+            </div>
+
+            <!-- SLIDE 24 -->
+            <div class="slide-card" data-slide="24">
+                <div class="slide-header">
+                    <span class="slide-cat">احتفال المستوى الأول 🏆</span>
+                    <span class="slide-num">24 / 25</span>
+                </div>
+                <div class="slide-content">
+                    <div style="font-size: 70px; margin-bottom: -10px;">🎉 🏅</div>
+                    <h2>مبروك يا أبطال! أنهيتم المستوى الأول بنجاح باهر!</h2>
+                    <p>أصبحتم الآن تفهمون أسرار الكمبيوتر والإنترنت والشبكات والأمان الرقمي مثل كبار مهندسي تكنولوجيا المعلومات! أنتم جاهزون الآن لأعظم رحلة في العالم: كتابة الكود والتفكير الخوارزمي في المستوى الثاني!</p>
+                    <div style="background: #f0fdf4; border: 2px solid #86efac; border-radius: 12px; padding: 12px 24px; color: #166534; font-weight: 800; font-size: 16px;">
+                        المستوى 2 ينتظركم: المحاضرة 06 - يعني إيه برمجة؟ ولغات الآلة! 🚀
+                    </div>
+                </div>
+                <div class="slide-footer">
+                    <button class="btn-nav" onclick="changeSlide(-1)">➡ السابق</button>
+                    <button class="btn-nav primary" onclick="changeSlide(1)">التالي ⬅</button>
+                </div>
+            </div>
+
+            <!-- SLIDE 25 -->
+            <div class="slide-card" data-slide="25">
+                <div class="slide-header">
+                    <span class="slide-cat">الواجب والاختبار 📝</span>
+                    <span class="slide-num">25 / 25</span>
+                </div>
+                <div class="slide-content">
+                    <h2>مهمة المحقق السيبراني الصغير لهذا الأسبوع!</h2>
+                    <p>الآن دورك لتطبق ما تعلمته في بيتك ومع أسرتك:</p>
+                    <div class="grid-2">
+                        <div class="info-box safe">
+                            <span class="box-icon">🕵️‍♂️</span>
+                            <h3 class="box-title">واجب المحقق الرقمي</h3>
+                            <p class="box-desc">راجع كلمات مرور حساباتك، استبدل الضعيف منها بجملة مرور سرية قوية، وفعل التحقق بخطوتين بمساعدة والديك.</p>
+                        </div>
+                        <div class="info-box">
+                            <span class="box-icon">⭐</span>
+                            <h3 class="box-title">اختبار الأمان الإلكتروني</h3>
+                            <p class="box-desc">حل أسئلة اختبار المحاضرة التفاعلي واجمع وسام الدرع السيبراني الذهبي بنسبة 100%!</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="slide-footer">
+                    <button class="btn-nav" onclick="changeSlide(-1)">➡ السابق</button>
+                    <button class="btn-nav primary" onclick="alert('أحسنت صنعاً! انتهت جلسة التصوير بنجاح.')">إنهاء الجلسة 🏁</button>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Chalkboard Overlay -->
+        <div class="chalkboard" id="chalkboard">
+            <div class="chalk-header">
+                <h3 style="font-size: 20px; font-weight: 800;">✏️ سبورة الشرح التفاعلية للمدرس</h3>
+                <div style="display: flex; gap: 10px;">
+                    <button class="btn-ctrl" onclick="clearCanvas()">مسح السبورة</button>
+                    <button class="btn-ctrl" onclick="toggleChalkboard()" style="background: #ef4444; color: #fff; border-color: #ef4444;">إغلاق ✕</button>
+                </div>
+            </div>
+            <canvas class="chalk-canvas" id="chalkCanvas"></canvas>
+            <div class="chalk-tools">
+                <div class="color-dot" style="background: #ffffff;" onclick="setChalkColor('#ffffff')"></div>
+                <div class="color-dot" style="background: #38bdf8;" onclick="setChalkColor('#38bdf8')"></div>
+                <div class="color-dot" style="background: #4ade80;" onclick="setChalkColor('#4ade80')"></div>
+                <div class="color-dot" style="background: #facc15;" onclick="setChalkColor('#facc15')"></div>
+                <div class="color-dot" style="background: #f87171;" onclick="setChalkColor('#f87171')"></div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        let currentSlide = 1;
+        const totalSlides = 25;
+
+        function showSlide(num) {
+            if (num < 1 || num > totalSlides) return;
+            currentSlide = num;
+            document.querySelectorAll('.slide-card').forEach(card => card.classList.remove('active'));
+            const activeCard = document.querySelector(`.slide-card[data-slide="${currentSlide}"]`);
+            if (activeCard) activeCard.classList.add('active');
+        }
+
+        function changeSlide(direction) {
+            showSlide(currentSlide + direction);
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft' || e.key === 'PageDown' || e.key === ' ') {
+                changeSlide(1);
+            } else if (e.key === 'ArrowRight' || e.key === 'PageUp') {
+                changeSlide(-1);
+            } else if (e.key.toLowerCase() === 'b') {
+                toggleChalkboard();
+            } else if (e.key.toLowerCase() === 'f') {
+                toggleFullScreen();
+            }
+        });
+
+        function toggleFullScreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(() => {});
+            } else {
+                document.exitFullscreen().catch(() => {});
+            }
+        }
+
+        /* Chalkboard logic */
+        const chalkboard = document.getElementById('chalkboard');
+        const canvas = document.getElementById('chalkCanvas');
+        let ctx = null;
+        let isDrawing = false;
+        let chalkColor = '#ffffff';
+
+        function toggleChalkboard() {
+            chalkboard.classList.toggle('open');
+            if (chalkboard.classList.contains('open') && !ctx) {
+                setTimeout(initCanvas, 50);
+            }
+        }
+
+        function initCanvas() {
+            canvas.width = canvas.parentElement.clientWidth - 48;
+            canvas.height = canvas.parentElement.clientHeight - 130;
+            ctx = canvas.getContext('2d');
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+            ctx.lineWidth = 4;
+            ctx.strokeStyle = chalkColor;
+
+            canvas.addEventListener('mousedown', startDraw);
+            canvas.addEventListener('mousemove', draw);
+            canvas.addEventListener('mouseup', endDraw);
+            canvas.addEventListener('mouseleave', endDraw);
+        }
+
+        function startDraw(e) {
+            isDrawing = true;
+            ctx.beginPath();
+            ctx.moveTo(e.offsetX, e.offsetY);
+        }
+
+        function draw(e) {
+            if (!isDrawing) return;
+            ctx.lineTo(e.offsetX, e.offsetY);
+            ctx.stroke();
+        }
+
+        function endDraw() {
+            isDrawing = false;
+        }
+
+        function setChalkColor(color) {
+            chalkColor = color;
+            if (ctx) ctx.strokeStyle = color;
+        }
+
+        function clearCanvas() {
+            if (ctx) ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
+
+        /* Password strength tester */
+        function testPassword(pwd) {
+            const fill = document.getElementById('pwdMeterFill');
+            const text = document.getElementById('pwdStatusText');
+            if (!pwd) {
+                fill.style.width = '0%';
+                text.textContent = 'أدخل كلمة مرور لاختبارها...';
+                text.style.color = '#0f172a';
+                return;
+            }
+
+            let score = 0;
+            if (pwd.length >= 6) score += 20;
+            if (pwd.length >= 10) score += 20;
+            if (pwd.length >= 14) score += 20;
+            if (/[A-Z]/.test(pwd)) score += 10;
+            if (/[a-z]/.test(pwd)) score += 10;
+            if (/[0-9]/.test(pwd)) score += 10;
+            if (/[^A-Za-z0-9]/.test(pwd)) score += 10;
+
+            fill.style.width = score + '%';
+
+            if (score <= 30) {
+                fill.style.backgroundColor = '#ef4444';
+                text.textContent = 'ضعيفة جداً وسهلة الاختراق في ثانية! ❌';
+                text.style.color = '#ef4444';
+            } else if (score <= 60) {
+                fill.style.backgroundColor = '#f59e0b';
+                text.textContent = 'متوسطة.. أضف رموزاً وأحرفاً إضافية ⚠️';
+                text.style.color = '#d97706';
+            } else if (score <= 80) {
+                fill.style.backgroundColor = '#38bdf8';
+                text.textContent = 'قوية وجيدة جداً! 🛡️';
+                text.style.color = '#0284c7';
+            } else {
+                fill.style.backgroundColor = '#10b981';
+                text.textContent = 'خارقة كالصخر مستحيل كسرها! 🏰✨';
+                text.style.color = '#15803d';
+            }
+        }
+
+        /* Quick Quiz Interaction */
+        function selectQuizOpt(element, isCorrect) {
+            const parent = element.parentElement;
+            parent.querySelectorAll('.quiz-option').forEach(opt => {
+                opt.style.pointerEvents = 'none';
+            });
+
+            if (isCorrect) {
+                element.classList.add('correct');
+            } else {
+                element.classList.add('wrong');
+                parent.children[1].classList.add('correct');
+            }
+        }
+    </script>
+</body>
+</html>

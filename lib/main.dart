@@ -61,66 +61,65 @@ class EslamAtefApp extends StatelessWidget {
             return Overlay(
               initialEntries: [
                 OverlayEntry(
-                  builder: (context) => SelectionArea(
-                    child: child ?? const SizedBox.shrink(),
-                  ),
+                  builder: (context) =>
+                      SelectionArea(child: child ?? const SizedBox.shrink()),
                 ),
               ],
             );
           },
           routes: {
             '/': (context) => const Directionality(
-                  textDirection: TextDirection.rtl,
-                  child: HomePage(),
-                ),
+              textDirection: TextDirection.rtl,
+              child: HomePage(),
+            ),
             '/courses': (context) => const Directionality(
-                  textDirection: TextDirection.rtl,
-                  child: CoursesPage(),
-                ),
+              textDirection: TextDirection.rtl,
+              child: CoursesPage(),
+            ),
             '/lessons': (context) => const Directionality(
-                  textDirection: TextDirection.rtl,
-                  child: LessonsPage(),
-                ),
+              textDirection: TextDirection.rtl,
+              child: LessonsPage(),
+            ),
             '/challenge': (context) => const Directionality(
-                  textDirection: TextDirection.rtl,
-                  child: WeeklyChallengePage(),
-                ),
+              textDirection: TextDirection.rtl,
+              child: WeeklyChallengePage(),
+            ),
             '/quiz': (context) => const Directionality(
-                  textDirection: TextDirection.rtl,
-                  child: QuizPage(),
-                ),
+              textDirection: TextDirection.rtl,
+              child: QuizPage(),
+            ),
             '/about': (context) => const Directionality(
-                  textDirection: TextDirection.rtl,
-                  child: AboutPage(),
-                ),
+              textDirection: TextDirection.rtl,
+              child: AboutPage(),
+            ),
             '/privacy': (context) => const Directionality(
-                  textDirection: TextDirection.rtl,
-                  child: PrivacyPage(),
-                ),
+              textDirection: TextDirection.rtl,
+              child: PrivacyPage(),
+            ),
             '/contact': (context) => const Directionality(
-                  textDirection: TextDirection.rtl,
-                  child: ContactPage(),
-                ),
+              textDirection: TextDirection.rtl,
+              child: ContactPage(),
+            ),
             '/recording': (context) => const Directionality(
-                  textDirection: TextDirection.rtl,
-                  child: RecordingStudioPage(),
-                ),
+              textDirection: TextDirection.rtl,
+              child: RecordingStudioPage(),
+            ),
             '/admin': (context) => const Directionality(
-                  textDirection: TextDirection.rtl,
-                  child: AdminDashboardPage(),
-                ),
+              textDirection: TextDirection.rtl,
+              child: AdminDashboardPage(),
+            ),
             '/profile': (context) => const Directionality(
-                  textDirection: TextDirection.rtl,
-                  child: StudentProfilePage(),
-                ),
+              textDirection: TextDirection.rtl,
+              child: StudentProfilePage(),
+            ),
             '/checkout': (context) => const Directionality(
-                  textDirection: TextDirection.rtl,
-                  child: CheckoutPage(),
-                ),
+              textDirection: TextDirection.rtl,
+              child: CheckoutPage(),
+            ),
             '/curricula': (context) => const Directionality(
-                  textDirection: TextDirection.rtl,
-                  child: LessonsPage(),
-                ),
+              textDirection: TextDirection.rtl,
+              child: LessonsPage(),
+            ),
           },
         );
       },
@@ -144,7 +143,9 @@ class _HomePageState extends State<HomePage> {
   // New Courses Animated Moving Slider state
   int _currentCourseSlide = 0;
   Timer? _coursesSliderTimer;
-  final PageController _coursesPageController = PageController(viewportFraction: 0.90);
+  final PageController _coursesPageController = PageController(
+    viewportFraction: 0.90,
+  );
   bool _isCoursesSliderHovered = false;
 
   @override
@@ -189,7 +190,9 @@ class _HomePageState extends State<HomePage> {
           'category': c['title'] ?? 'درس',
           'badge': 'محاضرة جديدة',
           'duration': 'فيديو يوتيوب',
-          'image': lessonImg.isNotEmpty ? lessonImg : (courseImg.isNotEmpty ? courseImg : 'assets/images/slide2.png'),
+          'image': lessonImg.isNotEmpty
+              ? lessonImg
+              : (courseImg.isNotEmpty ? courseImg : 'assets/images/slide2.png'),
           'route': '/courses',
         });
       }
@@ -236,7 +239,9 @@ class _HomePageState extends State<HomePage> {
   }
 
   void _prevSlide() {
-    int prev = (_currentSlide - 1 + ArabicData.imageSlides.length) % ArabicData.imageSlides.length;
+    int prev =
+        (_currentSlide - 1 + ArabicData.imageSlides.length) %
+        ArabicData.imageSlides.length;
     _pageController.animateToPage(
       prev,
       duration: const Duration(milliseconds: 400),
@@ -331,55 +336,59 @@ class _HomePageState extends State<HomePage> {
         body: SelectionArea(
           child: SafeArea(
             child: Column(
-          children: [
-            // 1. Header (الموحد في كافة صفحات الموقع)
-            const UnifiedAppHeader(currentRoute: '/'),
+              children: [
+                // 1. Header (الموحد في كافة صفحات الموقع)
+                const UnifiedAppHeader(currentRoute: '/'),
 
-            // 2. Middle Content + Sections + Footer
-            Expanded(
-              child: SingleChildScrollView(
-                child: Column(
-                  children: [
-                    SizedBox(height: isMobile ? 12 : 20),
-                    // 1. الاسلايدر (Hero Slider)
-                    _buildWidescreenSlider(isMobile, screenWidth),
-                    SizedBox(height: isMobile ? 36 : 60),
+                // 2. Middle Content + Sections + Footer
+                Expanded(
+                  child: SingleChildScrollView(
+                    child: Column(
+                      children: [
+                        SizedBox(height: isMobile ? 12 : 20),
+                        // 1. الاسلايدر (Hero Slider)
+                        _buildWidescreenSlider(isMobile, screenWidth),
+                        SizedBox(height: isMobile ? 36 : 60),
 
-                    // 2. شريط جديدنا المتحرك (Live Animated Text Ticker Bar)
-                    LiveTextTickerBar(
-                      items: _getCombinedLatestItems(),
-                      isDark: isDark,
+                        // 2. شريط جديدنا المتحرك (Live Animated Text Ticker Bar)
+                        LiveTextTickerBar(
+                          items: _getCombinedLatestItems(),
+                          isDark: isDark,
+                        ),
+                        SizedBox(height: isMobile ? 24 : 45),
+
+                        // 2.1 اسلايدر الكورسات الجديدة المتحرك (New Courses Animated Moving Slider)
+                        _buildNewCoursesSliderSection(
+                          isMobile,
+                          screenWidth,
+                          isDark,
+                        ),
+                        SizedBox(height: isMobile ? 36 : 65),
+
+                        // 3. تحدي الاسبوع واختبر نفسك (Weekly Challenge & Interactive Quiz)
+                        _buildWeeklyChallengeSection(isMobile, screenWidth),
+                        SizedBox(height: isMobile ? 44 : 70),
+
+                        // 4. رحله التعلم (Learning Journey - Redesigned)
+                        _buildLearningJourneySection(isMobile, screenWidth),
+                        SizedBox(height: isMobile ? 44 : 70),
+
+                        // 6. اتعلم معانا (Learn with Us - Redesigned Display Only)
+                        _buildLearnWithUsSection(isMobile, screenWidth),
+                        SizedBox(height: isMobile ? 44 : 70),
+
+                        // 7. الفوتر الموحد
+                        const UnifiedAppFooter(),
+                      ],
                     ),
-                    SizedBox(height: isMobile ? 24 : 45),
-
-                    // 2.1 اسلايدر الكورسات الجديدة المتحرك (New Courses Animated Moving Slider)
-                    _buildNewCoursesSliderSection(isMobile, screenWidth, isDark),
-                    SizedBox(height: isMobile ? 36 : 65),
-
-                    // 3. تحدي الاسبوع واختبر نفسك (Weekly Challenge & Interactive Quiz)
-                    _buildWeeklyChallengeSection(isMobile, screenWidth),
-                    SizedBox(height: isMobile ? 44 : 70),
-
-                    // 4. رحله التعلم (Learning Journey - Redesigned)
-                    _buildLearningJourneySection(isMobile, screenWidth),
-                    SizedBox(height: isMobile ? 44 : 70),
-
-                    // 6. اتعلم معانا (Learn with Us - Redesigned Display Only)
-                    _buildLearnWithUsSection(isMobile, screenWidth),
-                    SizedBox(height: isMobile ? 44 : 70),
-
-                    // 7. الفوتر الموحد
-                    const UnifiedAppFooter(),
-                  ],
+                  ),
                 ),
-              ),
+              ],
             ),
-          ],
+          ),
         ),
       ),
-    ),
-  ),
-);
+    );
   }
 
   // -------------------------------------------------------------
@@ -433,15 +442,24 @@ class _HomePageState extends State<HomePage> {
                         height: 44,
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
-                          border: Border.all(color: AppColors.primaryLight, width: 2),
+                          border: Border.all(
+                            color: AppColors.primaryLight,
+                            width: 2,
+                          ),
                         ),
                         child: ClipOval(
                           child: Image.asset(
                             'assets/images/logo.jpeg',
                             fit: BoxFit.cover,
-                            errorBuilder: (context, error, stackTrace) => const Center(
-                              child: Text("EA", style: TextStyle(fontWeight: FontWeight.bold)),
-                            ),
+                            errorBuilder: (context, error, stackTrace) =>
+                                const Center(
+                                  child: Text(
+                                    "EA",
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ),
                           ),
                         ),
                       ),
@@ -455,7 +473,9 @@ class _HomePageState extends State<HomePage> {
                             style: GoogleFonts.inter(
                               fontSize: 18,
                               fontWeight: FontWeight.w800,
-                              color: isDark ? AppColors.textPrimary : AppColors.textPrimaryLight,
+                              color: isDark
+                                  ? AppColors.textPrimary
+                                  : AppColors.textPrimaryLight,
                               height: 1.2,
                               letterSpacing: 0.5,
                             ),
@@ -465,7 +485,9 @@ class _HomePageState extends State<HomePage> {
                             style: GoogleFonts.inter(
                               fontSize: 11,
                               fontWeight: FontWeight.w700,
-                              color: isDark ? AppColors.primaryLight : AppColors.primary,
+                              color: isDark
+                                  ? AppColors.primaryLight
+                                  : AppColors.primary,
                             ),
                           ),
                         ],
@@ -479,12 +501,36 @@ class _HomePageState extends State<HomePage> {
               if (!isMobile)
                 Row(
                   children: [
-                    _navItem("الكورسات", () => Navigator.of(context).pushNamed('/courses'), isDark),
-                    _navItem("الدروس", () => Navigator.of(context).pushNamed('/lessons'), isDark),
-                    _navItem("تحدي الأسبوع", () => Navigator.of(context).pushNamed('/challenge'), isDark),
-                    _navItem("اختبر نفسك", () => Navigator.of(context).pushNamed('/quiz'), isDark),
-                    _navItem("من نحن", () => Navigator.of(context).pushNamed('/about'), isDark),
-                    _navItem("تواصل معنا", () => Navigator.of(context).pushNamed('/contact'), isDark),
+                    _navItem(
+                      "الكورسات",
+                      () => Navigator.of(context).pushNamed('/courses'),
+                      isDark,
+                    ),
+                    _navItem(
+                      "الدروس",
+                      () => Navigator.of(context).pushNamed('/lessons'),
+                      isDark,
+                    ),
+                    _navItem(
+                      "تحدي الأسبوع",
+                      () => Navigator.of(context).pushNamed('/challenge'),
+                      isDark,
+                    ),
+                    _navItem(
+                      "اختبر نفسك",
+                      () => Navigator.of(context).pushNamed('/quiz'),
+                      isDark,
+                    ),
+                    _navItem(
+                      "من نحن",
+                      () => Navigator.of(context).pushNamed('/about'),
+                      isDark,
+                    ),
+                    _navItem(
+                      "تواصل معنا",
+                      () => Navigator.of(context).pushNamed('/contact'),
+                      isDark,
+                    ),
                   ],
                 ),
 
@@ -505,59 +551,135 @@ class _HomePageState extends State<HomePage> {
                                 Padding(
                                   padding: const EdgeInsets.only(left: 8),
                                   child: ElevatedButton.icon(
-                                    onPressed: () => Navigator.of(context).pushNamed('/admin'),
-                                    icon: const Icon(Icons.admin_panel_settings_rounded, size: 16),
-                                    label: Text("لوحة التحكم", style: GoogleFonts.cairo(fontSize: 12, fontWeight: FontWeight.bold)),
+                                    onPressed: () => Navigator.of(
+                                      context,
+                                    ).pushNamed('/admin'),
+                                    icon: const Icon(
+                                      Icons.admin_panel_settings_rounded,
+                                      size: 16,
+                                    ),
+                                    label: Text(
+                                      "لوحة التحكم",
+                                      style: GoogleFonts.cairo(
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
                                     style: ElevatedButton.styleFrom(
-                                      backgroundColor: const Color(0xFF0284C7).withOpacity(0.12),
+                                      backgroundColor: const Color(
+                                        0xFF0284C7,
+                                      ).withOpacity(0.12),
                                       foregroundColor: const Color(0xFF0284C7),
                                       elevation: 0,
-                                      side: BorderSide(color: const Color(0xFF0284C7).withOpacity(0.4)),
-                                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                                      side: BorderSide(
+                                        color: const Color(
+                                          0xFF0284C7,
+                                        ).withOpacity(0.4),
+                                      ),
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 14,
+                                        vertical: 8,
+                                      ),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(20),
+                                      ),
                                     ),
                                   ),
                                 ),
                               Padding(
                                 padding: const EdgeInsets.only(left: 8),
                                 child: ElevatedButton.icon(
-                                  onPressed: () => AchievementsDialog.show(context),
-                                  icon: const Icon(Icons.emoji_events_rounded, size: 16),
-                                  label: Text("إنجازاتي", style: GoogleFonts.cairo(fontSize: 12, fontWeight: FontWeight.bold)),
+                                  onPressed: () =>
+                                      AchievementsDialog.show(context),
+                                  icon: const Icon(
+                                    Icons.emoji_events_rounded,
+                                    size: 16,
+                                  ),
+                                  label: Text(
+                                    "إنجازاتي",
+                                    style: GoogleFonts.cairo(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
                                   style: ElevatedButton.styleFrom(
-                                    backgroundColor: const Color(0xFF0284C7).withOpacity(0.12),
+                                    backgroundColor: const Color(
+                                      0xFF0284C7,
+                                    ).withOpacity(0.12),
                                     foregroundColor: const Color(0xFF0284C7),
                                     elevation: 0,
-                                    side: BorderSide(color: const Color(0xFF0284C7).withOpacity(0.4)),
-                                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                                    side: BorderSide(
+                                      color: const Color(
+                                        0xFF0284C7,
+                                      ).withOpacity(0.4),
+                                    ),
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 12,
+                                      vertical: 8,
+                                    ),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(20),
+                                    ),
                                   ),
                                 ),
                               ),
                               Padding(
                                 padding: const EdgeInsets.only(left: 8),
                                 child: InkWell(
-                                  onTap: () => Navigator.of(context).pushNamed('/profile'),
+                                  onTap: () => Navigator.of(
+                                    context,
+                                  ).pushNamed('/profile'),
                                   borderRadius: BorderRadius.circular(20),
                                   child: Container(
-                                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 10,
+                                      vertical: 6,
+                                    ),
                                     decoration: BoxDecoration(
-                                      color: const Color(0xFF0284C7).withOpacity(0.12),
+                                      color: const Color(
+                                        0xFF0284C7,
+                                      ).withOpacity(0.12),
                                       borderRadius: BorderRadius.circular(20),
-                                      border: Border.all(color: const Color(0xFF0284C7).withOpacity(0.4)),
+                                      border: Border.all(
+                                        color: const Color(
+                                          0xFF0284C7,
+                                        ).withOpacity(0.4),
+                                      ),
                                     ),
                                     child: Row(
                                       children: [
                                         CircleAvatar(
                                           radius: 12,
-                                          backgroundColor: const Color(0xFF0284C7),
-                                          backgroundImage: (user.photoURL != null && user.photoURL!.isNotEmpty) ? NetworkImage(user.photoURL!) : null,
-                                          child: (user.photoURL == null || user.photoURL!.isEmpty)
-                                              ? Text((user.displayName ?? 'ط')[0], style: const TextStyle(fontSize: 10, color: Colors.white, fontWeight: FontWeight.bold))
+                                          backgroundColor: const Color(
+                                            0xFF0284C7,
+                                          ),
+                                          backgroundImage:
+                                              (user.photoURL != null &&
+                                                  user.photoURL!.isNotEmpty)
+                                              ? NetworkImage(user.photoURL!)
+                                              : null,
+                                          child:
+                                              (user.photoURL == null ||
+                                                  user.photoURL!.isEmpty)
+                                              ? Text(
+                                                  (user.displayName ?? 'ط')[0],
+                                                  style: const TextStyle(
+                                                    fontSize: 10,
+                                                    color: Colors.white,
+                                                    fontWeight: FontWeight.bold,
+                                                  ),
+                                                )
                                               : null,
                                         ),
                                         const SizedBox(width: 6),
-                                        Text("الملف الشخصي", style: GoogleFonts.cairo(fontSize: 12, fontWeight: FontWeight.bold, color: const Color(0xFF0284C7))),
+                                        Text(
+                                          "الملف الشخصي",
+                                          style: GoogleFonts.cairo(
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.bold,
+                                            color: const Color(0xFF0284C7),
+                                          ),
+                                        ),
                                       ],
                                     ),
                                   ),
@@ -571,13 +693,27 @@ class _HomePageState extends State<HomePage> {
                           padding: const EdgeInsets.only(left: 8),
                           child: ElevatedButton.icon(
                             onPressed: () => AuthModal.show(context),
-                            icon: const Icon(Icons.person_outline_rounded, size: 16),
-                            label: Text("تسجيل الدخول", style: GoogleFonts.cairo(fontSize: 12, fontWeight: FontWeight.bold)),
+                            icon: const Icon(
+                              Icons.person_outline_rounded,
+                              size: 16,
+                            ),
+                            label: Text(
+                              "تسجيل الدخول",
+                              style: GoogleFonts.cairo(
+                                fontSize: 12,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
                             style: ElevatedButton.styleFrom(
                               backgroundColor: const Color(0xFF0284C7),
                               foregroundColor: Colors.white,
-                              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 14,
+                                vertical: 8,
+                              ),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(20),
+                              ),
                             ),
                           ),
                         );
@@ -586,11 +722,17 @@ class _HomePageState extends State<HomePage> {
                     const SizedBox(width: 4),
                     IconButton(
                       icon: Icon(
-                        isDark ? Icons.light_mode_rounded : Icons.dark_mode_rounded,
-                        color: isDark ? const Color(0xFFFFB300) : const Color(0xFF1E293B),
+                        isDark
+                            ? Icons.light_mode_rounded
+                            : Icons.dark_mode_rounded,
+                        color: isDark
+                            ? const Color(0xFFFFB300)
+                            : const Color(0xFF1E293B),
                         size: 22,
                       ),
-                      tooltip: isDark ? "تفعيل الوضع النهاري" : "تفعيل الوضع الليلي",
+                      tooltip: isDark
+                          ? "تفعيل الوضع النهاري"
+                          : "تفعيل الوضع الليلي",
                       onPressed: () => AppThemeManager.toggleTheme(),
                     ),
                     const SizedBox(width: 8),
@@ -620,11 +762,14 @@ class _HomePageState extends State<HomePage> {
                                   size: 24,
                                 ),
                                 tooltip: "لوحة التحكم",
-                                onPressed: () => Navigator.of(context).pushNamed('/admin'),
+                                onPressed: () =>
+                                    Navigator.of(context).pushNamed('/admin'),
                               ),
                             IconButton(
                               icon: Icon(
-                                user != null ? Icons.account_circle_rounded : Icons.person_outline_rounded,
+                                user != null
+                                    ? Icons.account_circle_rounded
+                                    : Icons.person_outline_rounded,
                                 color: const Color(0xFF8B5CF6),
                                 size: 24,
                               ),
@@ -642,15 +787,23 @@ class _HomePageState extends State<HomePage> {
                     ),
                     IconButton(
                       icon: Icon(
-                        isDark ? Icons.light_mode_rounded : Icons.dark_mode_rounded,
-                        color: isDark ? const Color(0xFFFFB300) : const Color(0xFF1E293B),
+                        isDark
+                            ? Icons.light_mode_rounded
+                            : Icons.dark_mode_rounded,
+                        color: isDark
+                            ? const Color(0xFFFFB300)
+                            : const Color(0xFF1E293B),
                         size: 22,
                       ),
                       onPressed: () => AppThemeManager.toggleTheme(),
                     ),
                     Builder(
                       builder: (ctx) => IconButton(
-                        icon: const Icon(Icons.menu_rounded, color: AppColors.primaryLight, size: 28),
+                        icon: const Icon(
+                          Icons.menu_rounded,
+                          color: AppColors.primaryLight,
+                          size: 28,
+                        ),
                         onPressed: () => Scaffold.of(ctx).openEndDrawer(),
                       ),
                     ),
@@ -675,7 +828,9 @@ class _HomePageState extends State<HomePage> {
             style: GoogleFonts.cairo(
               fontSize: 14,
               fontWeight: FontWeight.w600,
-              color: isDark ? AppColors.textPrimary : AppColors.textPrimaryLight,
+              color: isDark
+                  ? AppColors.textPrimary
+                  : AppColors.textPrimaryLight,
             ),
           ),
         ),
@@ -697,7 +852,13 @@ class _HomePageState extends State<HomePage> {
             Container(
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
-                border: Border(bottom: BorderSide(color: isDark ? AppColors.borderDark : AppColors.borderLight)),
+                border: Border(
+                  bottom: BorderSide(
+                    color: isDark
+                        ? AppColors.borderDark
+                        : AppColors.borderLight,
+                  ),
+                ),
               ),
               child: Row(
                 children: [
@@ -718,7 +879,9 @@ class _HomePageState extends State<HomePage> {
                         style: GoogleFonts.cairo(
                           fontSize: 17,
                           fontWeight: FontWeight.bold,
-                          color: isDark ? AppColors.textPrimary : AppColors.textPrimaryLight,
+                          color: isDark
+                              ? AppColors.textPrimary
+                              : AppColors.textPrimaryLight,
                         ),
                       ),
                       Text(
@@ -735,40 +898,70 @@ class _HomePageState extends State<HomePage> {
               ),
             ),
             ListTile(
-              leading: const Icon(Icons.school_outlined, color: AppColors.primaryLight),
-              title: Text("الكورسات", style: GoogleFonts.cairo(fontWeight: FontWeight.w600)),
+              leading: const Icon(
+                Icons.school_outlined,
+                color: AppColors.primaryLight,
+              ),
+              title: Text(
+                "الكورسات",
+                style: GoogleFonts.cairo(fontWeight: FontWeight.w600),
+              ),
               onTap: () {
                 Navigator.pop(context);
                 Navigator.of(context).pushNamed('/courses');
               },
             ),
             ListTile(
-              leading: const Icon(Icons.menu_book_outlined, color: AppColors.primaryLight),
-              title: Text("الدروس", style: GoogleFonts.cairo(fontWeight: FontWeight.w600)),
+              leading: const Icon(
+                Icons.menu_book_outlined,
+                color: AppColors.primaryLight,
+              ),
+              title: Text(
+                "الدروس",
+                style: GoogleFonts.cairo(fontWeight: FontWeight.w600),
+              ),
               onTap: () {
                 Navigator.pop(context);
                 Navigator.of(context).pushNamed('/lessons');
               },
             ),
             ListTile(
-              leading: const Icon(Icons.person_outline_rounded, color: AppColors.primaryLight),
-              title: Text("من نحن", style: GoogleFonts.cairo(fontWeight: FontWeight.w600)),
+              leading: const Icon(
+                Icons.person_outline_rounded,
+                color: AppColors.primaryLight,
+              ),
+              title: Text(
+                "من نحن",
+                style: GoogleFonts.cairo(fontWeight: FontWeight.w600),
+              ),
               onTap: () {
                 Navigator.pop(context);
                 Navigator.of(context).pushNamed('/about');
               },
             ),
             ListTile(
-              leading: const Icon(Icons.privacy_tip_outlined, color: AppColors.primaryLight),
-              title: Text("سياسة الاستخدام والخصوصية", style: GoogleFonts.cairo(fontWeight: FontWeight.w600)),
+              leading: const Icon(
+                Icons.privacy_tip_outlined,
+                color: AppColors.primaryLight,
+              ),
+              title: Text(
+                "سياسة الاستخدام والخصوصية",
+                style: GoogleFonts.cairo(fontWeight: FontWeight.w600),
+              ),
               onTap: () {
                 Navigator.pop(context);
                 Navigator.of(context).pushNamed('/privacy');
               },
             ),
             ListTile(
-              leading: const Icon(Icons.mail_outline_rounded, color: AppColors.primaryLight),
-              title: Text("تواصل معنا", style: GoogleFonts.cairo(fontWeight: FontWeight.w600)),
+              leading: const Icon(
+                Icons.mail_outline_rounded,
+                color: AppColors.primaryLight,
+              ),
+              title: Text(
+                "تواصل معنا",
+                style: GoogleFonts.cairo(fontWeight: FontWeight.w600),
+              ),
               onTap: () {
                 Navigator.pop(context);
                 Navigator.of(context).pushNamed('/contact');
@@ -776,8 +969,17 @@ class _HomePageState extends State<HomePage> {
             ),
             if (AuthService.instance.isAdmin)
               ListTile(
-                leading: const Icon(Icons.admin_panel_settings_outlined, color: Color(0xFF0284C7)),
-                title: Text("لوحة التحكم", style: GoogleFonts.cairo(fontWeight: FontWeight.bold, color: const Color(0xFF0284C7))),
+                leading: const Icon(
+                  Icons.admin_panel_settings_outlined,
+                  color: Color(0xFF0284C7),
+                ),
+                title: Text(
+                  "لوحة التحكم",
+                  style: GoogleFonts.cairo(
+                    fontWeight: FontWeight.bold,
+                    color: const Color(0xFF0284C7),
+                  ),
+                ),
                 onTap: () {
                   Navigator.pop(context);
                   Navigator.of(context).pushNamed('/admin');
@@ -786,7 +988,9 @@ class _HomePageState extends State<HomePage> {
             ListTile(
               leading: Icon(
                 isDark ? Icons.light_mode_rounded : Icons.dark_mode_rounded,
-                color: isDark ? const Color(0xFFFFB300) : const Color(0xFF1E293B),
+                color: isDark
+                    ? const Color(0xFFFFB300)
+                    : const Color(0xFF1E293B),
               ),
               onTap: () {
                 AppThemeManager.toggleTheme();
@@ -801,7 +1005,11 @@ class _HomePageState extends State<HomePage> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const Icon(Icons.phone, color: AppColors.accent, size: 18),
+                      const Icon(
+                        Icons.phone,
+                        color: AppColors.accent,
+                        size: 18,
+                      ),
                       const SizedBox(width: 8),
                       Text(
                         ArabicData.phone,
@@ -839,7 +1047,10 @@ class _HomePageState extends State<HomePage> {
     final double maxAllowedWidth = 1200.0;
 
     // Calculate responsive width and proportional height to prevent any image cropping
-    final double contentWidth = (screenWidth - (horizontalPadding * 2)).clamp(280.0, maxAllowedWidth);
+    final double contentWidth = (screenWidth - (horizontalPadding * 2)).clamp(
+      280.0,
+      maxAllowedWidth,
+    );
     final double sliderHeight = contentWidth / imageAspectRatio;
 
     return Center(
@@ -870,7 +1081,8 @@ class _HomePageState extends State<HomePage> {
                     borderRadius: BorderRadius.circular(isMobile ? 12 : 20),
                     child: PageView.builder(
                       controller: _pageController,
-                      onPageChanged: (idx) => setState(() => _currentSlide = idx),
+                      onPageChanged: (idx) =>
+                          setState(() => _currentSlide = idx),
                       itemCount: ArabicData.imageSlides.length,
                       itemBuilder: (ctx, idx) {
                         final slide = ArabicData.imageSlides[idx];
@@ -883,13 +1095,23 @@ class _HomePageState extends State<HomePage> {
                 // Left Arrow (Previous)
                 Positioned(
                   left: isMobile ? 4 : 16,
-                  child: _buildNavArrow(Icons.arrow_back_ios_new_rounded, _prevSlide, "السابق", isMobile),
+                  child: _buildNavArrow(
+                    Icons.arrow_back_ios_new_rounded,
+                    _prevSlide,
+                    "السابق",
+                    isMobile,
+                  ),
                 ),
 
                 // Right Arrow (Next)
                 Positioned(
                   right: isMobile ? 4 : 16,
-                  child: _buildNavArrow(Icons.arrow_forward_ios_rounded, _nextSlide, "التالي", isMobile),
+                  child: _buildNavArrow(
+                    Icons.arrow_forward_ios_rounded,
+                    _nextSlide,
+                    "التالي",
+                    isMobile,
+                  ),
                 ),
               ],
             ),
@@ -914,14 +1136,18 @@ class _HomePageState extends State<HomePage> {
                     width: isActive ? (isMobile ? 22 : 28) : 8,
                     height: isMobile ? 6 : 8,
                     decoration: BoxDecoration(
-                      color: isActive ? const Color(0xFF00E5FF) : const Color(0xFF334155),
+                      color: isActive
+                          ? const Color(0xFF00E5FF)
+                          : const Color(0xFF334155),
                       borderRadius: BorderRadius.circular(4),
                       boxShadow: isActive
                           ? [
                               BoxShadow(
-                                color: const Color(0xFF00E5FF).withValues(alpha: 0.6),
+                                color: const Color(
+                                  0xFF00E5FF,
+                                ).withValues(alpha: 0.6),
                                 blurRadius: 8,
-                              )
+                              ),
                             ]
                           : null,
                     ),
@@ -935,7 +1161,12 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _buildNavArrow(IconData icon, VoidCallback onTap, String tooltip, bool isMobile) {
+  Widget _buildNavArrow(
+    IconData icon,
+    VoidCallback onTap,
+    String tooltip,
+    bool isMobile,
+  ) {
     final double btnSize = isMobile ? 26 : 40;
     final double iconSize = isMobile ? 12 : 18;
 
@@ -1022,7 +1253,11 @@ class _HomePageState extends State<HomePage> {
   }
 
   // Slide 4: Button + Social Media Icons Row
-  Widget _buildSlide4ActionRow(String buttonText, String action, bool isMobile) {
+  Widget _buildSlide4ActionRow(
+    String buttonText,
+    String action,
+    bool isMobile,
+  ) {
     return Wrap(
       spacing: isMobile ? 8 : 14,
       runSpacing: 4,
@@ -1056,7 +1291,12 @@ class _HomePageState extends State<HomePage> {
   }
 
   // Custom styled button according to user specifications
-  Widget _buildSlideButton(String text, String type, String action, bool isMobile) {
+  Widget _buildSlideButton(
+    String text,
+    String type,
+    String action,
+    bool isMobile,
+  ) {
     Color bg;
     Color fg;
     Widget? icon;
@@ -1067,7 +1307,11 @@ class _HomePageState extends State<HomePage> {
       case "cyan": // Slides 1, 2, 5
         bg = const Color(0xFF00E5FF); // Vibrant Cyan
         fg = const Color(0xFF000000);
-        icon = Icon(Icons.arrow_back_rounded, color: Colors.black, size: iconSize);
+        icon = Icon(
+          Icons.arrow_back_rounded,
+          color: Colors.black,
+          size: iconSize,
+        );
         break;
       case "red": // Slide 3 (YouTube)
         bg = const Color(0xFFFF0000); // Red
@@ -1125,7 +1369,6 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-
   // -------------------------------------------------------------
   // 1. شريط الإضافات والأخبار (Square Carousel - Courses & Lessons)
   // -------------------------------------------------------------
@@ -1154,11 +1397,20 @@ class _HomePageState extends State<HomePage> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 5,
+                        ),
                         decoration: BoxDecoration(
-                          color: const Color(0xFF00E5FF).withValues(alpha: 0.12),
+                          color: const Color(
+                            0xFF00E5FF,
+                          ).withValues(alpha: 0.12),
                           borderRadius: BorderRadius.circular(20),
-                          border: Border.all(color: const Color(0xFF00E5FF).withValues(alpha: 0.35)),
+                          border: Border.all(
+                            color: const Color(
+                              0xFF00E5FF,
+                            ).withValues(alpha: 0.35),
+                          ),
                         ),
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
@@ -1189,7 +1441,9 @@ class _HomePageState extends State<HomePage> {
                         style: GoogleFonts.cairo(
                           fontSize: isMobile ? 24 : 32,
                           fontWeight: FontWeight.w900,
-                          color: isDark ? AppColors.textPrimary : AppColors.textPrimaryLight,
+                          color: isDark
+                              ? AppColors.textPrimary
+                              : AppColors.textPrimaryLight,
                         ),
                       ),
                       const SizedBox(height: 4),
@@ -1197,7 +1451,9 @@ class _HomePageState extends State<HomePage> {
                         "استكشف أحدث الكورسات والدروس التي تم إضافتها حديثاً للمنصة",
                         style: GoogleFonts.cairo(
                           fontSize: isMobile ? 13 : 15,
-                          color: isDark ? AppColors.textSecondary : AppColors.textSecondaryLight,
+                          color: isDark
+                              ? AppColors.textSecondary
+                              : AppColors.textSecondaryLight,
                         ),
                       ),
                     ],
@@ -1267,9 +1523,15 @@ class _HomePageState extends State<HomePage> {
           decoration: BoxDecoration(
             color: isDark ? AppColors.surfaceDark : Colors.white,
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: isDark ? AppColors.borderLightDark : AppColors.borderLight),
+            border: Border.all(
+              color: isDark ? AppColors.borderLightDark : AppColors.borderLight,
+            ),
           ),
-          child: Icon(icon, size: 16, color: isDark ? AppColors.textPrimary : AppColors.textPrimaryLight),
+          child: Icon(
+            icon,
+            size: 16,
+            color: isDark ? AppColors.textPrimary : AppColors.textPrimaryLight,
+          ),
         ),
       ),
     );
@@ -1285,7 +1547,8 @@ class _HomePageState extends State<HomePage> {
     list.add({
       'id': 'kids_coding_49',
       'title': 'كورس البرمجة والذكاء الاصطناعي للأطفال (49 محاضرة كاملة)',
-      'subtitle': 'المنهج العملي التفاعلي الشامل لبناء الألعاب وتطبيقات بايثون ونماذج الذكاء الاصطناعي على 7 مستويات تدريجية ممتعة.',
+      'subtitle':
+          'المنهج العملي التفاعلي الشامل لبناء الألعاب وتطبيقات بايثون ونماذج الذكاء الاصطناعي على 7 مستويات تدريجية ممتعة.',
       'category': 'الأطفال والناشئين (7-16 سنة)',
       'badge': '🔥 كورس جديد وحصري',
       'level': '7 مستويات متدرجة',
@@ -1304,7 +1567,9 @@ class _HomePageState extends State<HomePage> {
       list.add({
         'id': c['id'] ?? '',
         'title': c['title'] ?? 'كورس جديد',
-        'subtitle': c['description'] ?? 'مسار برمجي شامل مع تطبيقات عملية وتدريب مستمر خطوة بخطوة.',
+        'subtitle':
+            c['description'] ??
+            'مسار برمجي شامل مع تطبيقات عملية وتدريب مستمر خطوة بخطوة.',
         'category': c['category'] ?? 'مسار برمجي',
         'badge': c['badge'] ?? 'جديد ومميز ✨',
         'level': c['level'] ?? 'جميع المستويات',
@@ -1322,7 +1587,8 @@ class _HomePageState extends State<HomePage> {
       list.add({
         'id': 'fullstack_web',
         'title': 'مسار تطوير الويب الكامل (Full Stack Web Development)',
-        'subtitle': 'احترف بناء تطبيقات الويب الحديثة من الصفر وتطوير الواجهات وقواعد البيانات ونشر المشاريع على السيرفرات.',
+        'subtitle':
+            'احترف بناء تطبيقات الويب الحديثة من الصفر وتطوير الواجهات وقواعد البيانات ونشر المشاريع على السيرفرات.',
         'category': 'تطوير المواقع',
         'badge': '✨ مسار احترافي متكامل',
         'level': 'مبتدئ إلى متقدم',
@@ -1336,7 +1602,8 @@ class _HomePageState extends State<HomePage> {
       list.add({
         'id': 'flutter_mobile',
         'title': 'مسار تطبيقات الهاتف بفلاتر (Flutter & Dart Masterclass)',
-        'subtitle': 'صمم وطور تطبيقات عصرية وسريعة تعمل على أندرويد وآيفون بكود واحد مع تكامل السيرفرات والذكاء الاصطناعي.',
+        'subtitle':
+            'صمم وطور تطبيقات عصرية وسريعة تعمل على أندرويد وآيفون بكود واحد مع تكامل السيرفرات والذكاء الاصطناعي.',
         'category': 'تطبيقات الموبايل',
         'badge': '🚀 الأكثر طلباً',
         'level': 'متقدم',
@@ -1350,7 +1617,8 @@ class _HomePageState extends State<HomePage> {
       list.add({
         'id': 'python_ai',
         'title': 'مسار بايثون والذكاء الاصطناعي (Python & AI Engineering)',
-        'subtitle': 'تعلم لغة بايثون، تحليل البيانات، بناء خوارزميات تعلم الآلة ونماذج الذكاء الاصطناعي التوليدي.',
+        'subtitle':
+            'تعلم لغة بايثون، تحليل البيانات، بناء خوارزميات تعلم الآلة ونماذج الذكاء الاصطناعي التوليدي.',
         'category': 'الذكاء الاصطناعي',
         'badge': '🤖 مستقبل التكنولوجيا',
         'level': 'شامل',
@@ -1366,7 +1634,11 @@ class _HomePageState extends State<HomePage> {
     return list;
   }
 
-  Widget _buildNewCoursesSliderSection(bool isMobile, double screenWidth, bool isDark) {
+  Widget _buildNewCoursesSliderSection(
+    bool isMobile,
+    double screenWidth,
+    bool isDark,
+  ) {
     final courses = _getPublishedCourses();
     if (courses.isEmpty) return const SizedBox.shrink();
 
@@ -1387,11 +1659,16 @@ class _HomePageState extends State<HomePage> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 5,
+                        ),
                         decoration: BoxDecoration(
                           color: const Color(0xFF0284C7).withOpacity(0.12),
                           borderRadius: BorderRadius.circular(20),
-                          border: Border.all(color: const Color(0xFF0284C7).withOpacity(0.35)),
+                          border: Border.all(
+                            color: const Color(0xFF0284C7).withOpacity(0.35),
+                          ),
                         ),
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
@@ -1422,7 +1699,9 @@ class _HomePageState extends State<HomePage> {
                         style: GoogleFonts.cairo(
                           fontSize: isMobile ? 22 : 28,
                           fontWeight: FontWeight.w900,
-                          color: isDark ? AppColors.textPrimary : AppColors.textPrimaryLight,
+                          color: isDark
+                              ? AppColors.textPrimary
+                              : AppColors.textPrimaryLight,
                         ),
                       ),
                       const SizedBox(height: 4),
@@ -1430,7 +1709,9 @@ class _HomePageState extends State<HomePage> {
                         "اضغط على أي كورس لفتحه والبدء في الشروحات والتطبيقات العملية فوراً.",
                         style: GoogleFonts.cairo(
                           fontSize: isMobile ? 12.5 : 14,
-                          color: isDark ? AppColors.textSecondary : AppColors.textSecondaryLight,
+                          color: isDark
+                              ? AppColors.textSecondary
+                              : AppColors.textSecondaryLight,
                         ),
                       ),
                     ],
@@ -1440,13 +1721,24 @@ class _HomePageState extends State<HomePage> {
                   const SizedBox(width: 16),
                   Row(
                     children: [
-                      _buildCarouselArrow(Icons.arrow_forward_ios_rounded, _nextCourseSlide),
+                      _buildCarouselArrow(
+                        Icons.arrow_forward_ios_rounded,
+                        _nextCourseSlide,
+                      ),
                       const SizedBox(width: 8),
-                      _buildCarouselArrow(Icons.arrow_back_ios_new_rounded, _prevCourseSlide),
+                      _buildCarouselArrow(
+                        Icons.arrow_back_ios_new_rounded,
+                        _prevCourseSlide,
+                      ),
                       const SizedBox(width: 14),
                       TextButton.icon(
-                        onPressed: () => Navigator.of(context).pushNamed('/courses'),
-                        icon: const Icon(Icons.arrow_back_rounded, size: 16, color: Color(0xFF0284C7)),
+                        onPressed: () =>
+                            Navigator.of(context).pushNamed('/courses'),
+                        icon: const Icon(
+                          Icons.arrow_back_rounded,
+                          size: 16,
+                          color: Color(0xFF0284C7),
+                        ),
                         label: Text(
                           "جميع الكورسات",
                           style: GoogleFonts.cairo(
@@ -1472,7 +1764,8 @@ class _HomePageState extends State<HomePage> {
                 height: isMobile ? 260 : 310,
                 child: PageView.builder(
                   controller: _coursesPageController,
-                  onPageChanged: (idx) => setState(() => _currentCourseSlide = idx),
+                  onPageChanged: (idx) =>
+                      setState(() => _currentCourseSlide = idx),
                   itemCount: courses.length,
                   itemBuilder: (ctx, idx) {
                     final course = courses[idx];
@@ -1509,7 +1802,9 @@ class _HomePageState extends State<HomePage> {
                       decoration: BoxDecoration(
                         color: isActive
                             ? const Color(0xFF0284C7)
-                            : (isDark ? Colors.white.withOpacity(0.2) : Colors.black.withOpacity(0.15)),
+                            : (isDark
+                                  ? Colors.white.withOpacity(0.2)
+                                  : Colors.black.withOpacity(0.15)),
                         borderRadius: BorderRadius.circular(10),
                       ),
                     ),
@@ -1523,9 +1818,15 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _buildCourseSliderCard(Map<String, dynamic> course, bool isMobile, bool isDark) {
+  Widget _buildCourseSliderCard(
+    Map<String, dynamic> course,
+    bool isMobile,
+    bool isDark,
+  ) {
     final imgPath = (course['image'] ?? '').toString();
-    final gradient = (course['gradient'] as List<Color>?) ?? [const Color(0xFF0284C7), const Color(0xFF0369A1)];
+    final gradient =
+        (course['gradient'] as List<Color>?) ??
+        [const Color(0xFF0284C7), const Color(0xFF0369A1)];
 
     return MouseRegion(
       cursor: SystemMouseCursors.click,
@@ -1595,7 +1896,11 @@ class _HomePageState extends State<HomePage> {
                         ),
                       ],
                     ),
-                    child: const Icon(Icons.play_arrow_rounded, color: Colors.white, size: 36),
+                    child: const Icon(
+                      Icons.play_arrow_rounded,
+                      color: Colors.white,
+                      size: 36,
+                    ),
                   ),
                 ),
 
@@ -1608,16 +1913,25 @@ class _HomePageState extends State<HomePage> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 5,
+                        ),
                         decoration: BoxDecoration(
                           color: Colors.black.withOpacity(0.65),
                           borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: Colors.white.withOpacity(0.2)),
+                          border: Border.all(
+                            color: Colors.white.withOpacity(0.2),
+                          ),
                         ),
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            const Icon(Icons.auto_stories_rounded, color: Colors.white, size: 14),
+                            const Icon(
+                              Icons.auto_stories_rounded,
+                              color: Colors.white,
+                              size: 14,
+                            ),
                             const SizedBox(width: 6),
                             Text(
                               course['lecturesCount'] ?? '',
@@ -1631,7 +1945,10 @@ class _HomePageState extends State<HomePage> {
                         ),
                       ),
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 5,
+                        ),
                         decoration: BoxDecoration(
                           color: const Color(0xFF0284C7).withOpacity(0.95),
                           borderRadius: BorderRadius.circular(12),
@@ -1668,27 +1985,45 @@ class _HomePageState extends State<HomePage> {
                       Row(
                         children: [
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 2,
+                            ),
                             decoration: BoxDecoration(
                               color: Colors.white.withOpacity(0.2),
                               borderRadius: BorderRadius.circular(6),
                             ),
                             child: Text(
                               course['level'] ?? '',
-                              style: GoogleFonts.cairo(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold),
+                              style: GoogleFonts.cairo(
+                                color: Colors.white,
+                                fontSize: 11,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
                           ),
                           const SizedBox(width: 8),
                           Text(
                             course['category'] ?? '',
-                            style: GoogleFonts.cairo(color: Colors.white.withOpacity(0.85), fontSize: 11.5),
+                            style: GoogleFonts.cairo(
+                              color: Colors.white.withOpacity(0.85),
+                              fontSize: 11.5,
+                            ),
                           ),
                           const Spacer(),
-                          const Icon(Icons.star_rounded, color: Color(0xFFF59E0B), size: 16),
+                          const Icon(
+                            Icons.star_rounded,
+                            color: Color(0xFFF59E0B),
+                            size: 16,
+                          ),
                           const SizedBox(width: 4),
                           Text(
                             course['rating'] ?? '5.0',
-                            style: GoogleFonts.cairo(color: Colors.white, fontSize: 11.5, fontWeight: FontWeight.bold),
+                            style: GoogleFonts.cairo(
+                              color: Colors.white,
+                              fontSize: 11.5,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                         ],
                       ),
@@ -1704,7 +2039,10 @@ class _HomePageState extends State<HomePage> {
                           fontWeight: FontWeight.w900,
                           color: Colors.white,
                           shadows: [
-                            Shadow(color: Colors.black.withOpacity(0.8), blurRadius: 8),
+                            Shadow(
+                              color: Colors.black.withOpacity(0.8),
+                              blurRadius: 8,
+                            ),
                           ],
                         ),
                       ),
@@ -1722,7 +2060,11 @@ class _HomePageState extends State<HomePage> {
                             ),
                           ),
                           const SizedBox(width: 4),
-                          const Icon(Icons.arrow_forward_rounded, size: 14, color: Color(0xFF38BDF8)),
+                          const Icon(
+                            Icons.arrow_forward_rounded,
+                            size: 14,
+                            color: Color(0xFF38BDF8),
+                          ),
                         ],
                       ),
                     ],
@@ -1743,7 +2085,7 @@ class _HomePageState extends State<HomePage> {
         fit: BoxFit.cover,
         width: double.infinity,
         height: double.infinity,
-        errorBuilder: (context, error, stackTrace) => _buildFallbackCardGradient(gradient),
+        errorBuilder: (_, __, ___) => _buildFallbackCardGradient(gradient),
       );
     }
     if (imgPath.isNotEmpty) {
@@ -1752,7 +2094,7 @@ class _HomePageState extends State<HomePage> {
         fit: BoxFit.cover,
         width: double.infinity,
         height: double.infinity,
-        errorBuilder: (context, error, stackTrace) => _buildFallbackCardGradient(gradient),
+        errorBuilder: (_, __, ___) => _buildFallbackCardGradient(gradient),
       );
     }
     return _buildFallbackCardGradient(gradient);
@@ -1768,7 +2110,11 @@ class _HomePageState extends State<HomePage> {
         ),
       ),
       child: Center(
-        child: Icon(Icons.code_rounded, size: 60, color: Colors.white.withOpacity(0.4)),
+        child: Icon(
+          Icons.code_rounded,
+          size: 60,
+          color: Colors.white.withOpacity(0.4),
+        ),
       ),
     );
   }
@@ -1814,7 +2160,8 @@ class _HomePageState extends State<HomePage> {
                       imageAsset: 'assets/images/Weekly.png',
                       buttonText: 'خوض تحدي الأسبوع 🚀',
                       accentColor: const Color(0xFF0284C7),
-                      onTap: () => Navigator.of(context).pushNamed('/challenge'),
+                      onTap: () =>
+                          Navigator.of(context).pushNamed('/challenge'),
                       isDark: isDark,
                       isMobile: isMobile,
                     ),
@@ -1874,30 +2221,43 @@ class _HomePageState extends State<HomePage> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               ClipRRect(
-                borderRadius: const BorderRadius.vertical(top: Radius.circular(22)),
+                borderRadius: const BorderRadius.vertical(
+                  top: Radius.circular(22),
+                ),
                 child: AspectRatio(
                   aspectRatio: 1.0,
                   child: Image.asset(
                     imageAsset,
                     fit: BoxFit.cover,
                     errorBuilder: (ctx, err, stack) => Container(
-                      color: isDark ? const Color(0xFF1E293B) : const Color(0xFFF1F5F9),
+                      color: isDark
+                          ? const Color(0xFF1E293B)
+                          : const Color(0xFFF1F5F9),
                       child: Center(
-                        child: Icon(Icons.image_outlined, size: 48, color: accentColor),
+                        child: Icon(
+                          Icons.image_outlined,
+                          size: 48,
+                          color: accentColor,
+                        ),
                       ),
                     ),
                   ),
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 14,
+                ),
                 child: ElevatedButton(
                   onPressed: onTap,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: accentColor,
                     foregroundColor: Colors.white,
                     padding: const EdgeInsets.symmetric(vertical: 14),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(14),
+                    ),
                     elevation: 0,
                   ),
                   child: Row(
@@ -1930,28 +2290,32 @@ class _HomePageState extends State<HomePage> {
       _JourneyStepData(
         stepNumber: "01",
         title: "فهم المشكلة والأساسيات",
-        description: "استيعاب منطق علوم الحاسب، بنية الذاكرة والخوارزميات بعيداً عن الحفظ أو نسخ الكود الأعمى.",
+        description:
+            "استيعاب منطق علوم الحاسب، بنية الذاكرة والخوارزميات بعيداً عن الحفظ أو نسخ الكود الأعمى.",
         icon: Icons.lightbulb_outline_rounded,
         accentColor: const Color(0xFF00E5FF),
       ),
       _JourneyStepData(
         stepNumber: "02",
         title: "التخطيط وهندسة الكود",
-        description: "تطبيق مبادئ Clean Architecture وClean Code لتأسيس برمجيات قوية وقابلة للصيانة والتوسع.",
+        description:
+            "تطبيق مبادئ Clean Architecture وClean Code لتأسيس برمجيات قوية وقابلة للصيانة والتوسع.",
         icon: Icons.architecture_rounded,
         accentColor: const Color(0xFF3B82F6),
       ),
       _JourneyStepData(
         stepNumber: "03",
         title: "توظيف الذكاء الاصطناعي",
-        description: "استخدام نماذج وأدوات الـ AI كشريك هندسي ذكي يضاعف إنتاجيتك وسرعة إنجازك.",
+        description:
+            "استخدام نماذج وأدوات الـ AI كشريك هندسي ذكي يضاعف إنتاجيتك وسرعة إنجازك.",
         icon: Icons.psychology_outlined,
         accentColor: const Color(0xFFA855F7),
       ),
       _JourneyStepData(
         stepNumber: "04",
         title: "بناء وإطلاق المشاريع",
-        description: "تحويل ما تعلمته إلى مشاريع حقيقية متكاملة تعمل على أرض الواقع وتضيف قيمة لسوق العمل.",
+        description:
+            "تحويل ما تعلمته إلى مشاريع حقيقية متكاملة تعمل على أرض الواقع وتضيف قيمة لسوق العمل.",
         icon: Icons.rocket_launch_outlined,
         accentColor: const Color(0xFF10B981),
       ),
@@ -1972,12 +2336,18 @@ class _HomePageState extends State<HomePage> {
               decoration: BoxDecoration(
                 color: const Color(0xFF00E5FF).withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(30),
-                border: Border.all(color: const Color(0xFF00E5FF).withValues(alpha: 0.3)),
+                border: Border.all(
+                  color: const Color(0xFF00E5FF).withValues(alpha: 0.3),
+                ),
               ),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Icon(Icons.explore_outlined, color: Color(0xFF00E5FF), size: 16),
+                  const Icon(
+                    Icons.explore_outlined,
+                    color: Color(0xFF00E5FF),
+                    size: 16,
+                  ),
                   const SizedBox(width: 8),
                   Text(
                     "خارطة الطريق",
@@ -1998,7 +2368,9 @@ class _HomePageState extends State<HomePage> {
               style: GoogleFonts.cairo(
                 fontSize: isMobile ? 26 : 34,
                 fontWeight: FontWeight.w900,
-                color: isDark ? AppColors.textPrimary : AppColors.textPrimaryLight,
+                color: isDark
+                    ? AppColors.textPrimary
+                    : AppColors.textPrimaryLight,
               ),
               textAlign: TextAlign.center,
             ),
@@ -2007,7 +2379,9 @@ class _HomePageState extends State<HomePage> {
               "منهجية واضحة ومدروسة تأخذك خطوة بخطوة من الفهم النظري إلى بناء أنظمة حقيقية بالذكاء الاصطناعي",
               style: GoogleFonts.cairo(
                 fontSize: isMobile ? 14 : 16,
-                color: isDark ? AppColors.textSecondary : AppColors.textSecondaryLight,
+                color: isDark
+                    ? AppColors.textSecondary
+                    : AppColors.textSecondaryLight,
                 fontWeight: FontWeight.w500,
               ),
               textAlign: TextAlign.center,
@@ -2080,11 +2454,25 @@ class _HomePageState extends State<HomePage> {
     String? phoneError;
 
     final countries = [
-      'مصر (+20)', 'السعودية (+966)', 'الإمارات (+971)', 'الكويت (+965)',
-      'قطر (+974)', 'الأردن (+962)', 'العراق (+964)', 'عمان (+968)',
-      'البحرين (+973)', 'تونس (+216)', 'الجزائر (+213)', 'المغرب (+212)',
-      'فلسطين (+970)', 'سوريا (+963)', 'لبنان (+961)', 'ليبيا (+218)',
-      'السودان (+249)', 'اليمن (+967)', 'دولة أخرى'
+      'مصر (+20)',
+      'السعودية (+966)',
+      'الإمارات (+971)',
+      'الكويت (+965)',
+      'قطر (+974)',
+      'الأردن (+962)',
+      'العراق (+964)',
+      'عمان (+968)',
+      'البحرين (+973)',
+      'تونس (+216)',
+      'الجزائر (+213)',
+      'المغرب (+212)',
+      'فلسطين (+970)',
+      'سوريا (+963)',
+      'لبنان (+961)',
+      'ليبيا (+218)',
+      'السودان (+249)',
+      'اليمن (+967)',
+      'دولة أخرى',
     ];
 
     showDialog(
@@ -2093,21 +2481,43 @@ class _HomePageState extends State<HomePage> {
       builder: (ctx) => StatefulBuilder(
         builder: (ctx, setDlgState) => AlertDialog(
           backgroundColor: isDark ? const Color(0xFF0F172A) : Colors.white,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
           title: Row(
             children: [
               Container(
                 padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(color: const Color(0xFFA855F7).withOpacity(0.12), borderRadius: BorderRadius.circular(10)),
-                child: const Icon(Icons.psychology_rounded, color: Color(0xFFA855F7), size: 24),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFA855F7).withOpacity(0.12),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: const Icon(
+                  Icons.psychology_rounded,
+                  color: Color(0xFFA855F7),
+                  size: 24,
+                ),
               ),
               const SizedBox(width: 10),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text("بيانات الطالب لدخول الاختبار", style: GoogleFonts.cairo(fontWeight: FontWeight.bold, fontSize: 16, color: isDark ? Colors.white : const Color(0xFF0F172A))),
-                    Text("سجل بياناتك بدقة لتسجيل النتيجة رسمياً باسمك", style: GoogleFonts.cairo(fontSize: 11, color: Colors.grey)),
+                    Text(
+                      "بيانات الطالب لدخول الاختبار",
+                      style: GoogleFonts.cairo(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                        color: isDark ? Colors.white : const Color(0xFF0F172A),
+                      ),
+                    ),
+                    Text(
+                      "سجل بياناتك بدقة لتسجيل النتيجة رسمياً باسمك",
+                      style: GoogleFonts.cairo(
+                        fontSize: 11,
+                        color: Colors.grey,
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -2121,55 +2531,127 @@ class _HomePageState extends State<HomePage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const Divider(height: 16),
-                  Text("الاسم ثلاثي *", style: GoogleFonts.cairo(fontWeight: FontWeight.bold, fontSize: 13, color: isDark ? Colors.white70 : const Color(0xFF1E293B))),
+                  Text(
+                    "الاسم ثلاثي *",
+                    style: GoogleFonts.cairo(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 13,
+                      color: isDark ? Colors.white70 : const Color(0xFF1E293B),
+                    ),
+                  ),
                   const SizedBox(height: 6),
                   TextField(
                     controller: nameCtrl,
-                    style: GoogleFonts.cairo(fontSize: 13, color: isDark ? Colors.white : Colors.black),
+                    style: GoogleFonts.cairo(
+                      fontSize: 13,
+                      color: isDark ? Colors.white : Colors.black,
+                    ),
                     decoration: InputDecoration(
                       hintText: "مثال: أحمد محمد علي",
                       errorText: nameError,
-                      hintStyle: GoogleFonts.cairo(fontSize: 12, color: Colors.grey),
+                      hintStyle: GoogleFonts.cairo(
+                        fontSize: 12,
+                        color: Colors.grey,
+                      ),
                       filled: true,
-                      fillColor: isDark ? const Color(0xFF1E293B) : const Color(0xFFF8FAFC),
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: const BorderSide(color: Color(0xFFE2E8F0))),
+                      fillColor: isDark
+                          ? const Color(0xFF1E293B)
+                          : const Color(0xFFF8FAFC),
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 14,
+                        vertical: 12,
+                      ),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                        borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+                      ),
                     ),
                   ),
                   const SizedBox(height: 16),
 
-                  Text("رقم الهاتف مع كود الدولة *", style: GoogleFonts.cairo(fontWeight: FontWeight.bold, fontSize: 13, color: isDark ? Colors.white70 : const Color(0xFF1E293B))),
+                  Text(
+                    "رقم الهاتف مع كود الدولة *",
+                    style: GoogleFonts.cairo(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 13,
+                      color: isDark ? Colors.white70 : const Color(0xFF1E293B),
+                    ),
+                  ),
                   const SizedBox(height: 6),
                   TextField(
                     controller: phoneCtrl,
                     keyboardType: TextInputType.phone,
                     textDirection: TextDirection.ltr,
-                    style: GoogleFonts.cairo(fontSize: 13, color: isDark ? Colors.white : Colors.black),
+                    style: GoogleFonts.cairo(
+                      fontSize: 13,
+                      color: isDark ? Colors.white : Colors.black,
+                    ),
                     decoration: InputDecoration(
                       hintText: "+20 1012345678",
                       errorText: phoneError,
-                      hintStyle: GoogleFonts.cairo(fontSize: 12, color: Colors.grey),
-                      prefixIcon: const Icon(Icons.phone_android_rounded, size: 18, color: Color(0xFFA855F7)),
+                      hintStyle: GoogleFonts.cairo(
+                        fontSize: 12,
+                        color: Colors.grey,
+                      ),
+                      prefixIcon: const Icon(
+                        Icons.phone_android_rounded,
+                        size: 18,
+                        color: Color(0xFFA855F7),
+                      ),
                       filled: true,
-                      fillColor: isDark ? const Color(0xFF1E293B) : const Color(0xFFF8FAFC),
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: const BorderSide(color: Color(0xFFE2E8F0))),
+                      fillColor: isDark
+                          ? const Color(0xFF1E293B)
+                          : const Color(0xFFF8FAFC),
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 14,
+                        vertical: 12,
+                      ),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                        borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+                      ),
                     ),
                   ),
                   const SizedBox(height: 16),
 
-                  Text("الدولة", style: GoogleFonts.cairo(fontWeight: FontWeight.bold, fontSize: 13, color: isDark ? Colors.white70 : const Color(0xFF1E293B))),
+                  Text(
+                    "الدولة",
+                    style: GoogleFonts.cairo(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 13,
+                      color: isDark ? Colors.white70 : const Color(0xFF1E293B),
+                    ),
+                  ),
                   const SizedBox(height: 6),
                   DropdownButtonFormField<String>(
                     value: selectedCountry,
                     decoration: InputDecoration(
                       filled: true,
-                      fillColor: isDark ? const Color(0xFF1E293B) : const Color(0xFFF8FAFC),
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: const BorderSide(color: Color(0xFFE2E8F0))),
+                      fillColor: isDark
+                          ? const Color(0xFF1E293B)
+                          : const Color(0xFFF8FAFC),
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 14,
+                        vertical: 10,
+                      ),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                        borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+                      ),
                     ),
-                    items: countries.map((c) => DropdownMenuItem(value: c.split(' ').first, child: Text(c, style: GoogleFonts.cairo(fontSize: 13)))).toList(),
-                    onChanged: (v) => setDlgState(() => selectedCountry = v ?? 'مصر'),
+                    items: countries
+                        .map(
+                          (c) => DropdownMenuItem(
+                            value: c.split(' ').first,
+                            child: Text(
+                              c,
+                              style: GoogleFonts.cairo(fontSize: 13),
+                            ),
+                          ),
+                        )
+                        .toList(),
+                    onChanged: (v) =>
+                        setDlgState(() => selectedCountry = v ?? 'مصر'),
                   ),
                 ],
               ),
@@ -2178,7 +2660,10 @@ class _HomePageState extends State<HomePage> {
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(ctx),
-              child: Text("إلغاء", style: GoogleFonts.cairo(color: Colors.grey)),
+              child: Text(
+                "إلغاء",
+                style: GoogleFonts.cairo(color: Colors.grey),
+              ),
             ),
             ElevatedButton.icon(
               onPressed: () async {
@@ -2186,17 +2671,25 @@ class _HomePageState extends State<HomePage> {
                 final phone = phoneCtrl.text.trim();
 
                 // Validation
-                final parts = name.split(RegExp(r'\s+')).where((p) => p.isNotEmpty).toList();
+                final parts = name
+                    .split(RegExp(r'\s+'))
+                    .where((p) => p.isNotEmpty)
+                    .toList();
                 bool hasErr = false;
                 if (parts.length < 3) {
-                  setDlgState(() => nameError = "يرجى كتابة الاسم ثلاثياً على الأقل");
+                  setDlgState(
+                    () => nameError = "يرجى كتابة الاسم ثلاثياً على الأقل",
+                  );
                   hasErr = true;
                 } else {
                   setDlgState(() => nameError = null);
                 }
 
                 if (phone.isEmpty || phone.length < 8) {
-                  setDlgState(() => phoneError = "يرجى كتابة رقم الهاتف مع كود الدولة بشكل صحيح");
+                  setDlgState(
+                    () => phoneError =
+                        "يرجى كتابة رقم الهاتف مع كود الدولة بشكل صحيح",
+                  );
                   hasErr = true;
                 } else {
                   setDlgState(() => phoneError = null);
@@ -2222,12 +2715,20 @@ class _HomePageState extends State<HomePage> {
                 }
               },
               icon: const Icon(Icons.play_arrow_rounded, size: 18),
-              label: Text("دخول الاختبار الآن 🚀", style: GoogleFonts.cairo(fontWeight: FontWeight.bold)),
+              label: Text(
+                "دخول الاختبار الآن 🚀",
+                style: GoogleFonts.cairo(fontWeight: FontWeight.bold),
+              ),
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFFA855F7),
                 foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 12,
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
               ),
             ),
           ],
@@ -2236,7 +2737,6 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-
   // 5. اتعلم معانا (Fixed Dimensions - No Bottom Overflow Bar)
   // -------------------------------------------------------------
   Widget _buildLearnWithUsSection(bool isMobile, double screenWidth) {
@@ -2244,7 +2744,8 @@ class _HomePageState extends State<HomePage> {
     final cards = [
       const _LearnCardData(
         title: "الكورسات",
-        description: "مسارات تعليمية مهنية متكاملة من البداية وحتى الاحتراف وسوق العمل",
+        description:
+            "مسارات تعليمية مهنية متكاملة من البداية وحتى الاحتراف وسوق العمل",
         icon: Icons.laptop_chromebook_rounded,
         tag: "مسارات متكاملة",
         bullets: [
@@ -2256,7 +2757,8 @@ class _HomePageState extends State<HomePage> {
       ),
       const _LearnCardData(
         title: "المحاضرات",
-        description: "شرح تفصيلي مبسط لأعقد مفاهيم علوم الحاسب وهندسة البرمجيات",
+        description:
+            "شرح تفصيلي مبسط لأعقد مفاهيم علوم الحاسب وهندسة البرمجيات",
         icon: Icons.menu_book_rounded,
         tag: "شرح أكاديمي مباشر",
         bullets: [
@@ -2268,7 +2770,8 @@ class _HomePageState extends State<HomePage> {
       ),
       const _LearnCardData(
         title: "الذكاء الاصطناعي",
-        description: "توظيف نماذج LLM وأحدث أدوات AI في البرمجة وهندسة المشروعات",
+        description:
+            "توظيف نماذج LLM وأحدث أدوات AI في البرمجة وهندسة المشروعات",
         icon: Icons.smart_toy_outlined,
         tag: "أحدث التقنيات",
         bullets: [
@@ -2280,7 +2783,8 @@ class _HomePageState extends State<HomePage> {
       ),
       const _LearnCardData(
         title: "المشاريع الحقيقية",
-        description: "تحويل العلم إلى منتجات برمجية فعلية ترفع من قيمة ملفك المهني",
+        description:
+            "تحويل العلم إلى منتجات برمجية فعلية ترفع من قيمة ملفك المهني",
         icon: Icons.rocket_launch_rounded,
         tag: "مخرجات عملية",
         bullets: [
@@ -2307,12 +2811,18 @@ class _HomePageState extends State<HomePage> {
               decoration: BoxDecoration(
                 color: const Color(0xFF00E5FF).withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(30),
-                border: Border.all(color: const Color(0xFF00E5FF).withValues(alpha: 0.3)),
+                border: Border.all(
+                  color: const Color(0xFF00E5FF).withValues(alpha: 0.3),
+                ),
               ),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Icon(Icons.school_rounded, color: Color(0xFF00E5FF), size: 16),
+                  const Icon(
+                    Icons.school_rounded,
+                    color: Color(0xFF00E5FF),
+                    size: 16,
+                  ),
                   const SizedBox(width: 8),
                   Text(
                     "ركائز التعلم",
@@ -2333,7 +2843,9 @@ class _HomePageState extends State<HomePage> {
               style: GoogleFonts.cairo(
                 fontSize: isMobile ? 26 : 34,
                 fontWeight: FontWeight.w900,
-                color: isDark ? AppColors.textPrimary : AppColors.textPrimaryLight,
+                color: isDark
+                    ? AppColors.textPrimary
+                    : AppColors.textPrimaryLight,
               ),
               textAlign: TextAlign.center,
             ),
@@ -2342,7 +2854,9 @@ class _HomePageState extends State<HomePage> {
               "محتوى تعليمي هندسي رصين في البرمجة وعلوم الحاسب والذكاء الاصطناعي",
               style: GoogleFonts.cairo(
                 fontSize: isMobile ? 14 : 16,
-                color: isDark ? AppColors.textSecondary : AppColors.textSecondaryLight,
+                color: isDark
+                    ? AppColors.textSecondary
+                    : AppColors.textSecondaryLight,
                 fontWeight: FontWeight.w500,
               ),
               textAlign: TextAlign.center,
@@ -2402,9 +2916,16 @@ class _HomePageState extends State<HomePage> {
     return Container(
       decoration: BoxDecoration(
         color: isDark ? const Color(0xFF070A12) : Colors.white,
-        border: Border(top: BorderSide(color: isDark ? AppColors.borderDark : AppColors.borderLight)),
+        border: Border(
+          top: BorderSide(
+            color: isDark ? AppColors.borderDark : AppColors.borderLight,
+          ),
+        ),
       ),
-      padding: EdgeInsets.symmetric(horizontal: isMobile ? 20 : 48, vertical: 32),
+      padding: EdgeInsets.symmetric(
+        horizontal: isMobile ? 20 : 48,
+        vertical: 32,
+      ),
       child: Center(
         child: Container(
           constraints: const BoxConstraints(maxWidth: 1200),
@@ -2418,7 +2939,12 @@ class _HomePageState extends State<HomePage> {
                     Row(
                       children: [
                         ClipOval(
-                          child: Image.asset('assets/images/logo.jpeg', width: 38, height: 38, fit: BoxFit.cover),
+                          child: Image.asset(
+                            'assets/images/logo.jpeg',
+                            width: 38,
+                            height: 38,
+                            fit: BoxFit.cover,
+                          ),
                         ),
                         const SizedBox(width: 10),
                         Text(
@@ -2426,7 +2952,9 @@ class _HomePageState extends State<HomePage> {
                           style: GoogleFonts.inter(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
-                            color: isDark ? Colors.white : AppColors.textPrimaryLight,
+                            color: isDark
+                                ? Colors.white
+                                : AppColors.textPrimaryLight,
                           ),
                         ),
                       ],
@@ -2435,11 +2963,26 @@ class _HomePageState extends State<HomePage> {
                     // Quick links
                     Row(
                       children: [
-                        _footerLink("الكورسات", () => Navigator.of(context).pushNamed('/courses')),
-                        _footerLink("الدروس", () => Navigator.of(context).pushNamed('/lessons')),
-                        _footerLink("من نحن", () => Navigator.of(context).pushNamed('/about')),
-                        _footerLink("سياسة الاستخدام والخصوصية", () => Navigator.of(context).pushNamed('/privacy')),
-                        _footerLink("تواصل معنا", () => Navigator.of(context).pushNamed('/contact')),
+                        _footerLink(
+                          "الكورسات",
+                          () => Navigator.of(context).pushNamed('/courses'),
+                        ),
+                        _footerLink(
+                          "الدروس",
+                          () => Navigator.of(context).pushNamed('/lessons'),
+                        ),
+                        _footerLink(
+                          "من نحن",
+                          () => Navigator.of(context).pushNamed('/about'),
+                        ),
+                        _footerLink(
+                          "سياسة الاستخدام والخصوصية",
+                          () => Navigator.of(context).pushNamed('/privacy'),
+                        ),
+                        _footerLink(
+                          "تواصل معنا",
+                          () => Navigator.of(context).pushNamed('/contact'),
+                        ),
                       ],
                     ),
 
@@ -2459,7 +3002,12 @@ class _HomePageState extends State<HomePage> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         ClipOval(
-                          child: Image.asset('assets/images/logo.jpeg', width: 38, height: 38, fit: BoxFit.cover),
+                          child: Image.asset(
+                            'assets/images/logo.jpeg',
+                            width: 38,
+                            height: 38,
+                            fit: BoxFit.cover,
+                          ),
                         ),
                         const SizedBox(width: 10),
                         Text(
@@ -2467,7 +3015,9 @@ class _HomePageState extends State<HomePage> {
                           style: GoogleFonts.inter(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
-                            color: isDark ? Colors.white : AppColors.textPrimaryLight,
+                            color: isDark
+                                ? Colors.white
+                                : AppColors.textPrimaryLight,
                           ),
                         ),
                       ],
@@ -2478,11 +3028,26 @@ class _HomePageState extends State<HomePage> {
                       runSpacing: 8,
                       alignment: WrapAlignment.center,
                       children: [
-                        _footerLink("الكورسات", () => Navigator.of(context).pushNamed('/courses')),
-                        _footerLink("الدروس", () => Navigator.of(context).pushNamed('/lessons')),
-                        _footerLink("من نحن", () => Navigator.of(context).pushNamed('/about')),
-                        _footerLink("سياسة الاستخدام والخصوصية", () => Navigator.of(context).pushNamed('/privacy')),
-                        _footerLink("تواصل معنا", () => Navigator.of(context).pushNamed('/contact')),
+                        _footerLink(
+                          "الكورسات",
+                          () => Navigator.of(context).pushNamed('/courses'),
+                        ),
+                        _footerLink(
+                          "الدروس",
+                          () => Navigator.of(context).pushNamed('/lessons'),
+                        ),
+                        _footerLink(
+                          "من نحن",
+                          () => Navigator.of(context).pushNamed('/about'),
+                        ),
+                        _footerLink(
+                          "سياسة الاستخدام والخصوصية",
+                          () => Navigator.of(context).pushNamed('/privacy'),
+                        ),
+                        _footerLink(
+                          "تواصل معنا",
+                          () => Navigator.of(context).pushNamed('/contact'),
+                        ),
                       ],
                     ),
                     const SizedBox(height: 14),
@@ -2496,12 +3061,17 @@ class _HomePageState extends State<HomePage> {
                 ),
 
               const SizedBox(height: 18),
-              Divider(color: isDark ? AppColors.borderDark : AppColors.borderLight),
+              Divider(
+                color: isDark ? AppColors.borderDark : AppColors.borderLight,
+              ),
               const SizedBox(height: 12),
 
               Text(
                 "جميع الحقوق محفوظة © 2026 Eslam Atef | Code & AI",
-                style: GoogleFonts.cairo(fontSize: 13, color: AppColors.textMuted),
+                style: GoogleFonts.cairo(
+                  fontSize: 13,
+                  color: AppColors.textMuted,
+                ),
               ),
             ],
           ),
@@ -2524,7 +3094,9 @@ class _HomePageState extends State<HomePage> {
             style: GoogleFonts.cairo(
               fontSize: 13,
               fontWeight: FontWeight.w600,
-              color: isDark ? AppColors.textSecondary : AppColors.textSecondaryLight,
+              color: isDark
+                  ? AppColors.textSecondary
+                  : AppColors.textSecondaryLight,
             ),
           ),
         ),
@@ -2588,7 +3160,9 @@ class _SquareNewsCardState extends State<_SquareNewsCard> {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final isCourse = widget.item['type'] == 'course';
-    final accentColor = isCourse ? const Color(0xFF00E5FF) : const Color(0xFFFFB300);
+    final accentColor = isCourse
+        ? const Color(0xFF00E5FF)
+        : const Color(0xFFFFB300);
 
     return MouseRegion(
       cursor: SystemMouseCursors.click,
@@ -2596,21 +3170,28 @@ class _SquareNewsCardState extends State<_SquareNewsCard> {
       onExit: (_) => setState(() => _isHovered = false),
       child: GestureDetector(
         onTap: () {
-          final route = widget.item['route'] ?? (isCourse ? '/courses' : '/lessons');
+          final route =
+              widget.item['route'] ?? (isCourse ? '/courses' : '/lessons');
           Navigator.of(context).pushNamed(route);
         },
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 220),
           width: widget.isMobile ? 260 : 280,
           height: widget.isMobile ? 260 : 280,
-          transform: Matrix4.translationValues(0.0, _isHovered ? -6.0 : 0.0, 0.0),
+          transform: Matrix4.translationValues(
+            0.0,
+            _isHovered ? -6.0 : 0.0,
+            0.0,
+          ),
           decoration: BoxDecoration(
             color: isDark ? const Color(0xFF0F172A) : Colors.white,
             borderRadius: BorderRadius.circular(20),
             border: Border.all(
               color: _isHovered
                   ? accentColor
-                  : (isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0)),
+                  : (isDark
+                        ? const Color(0xFF1E293B)
+                        : const Color(0xFFE2E8F0)),
               width: _isHovered ? 1.5 : 1.0,
             ),
             boxShadow: [
@@ -2669,12 +3250,19 @@ class _SquareNewsCardState extends State<_SquareNewsCard> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 10,
+                              vertical: 4,
+                            ),
                             decoration: BoxDecoration(
-                              color: accentColor.withValues(alpha: isDark ? 0.18 : 0.12),
+                              color: accentColor.withValues(
+                                alpha: isDark ? 0.18 : 0.12,
+                              ),
                               borderRadius: BorderRadius.circular(8),
                               border: Border.all(
-                                color: accentColor.withValues(alpha: isDark ? 0.5 : 0.4),
+                                color: accentColor.withValues(
+                                  alpha: isDark ? 0.5 : 0.4,
+                                ),
                               ),
                             ),
                             child: Text(
@@ -2688,7 +3276,10 @@ class _SquareNewsCardState extends State<_SquareNewsCard> {
                           ),
                           if ((widget.item['duration'] ?? '').isNotEmpty)
                             Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 8,
+                                vertical: 4,
+                              ),
                               decoration: BoxDecoration(
                                 color: isDark
                                     ? Colors.black.withValues(alpha: 0.5)
@@ -2700,7 +3291,9 @@ class _SquareNewsCardState extends State<_SquareNewsCard> {
                                   Icon(
                                     Icons.schedule,
                                     size: 12,
-                                    color: isDark ? AppColors.textMuted : AppColors.textMutedLight,
+                                    color: isDark
+                                        ? AppColors.textMuted
+                                        : AppColors.textMutedLight,
                                   ),
                                   const SizedBox(width: 4),
                                   Text(
@@ -2739,7 +3332,9 @@ class _SquareNewsCardState extends State<_SquareNewsCard> {
                             style: GoogleFonts.cairo(
                               fontSize: 15,
                               fontWeight: FontWeight.w800,
-                              color: isDark ? AppColors.textPrimary : AppColors.textPrimaryLight,
+                              color: isDark
+                                  ? AppColors.textPrimary
+                                  : AppColors.textPrimaryLight,
                               height: 1.35,
                             ),
                             maxLines: 2,
@@ -2759,8 +3354,14 @@ class _SquareNewsCardState extends State<_SquareNewsCard> {
                               const SizedBox(width: 6),
                               AnimatedPadding(
                                 duration: const Duration(milliseconds: 200),
-                                padding: EdgeInsets.only(right: _isHovered ? 4.0 : 0.0),
-                                child: Icon(Icons.arrow_back_rounded, size: 14, color: accentColor),
+                                padding: EdgeInsets.only(
+                                  right: _isHovered ? 4.0 : 0.0,
+                                ),
+                                child: Icon(
+                                  Icons.arrow_back_rounded,
+                                  size: 14,
+                                  color: accentColor,
+                                ),
                               ),
                             ],
                           ),
@@ -2801,9 +3402,7 @@ class _LearnCardData {
 class _LearnWithUsCard extends StatefulWidget {
   final _LearnCardData data;
 
-  const _LearnWithUsCard({
-    required this.data,
-  });
+  const _LearnWithUsCard({required this.data});
 
   @override
   State<_LearnWithUsCard> createState() => _LearnWithUsCardState();
@@ -2817,7 +3416,8 @@ class _LearnWithUsCardState extends State<_LearnWithUsCard> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return MouseRegion(
-      cursor: SystemMouseCursors.basic, // User explicitly requested display-only, non-clickable
+      cursor: SystemMouseCursors
+          .basic, // User explicitly requested display-only, non-clickable
       onEnter: (_) => setState(() => _isHovered = true),
       onExit: (_) => setState(() => _isHovered = false),
       child: AnimatedContainer(
@@ -2831,15 +3431,17 @@ class _LearnWithUsCardState extends State<_LearnWithUsCard> {
             end: Alignment.bottomRight,
             colors: isDark
                 ? (_isHovered
-                    ? [const Color(0xFF131D33), const Color(0xFF0F172A)]
-                    : [const Color(0xFF0E1626), const Color(0xFF0A0F1D)])
+                      ? [const Color(0xFF131D33), const Color(0xFF0F172A)]
+                      : [const Color(0xFF0E1626), const Color(0xFF0A0F1D)])
                 : (_isHovered
-                    ? [Colors.white, const Color(0xFFF1F5F9)]
-                    : [Colors.white, const Color(0xFFF8FAFC)]),
+                      ? [Colors.white, const Color(0xFFF1F5F9)]
+                      : [Colors.white, const Color(0xFFF8FAFC)]),
           ),
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
-            color: _isHovered ? widget.data.accentColor.withValues(alpha: 0.8) : (isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0)),
+            color: _isHovered
+                ? widget.data.accentColor.withValues(alpha: 0.8)
+                : (isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0)),
             width: _isHovered ? 1.4 : 1.0,
           ),
           boxShadow: [
@@ -2876,10 +3478,17 @@ class _LearnWithUsCardState extends State<_LearnWithUsCard> {
                       ),
                     ],
                   ),
-                  child: Icon(widget.data.icon, color: widget.data.accentColor, size: 24),
+                  child: Icon(
+                    widget.data.icon,
+                    color: widget.data.accentColor,
+                    size: 24,
+                  ),
                 ),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 4,
+                  ),
                   decoration: BoxDecoration(
                     color: widget.data.accentColor.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(8),
@@ -2903,7 +3512,9 @@ class _LearnWithUsCardState extends State<_LearnWithUsCard> {
               style: GoogleFonts.cairo(
                 fontSize: 19,
                 fontWeight: FontWeight.w900,
-                color: isDark ? AppColors.textPrimary : AppColors.textPrimaryLight,
+                color: isDark
+                    ? AppColors.textPrimary
+                    : AppColors.textPrimaryLight,
               ),
             ),
             const SizedBox(height: 6),
@@ -2913,7 +3524,9 @@ class _LearnWithUsCardState extends State<_LearnWithUsCard> {
               widget.data.description,
               style: GoogleFonts.cairo(
                 fontSize: 13,
-                color: isDark ? AppColors.textSecondary : AppColors.textSecondaryLight,
+                color: isDark
+                    ? AppColors.textSecondary
+                    : AppColors.textSecondaryLight,
                 height: 1.5,
               ),
             ),
@@ -2926,14 +3539,20 @@ class _LearnWithUsCardState extends State<_LearnWithUsCard> {
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Icon(Icons.check_circle_outline_rounded, size: 14, color: widget.data.accentColor),
+                    Icon(
+                      Icons.check_circle_outline_rounded,
+                      size: 14,
+                      color: widget.data.accentColor,
+                    ),
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
                         bullet,
                         style: GoogleFonts.cairo(
                           fontSize: 12,
-                          color: isDark ? const Color(0xFFCBD5E1) : const Color(0xFF334155),
+                          color: isDark
+                              ? const Color(0xFFCBD5E1)
+                              : const Color(0xFF334155),
                           height: 1.4,
                         ),
                       ),
@@ -2949,7 +3568,9 @@ class _LearnWithUsCardState extends State<_LearnWithUsCard> {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
               decoration: BoxDecoration(
-                color: isDark ? Colors.white.withValues(alpha: 0.04) : Colors.black.withValues(alpha: 0.03),
+                color: isDark
+                    ? Colors.white.withValues(alpha: 0.04)
+                    : Colors.black.withValues(alpha: 0.03),
                 borderRadius: BorderRadius.circular(6),
               ),
               child: Row(
@@ -2966,7 +3587,10 @@ class _LearnWithUsCardState extends State<_LearnWithUsCard> {
                   const SizedBox(width: 6),
                   Text(
                     "ركيزة أساسية في المنصة",
-                    style: GoogleFonts.cairo(fontSize: 11, color: AppColors.textMuted),
+                    style: GoogleFonts.cairo(
+                      fontSize: 11,
+                      color: AppColors.textMuted,
+                    ),
                   ),
                 ],
               ),
@@ -3000,10 +3624,7 @@ class _JourneyStepCard extends StatefulWidget {
   final _JourneyStepData data;
   final double? height;
 
-  const _JourneyStepCard({
-    required this.data,
-    this.height,
-  });
+  const _JourneyStepCard({required this.data, this.height});
 
   @override
   State<_JourneyStepCard> createState() => _JourneyStepCardState();
@@ -3035,7 +3656,9 @@ class _JourneyStepCardState extends State<_JourneyStepCard> {
               : (_isHovered ? Colors.white : const Color(0xFFF8FAFC)),
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
-            color: _isHovered ? widget.data.accentColor : (isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0)),
+            color: _isHovered
+                ? widget.data.accentColor
+                : (isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0)),
             width: _isHovered ? 1.4 : 1.0,
           ),
           boxShadow: [
@@ -3087,10 +3710,16 @@ class _JourneyStepCardState extends State<_JourneyStepCard> {
                 Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: isDark ? Colors.white.withValues(alpha: 0.04) : Colors.black.withValues(alpha: 0.04),
+                    color: isDark
+                        ? Colors.white.withValues(alpha: 0.04)
+                        : Colors.black.withValues(alpha: 0.04),
                     borderRadius: BorderRadius.circular(10),
                   ),
-                  child: Icon(widget.data.icon, color: widget.data.accentColor, size: 22),
+                  child: Icon(
+                    widget.data.icon,
+                    color: widget.data.accentColor,
+                    size: 22,
+                  ),
                 ),
               ],
             ),
@@ -3102,7 +3731,9 @@ class _JourneyStepCardState extends State<_JourneyStepCard> {
               style: GoogleFonts.cairo(
                 fontSize: 18,
                 fontWeight: FontWeight.w800,
-                color: isDark ? AppColors.textPrimary : AppColors.textPrimaryLight,
+                color: isDark
+                    ? AppColors.textPrimary
+                    : AppColors.textPrimaryLight,
               ),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
@@ -3114,7 +3745,9 @@ class _JourneyStepCardState extends State<_JourneyStepCard> {
               widget.data.description,
               style: GoogleFonts.cairo(
                 fontSize: 13,
-                color: isDark ? AppColors.textSecondary : AppColors.textSecondaryLight,
+                color: isDark
+                    ? AppColors.textSecondary
+                    : AppColors.textSecondaryLight,
                 height: 1.55,
               ),
               maxLines: 3,
@@ -3126,4 +3759,3 @@ class _JourneyStepCardState extends State<_JourneyStepCard> {
     );
   }
 }
-
