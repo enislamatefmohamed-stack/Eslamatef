@@ -1543,91 +1543,24 @@ class _HomePageState extends State<HomePage> {
   List<Map<String, dynamic>> _getPublishedCourses() {
     final List<Map<String, dynamic>> list = [];
 
-    // 1. Flagship New Course: Kids Coding & AI (49 Lectures)
-    list.add({
-      'id': 'kids_coding_49',
-      'title': 'كورس البرمجة والذكاء الاصطناعي للأطفال (49 محاضرة كاملة)',
-      'subtitle':
-          'المنهج العملي التفاعلي الشامل لبناء الألعاب وتطبيقات بايثون ونماذج الذكاء الاصطناعي على 7 مستويات تدريجية ممتعة.',
-      'category': 'الأطفال والناشئين (7-16 سنة)',
-      'badge': '🔥 كورس جديد وحصري',
-      'level': '7 مستويات متدرجة',
-      'lecturesCount': '49 محاضرة كاملة',
-      'rating': '5.0',
-      'students': '+380 بطل',
-      'image': 'assets/images/kids_course_cover.png',
-      'icon': Icons.smart_toy_rounded,
-      'gradient': [const Color(0xFF0284C7), const Color(0xFF0369A1)],
-    });
-
-    // 2. Courses from Dashboard & Firestore
+    // Only actual published courses from courses section (SiteDataService)
     for (final c in SiteDataService.instance.courses) {
       final lessons = (c['lessons'] as List?) ?? [];
       final img = (c['image'] ?? c['imageUrl'] ?? '').toString();
       list.add({
         'id': c['id'] ?? '',
         'title': c['title'] ?? 'كورس جديد',
-        'subtitle':
-            c['description'] ??
-            'مسار برمجي شامل مع تطبيقات عملية وتدريب مستمر خطوة بخطوة.',
+        'subtitle': c['description'] ?? '',
         'category': c['category'] ?? 'مسار برمجي',
-        'badge': c['badge'] ?? 'جديد ومميز ✨',
+        'badge': c['badge'] ?? '🔥 كورس جديد',
         'level': c['level'] ?? 'جميع المستويات',
         'lecturesCount': '${lessons.length} محاضرة',
-        'rating': '4.9',
-        'students': '+500 طالب',
-        'image': img.isNotEmpty ? img : 'assets/images/slide4.png',
+        'rating': '5.0',
+        'students': c['students'] != null ? '${c['students']}' : '',
+        'image': img,
         'icon': Icons.code_rounded,
-        'gradient': [const Color(0xFF6366F1), const Color(0xFF4338CA)],
-      });
-    }
-
-    // 3. Fallback Premier Tracks if dashboard courses are few (ensures moving slider experience)
-    if (list.length < 3) {
-      list.add({
-        'id': 'fullstack_web',
-        'title': 'مسار تطوير الويب الكامل (Full Stack Web Development)',
-        'subtitle':
-            'احترف بناء تطبيقات الويب الحديثة من الصفر وتطوير الواجهات وقواعد البيانات ونشر المشاريع على السيرفرات.',
-        'category': 'تطوير المواقع',
-        'badge': '✨ مسار احترافي متكامل',
-        'level': 'مبتدئ إلى متقدم',
-        'lecturesCount': '36 محاضرة',
-        'rating': '5.0',
-        'students': '+1,200 مهندس',
-        'image': 'assets/images/slide1.png',
-        'icon': Icons.web_rounded,
-        'gradient': [const Color(0xFF8B5CF6), const Color(0xFF6D28D9)],
-      });
-      list.add({
-        'id': 'flutter_mobile',
-        'title': 'مسار تطبيقات الهاتف بفلاتر (Flutter & Dart Masterclass)',
-        'subtitle':
-            'صمم وطور تطبيقات عصرية وسريعة تعمل على أندرويد وآيفون بكود واحد مع تكامل السيرفرات والذكاء الاصطناعي.',
-        'category': 'تطبيقات الموبايل',
-        'badge': '🚀 الأكثر طلباً',
-        'level': 'متقدم',
-        'lecturesCount': '28 محاضرة',
-        'rating': '4.9',
-        'students': '+850 مطور',
-        'image': 'assets/images/slide2.png',
-        'icon': Icons.phone_android_rounded,
-        'gradient': [const Color(0xFF0D9488), const Color(0xFF0F766E)],
-      });
-      list.add({
-        'id': 'python_ai',
-        'title': 'مسار بايثون والذكاء الاصطناعي (Python & AI Engineering)',
-        'subtitle':
-            'تعلم لغة بايثون، تحليل البيانات، بناء خوارزميات تعلم الآلة ونماذج الذكاء الاصطناعي التوليدي.',
-        'category': 'الذكاء الاصطناعي',
-        'badge': '🤖 مستقبل التكنولوجيا',
-        'level': 'شامل',
-        'lecturesCount': '32 محاضرة',
-        'rating': '5.0',
-        'students': '+920 مهندس',
-        'image': 'assets/images/slide3.png',
-        'icon': Icons.psychology_rounded,
-        'gradient': [const Color(0xFFEA580C), const Color(0xFFC2410C)],
+        'gradient': [const Color(0xFF0284C7), const Color(0xFF0369A1)],
+        'rawCourse': c,
       });
     }
 
@@ -1652,69 +1585,18 @@ class _HomePageState extends State<HomePage> {
             // Top Header Row
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              crossAxisAlignment: CrossAxisAlignment.end,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 5,
-                        ),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF0284C7).withOpacity(0.12),
-                          borderRadius: BorderRadius.circular(20),
-                          border: Border.all(
-                            color: const Color(0xFF0284C7).withOpacity(0.35),
-                          ),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Container(
-                              width: 8,
-                              height: 8,
-                              decoration: const BoxDecoration(
-                                color: Color(0xFF0284C7),
-                                shape: BoxShape.circle,
-                              ),
-                            ),
-                            const SizedBox(width: 8),
-                            Text(
-                              "🔥 كورسات جديدة ومتميزة",
-                              style: GoogleFonts.cairo(
-                                fontSize: 12,
-                                fontWeight: FontWeight.bold,
-                                color: const Color(0xFF0284C7),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        "الكورسات والمسارات التدريبية الجديدة 🚀",
-                        style: GoogleFonts.cairo(
-                          fontSize: isMobile ? 22 : 28,
-                          fontWeight: FontWeight.w900,
-                          color: isDark
-                              ? AppColors.textPrimary
-                              : AppColors.textPrimaryLight,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        "اضغط على أي كورس لفتحه والبدء في الشروحات والتطبيقات العملية فوراً.",
-                        style: GoogleFonts.cairo(
-                          fontSize: isMobile ? 12.5 : 14,
-                          color: isDark
-                              ? AppColors.textSecondary
-                              : AppColors.textSecondaryLight,
-                        ),
-                      ),
-                    ],
+                  child: Text(
+                    "🔥 كورسات جديدة ومتميزة",
+                    style: GoogleFonts.cairo(
+                      fontSize: isMobile ? 22 : 28,
+                      fontWeight: FontWeight.w900,
+                      color: isDark
+                          ? AppColors.textPrimary
+                          : AppColors.textPrimaryLight,
+                    ),
                   ),
                 ),
                 if (!isMobile) ...[
@@ -2085,7 +1967,7 @@ class _HomePageState extends State<HomePage> {
         fit: BoxFit.cover,
         width: double.infinity,
         height: double.infinity,
-        errorBuilder: (_, __, ___) => _buildFallbackCardGradient(gradient),
+        errorBuilder: (context, error, stackTrace) => _buildFallbackCardGradient(gradient),
       );
     }
     if (imgPath.isNotEmpty) {
@@ -2094,7 +1976,7 @@ class _HomePageState extends State<HomePage> {
         fit: BoxFit.cover,
         width: double.infinity,
         height: double.infinity,
-        errorBuilder: (_, __, ___) => _buildFallbackCardGradient(gradient),
+        errorBuilder: (context, error, stackTrace) => _buildFallbackCardGradient(gradient),
       );
     }
     return _buildFallbackCardGradient(gradient);
