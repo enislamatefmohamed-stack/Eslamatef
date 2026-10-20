@@ -141,10 +141,17 @@ class _HomePageState extends State<HomePage> {
   final PageController _pageController = PageController();
   final ScrollController _newsScrollController = ScrollController();
 
+  // New Courses Animated Moving Slider state
+  int _currentCourseSlide = 0;
+  Timer? _coursesSliderTimer;
+  final PageController _coursesPageController = PageController(viewportFraction: 0.90);
+  bool _isCoursesSliderHovered = false;
+
   @override
   void initState() {
     super.initState();
     _startAutoSlide();
+    _startCoursesAutoSlide();
     SiteDataService.instance.addListener(_onDataChanged);
     AppThemeManager.themeModeNotifier.addListener(_onDataChanged);
   }
@@ -237,10 +244,49 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  void _startCoursesAutoSlide() {
+    _coursesSliderTimer?.cancel();
+    _coursesSliderTimer = Timer.periodic(const Duration(seconds: 4), (timer) {
+      if (!mounted || _isCoursesSliderHovered) return;
+      final courses = _getPublishedCourses();
+      if (courses.length <= 1) return;
+      int next = (_currentCourseSlide + 1) % courses.length;
+      _coursesPageController.animateToPage(
+        next,
+        duration: const Duration(milliseconds: 650),
+        curve: Curves.easeInOutCubic,
+      );
+    });
+  }
+
+  void _nextCourseSlide() {
+    final courses = _getPublishedCourses();
+    if (courses.isEmpty) return;
+    int next = (_currentCourseSlide + 1) % courses.length;
+    _coursesPageController.animateToPage(
+      next,
+      duration: const Duration(milliseconds: 400),
+      curve: Curves.easeInOut,
+    );
+  }
+
+  void _prevCourseSlide() {
+    final courses = _getPublishedCourses();
+    if (courses.isEmpty) return;
+    int prev = (_currentCourseSlide - 1 + courses.length) % courses.length;
+    _coursesPageController.animateToPage(
+      prev,
+      duration: const Duration(milliseconds: 400),
+      curve: Curves.easeInOut,
+    );
+  }
+
   @override
   void dispose() {
     _sliderTimer?.cancel();
+    _coursesSliderTimer?.cancel();
     _pageController.dispose();
+    _coursesPageController.dispose();
     _newsScrollController.dispose();
     SiteDataService.instance.removeListener(_onDataChanged);
     AppThemeManager.themeModeNotifier.removeListener(_onDataChanged);
@@ -304,7 +350,11 @@ class _HomePageState extends State<HomePage> {
                       items: _getCombinedLatestItems(),
                       isDark: isDark,
                     ),
-                    SizedBox(height: isMobile ? 32 : 55),
+                    SizedBox(height: isMobile ? 24 : 45),
+
+                    // 2.1 اسلايدر الكورسات الجديدة المتحرك (New Courses Animated Moving Slider)
+                    _buildNewCoursesSliderSection(isMobile, screenWidth, isDark),
+                    SizedBox(height: isMobile ? 36 : 65),
 
                     // 3. تحدي الاسبوع واختبر نفسك (Weekly Challenge & Interactive Quiz)
                     _buildWeeklyChallengeSection(isMobile, screenWidth),
@@ -1221,6 +1271,561 @@ class _HomePageState extends State<HomePage> {
           ),
           child: Icon(icon, size: 16, color: isDark ? AppColors.textPrimary : AppColors.textPrimaryLight),
         ),
+      ),
+    );
+  }
+
+  // -------------------------------------------------------------
+  // 1.1 اسلايدر الكورسات الجديدة المتحرك (New Courses Animated Moving Slider)
+  // -------------------------------------------------------------
+  List<Map<String, dynamic>> _getPublishedCourses() {
+    final List<Map<String, dynamic>> list = [];
+
+    // 1. Flagship New Course: Kids Coding & AI (49 Lectures)
+    list.add({
+      'id': 'kids_coding_49',
+      'title': 'كورس البرمجة والذكاء الاصطناعي للأطفال (49 محاضرة كاملة)',
+      'subtitle': 'المنهج العملي التفاعلي الشامل لبناء الألعاب وتطبيقات بايثون ونماذج الذكاء الاصطناعي على 7 مستويات تدريجية ممتعة.',
+      'category': 'الأطفال والناشئين (7-16 سنة)',
+      'badge': '🔥 كورس جديد وحصري',
+      'level': '7 مستويات متدرجة',
+      'lecturesCount': '49 محاضرة كاملة',
+      'rating': '5.0',
+      'students': '+380 بطل',
+      'icon': Icons.smart_toy_rounded,
+      'gradient': [const Color(0xFF0284C7), const Color(0xFF0369A1)],
+      'highlights': ['25 شريحة بيضاء تفاعلية/درس', 'اختبارات إلكترونية فورية', 'مشاريع ألعاب حقيقية'],
+    });
+
+    // 2. Courses from Dashboard & Firestore
+    for (final c in SiteDataService.instance.courses) {
+      final lessons = (c['lessons'] as List?) ?? [];
+      list.add({
+        'id': c['id'] ?? '',
+        'title': c['title'] ?? 'كورس جديد',
+        'subtitle': c['description'] ?? 'مسار برمجي شامل مع تطبيقات عملية وتدريب مستمر خطوة بخطوة.',
+        'category': c['category'] ?? 'مسار برمجي',
+        'badge': c['badge'] ?? 'جديد ومميز ✨',
+        'level': c['level'] ?? 'جميع المستويات',
+        'lecturesCount': '${lessons.length} محاضرة',
+        'rating': '4.9',
+        'students': '+500 طالب',
+        'icon': Icons.code_rounded,
+        'gradient': [const Color(0xFF6366F1), const Color(0xFF4338CA)],
+        'highlights': ['تطبيق عملي خطوة بخطوة', 'مشاريع واقعية', 'شهادة إتمام'],
+      });
+    }
+
+    // 3. Fallback Premier Tracks if dashboard courses are few (ensures moving slider experience)
+    if (list.length < 3) {
+      list.add({
+        'id': 'fullstack_web',
+        'title': 'مسار تطوير الويب الكامل (Full Stack Web Development)',
+        'subtitle': 'احترف بناء تطبيقات الويب الحديثة من الصفر وتطوير الواجهات وقواعد البيانات ونشر المشاريع على السيرفرات.',
+        'category': 'تطوير المواقع',
+        'badge': '✨ مسار احترافي متكامل',
+        'level': 'مبتدئ إلى متقدم',
+        'lecturesCount': '36 محاضرة',
+        'rating': '5.0',
+        'students': '+1,200 مهندس',
+        'icon': Icons.web_rounded,
+        'gradient': [const Color(0xFF8B5CF6), const Color(0xFF6D28D9)],
+        'highlights': ['React & Node.js', 'قواعد بيانات SQL & MongoDB', 'بناء مشاريع حقيقية'],
+      });
+      list.add({
+        'id': 'flutter_mobile',
+        'title': 'مسار تطبيقات الهاتف بفلاتر (Flutter & Dart Masterclass)',
+        'subtitle': 'صمم وطور تطبيقات عصرية وسريعة تعمل على أندرويد وآيفون بكود واحد مع تكامل السيرفرات والذكاء الاصطناعي.',
+        'category': 'تطبيقات الموبايل',
+        'badge': '🚀 الأكثر طلباً',
+        'level': 'متقدم',
+        'lecturesCount': '28 محاضرة',
+        'rating': '4.9',
+        'students': '+850 مطور',
+        'icon': Icons.phone_android_rounded,
+        'gradient': [const Color(0xFF0D9488), const Color(0xFF0F766E)],
+        'highlights': ['Clean Architecture', 'State Management', 'نشر التطبيقات على المتاجر'],
+      });
+    }
+
+    return list;
+  }
+
+  Widget _buildNewCoursesSliderSection(bool isMobile, double screenWidth, bool isDark) {
+    final courses = _getPublishedCourses();
+    if (courses.isEmpty) return const SizedBox.shrink();
+
+    return Center(
+      child: Container(
+        constraints: const BoxConstraints(maxWidth: 1200),
+        padding: EdgeInsets.symmetric(horizontal: isMobile ? 14 : 24),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Top Header Row
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF0284C7).withOpacity(0.12),
+                          borderRadius: BorderRadius.circular(20),
+                          border: Border.all(color: const Color(0xFF0284C7).withOpacity(0.35)),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Container(
+                              width: 8,
+                              height: 8,
+                              decoration: const BoxDecoration(
+                                color: Color(0xFF0284C7),
+                                shape: BoxShape.circle,
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Text(
+                              "🔥 كورسات جديدة ومتميزة",
+                              style: GoogleFonts.cairo(
+                                fontSize: 12,
+                                fontWeight: FontWeight.bold,
+                                color: const Color(0xFF0284C7),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        "الكورسات والمسارات التدريبية الجديدة 🚀",
+                        style: GoogleFonts.cairo(
+                          fontSize: isMobile ? 22 : 28,
+                          fontWeight: FontWeight.w900,
+                          color: isDark ? AppColors.textPrimary : AppColors.textPrimaryLight,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        "استكشف أحدث البرامج التعليمية المعتمدة وانطلق في رحلة التعلم التفاعلي مع مشروعات حقيقية وتطبيق خطوة بخطوة.",
+                        style: GoogleFonts.cairo(
+                          fontSize: isMobile ? 12.5 : 14,
+                          color: isDark ? AppColors.textSecondary : AppColors.textSecondaryLight,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                if (!isMobile) ...[
+                  const SizedBox(width: 16),
+                  Row(
+                    children: [
+                      _buildCarouselArrow(Icons.arrow_forward_ios_rounded, _nextCourseSlide),
+                      const SizedBox(width: 8),
+                      _buildCarouselArrow(Icons.arrow_back_ios_new_rounded, _prevCourseSlide),
+                      const SizedBox(width: 14),
+                      TextButton.icon(
+                        onPressed: () => Navigator.of(context).pushNamed('/courses'),
+                        icon: const Icon(Icons.arrow_back_rounded, size: 16, color: Color(0xFF0284C7)),
+                        label: Text(
+                          "جميع الكورسات",
+                          style: GoogleFonts.cairo(
+                            fontSize: 13,
+                            fontWeight: FontWeight.bold,
+                            color: const Color(0xFF0284C7),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ],
+            ),
+
+            SizedBox(height: isMobile ? 16 : 24),
+
+            // Moving Slider (PageView with auto-slide and pause on hover)
+            MouseRegion(
+              onEnter: (_) => setState(() => _isCoursesSliderHovered = true),
+              onExit: (_) => setState(() => _isCoursesSliderHovered = false),
+              child: SizedBox(
+                height: isMobile ? 360 : 255,
+                child: PageView.builder(
+                  controller: _coursesPageController,
+                  onPageChanged: (idx) => setState(() => _currentCourseSlide = idx),
+                  itemCount: courses.length,
+                  itemBuilder: (ctx, idx) {
+                    final course = courses[idx];
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 8),
+                      child: _buildCourseSliderCard(course, isMobile, isDark),
+                    );
+                  },
+                ),
+              ),
+            ),
+
+            const SizedBox(height: 14),
+
+            // Animated Dots Indicator
+            Center(
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: List.generate(courses.length, (idx) {
+                  final isActive = _currentCourseSlide == idx;
+                  return GestureDetector(
+                    onTap: () {
+                      _coursesPageController.animateToPage(
+                        idx,
+                        duration: const Duration(milliseconds: 400),
+                        curve: Curves.easeInOut,
+                      );
+                    },
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 300),
+                      margin: const EdgeInsets.symmetric(horizontal: 4),
+                      height: 8,
+                      width: isActive ? 28 : 8,
+                      decoration: BoxDecoration(
+                        color: isActive
+                            ? const Color(0xFF0284C7)
+                            : (isDark ? Colors.white.withOpacity(0.2) : Colors.black.withOpacity(0.15)),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                  );
+                }),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCourseSliderCard(Map<String, dynamic> course, bool isMobile, bool isDark) {
+    final gradient = (course['gradient'] as List<Color>?) ?? [const Color(0xFF0284C7), const Color(0xFF0369A1)];
+    final icon = (course['icon'] as IconData?) ?? Icons.school_rounded;
+    final highlights = (course['highlights'] as List<String>?) ?? [];
+
+    return Container(
+      decoration: BoxDecoration(
+        color: isDark ? const Color(0xFF0F172A) : Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0),
+          width: 1.2,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: gradient.first.withOpacity(0.1),
+            blurRadius: 18,
+            offset: const Offset(0, 6),
+          ),
+        ],
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(20),
+        child: isMobile
+            ? Column(
+                children: [
+                  // Top Gradient Header Bar
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(colors: gradient),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(icon, color: Colors.white, size: 20),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            course['badge'] ?? 'كورس جديد',
+                            style: GoogleFonts.cairo(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.2),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: Text(
+                            course['lecturesCount'] ?? '',
+                            style: GoogleFonts.cairo(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  // Mobile Body
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.all(14),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            course['title'] ?? '',
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            style: GoogleFonts.cairo(
+                              fontSize: 15,
+                              fontWeight: FontWeight.bold,
+                              color: isDark ? Colors.white : const Color(0xFF0F172A),
+                              height: 1.35,
+                            ),
+                          ),
+                          const SizedBox(height: 6),
+                          Text(
+                            course['subtitle'] ?? '',
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            style: GoogleFonts.cairo(
+                              fontSize: 11.5,
+                              color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+                              height: 1.4,
+                            ),
+                          ),
+                          const Spacer(),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: ElevatedButton.icon(
+                                  onPressed: () => Navigator.of(context).pushNamed('/courses'),
+                                  icon: const Icon(Icons.play_circle_fill_rounded, size: 16),
+                                  label: Text("ابدأ الكورس 🚀", style: GoogleFonts.cairo(fontWeight: FontWeight.bold, fontSize: 12)),
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: const Color(0xFF0284C7),
+                                    foregroundColor: Colors.white,
+                                    padding: const EdgeInsets.symmetric(vertical: 8),
+                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              )
+            : Row(
+                children: [
+                  // Right Visual Banner
+                  Container(
+                    width: 220,
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: gradient,
+                        begin: Alignment.topRight,
+                        end: Alignment.bottomLeft,
+                      ),
+                    ),
+                    padding: const EdgeInsets.all(22),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.18),
+                            shape: BoxShape.circle,
+                          ),
+                          child: Icon(icon, color: Colors.white, size: 40),
+                        ),
+                        const SizedBox(height: 12),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.22),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Text(
+                            course['level'] ?? '',
+                            style: GoogleFonts.cairo(
+                              color: Colors.white,
+                              fontSize: 11.5,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          course['lecturesCount'] ?? '',
+                          style: GoogleFonts.cairo(
+                            color: Colors.white.withOpacity(0.9),
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  // Left Course Info & Actions
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFF0284C7).withOpacity(0.1),
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: Text(
+                                  course['badge'] ?? 'جديد',
+                                  style: GoogleFonts.cairo(
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.bold,
+                                    color: const Color(0xFF0284C7),
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 10),
+                              Text(
+                                "المسار: ${course['category'] ?? ''}",
+                                style: GoogleFonts.cairo(
+                                  fontSize: 12,
+                                  color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+                                ),
+                              ),
+                              const Spacer(),
+                              Row(
+                                children: [
+                                  const Icon(Icons.star_rounded, color: Color(0xFFF59E0B), size: 16),
+                                  const SizedBox(width: 4),
+                                  Text(
+                                    course['rating'] ?? '5.0',
+                                    style: GoogleFonts.cairo(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.bold,
+                                      color: isDark ? Colors.white : const Color(0xFF1E293B),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 6),
+                                  Text(
+                                    "(${course['students'] ?? ''})",
+                                    style: GoogleFonts.cairo(fontSize: 11, color: const Color(0xFF94A3B8)),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 10),
+                          Text(
+                            course['title'] ?? '',
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: GoogleFonts.cairo(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: isDark ? Colors.white : const Color(0xFF0F172A),
+                            ),
+                          ),
+                          const SizedBox(height: 6),
+                          Text(
+                            course['subtitle'] ?? '',
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            style: GoogleFonts.cairo(
+                              fontSize: 13,
+                              color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+                              height: 1.45,
+                            ),
+                          ),
+                          const Spacer(),
+                          // Highlights Row
+                          if (highlights.isNotEmpty) ...[
+                            Wrap(
+                              spacing: 8,
+                              runSpacing: 6,
+                              children: highlights.map((h) {
+                                return Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                                  decoration: BoxDecoration(
+                                    color: isDark ? const Color(0xFF1E293B) : const Color(0xFFF1F5F9),
+                                    borderRadius: BorderRadius.circular(6),
+                                  ),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      const Icon(Icons.check_circle_rounded, size: 12, color: Color(0xFF0284C7)),
+                                      const SizedBox(width: 4),
+                                      Text(
+                                        h,
+                                        style: GoogleFonts.cairo(
+                                          fontSize: 11,
+                                          fontWeight: FontWeight.w600,
+                                          color: isDark ? const Color(0xFFE2E8F0) : const Color(0xFF334155),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              }).toList(),
+                            ),
+                            const SizedBox(height: 14),
+                          ],
+                          // Action Buttons
+                          Row(
+                            children: [
+                              ElevatedButton.icon(
+                                onPressed: () => Navigator.of(context).pushNamed('/courses'),
+                                icon: const Icon(Icons.play_circle_fill_rounded, size: 16),
+                                label: Text(
+                                  "ابدأ استكشاف الكورس 🚀",
+                                  style: GoogleFonts.cairo(fontWeight: FontWeight.bold, fontSize: 13),
+                                ),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: const Color(0xFF0284C7),
+                                  foregroundColor: Colors.white,
+                                  elevation: 0,
+                                  padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
+                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                                ),
+                              ),
+                              const SizedBox(width: 10),
+                              OutlinedButton.icon(
+                                onPressed: () {
+                                  if (course['id'] == 'kids_coding_49') {
+                                    Navigator.of(context).pushNamed('/admin');
+                                  } else {
+                                    Navigator.of(context).pushNamed('/courses');
+                                  }
+                                },
+                                icon: const Icon(Icons.slideshow_rounded, size: 15, color: Color(0xFF0284C7)),
+                                label: Text(
+                                  course['id'] == 'kids_coding_49' ? "جلسات التصوير 🎬" : "تفاصيل المنهج 📋",
+                                  style: GoogleFonts.cairo(fontSize: 12.5, fontWeight: FontWeight.bold, color: const Color(0xFF0284C7)),
+                                ),
+                                style: OutlinedButton.styleFrom(
+                                  side: const BorderSide(color: Color(0xFFBAE6FD)),
+                                  backgroundColor: const Color(0xFF0284C7).withOpacity(0.08),
+                                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
       ),
     );
   }
