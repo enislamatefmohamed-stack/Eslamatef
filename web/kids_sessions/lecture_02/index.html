@@ -1,0 +1,1265 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>المحاضرة 02: استخدام الكمبيوتر بذكاء واحتراف | جلسة تصوير تفاعلية</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg-base: #f8fafc;
+      --bg-surface: #ffffff;
+      --bg-surface-soft: #f1f5f9;
+      --text-main: #0f172a;
+      --text-muted: #475569;
+      --text-subtle: #64748b;
+      
+      --brand-blue: #2563eb;
+      --brand-blue-light: #dbeafe;
+      --brand-teal: #0d9488;
+      --brand-teal-light: #ccfbf1;
+      --brand-orange: #ea580c;
+      --brand-orange-light: #ffedd5;
+      --brand-purple: #7c3aed;
+      --brand-purple-light: #ede9fe;
+      --brand-green: #16a34a;
+      --brand-green-light: #dcfce7;
+      --brand-pink: #db2777;
+      --brand-pink-light: #fce7f3;
+      
+      --border-color: #e2e8f0;
+      --shadow-sm: 0 2px 4px rgba(15, 23, 42, 0.04);
+      --shadow-md: 0 10px 25px -5px rgba(15, 23, 42, 0.06), 0 8px 10px -6px rgba(15, 23, 42, 0.03);
+      --shadow-lg: 0 20px 35px -5px rgba(15, 23, 42, 0.08), 0 10px 15px -5px rgba(15, 23, 42, 0.04);
+      --radius-sm: 12px;
+      --radius-md: 18px;
+      --radius-lg: 26px;
+      
+      --font-arabic: 'Cairo', system-ui, sans-serif;
+      --font-mono: 'Inter', monospace;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background-color: var(--bg-base);
+      color: var(--text-main);
+      font-family: var(--font-arabic);
+      overflow: hidden;
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      user-select: none;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .bg-light-pattern {
+      position: absolute;
+      inset: 0;
+      background-image: 
+        radial-gradient(circle at 15% 15%, rgba(37, 99, 235, 0.06) 0%, transparent 45%),
+        radial-gradient(circle at 85% 85%, rgba(13, 148, 136, 0.06) 0%, transparent 45%);
+      pointer-events: none;
+      z-index: 0;
+    }
+    
+    .bg-dots {
+      position: absolute;
+      inset: 0;
+      background-image: radial-gradient(#cbd5e1 1.2px, transparent 1.2px);
+      background-size: 24px 24px;
+      opacity: 0.45;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    #presentation-viewport {
+      position: relative;
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      z-index: 1;
+    }
+
+    #presentation-frame {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      max-width: 177.78vh;
+      max-height: 56.25vw;
+      background: var(--bg-surface);
+      border-radius: var(--radius-lg);
+      border: 2px solid #e2e8f0;
+      box-shadow: var(--shadow-lg);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .slide-topbar {
+      height: 64px;
+      padding: 0 32px;
+      background: #ffffff;
+      border-bottom: 2px solid #f1f5f9;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      z-index: 10;
+    }
+
+    .topbar-branding {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .brand-logo-img {
+      height: 42px;
+      border-radius: 8px;
+    }
+
+    .brand-title {
+      font-size: 16px;
+      font-weight: 800;
+      color: var(--brand-blue);
+    }
+
+    .brand-subtitle {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-subtle);
+    }
+
+    .topbar-meta {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .badge-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 14px;
+      border-radius: 100px;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .badge-blue { background: var(--brand-blue-light); color: var(--brand-blue); }
+    .badge-orange { background: var(--brand-orange-light); color: var(--brand-orange); }
+    .badge-green { background: var(--brand-green-light); color: var(--brand-green); }
+
+    .timer-display {
+      font-family: var(--font-mono);
+      font-size: 15px;
+      font-weight: 800;
+      color: var(--text-muted);
+      background: #f8fafc;
+      padding: 6px 12px;
+      border-radius: var(--radius-sm);
+      border: 1px solid #e2e8f0;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .slides-wrapper {
+      position: relative;
+      flex: 1;
+      width: 100%;
+      height: calc(100% - 64px);
+      overflow: hidden;
+    }
+
+    .slide {
+      position: absolute;
+      inset: 0;
+      padding: 40px 56px;
+      display: none;
+      flex-direction: column;
+      justify-content: center;
+      opacity: 0;
+      transform: translateY(12px) scale(0.99);
+      transition: opacity 0.35s ease, transform 0.35s ease;
+      background: #ffffff;
+    }
+
+    .slide.active {
+      display: flex;
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+
+    .slide-header { margin-bottom: 24px; }
+
+    .slide-tag {
+      display: inline-block;
+      font-size: 13px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--brand-blue);
+      margin-bottom: 8px;
+    }
+
+    .slide-title {
+      font-size: 38px;
+      font-weight: 900;
+      color: var(--text-main);
+      line-height: 1.25;
+    }
+
+    .slide-subtitle {
+      font-size: 20px;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-top: 6px;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 32px;
+      align-items: center;
+      height: 100%;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+      align-items: stretch;
+    }
+
+    .grid-4 {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 20px;
+      align-items: stretch;
+    }
+
+    .kid-card {
+      background: #ffffff;
+      border: 2px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 24px;
+      box-shadow: var(--shadow-sm);
+      transition: all 0.25s ease;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .kid-card:hover {
+      border-color: var(--brand-blue);
+      box-shadow: var(--shadow-md);
+      transform: translateY(-4px);
+    }
+
+    .card-icon {
+      width: 58px;
+      height: 58px;
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 30px;
+      background: var(--bg-surface-soft);
+    }
+
+    .card-title {
+      font-size: 22px;
+      font-weight: 800;
+      color: var(--text-main);
+    }
+
+    .card-desc {
+      font-size: 16px;
+      line-height: 1.6;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    .image-container-right {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+    }
+
+    .embedded-img {
+      max-height: 440px;
+      max-width: 100%;
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-lg);
+      border: 3px solid #ffffff;
+      object-fit: cover;
+    }
+
+    .speed-test-box {
+      background: #f8fafc;
+      border: 2px dashed #cbd5e1;
+      border-radius: var(--radius-md);
+      padding: 24px;
+      text-align: center;
+      margin-top: 20px;
+    }
+
+    .speed-options {
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+      margin-top: 16px;
+    }
+
+    .option-btn {
+      padding: 14px 28px;
+      border-radius: var(--radius-sm);
+      border: 2px solid #cbd5e1;
+      background: #ffffff;
+      color: var(--text-main);
+      font-size: 18px;
+      font-weight: 800;
+      cursor: pointer;
+      font-family: var(--font-arabic);
+      transition: all 0.2s ease;
+    }
+
+    .option-btn:hover {
+      background: var(--brand-blue-light);
+      border-color: var(--brand-blue);
+      color: var(--brand-blue);
+    }
+
+    .option-btn.correct {
+      background: var(--brand-green-light) !important;
+      border-color: var(--brand-green) !important;
+      color: var(--brand-green) !important;
+    }
+
+    .option-btn.wrong {
+      background: #fee2e2 !important;
+      border-color: #ef4444 !important;
+      color: #b91c1c !important;
+    }
+
+    #drawing-canvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 50;
+    }
+
+    #drawing-canvas.active-mode {
+      pointer-events: auto;
+      cursor: crosshair;
+    }
+
+    .studio-controls {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(12px);
+      border: 1.5px solid var(--border-color);
+      box-shadow: var(--shadow-lg);
+      padding: 8px 18px;
+      border-radius: 100px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      z-index: 100;
+    }
+
+    .ctrl-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      border: 1px solid #e2e8f0;
+      background: #ffffff;
+      color: var(--text-main);
+      font-size: 18px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .ctrl-btn:hover {
+      background: var(--brand-blue-light);
+      color: var(--brand-blue);
+      border-color: var(--brand-blue);
+    }
+
+    .ctrl-btn.active {
+      background: var(--brand-blue);
+      color: #ffffff;
+    }
+
+    .slide-counter {
+      font-family: var(--font-mono);
+      font-size: 16px;
+      font-weight: 800;
+      padding: 0 10px;
+    }
+
+    .palette-box {
+      display: none;
+      align-items: center;
+      gap: 6px;
+      padding-right: 8px;
+      border-right: 1px solid #e2e8f0;
+    }
+
+    .palette-box.open { display: flex; }
+
+    .color-dot {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      cursor: pointer;
+      border: 2px solid #ffffff;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .color-dot:hover, .color-dot.selected { transform: scale(1.25); }
+
+    #teacher-notes-panel {
+      position: fixed;
+      bottom: 84px;
+      right: 24px;
+      width: 460px;
+      max-height: 280px;
+      background: rgba(255, 255, 255, 0.98);
+      backdrop-filter: blur(16px);
+      border: 2px solid var(--brand-blue);
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-lg);
+      padding: 20px;
+      z-index: 99;
+      display: none;
+      flex-direction: column;
+      gap: 10px;
+      overflow-y: auto;
+    }
+
+    #teacher-notes-panel.visible { display: flex; }
+
+    .notes-title {
+      font-size: 15px;
+      font-weight: 800;
+      color: var(--brand-blue);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .notes-body {
+      font-size: 15px;
+      line-height: 1.7;
+      color: var(--text-main);
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="bg-light-pattern"></div>
+  <div class="bg-dots"></div>
+
+  <div id="presentation-viewport">
+    <div id="presentation-frame">
+      
+      <header class="slide-topbar">
+        <div class="topbar-branding">
+          <img src="https://files.catbox.moe/8kzbd2.jpeg" alt="Logo" class="brand-logo-img">
+          <div class="brand-text-col">
+            <span class="brand-title">Eslam Atef | Code & AI</span>
+            <span class="brand-subtitle">كورس البرمجة والذكاء الاصطناعي للأطفال</span>
+          </div>
+        </div>
+
+        <div class="topbar-meta">
+          <div class="badge-pill badge-blue">
+            <span>المستوى 1: عالم الكمبيوتر</span>
+          </div>
+          <div class="badge-pill badge-orange">
+            <span id="slide-indicator">الشريحة 1 / 25</span>
+          </div>
+          <div class="timer-display">
+            <span>⏱️</span>
+            <span id="session-timer">00:00</span>
+          </div>
+        </div>
+      </header>
+
+      <canvas id="drawing-canvas"></canvas>
+
+      <main class="slides-wrapper">
+
+        <!-- SLIDE 1: الغلاف والترحيب -->
+        <section class="slide active" id="slide-1" data-notes="يا أهلاً يا أبطال المستقبل ومنورين المحاضرة التانية من كورس البرمجة والذكاء الاصطناعي للأطفال! المرة اللي فاتت عرفنا سر الصندوق السحري والفرق بين الهاردوير والسوفتوير. النهاردة بقى هنتعلم إزاي نستخدم الجهاز ده زي المبرمجين والمهندسين المحترفين، وننظم مكتبنا الرقمي ونحمي صحتنا وأجهزتنا. جاهزون لرحلة الاحتراف؟ يلا بينا ننطلق!">
+          <div class="grid-2">
+            <div>
+              <span class="slide-tag">المحاضرة 02 • عالم الاحتراف الرقمي</span>
+              <h1 class="slide-title" style="font-size: 44px; color: var(--brand-blue);">استخدام الكمبيوتر بذكاء واحتراف</h1>
+              <p class="slide-subtitle">فن تنظيم الملفات، أسرار لوحة المفاتيح، وعادات المبرمجين الصحية</p>
+              
+              <div style="margin-top: 32px; display: flex; gap: 16px; flex-wrap: wrap;">
+                <div class="badge-pill badge-blue" style="font-size: 15px; padding: 10px 20px;">
+                  <span>المحاضر: م / إسلام عاطف</span>
+                </div>
+                <div class="badge-pill badge-green" style="font-size: 15px; padding: 10px 20px;">
+                  <span>الأعمار: 8 - 16 سنة</span>
+                </div>
+              </div>
+            </div>
+            <div class="image-container-right">
+              <img src="https://files.catbox.moe/yudv8l.png" alt="الكمبيوتر بذكاء" class="embedded-img">
+            </div>
+          </div>
+        </section>
+
+        <!-- SLIDE 2: مهمات المحاضرة -->
+        <section class="slide" id="slide-2" data-notes="بصوا معايا يا أبطال.. في محاضرة النهاردة عندنا 4 أهداف ذهبية: أولاً هنتعلم فن تنظيم الملفات والمجلدات، ثانياً هنكتشف أسرار واختصارات لوحة المفاتيح، ثالثاً هنتعلم قواعد الجلسة الصحية وقاعدة 20-20-20، ورابعاً هنعرف إزاي نحافظ على نظافة وأمان الجهاز.">
+          <div class="slide-header">
+            <span class="slide-tag">خريطة اليوم</span>
+            <h2 class="slide-title">مهمات البطل في محاضرة اليوم 🎯</h2>
+          </div>
+          <div class="grid-4">
+            <div class="kid-card">
+              <div class="card-icon" style="background: #fef3c7; color: var(--brand-orange);">📁</div>
+              <h3 class="card-title">1. تنظيم الملفات</h3>
+              <p class="card-desc">تحويل الفوضى إلى خزائن ومجلدات أنيقة ومرتبة.</p>
+            </div>
+            <div class="kid-card">
+              <div class="card-icon" style="background: #e0f2fe; color: var(--brand-blue);">⌨️</div>
+              <h3 class="card-title">2. سحر الكيبورد</h3>
+              <p class="card-desc">أسرار واختصارات السرعة الفائقة للمبرمجين المحترفين.</p>
+            </div>
+            <div class="kid-card">
+              <div class="card-icon" style="background: #dcfce7; color: var(--brand-green);">🪑</div>
+              <h3 class="card-title">3. صحة الأبطال</h3>
+              <p class="card-desc">الجلسة السليمة وقاعدة 20-20-20 لحماية العيون والظهر.</p>
+            </div>
+            <div class="kid-card">
+              <div class="card-icon" style="background: #ede9fe; color: var(--brand-purple);">🛡️</div>
+              <h3 class="card-title">4. رعاية الجهاز</h3>
+              <p class="card-desc">كيف نحافظ على حاسوبنا نظيفاً وقوياً ليعيش لسنوات.</p>
+            </div>
+          </div>
+        </section>
+
+        <!-- SLIDE 3: الغرفة الفوضوية vs المنظمة -->
+        <section class="slide" id="slide-3" data-notes="شايفين الصورتين دول؟ مين فيكم يقدر يلاقي لعبته المفضلة في ثانية واحدة لو أوضته مكركبة وكل حاجة مرمية فوق بعضها؟ مستحيل طبعاً! نفس الكلام بيحصل على الكمبيوتر: لو رميت كل ألعابك وصورك وملفاتك على الديسك توب، الجهاز هيبطأ ومش هتعرف تلاقي شغلك أبداً!">
+          <div class="grid-2">
+            <div>
+              <span class="slide-tag">مقارنة وتفكير</span>
+              <h2 class="slide-title">الغرفة الفوضوية مقابل الغرفة المنظمة 🧹</h2>
+              
+              <div style="margin-top: 24px; display: flex; flex-direction: column; gap: 14px;">
+                <div class="kid-card" style="border-right: 6px solid #ef4444;">
+                  <h4 style="font-size: 19px; color: #dc2626;">❌ سطح المكتب المزدحم بالفوضى:</h4>
+                  <p class="card-desc">ملفات وألعاب مرمية في كل مكان، بطء في التشغيل وصعوبة في العثور على أي ملف!</p>
+                </div>
+                <div class="kid-card" style="border-right: 6px solid #16a34a;">
+                  <h4 style="font-size: 19px; color: #16a34a;">✅ سطح المكتب المنظم الذكي:</h4>
+                  <p class="card-desc">مجلدات واضحة، سهولة فائقة وسرعة قياسية للوصول لأي مشروع في ثانية واحدة!</p>
+                </div>
+              </div>
+            </div>
+            <div class="image-container-right">
+              <img src="https://files.catbox.moe/0t58gy.png" alt="تنظيم المكتب" class="embedded-img">
+            </div>
+          </div>
+        </section>
+
+        <!-- SLIDE 4: سطح المكتب (Desktop) -->
+        <section class="slide" id="slide-4" data-notes="سطح المكتب ده بالظبط زي مكتب المذاكرة في البيت. المكتب النظيف بيكون عليه بس القلم والدفتر اللي شغال بيهم حالياً. لكن باقي الكتب بتتحط في مكانها الصح جوة الأدراج والخزائن.. وده اللي بنسميه في الكمبيوتر: المجلدات Folders!">
+          <div class="slide-header" style="text-align: center;">
+            <span class="slide-tag">المكتب الرقمي</span>
+            <h2 class="slide-title">سطح المكتب (Desktop): مساحة عملك النظيفة 🖥️</h2>
+          </div>
+          <div class="grid-3" style="margin-top: 24px;">
+            <div class="kid-card" style="text-align: center;">
+              <div class="card-icon" style="margin: 0 auto;">🧼</div>
+              <h3 class="card-title">نظيف وخالٍ من الكركبة</h3>
+              <p class="card-desc">لا تضع عليه سوى البرامج التي تستخدمها كل يوم فقط.</p>
+            </div>
+            <div class="kid-card" style="text-align: center;">
+              <div class="card-icon" style="margin: 0 auto;">🗄️</div>
+              <h3 class="card-title">الملفات في أماكنها</h3>
+              <p class="card-desc">الصور تذهب لفولدر الصور، والألعاب لخزانتها الخاصة.</p>
+            </div>
+            <div class="kid-card" style="text-align: center;">
+              <div class="card-icon" style="margin: 0 auto;">⚡</div>
+              <h3 class="card-title">سرعة واستقرار</h3>
+              <p class="card-desc">سطح المكتب النظيف يجعل حاسوبك يفتح بسرعة البرق!</p>
+            </div>
+          </div>
+        </section>
+
+        <!-- SLIDE 5: ما هو المجلد (Folder)؟ -->
+        <section class="slide" id="slide-5" data-notes="المجلد أو الفولدر هو شنطة أو درج رقمي لونه أصفر جميل.. وظيفته إنه يجمع الملفات المتشابهة في مكان واحد علشان منضيعهاش! يعني فولدر للصور، وفولدر للألعاب، وفولدر لمشاريع البرمجة، وفولدر للمذاكرة والمدرسة.">
+          <div class="grid-2">
+            <div>
+              <span class="slide-tag">الخزانة الصفراء الذكية</span>
+              <h2 class="slide-title">ما هو المجلد (Folder)؟ 📁</h2>
+              <p class="slide-subtitle">هو حقيبة أو درج رقمي لجمع الملفات المتشابهة في مكان آمن</p>
+              
+              <div style="margin-top: 24px; display: flex; flex-direction: column; gap: 12px;">
+                <div class="kid-card">📂 <strong>مجلد الصور (Pictures):</strong> لكل رسوماتك وصورك الممتعة.</div>
+                <div class="kid-card">🎮 <strong>مجلد الألعاب والمشاريع:</strong> لأكوادك على سكراتش وبايثون.</div>
+                <div class="kid-card">📚 <strong>مجلد المدرسة:</strong> للملخصات والكتب الدراسية.</div>
+              </div>
+            </div>
+            <div class="image-container-right">
+              <img src="https://files.catbox.moe/8t5fqy.png" alt="المجلدات" class="embedded-img">
+            </div>
+          </div>
+        </section>
+
+        <!-- SLIDE 6: كيف ننشئ مجلداً جديداً؟ -->
+        <section class="slide" id="slide-6" data-notes="الخطوة الأولى لكل مبرمج: 1. نقف بالماوس في أي مكان فاضي وندوس كليك يمين Right Click. 2. نختار كلمة جديد أو New. 3. نختار مجلد أو Folder ونكتب اسمه فوراً باسم واضح ومفهوم! بسيطة وسهلة جداً، أليس كذلك؟">
+          <div class="slide-header" style="text-align: center;">
+            <span class="slide-tag">الخطوات العملية</span>
+            <h2 class="slide-title">كيف ننشئ مجلداً جديداً في 3 خطوات بسيطة؟ ✨</h2>
+          </div>
+          <div class="grid-3" style="margin-top: 24px;">
+            <div class="kid-card" style="text-align: center; border-top: 6px solid var(--brand-blue);">
+              <div class="card-icon" style="margin: 0 auto; color: var(--brand-blue);">🖱️</div>
+              <h3 class="card-title">1. انقر كليك يمين</h3>
+              <p class="card-desc">قف في مكان فارغ على سطح المكتب واضغط بالزر الأيمن للفأرة.</p>
+            </div>
+            <div class="kid-card" style="text-align: center; border-top: 6px solid var(--brand-orange);">
+              <div class="card-icon" style="margin: 0 auto; color: var(--brand-orange);">✨</div>
+              <h3 class="card-title">2. اختر جديد (New)</h3>
+              <p class="card-desc">ثم انقر على خيار "مجلد" أو (Folder) ليظهر لك الصندوق الأصفر.</p>
+            </div>
+            <div class="kid-card" style="text-align: center; border-top: 6px solid var(--brand-green);">
+              <div class="card-icon" style="margin: 0 auto; color: var(--brand-green);">🏷️</div>
+              <h3 class="card-title">3. سمّه باسم واضح</h3>
+              <p class="card-desc">اكتب اسمه فوراً مثل "مشاريع_البرمجة" ثم اضغط Enter!</p>
+            </div>
+          </div>
+        </section>
+
+        <!-- SLIDE 7: قاعدة التسمية الذكية -->
+        <section class="slide" id="slide-7" data-notes="إياك تسمي الفولدر بتاعك asdfgh أو حاجة مهمة 1! المبرمج الذكي بيسمي كل ملف باسم واضح وتاريخ مرتب: مثال: مشروع_لعبة_المتاهة أو واجب_البرمجة_محاضرة_1. علشان لما ترجع له بعد سنة تلاقيه في ثانية واحدة!">
+          <div class="grid-2">
+            <div>
+              <span class="slide-tag">أسرار المبرمجين</span>
+              <h2 class="slide-title">قاعدة التسمية الذكية (Smart Naming) 🏷️</h2>
+              
+              <div style="margin-top: 24px; display: flex; flex-direction: column; gap: 14px;">
+                <div class="kid-card" style="border-right: 6px solid #ef4444;">
+                  <h4 style="color: #dc2626; font-size: 19px;">❌ تسميات عشوائية سيئة:</h4>
+                  <p class="card-desc">"asdfghj" أو "ملف جديد 12" أو "حاجة للعبة" (ستنسى ما بداخلها بعد يومين!)</p>
+                </div>
+                <div class="kid-card" style="border-right: 6px solid #16a34a;">
+                  <h4 style="color: #16a34a; font-size: 19px;">✅ تسميات احترافية ذكية:</h4>
+                  <p class="card-desc">"مشروع_المتاهة_النهائي" أو "واجب_محاضرة_02_إسلام" (واضحة ودقيقة لأي شخص!)</p>
+                </div>
+              </div>
+            </div>
+            <div class="image-container-right">
+              <img src="https://files.catbox.moe/yudv8l.png" alt="التسمية الذكية" class="embedded-img">
+            </div>
+          </div>
+        </section>
+
+        <!-- SLIDE 8: أنواع وصيغ الملفات -->
+        <section class="slide" id="slide-8" data-notes="كل ملف على الكمبيوتر ليه اسم وليه كنية أو عائلة بنسميها الامتداد Extension: الملفات الصوتية عائلتها .mp3 🎵، الصور والرسومات عائلتها .png أو .jpg 🖼️، الفيديوهات عائلتها .mp4 🎬، وملفات النصوص عائلتها .txt أو .pdf 📄">
+          <div class="slide-header">
+            <span class="slide-tag">عائلات الملفات</span>
+            <h2 class="slide-title">عائلات وامتدادات الملفات (Extensions) 🧬</h2>
+          </div>
+          <div class="grid-4">
+            <div class="kid-card">
+              <div class="card-icon" style="color: #ea580c; background: #ffedd5;">🖼️</div>
+              <h4 class="card-title">الصور</h4>
+              <p class="card-desc">.png / .jpg<br>لرسوماتك وشخصيات الألعاب.</p>
+            </div>
+            <div class="kid-card">
+              <div class="card-icon" style="color: #2563eb; background: #dbeafe;">🎵</div>
+              <h4 class="card-title">الأصوات</h4>
+              <p class="card-desc">.mp3 / .wav<br>للمؤثرات الصوتية والموسيقى.</p>
+            </div>
+            <div class="kid-card">
+              <div class="card-icon" style="color: #dc2626; background: #fee2e2;">🎬</div>
+              <h4 class="card-title">الفيديوهات</h4>
+              <p class="card-desc">.mp4 / .mkv<br>للحلقات ومقاطع الشرح.</p>
+            </div>
+            <div class="kid-card">
+              <div class="card-icon" style="color: #16a34a; background: #dcfce7;">📄</div>
+              <h4 class="card-title">المستندات</h4>
+              <p class="card-desc">.pdf / .txt<br>للكتب والأكواد المكتوبة.</p>
+            </div>
+          </div>
+        </section>
+
+        <!-- SLIDE 9: تحدي الفرز الذكي السريع -->
+        <section class="slide" id="slide-9" data-notes="يلا نلعب تحدي الفرز السريع على الشاشة يا أبطال! قدامنا 4 ملفات مختلفة.. يا ترى ملف كود اللعبة وصور اللعبة هيروحوا في أي فولدر؟ شاطرين جداً! كل ملف بيروح للفولدر المخصص له!">
+          <div class="slide-header" style="text-align: center;">
+            <span class="slide-tag">تحدي الفرز الذكي</span>
+            <h2 class="slide-title">أين تضع ملف 'hero_sound.mp3'؟ 🎧</h2>
+          </div>
+          <div class="speed-test-box">
+            <p style="font-size: 24px; font-weight: 800; color: var(--text-main);">
+              ملف صوتي لمؤثرات قفزة البطل في اللعبة:
+            </p>
+            <div class="speed-options">
+              <button class="option-btn" onclick="checkOption(this, false, 'فكر تاني! هل هذا الملف صورة أم صوت؟')">مجلد الصور ❌</button>
+              <button class="option-btn" onclick="checkOption(this, true, 'أحسنت! ملف .mp3 ينتمي لمجلد الأصوات والمؤثرات 🌟')">مجلد الأصوات (.mp3) ✅</button>
+              <button class="option-btn" onclick="checkOption(this, false, 'لا! هذا ملف صوتي وليس مستند PDF.')">مجلد الكتب ❌</button>
+            </div>
+            <div class="option-feedback" style="margin-top: 16px; font-size: 20px; font-weight: 800;"></div>
+          </div>
+        </section>
+
+        <!-- SLIDE 10: سحر لوحة المفاتيح: الأيدي الطائرة! -->
+        <section class="slide" id="slide-10" data-notes="هل شفت مبرمج محترف بيفضل يدور على الماوس طول الوقت؟ لأ طبعاً! المبرمجين المحترفين أيديهم بتطير على الكيبورد زي عازفي البيانو، وبيستخدموا اختصارات سحرية بتعمل كل حاجة في رمشة عين!">
+          <div class="grid-2">
+            <div>
+              <span class="slide-tag">سحر السرعة الفائقة</span>
+              <h2 class="slide-title">الأيدي الطائرة: اختصارات لوحة المفاتيح ⌨️⚡</h2>
+              <p class="slide-subtitle">المبرمج المحترف يطير بأصابعه على الكيبورد كعازف البيانو الماهر</p>
+              
+              <div style="margin-top: 24px;" class="kid-card">
+                <p style="font-size: 20px; font-weight: 800; color: var(--brand-purple);">
+                  💡 هل تعلم أن استخدام اختصارات الكيبورد يوفر عليك أكثر من 60 ساعة عمل كل سنة مقارنة باستخدام الماوس بمفرده؟
+                </p>
+              </div>
+            </div>
+            <div class="image-container-right">
+              <img src="https://files.catbox.moe/4e6ta5.png" alt="أسرار الكيبورد" class="embedded-img">
+            </div>
+          </div>
+        </section>
+
+        <!-- SLIDE 11: الاختصار السحري 1 (Ctrl+C & Ctrl+V) -->
+        <section class="slide" id="slide-11" data-notes="أشهر اختصارين في تاريخ التكنولوجيا: زرار Ctrl مع حرف C = نسخ Copy للنسخ الفوري. وزرار Ctrl مع حرف V = لصق Paste لوضع النسخة في المكان الجديد. توأمان لا يفترقان في عالم الكمبيوتر!">
+          <div class="slide-header" style="text-align: center;">
+            <span class="slide-tag">التوأم السحري</span>
+            <h2 class="slide-title">النسخ واللصق الفوري: Ctrl + C و Ctrl + V 📋</h2>
+          </div>
+          <div class="grid-2" style="margin-top: 24px;">
+            <div class="kid-card" style="text-align: center; border-top: 6px solid var(--brand-blue);">
+              <div class="card-icon" style="margin: 0 auto; background: var(--brand-blue-light); color: var(--brand-blue);">📄</div>
+              <h3 class="card-title">Ctrl + C (نسخ Copy)</h3>
+              <p class="card-desc">يأخذ نسخة طبق الأصل من النص أو الصورة أو الملف ويضعها في الذاكرة الخفية.</p>
+            </div>
+            <div class="kid-card" style="text-align: center; border-top: 6px solid var(--brand-green);">
+              <div class="card-icon" style="margin: 0 auto; background: var(--brand-green-light); color: var(--brand-green);">📌</div>
+              <h3 class="card-title">Ctrl + V (لصق Paste)</h3>
+              <p class="card-desc">يضع النسخة فوراً في المكان الجديد الذي تقف عليه بالماوس!</p>
+            </div>
+          </div>
+        </section>
+
+        <!-- SLIDE 12: الاختصار السحري 2 (Ctrl+Z) -->
+        <section class="slide" id="slide-12" data-notes="غلطت ومسحت حاجة مهمة بالغلط؟ متقلقش ومتخافش! عندنا تعويذة الإنقاذ السحرية: زرار Ctrl مع حرف Z (Undo). بيرجع الزمن خطوة لورا ويرجعلك اللي اتمسح فوراً كأن شيئاً لم يكن!">
+          <div class="grid-2">
+            <div>
+              <span class="slide-tag">تعويذة الإنقاذ السحرية</span>
+              <h2 class="slide-title">التراجع عن الخطأ: Ctrl + Z (Undo) ↩️</h2>
+              
+              <div style="margin-top: 24px;" class="kid-card" style="border: 2px solid var(--brand-orange);">
+                <h3 class="card-title" style="color: var(--brand-orange);">آلة الزمن الفورية!</h3>
+                <p class="card-desc" style="font-size: 19px; line-height: 1.7;">
+                  حذفت كوداً أو مسحت فقرة بالغلط وأصابك الفزع؟ <br>
+                  اضغط فوراً على <strong>Ctrl + Z</strong> ليعود كل شيء كما كان في جزء من الثانية كأن شيئاً لم يكن!
+                </p>
+              </div>
+            </div>
+            <div class="image-container-right">
+              <img src="https://files.catbox.moe/y98jh5.png" alt="الإنقاذ السريع" class="embedded-img">
+            </div>
+          </div>
+        </section>
+
+        <!-- SLIDE 13: الاختصار السحري 3 (Ctrl+S) -->
+        <section class="slide" id="slide-13" data-notes="أهم نصيحة لكل بطل: وأنت بتكتب كود أو بتصمم لعبة، خلي صباعك دايماً يدوس Ctrl + S كل دقيقتين! علشان لو الكهربا قطعت أو الجهاز رستر، كل شغلك ومجهودك يفضل محفوظ بأمان!">
+          <div class="grid-2">
+            <div>
+              <span class="slide-tag">درع الحماية الأول</span>
+              <h2 class="slide-title">الحفظ السريع والدائم: Ctrl + S (Save) 💾</h2>
+              
+              <div style="margin-top: 24px;" class="kid-card" style="border: 2px solid var(--brand-green);">
+                <h3 class="card-title" style="color: var(--brand-green);">القاعدة الذهبية لكل مبرمج:</h3>
+                <p class="card-desc" style="font-size: 19px; line-height: 1.7;">
+                  اجعل إصبعك يضغط على <strong>Ctrl + S</strong> كل دقيقتين أثناء كتابة الكود.. <br>
+                  حتى لو انقطعت الكهرباء أو أغلقت اللعبة فجأة، يظل مجهودك محفوظاً بالكامل على القرص الصلب!
+                </p>
+              </div>
+            </div>
+            <div class="image-container-right">
+              <img src="https://files.catbox.moe/c5u0fs.png" alt="الحفظ السريع" class="embedded-img">
+            </div>
+          </div>
+        </section>
+
+        <!-- SLIDE 14: تحدي اختصارات الأبطال -->
+        <section class="slide" id="slide-14" data-notes="تحدي سريع للأذكياء على الشاشة: أي اختصار من دول بنستخدمه للنسخ الفوري السريع؟ برافوووو! Ctrl + C! أنتم عباقرة بجد!">
+          <div class="slide-header" style="text-align: center;">
+            <span class="slide-tag">تحدي السرعة للأذكياء</span>
+            <h2 class="slide-title">ما هو الاختصار المخصص للنسخ (Copy)؟ ⚡</h2>
+          </div>
+          <div class="speed-test-box">
+            <p style="font-size: 24px; font-weight: 800; color: var(--text-main);">
+              اختر الزر الصحيح لأخذ نسخة فورية:
+            </p>
+            <div class="speed-options">
+              <button class="option-btn" onclick="checkOption(this, true, 'عبقري! Ctrl + C للنسخ Copy 🚀')">Ctrl + C ✅</button>
+              <button class="option-btn" onclick="checkOption(this, false, 'خطأ! Ctrl + V مخصص للصق وليس النسخ.')">Ctrl + V ❌</button>
+              <button class="option-btn" onclick="checkOption(this, false, 'خطأ! Ctrl + Z مخصص للتراجع Undo.')">Ctrl + Z ❌</button>
+            </div>
+            <div class="option-feedback" style="margin-top: 16px; font-size: 20px; font-weight: 800;"></div>
+          </div>
+        </section>
+
+        <!-- SLIDE 15: الجلسة الصحية للبطل الرقمي -->
+        <section class="slide" id="slide-15" data-notes="الكمبيوتر مفيد وممتع، بس إحنا كمان صحتنا وجسمنا أهم شيء في الدنيا! علشان تفضل بطل قوي وظهرك مبيوجعكش: اجلس بظهر مستقيم مفرود على الكرسي، خلي ركبتيك في زاوية 90 درجة، ورجليك ملامسة للأرض، وخلي الشاشة في مستوى عينيك، مش واطية لتحت!">
+          <div class="slide-header">
+            <span class="slide-tag">صحة الأبطال</span>
+            <h2 class="slide-title">الجلسة الصحية السليمة للبطل الرقمي 🪑🧘‍♂️</h2>
+          </div>
+          <div class="grid-3">
+            <div class="kid-card">
+              <div class="card-icon">📏</div>
+              <h4 class="card-title">ظهر مستقيم</h4>
+              <p class="card-desc">اجعل ظهرك مسنوداً ومستقيماً على الكرسي لتتجنب تقوس العمود الفقري.</p>
+            </div>
+            <div class="kid-card">
+              <div class="card-icon">👀</div>
+              <h4 class="card-title">مستوى العينين</h4>
+              <p class="card-desc">الحافة العلوية للشاشة تكون بمحاذاة عينيك حتى لا تنحني رقبتك لأسفل.</p>
+            </div>
+            <div class="kid-card">
+              <div class="card-icon">🦶</div>
+              <h4 class="card-title">القدمان على الأرض</h4>
+              <p class="card-desc">قدمان مستقرتان على الأرض وزاوية الركبة والكوع 90 درجة مريحة.</p>
+            </div>
+          </div>
+        </section>
+
+        <!-- SLIDE 16: حماية العيون وقاعدة 20-20-20 -->
+        <section class="slide" id="slide-16" data-notes="العيون أغلى نعمة ربنا ادهالنا.. وإزاي نحميها من إجهاد الشاشات؟ بقاعدة سحرية بيطبقها أطباء العيون حول العالم اسمها 20-20-20: كل 20 دقيقة شغل على الكمبيوتر.. بص بعيد لمسافة 20 قدم (حوالي 6 أمتار).. لمدة 20 ثانية، ورمش بعينيك وخد نفس عميق!">
+          <div class="grid-2">
+            <div>
+              <span class="slide-tag">السر الطبي السحري</span>
+              <h2 class="slide-title">حماية العيون: قاعدة 20 - 20 - 20 السحرية 👀✨</h2>
+              
+              <div style="margin-top: 24px; display: flex; flex-direction: column; gap: 14px;">
+                <div class="kid-card">⏳ <strong>كل 20 دقيقة:</strong> توقف عن النظر للشاشة لوقت قصير.</div>
+                <div class="kid-card">🏞️ <strong>انظر لمسافة 20 قدماً (6 أمتار):</strong> انظر من النافذة لشيء بعيد.</div>
+                <div class="kid-card">⏱️ <strong>لمدة 20 ثانية:</strong> أغمض ورمّش بعينيك بهدوء لتستريح عضلات العين.</div>
+              </div>
+            </div>
+            <div class="image-container-right">
+              <img src="https://files.catbox.moe/8t5fqy.png" alt="صحة العيون" class="embedded-img">
+            </div>
+          </div>
+        </section>
+
+        <!-- SLIDE 17: الإضاءة المناسبة حول الشاشة -->
+        <section class="slide" id="slide-17" data-notes="ممنوع تماماً نقعد نلعب أو نبرمج في أوضة مظلمة كاحلة والشاشة بس هي اللي منورة في وشنا! ده بيعمل صداع وبيجهد العين جداً. لازم الغرفة تكون مضاءة بنور مريح ومتوازن، مع تجنب انعكاس الشمس المباشر على الشاشة.">
+          <div class="grid-2">
+            <div>
+              <span class="slide-tag">بيئة العمل المريحة</span>
+              <h2 class="slide-title">إضاءة الغرفة المناسبة 💡</h2>
+              
+              <div style="margin-top: 24px; display: flex; flex-direction: column; gap: 14px;">
+                <div class="kid-card" style="border-right: 6px solid #ef4444;">
+                  <h4 style="color: #dc2626;">❌ إضاءة مظلمة تماماً:</h4>
+                  <p class="card-desc">الجلوس في غرفة معتمة والشاشة ساطعة يجهد أعصاب العين ويسبب الصداع فوراً!</p>
+                </div>
+                <div class="kid-card" style="border-right: 6px solid #16a34a;">
+                  <h4 style="color: #16a34a;">✅ إضاءة متوازنة ومريحة:</h4>
+                  <p class="card-desc">ضوء هادئ يملأ الغرفة، دون وجود لمبة أو نافذة شمس تلمع في زجاج الشاشة مباشرة.</p>
+                </div>
+              </div>
+            </div>
+            <div class="image-container-right">
+              <img src="https://files.catbox.moe/0t58gy.png" alt="إضاءة الغرفة" class="embedded-img">
+            </div>
+          </div>
+        </section>
+
+        <!-- SLIDE 18: كيف تحافظ على جهازك سليماً ونظيفاً؟ -->
+        <section class="slide" id="slide-18" data-notes="الكمبيوتر صديقك الوفي اللي بيساعدك تبدع.. وعشان يفضل سريع ونظيف: 1. ممنوع وجود عصائر أو مشروبات أو أكل جنب اللاب توب أو الكيبورد نهائياً. 2. نظف الشاشة والكيبورد بقطعة قماش ناعمة وجافة. 3. حافظ على فتحات التهوية والمراوح مفتوحة ونظيفة حتى لا يسخن المعالج.">
+          <div class="slide-header">
+            <span class="slide-tag">عناية وصيانة</span>
+            <h2 class="slide-title">كيف تحافظ على حاسوبك نظيفاً وسريعاً؟ 🛡️💻</h2>
+          </div>
+          <div class="grid-3">
+            <div class="kid-card">
+              <div class="card-icon">🥤</div>
+              <h4 class="card-title">ممنوع السوائل والأكل</h4>
+              <p class="card-desc">نقطة عصير واحدة تسقط في لوحة المفاتيح قد تدمر الجهاز تماماً!</p>
+            </div>
+            <div class="kid-card">
+              <div class="card-icon">🧽</div>
+              <h4 class="card-title">مسح لطيف وجاف</h4>
+              <p class="card-desc">استخدم قطعة قماش مايكروفايبر ناعمة ومخصصة لمسح الشاشة برفق.</p>
+            </div>
+            <div class="kid-card">
+              <div class="card-icon">💨</div>
+              <h4 class="card-title">تنفس المراوح</h4>
+              <p class="card-desc">لا تضع اللاب توب على السرير أو البطانية حتى لا تختنق فتحات التبريد.</p>
+            </div>
+          </div>
+        </section>
+
+        <!-- SLIDE 19: القفل الآمن للجهاز (Shut Down الصحيح) -->
+        <section class="slide" id="slide-19" data-notes="لما تخلص شغلك، إياك تفصل الفيشة فجأة من الحيطة أو تضغط ضغطة طويلة على زرار الباور! ده ممكن يبوظ الهارد ديسك ويضيع ملفاتك. الطريقة الصحيحة: نفتح قائمة Start، ونختار أمر إيقاف التشغيل Shut Down بهدوء.">
+          <div class="grid-2">
+            <div>
+              <span class="slide-tag">إيقاف التشغيل الصحيح</span>
+              <h2 class="slide-title">الإغلاق الآمن للحاسوب (Shut Down) 🔌🔒</h2>
+              
+              <div style="margin-top: 24px;" class="kid-card">
+                <p style="font-size: 19px; line-height: 1.7; font-weight: 700;">
+                  🚫 <strong>ممنوع منعاً باتاً:</strong> نزع الفيشة من الحائط أو كتم زر الباور فجأة!<br><br>
+                  ✅ <strong>الطريقة الاحترافية:</strong> افتح قائمة <strong>Start</strong> ⬅️ اختر زر الطاقة ⬅️ ثم انقر على <strong>Shut Down</strong> ليحفظ الجهاز كل ملفاتك بهدوء.
+                </p>
+              </div>
+            </div>
+            <div class="image-container-right">
+              <img src="https://files.catbox.moe/y98jh5.png" alt="الإغلاق الآمن" class="embedded-img">
+            </div>
+          </div>
+        </section>
+
+        <!-- SLIDE 20: النشاط العملي: تنظيم المكتبة الرقمية -->
+        <section class="slide" id="slide-20" data-notes="ودلوقتي جه وقت الشغل والتدريب العملي يا أبطال! على أجهزتكم دلوقتي هنفتح الـ File Explorer، وهنعمل: مجلد رئيسي باسم: كورس_البرمجة_للبطل_[اسمك]، وجواه 3 مجلدات فرعية: 1. مجلد المحاضرات، 2. مجلد المشاريع_والألعاب، 3. مجلد الواجبات_والصور.">
+          <div class="slide-header" style="text-align: center;">
+            <span class="slide-tag">التدريب العملي 1</span>
+            <h2 class="slide-title">النشاط التطبيقي: بناء الهيكل الرقمي لمشاريعك 📁🏗️</h2>
+          </div>
+          <div class="grid-3" style="margin-top: 24px;">
+            <div class="kid-card" style="border-right: 6px solid var(--brand-blue);">
+              <h4 style="font-size: 19px; color: var(--brand-blue);">1. مجلد رئيسي</h4>
+              <p class="card-desc">أنشئ مجلداً على جهازك باسم:<br><code>كورس_البرمجة_[اسمك]</code></p>
+            </div>
+            <div class="kid-card" style="border-right: 6px solid var(--brand-orange);">
+              <h4 style="font-size: 19px; color: var(--brand-orange);">2. مجلدات فرعية</h4>
+              <p class="card-desc">أنشئ بداخله مجلدات:<br>• المحاضرات<br>• المشاريع والألعاب<br>• الواجبات والرسومات</p>
+            </div>
+            <div class="kid-card" style="border-right: 6px solid var(--brand-green);">
+              <h4 style="font-size: 19px; color: var(--brand-green);">3. اختبار الترتيب</h4>
+              <p class="card-desc">انقل صورة أو ملف نصي إلى المجلد المخصص وتأكد من سهولة العثور عليه!</p>
+            </div>
+          </div>
+        </section>
+
+        <!-- SLIDE 21: التدريب على اختصارات الكيبورد عملياً -->
+        <section class="slide" id="slide-21" data-notes="هنفتح برنامج المفكرة Notepad، وهنكتب جملة: أنا بطل البرمجة والذكاء الاصطناعي. وهنجرب ننسخها بـ Ctrl+C، ونلصقها 5 مرات بـ Ctrl+V، وبعدين نعمل تراجع بـ Ctrl+Z، ونحفظ الملف بـ Ctrl+S!">
+          <div class="slide-header" style="text-align: center;">
+            <span class="slide-tag">التدريب العملي 2</span>
+            <h2 class="slide-title">تحدي أصابع البيانو السريعة (تطبيق عملي) 🎹⚡</h2>
+          </div>
+          <div class="grid-4" style="margin-top: 24px;">
+            <div class="kid-card" style="text-align: center;">
+              <div class="card-icon" style="margin: 0 auto;">✍️</div>
+              <h4 class="card-title">اكتب الجملة</h4>
+              <p class="card-desc">افتح المفكرة واكتب: "أنا مهندس برمجيات المستقبل".</p>
+            </div>
+            <div class="kid-card" style="text-align: center;">
+              <div class="card-icon" style="margin: 0 auto;">📋</div>
+              <h4 class="card-title">Ctrl + C</h4>
+              <p class="card-desc">حدد النص واضغط زر النسخ الفوري.</p>
+            </div>
+            <div class="kid-card" style="text-align: center;">
+              <div class="card-icon" style="margin: 0 auto;">📌</div>
+              <h4 class="card-title">Ctrl + V (5 مرات)</h4>
+              <p class="card-desc">الصق الجملة 5 مرات بسرعة البرق!</p>
+            </div>
+            <div class="kid-card" style="text-align: center;">
+              <div class="card-icon" style="margin: 0 auto;">💾</div>
+              <h4 class="card-title">Ctrl + S</h4>
+              <p class="card-desc">احفظ الملف في مجلد واجباتك بنجاح!</p>
+            </div>
+          </div>
+        </section>
+
+        <!-- SLIDE 22: تمرين تمديد العضلات والنشاط البدني -->
+        <section class="slide" id="slide-22" data-notes="يلا كلنا نقف مع بعض في ثانية واحدة! نعمل إطالة خفيفة للرقبة والكتفين.. نحرك إيدينا وأصابعنا في دوائر ناعمة.. ونأخذ نفس عميق.. ممتاز! كده جسمنا وعقلنا اتجددت طاقتهم!">
+          <div class="grid-2">
+            <div>
+              <span class="slide-tag">استراحة المحارب</span>
+              <h2 class="slide-title">تمرين التمدد السريع (30 ثانية) 🧘‍♂️💪</h2>
+              <p class="slide-subtitle">حركة خفيفة تجدد نشاط العقل وتنشط الدورة الدموية</p>
+              
+              <div style="margin-top: 24px;" class="kid-card">
+                <p style="font-size: 20px; font-weight: 700; line-height: 1.7; color: var(--brand-teal);">
+                  1. قف وافرد ظهرك وكتفيك للأعلى.<br>
+                  2. حرّك أصابع يديك ومعصمك في دوائر لطيفة.<br>
+                  3. خذ نفساً عميقاً من الأنف وأخرجه ببطء!
+                </p>
+              </div>
+            </div>
+            <div class="image-container-right">
+              <img src="https://files.catbox.moe/c5u0fs.png" alt="تمارين التمدد" class="embedded-img">
+            </div>
+          </div>
+        </section>
+
+        <!-- SLIDE 23: لغز الأبطال: أين ذهب الملف؟ -->
+        <section class="slide" id="slide-23" data-notes="لو دورت على ملف ونسيت حطيته فين.. بنعمل إيه؟ بنستخدم شريط البحث الذكي Search Bar في الـ File Explorer! بنكتب اسم الملف أو امتداده وبيطلعه لنا في ثانية واحدة كأننا بنستخدم رادار سحري!">
+          <div class="grid-2">
+            <div>
+              <span class="slide-tag">رادار البحث الذكي</span>
+              <h2 class="slide-title">لغز الأبطال: كيف تجد ملفك المفقود؟ 🔍</h2>
+              
+              <div style="margin-top: 24px;" class="kid-card">
+                <h3 class="card-title" style="color: var(--brand-blue);">شريط البحث في الـ File Explorer:</h3>
+                <p class="card-desc" style="font-size: 19px; line-height: 1.7;">
+                  اكتب اسم الملف في خانة البحث (Search) أعلى اليمين.. <br>
+                  أو اكتب امتداده مثل <code>*.png</code> ليبحث لك الرادار في كل أرجاء الحاسوب ويحضره لك فوراً!
+                </p>
+              </div>
+            </div>
+            <div class="image-container-right">
+              <img src="https://files.catbox.moe/yudv8l.png" alt="البحث الذكي" class="embedded-img">
+            </div>
+          </div>
+        </section>
+
+        <!-- SLIDE 24: تحدي البطل المنزلي للمحاضرة 02 -->
+        <section class="slide" id="slide-24" data-notes="تحدي البيت النهاردة: نظف سطح مكتب جهازك الشخصي تماماً، واجمع كل الصور والألعاب في مجلدات مرتبة زي ما اتعلمنا. وطبق قاعدة 20-20-20 وعلمها لأخواتك وبابا وماما! واكتبلنا تجربتك في تعليقات التليجرام والفيسبوك.">
+          <div class="grid-2">
+            <div>
+              <span class="slide-tag">مهمة الأسبوع</span>
+              <h2 class="slide-title">تحدي البطل المنزلي: المنظم الأكبر 🏆✨</h2>
+              
+              <div style="margin-top: 24px;" class="kid-card">
+                <p style="font-size: 20px; font-weight: 700; color: var(--text-main); line-height: 1.7;">
+                  1. نظّف سطح مكتب كمبيوترك المنزلي واجعله يبدو كاستوديو محترفين.<br>
+                  2. علّم عائلتك قاعدة 20-20-20 لحماية العيون.<br>
+                  3. التقط صورة لسطح مكتبك المرتب وشاركها في مجتمعنا الرقمي!
+                </p>
+              </div>
+            </div>
+            <div class="image-container-right">
+              <img src="https://files.catbox.moe/8t5fqy.png" alt="الواجب المنزلي" class="embedded-img">
+            </div>
+          </div>
+        </section>
+
+        <!-- SLIDE 25: الاحتفال والختام -->
+        <section class="slide" id="slide-25" data-notes="ألف مبروك يا أبطال! النهاردة اتعلمتم إزاي تكونوا مبرمجين منظمين، سريعين، ومحافظين على صحتكم وأجهزتكم. كسبتم 100 نقطة جديدة ووسام المبرمج المنظم. المحاضرة الجاية مغامرتنا هتكون أروع: الإنترنت والمواقع: كيف نسافر في الشبكة العنكبوتية؟ أشوفكم على خير يا مبدعين!">
+          <div class="grid-2">
+            <div>
+              <span class="slide-tag">إنجاز جديد رائع!</span>
+              <h2 class="slide-title" style="color: var(--brand-green);">ألف مبروك يا أبطال الاحتراف! 🎉🏅</h2>
+              <p class="slide-subtitle">أتممتم المحاضرة 02 بنجاح واكتسبتم وسام 'المبرمج المنظم'</p>
+              
+              <div style="margin-top: 24px;" class="kid-card">
+                <p style="font-size: 20px; font-weight: 800; color: var(--brand-blue);">
+                  موعدنا في المحاضرة 03: <br>
+                  "الإنترنت والمواقع: كيف نسافر في الشبكة العنكبوتية؟" 🌐🚀
+                </p>
+              </div>
+            </div>
+            <div class="image-container-right">
+              <img src="https://files.catbox.moe/c5u0fs.png" alt="الاحتفال والنجاح" class="embedded-img">
+            </div>
+          </div>
+        </section>
+
+      </main>
+    </div>
+  </div>
+
+  <aside id="teacher-notes-panel">
+    <div class="notes-title">
+      <span>🎙️ اسكربت كلام المدرس (المتحدث)</span>
+      <button onclick="toggleTeacherNotes()" style="background: none; border: none; font-size: 16px; cursor: pointer;">✕</button>
+    </div>
+    <div class="notes-body" id="teacher-notes-content">...</div>
+  </aside>
+
+  <div class="studio-controls">
+    <button class="ctrl-btn" onclick="prevSlide()" title="السابق">➡️</button>
+    <div class="slide-counter">
+      <span id="current-slide-num">1</span> / 25
+    </div>
+    <button class="ctrl-btn" onclick="nextSlide()" title="التالي">⬅️</button>
+
+    <div style="width: 1px; height: 24px; background: #e2e8f0; margin: 0 4px;"></div>
+
+    <button class="ctrl-btn" id="btn-draw" onclick="toggleDrawingMode()" title="السبورة الذكية">✏️</button>
+    
+    <div class="palette-box" id="palette-box">
+      <div class="color-dot selected" style="background: #1d4ed8;" onclick="setDrawColor('#1d4ed8', this)"></div>
+      <div class="color-dot" style="background: #dc2626;" onclick="setDrawColor('#dc2626', this)"></div>
+      <div class="color-dot" style="background: #16a34a;" onclick="setDrawColor('#16a34a', this)"></div>
+      <div class="color-dot" style="background: #ea580c;" onclick="setDrawColor('#ea580c', this)"></div>
+      <div class="color-dot" style="background: #9333ea;" onclick="setDrawColor('#9333ea', this)"></div>
+      <div class="color-dot" style="background: #0f172a;" onclick="setDrawColor('#0f172a', this)"></div>
+      <button class="ctrl-btn" style="width: 32px; height: 32px; font-size: 13px;" onclick="clearCanvas()" title="مسح">🗑️</button>
+    </div>
+
+    <div style="width: 1px; height: 24px; background: #e2e8f0; margin: 0 4px;"></div>
+
+    <button class="ctrl-btn" id="btn-notes" onclick="toggleTeacherNotes()" title="اسكربت المدرس">📜</button>
+    <button class="ctrl-btn" onclick="toggleFullScreen()" title="ملء الشاشة">⛶</button>
+  </div>
+
+  <script>
+    const totalSlides = 25;
+    let currentSlide = 1;
+    let drawingMode = false;
+    let currentColor = '#1d4ed8';
+    let isDrawing = false;
+    let lastX = 0;
+    let lastY = 0;
+
+    const slides = document.querySelectorAll('.slide');
+    const indicator = document.getElementById('slide-indicator');
+    const counterNum = document.getElementById('current-slide-num');
+    const notesPanel = document.getElementById('teacher-notes-panel');
+    const notesContent = document.getElementById('teacher-notes-content');
+    const canvas = document.getElementById('drawing-canvas');
+    const ctx = canvas.getContext('2d');
+    const btnDraw = document.getElementById('btn-draw');
+    const paletteBox = document.getElementById('palette-box');
+
+    function resizeCanvas() {
+      canvas.width = canvas.parentElement.clientWidth;
+      canvas.height = canvas.parentElement.clientHeight;
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    function updateSlide() {
+      slides.forEach((s, idx) => {
+        s.classList.toggle('active', (idx + 1) === currentSlide);
+      });
+      indicator.textContent = `الشريحة ${currentSlide} / ${totalSlides}`;
+      counterNum.textContent = currentSlide;
+
+      const activeSlideEl = document.getElementById(`slide-${currentSlide}`);
+      if (activeSlideEl && activeSlideEl.dataset.notes) {
+        notesContent.textContent = activeSlideEl.dataset.notes;
+      } else {
+        notesContent.textContent = 'لا توجد ملاحظات لهذه الشريحة.';
+      }
+    }
+
+    function nextSlide() {
+      if (currentSlide < totalSlides) {
+        currentSlide++;
+        updateSlide();
+      }
+    }
+
+    function prevSlide() {
+      if (currentSlide > 1) {
+        currentSlide--;
+        updateSlide();
+      }
+    }
+
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowLeft' || e.key === 'PageDown' || e.key === ' ') nextSlide();
+      else if (e.key === 'ArrowRight' || e.key === 'PageUp') prevSlide();
+      else if (e.key === 'd' || e.key === 'D') toggleDrawingMode();
+      else if (e.key === 'n' || e.key === 'N') toggleTeacherNotes();
+      else if (e.key === 'c' || e.key === 'C') clearCanvas();
+    });
+
+    function toggleDrawingMode() {
+      drawingMode = !drawingMode;
+      canvas.classList.toggle('active-mode', drawingMode);
+      btnDraw.classList.toggle('active', drawingMode);
+      paletteBox.classList.toggle('open', drawingMode);
+    }
+
+    function setDrawColor(color, el) {
+      currentColor = color;
+      document.querySelectorAll('.color-dot').forEach(d => d.classList.remove('selected'));
+      if (el) el.classList.add('selected');
+    }
+
+    function clearCanvas() { ctx.clearRect(0, 0, canvas.width, canvas.height); }
+
+    canvas.addEventListener('mousedown', (e) => {
+      if (!drawingMode) return;
+      isDrawing = true;
+      const rect = canvas.getBoundingClientRect();
+      lastX = e.clientX - rect.left;
+      lastY = e.clientY - rect.top;
+    });
+
+    canvas.addEventListener('mousemove', (e) => {
+      if (!isDrawing || !drawingMode) return;
+      const rect = canvas.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+
+      ctx.beginPath();
+      ctx.moveTo(lastX, lastY);
+      ctx.lineTo(x, y);
+      ctx.strokeStyle = currentColor;
+      ctx.lineWidth = 4;
+      ctx.lineCap = 'round';
+      ctx.stroke();
+
+      lastX = x;
+      lastY = y;
+    });
+
+    window.addEventListener('mouseup', () => { isDrawing = false; });
+
+    function checkOption(btn, isCorrect, feedbackMsg) {
+      const container = btn.closest('.speed-test-box');
+      const allBtns = container.querySelectorAll('.option-btn');
+      allBtns.forEach(b => {
+        b.disabled = true;
+        b.style.opacity = '0.6';
+      });
+      btn.style.opacity = '1';
+      btn.classList.add(isCorrect ? 'correct' : 'wrong');
+
+      const fb = container.querySelector('.option-feedback');
+      fb.textContent = feedbackMsg;
+      fb.style.color = isCorrect ? 'var(--brand-green)' : '#dc2626';
+    }
+
+    function toggleTeacherNotes() { notesPanel.classList.toggle('visible'); }
+
+    function toggleFullScreen() {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(() => {});
+      } else {
+        if (document.exitFullscreen) document.exitFullscreen();
+      }
+    }
+
+    let secondsElapsed = 0;
+    const timerEl = document.getElementById('session-timer');
+    setInterval(() => {
+      secondsElapsed++;
+      const m = String(Math.floor(secondsElapsed / 60)).padStart(2, '0');
+      const s = String(secondsElapsed % 60).padStart(2, '0');
+      timerEl.textContent = `${m}:${s}`;
+    }, 1000);
+
+    updateSlide();
+  </script>
+</body>
+</html>

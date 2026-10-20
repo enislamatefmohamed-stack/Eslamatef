@@ -12,6 +12,7 @@ import '../widgets/youtube_embedded_player.dart';
 import '../widgets/safe_network_image/safe_network_image.dart';
 import '../widgets/blogger_post_editor.dart';
 import '../widgets/recording_launcher/recording_launcher.dart';
+import '../data/kids_course_sessions_data.dart';
 
 class _SubTabItem {
   final String title;
@@ -34,15 +35,19 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
   final _dataService = SiteDataService.instance;
 
   // 0: الرئيسية (Dashboard Home)
-  // 1: جديدنا (What's New & Ticker)
-  // 2: الكورسات (Courses)
-  // 3: الدروس (Independent Lessons)
-  // 4: اختبر نفسك (Interactive Quizzes)
-  // 5: تحدي الأسبوع (Weekly Challenges)
+  // 1: الكورسات (Courses)
+  // 2: الدروس (Independent Lessons)
+  // 3: اختبر نفسك (Interactive Quizzes)
+  // 4: تحدي الأسبوع (Weekly Challenges)
+  // 5: جلسات تصوير كورس الاطفال (Kids Course Sessions 49)
   // 6: جلسات التصوير (Recording Studio)
   // 7: الأعضاء (Members)
   int _selectedNavIndex = 0;
   bool _isSidebarCollapsed = false;
+
+  // Kids Course Sessions state
+  String _kidsSessionsSearch = '';
+  int _kidsSessionsSelectedLevel = 0; // 0: الكل, 1..7: المستويات
 
   // Sub-tabs
   int _coursesSubTab = 0; // 0: جميع الكورسات, 1: تصنيفات الكورسات
@@ -320,8 +325,9 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                 _buildNavItem(2, "الدروس", Icons.school_rounded, isDrawer, count: _dataService.lessons.length),
                 _buildNavItem(3, "اختبر نفسك", Icons.psychology_rounded, isDrawer, count: _dataService.interactiveQuizzes.length),
                 _buildNavItem(4, "تحدي الأسبوع", Icons.emoji_events_rounded, isDrawer, count: _dataService.weeklyChallenges.length),
-                _buildNavItem(5, "جلسات التصوير", Icons.videocam_rounded, isDrawer, count: _dataService.recordingLessons.length),
-                _buildNavItem(6, "الأعضاء", Icons.group_rounded, isDrawer, count: _dataService.members.length),
+                _buildNavItem(5, "جلسات تصوير كورس الاطفال", Icons.slideshow_rounded, isDrawer, count: KidsCourseSessionsData.allSessions.length),
+                _buildNavItem(6, "جلسات التصوير", Icons.videocam_rounded, isDrawer, count: _dataService.recordingLessons.length),
+                _buildNavItem(7, "الأعضاء", Icons.group_rounded, isDrawer, count: _dataService.members.length),
                 const Divider(color: Color(0xFFE2E8F0), height: 24),
                 _buildWebsiteLinkItem(isDrawer),
               ],
@@ -458,13 +464,14 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
       "إدارة الدروس المستقلة",
       "إدارة اختبارات اختبر نفسك",
       "إدارة تحدي الأسبوع والحلول",
+      "جلسات تصوير كورس الاطفال (49 محاضرة)",
       "إدارة جلسات التصوير",
       "إدارة الأعضاء والطلاب",
     ];
 
     final currentTitle = _selectedCourseForLectures != null
         ? "محاضرات: ${_selectedCourseForLectures!['title'] ?? 'الكورس'}"
-        : titles[_selectedNavIndex];
+        : (_selectedNavIndex < titles.length ? titles[_selectedNavIndex] : "لوحة التحكم");
 
     return Container(
       padding: EdgeInsets.symmetric(
@@ -569,8 +576,10 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
       case 4:
         return _buildChallengesSection();
       case 5:
-        return _buildRecordingStudioSection();
+        return _buildKidsCourseSessionsSection();
       case 6:
+        return _buildRecordingStudioSection();
+      case 7:
         return _buildMembersSection();
       default:
         return _buildHomeSection();
@@ -6468,6 +6477,597 @@ function checkScore() {
                       }),
                     ),
                   ],
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // =========================================================================
+  // 5. جلسات تصوير كورس الاطفال (KIDS COURSE SESSIONS 🎬 49 LECTURES)
+  // =========================================================================
+  Widget _buildKidsCourseSessionsSection() {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isMobile = screenWidth < 800;
+
+    final allSessions = KidsCourseSessionsData.allSessions;
+    final filteredSessions = allSessions.where((s) {
+      final matchesLevel = _kidsSessionsSelectedLevel == 0 || s.levelNumber == _kidsSessionsSelectedLevel;
+      final q = _kidsSessionsSearch.trim().toLowerCase();
+      if (q.isEmpty) return matchesLevel;
+      final matchesQuery = s.title.toLowerCase().contains(q) ||
+          s.description.toLowerCase().contains(q) ||
+          s.formattedNumber.contains(q) ||
+          s.topics.any((t) => t.toLowerCase().contains(q));
+      return matchesLevel && matchesQuery;
+    }).toList();
+
+    final levelCounts = [
+      allSessions.length,
+      allSessions.where((s) => s.levelNumber == 1).length,
+      allSessions.where((s) => s.levelNumber == 2).length,
+      allSessions.where((s) => s.levelNumber == 3).length,
+      allSessions.where((s) => s.levelNumber == 4).length,
+      allSessions.where((s) => s.levelNumber == 5).length,
+      allSessions.where((s) => s.levelNumber == 6).length,
+      allSessions.where((s) => s.levelNumber == 7).length,
+    ];
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // 1. Header Banner
+        Container(
+          padding: EdgeInsets.all(isMobile ? 18 : 24),
+          decoration: BoxDecoration(
+            gradient: const LinearGradient(
+              colors: [Color(0xFF0284C7), Color(0xFF0369A1)],
+              begin: Alignment.topRight,
+              end: Alignment.bottomLeft,
+            ),
+            borderRadius: BorderRadius.circular(16),
+            boxShadow: [
+              BoxShadow(
+                color: const Color(0xFF0284C7).withOpacity(0.25),
+                blurRadius: 18,
+                offset: const Offset(0, 6),
+              ),
+            ],
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.18),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: const Icon(Icons.slideshow_rounded, color: Colors.white, size: 28),
+                  ),
+                  const SizedBox(width: 14),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          "جلسات تصوير كورس الاطفال — استوديو العرض التفاعلي 🎬",
+                          style: GoogleFonts.cairo(
+                            fontSize: isMobile ? 16 : 20,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ),
+                        Text(
+                          "منهج البرمجة والذكاء الاصطناعي للأطفال كاملاً (49 محاضرة على 7 مستويات تعليمية)",
+                          style: GoogleFonts.cairo(
+                            fontSize: isMobile ? 11 : 13,
+                            color: Colors.white.withOpacity(0.9),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 18),
+              Text(
+                "تتضمن كل جلسة شرائح تفاعلية بيضاء مشعة مع شروحات مبسطة، رسومات توضيحية، أمثلة كود حية، واختبار إلكتروني تفاعلي فوري لتقييم استيعاب الطفل.",
+                style: GoogleFonts.cairo(
+                  fontSize: 12.5,
+                  color: Colors.white.withOpacity(0.92),
+                  height: 1.6,
+                ),
+              ),
+              const SizedBox(height: 16),
+              Wrap(
+                spacing: 10,
+                runSpacing: 10,
+                children: [
+                  _buildKidsStatBadge(Icons.auto_stories_rounded, "49 محاضرة شاملة"),
+                  _buildKidsStatBadge(Icons.layers_rounded, "7 مستويات تدريجية"),
+                  _buildKidsStatBadge(Icons.filter_none_rounded, "1,225+ شريحة تفاعلية"),
+                  _buildKidsStatBadge(Icons.quiz_rounded, "49 اختبار إلكتروني فوري"),
+                ],
+              ),
+            ],
+          ),
+        ),
+
+        const SizedBox(height: 24),
+
+        // 2. Search & Level Filters
+        Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(color: const Color(0xFFE2E8F0)),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.02),
+                blurRadius: 10,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Search Field
+              TextField(
+                onChanged: (val) => setState(() => _kidsSessionsSearch = val),
+                style: GoogleFonts.cairo(fontSize: 13),
+                decoration: InputDecoration(
+                  hintText: "ابحث برقم المحاضرة، العنوان، أو موضوع الشرح...",
+                  hintStyle: GoogleFonts.cairo(fontSize: 12, color: const Color(0xFF94A3B8)),
+                  prefixIcon: const Icon(Icons.search_rounded, color: Color(0xFF0284C7), size: 20),
+                  suffixIcon: _kidsSessionsSearch.isNotEmpty
+                      ? IconButton(
+                          icon: const Icon(Icons.clear_rounded, size: 18),
+                          onPressed: () => setState(() => _kidsSessionsSearch = ''),
+                        )
+                      : null,
+                  filled: true,
+                  fillColor: const Color(0xFFF8FAFC),
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10),
+                    borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10),
+                    borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10),
+                    borderSide: const BorderSide(color: Color(0xFF0284C7), width: 1.5),
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: 14),
+
+              // Level Filter Chips
+              SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  children: List.generate(KidsCourseSessionsData.levels.length, (idx) {
+                    final isSelected = _kidsSessionsSelectedLevel == idx;
+                    final label = KidsCourseSessionsData.levels[idx];
+                    final count = levelCounts[idx];
+
+                    return Padding(
+                      padding: const EdgeInsets.only(left: 8),
+                      child: ChoiceChip(
+                        selected: isSelected,
+                        onSelected: (_) => setState(() => _kidsSessionsSelectedLevel = idx),
+                        label: Text(
+                          "$label ($count)",
+                          style: GoogleFonts.cairo(
+                            fontSize: 12,
+                            fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+                            color: isSelected ? Colors.white : const Color(0xFF334155),
+                          ),
+                        ),
+                        selectedColor: const Color(0xFF0284C7),
+                        backgroundColor: const Color(0xFFF1F5F9),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20),
+                          side: BorderSide(
+                            color: isSelected ? const Color(0xFF0284C7) : const Color(0xFFE2E8F0),
+                          ),
+                        ),
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                      ),
+                    );
+                  }),
+                ),
+              ),
+            ],
+          ),
+        ),
+
+        const SizedBox(height: 20),
+
+        // 3. Results Header Counter
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              "عرض ${filteredSessions.length} من أصل ${allSessions.length} جلسة تصوير",
+              style: GoogleFonts.cairo(
+                fontSize: 13,
+                fontWeight: FontWeight.bold,
+                color: const Color(0xFF475569),
+              ),
+            ),
+            if (_kidsSessionsSearch.isNotEmpty || _kidsSessionsSelectedLevel != 0)
+              TextButton.icon(
+                onPressed: () => setState(() {
+                  _kidsSessionsSearch = '';
+                  _kidsSessionsSelectedLevel = 0;
+                }),
+                icon: const Icon(Icons.refresh_rounded, size: 14, color: Color(0xFF0284C7)),
+                label: Text(
+                  "إعادة تعيين الفلاتر",
+                  style: GoogleFonts.cairo(fontSize: 12, color: const Color(0xFF0284C7)),
+                ),
+              ),
+          ],
+        ),
+
+        const SizedBox(height: 12),
+
+        // 4. Grid of Sessions
+        if (filteredSessions.isEmpty)
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(40),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(color: const Color(0xFFE2E8F0)),
+            ),
+            child: Column(
+              children: [
+                const Icon(Icons.search_off_rounded, size: 48, color: Color(0xFF94A3B8)),
+                const SizedBox(height: 12),
+                Text(
+                  "لا توجد جلسات تصوير مطابقة للبحث",
+                  style: GoogleFonts.cairo(fontSize: 15, fontWeight: FontWeight.bold, color: const Color(0xFF475569)),
+                ),
+                Text(
+                  "جرب البحث بكلمات أخرى أو تغيير المستوى التعليمي المحدد",
+                  style: GoogleFonts.cairo(fontSize: 12, color: const Color(0xFF94A3B8)),
+                ),
+              ],
+            ),
+          )
+        else
+          LayoutBuilder(
+            builder: (ctx, constraints) {
+              final width = constraints.maxWidth;
+              final crossAxisCount = width > 1150 ? 3 : (width > 700 ? 2 : 1);
+
+              return GridView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: crossAxisCount,
+                  crossAxisSpacing: 16,
+                  mainAxisSpacing: 16,
+                  childAspectRatio: crossAxisCount == 1 ? 1.6 : 0.88,
+                ),
+                itemCount: filteredSessions.length,
+                itemBuilder: (ctx, i) => _buildKidsSessionCard(filteredSessions[i]),
+              );
+            },
+          ),
+      ],
+    );
+  }
+
+  Widget _buildKidsStatBadge(IconData icon, String text) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.18),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: Colors.white.withOpacity(0.25)),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, color: Colors.white, size: 14),
+          const SizedBox(width: 6),
+          Text(
+            text,
+            style: GoogleFonts.cairo(
+              color: Colors.white,
+              fontSize: 11.5,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildKidsSessionCard(KidsSessionItem session) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: session.isReady ? const Color(0xFFBAE6FD) : const Color(0xFFE2E8F0),
+          width: session.isReady ? 1.5 : 1,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: session.isReady
+                ? const Color(0xFF0284C7).withOpacity(0.08)
+                : Colors.black.withOpacity(0.03),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Card Header Bar
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+            decoration: BoxDecoration(
+              color: session.isReady ? const Color(0xFFF0F9FF) : const Color(0xFFF8FAFC),
+              borderRadius: const BorderRadius.only(
+                topLeft: Radius.circular(16),
+                topRight: Radius.circular(16),
+              ),
+              border: Border(
+                bottom: BorderSide(
+                  color: session.isReady ? const Color(0xFFE0F2FE) : const Color(0xFFF1F5F9),
+                ),
+              ),
+            ),
+            child: Row(
+              children: [
+                // Lecture Number Badge
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF0284C7),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Text(
+                    "#${session.formattedNumber}",
+                    style: GoogleFonts.cairo(
+                      color: Colors.white,
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                // Level Pill
+                Expanded(
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF0284C7).withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                    child: Text(
+                      "المستوى ${session.levelNumber}: ${session.levelName}",
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: GoogleFonts.cairo(
+                        color: const Color(0xFF0369A1),
+                        fontSize: 11,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                // Status Pill
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                  decoration: BoxDecoration(
+                    color: session.isReady
+                        ? const Color(0xFF22C55E).withOpacity(0.12)
+                        : const Color(0xFF64748B).withOpacity(0.12),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: session.isReady
+                          ? const Color(0xFF22C55E).withOpacity(0.3)
+                          : const Color(0xFF64748B).withOpacity(0.2),
+                    ),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Container(
+                        width: 6,
+                        height: 6,
+                        decoration: BoxDecoration(
+                          color: session.isReady ? const Color(0xFF16A34A) : const Color(0xFF64748B),
+                          shape: BoxShape.circle,
+                        ),
+                      ),
+                      const SizedBox(width: 5),
+                      Text(
+                        session.isReady ? "جاهزة 🚀" : "مجدولة ⚡",
+                        style: GoogleFonts.cairo(
+                          color: session.isReady ? const Color(0xFF15803D) : const Color(0xFF475569),
+                          fontSize: 10.5,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          // Card Body
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.all(14),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Title
+                  Text(
+                    session.title,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: GoogleFonts.cairo(
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                      color: const Color(0xFF0F172A),
+                      height: 1.35,
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  // Description
+                  Text(
+                    session.description,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: GoogleFonts.cairo(
+                      fontSize: 11.5,
+                      color: const Color(0xFF64748B),
+                      height: 1.45,
+                    ),
+                  ),
+                  const Spacer(),
+                  // Topics chips
+                  if (session.topics.isNotEmpty) ...[
+                    Wrap(
+                      spacing: 5,
+                      runSpacing: 4,
+                      children: session.topics.take(3).map((topic) {
+                        return Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFF1F5F9),
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                          child: Text(
+                            "#$topic",
+                            style: GoogleFonts.cairo(
+                              fontSize: 10,
+                              color: const Color(0xFF475569),
+                            ),
+                          ),
+                        );
+                      }).toList(),
+                    ),
+                    const SizedBox(height: 8),
+                  ],
+                  // Slides Count & Link Info
+                  Row(
+                    children: [
+                      const Icon(Icons.filter_none_rounded, size: 13, color: Color(0xFF0284C7)),
+                      const SizedBox(width: 4),
+                      Text(
+                        "${session.slidesCount} شريحة بيضاء تفاعلية",
+                        style: GoogleFonts.cairo(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w600,
+                          color: const Color(0xFF0284C7),
+                        ),
+                      ),
+                      const Spacer(),
+                      IconButton(
+                        icon: const Icon(Icons.copy_rounded, size: 15, color: Color(0xFF94A3B8)),
+                        tooltip: "نسخ رابط الجلسة",
+                        padding: EdgeInsets.zero,
+                        constraints: const BoxConstraints(),
+                        onPressed: () {
+                          final url = session.webUrl ?? 'kids_sessions/lecture_${session.formattedNumber}/index.html';
+                          Clipboard.setData(ClipboardData(text: url));
+                          _showSnackBar("تم نسخ مسار الجلسة: $url");
+                        },
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+
+          // Action Buttons Bar
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+            decoration: const BoxDecoration(
+              color: Color(0xFFFAFAFA),
+              borderRadius: BorderRadius.only(
+                bottomLeft: Radius.circular(16),
+                bottomRight: Radius.circular(16),
+              ),
+              border: Border(top: BorderSide(color: Color(0xFFF1F5F9))),
+            ),
+            child: Row(
+              children: [
+                // Launch Session Presentation Button
+                Expanded(
+                  flex: 3,
+                  child: ElevatedButton.icon(
+                    onPressed: () {
+                      session.launchSession();
+                      _showSnackBar("فتح جلسة العرض #${session.formattedNumber}...");
+                    },
+                    icon: const Icon(Icons.play_circle_fill_rounded, size: 16),
+                    label: Text(
+                      session.isReady ? "تشغيل الجلسة 🎬" : "عرض الجلسة 🎬",
+                      style: GoogleFonts.cairo(
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF0284C7),
+                      foregroundColor: Colors.white,
+                      elevation: 0,
+                      padding: const EdgeInsets.symmetric(vertical: 8),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                // Launch Quiz Button
+                Expanded(
+                  flex: 2,
+                  child: OutlinedButton.icon(
+                    onPressed: () {
+                      session.launchQuiz();
+                      _showSnackBar("فتح الاختبار الإلكتروني #${session.formattedNumber}...");
+                    },
+                    icon: const Icon(Icons.quiz_rounded, size: 14, color: Color(0xFF0284C7)),
+                    label: Text(
+                      "الاختبار 🧪",
+                      style: GoogleFonts.cairo(
+                        fontSize: 11.5,
+                        fontWeight: FontWeight.bold,
+                        color: const Color(0xFF0284C7),
+                      ),
+                    ),
+                    style: OutlinedButton.styleFrom(
+                      side: const BorderSide(color: Color(0xFFBAE6FD)),
+                      backgroundColor: const Color(0xFFF0F9FF),
+                      padding: const EdgeInsets.symmetric(vertical: 8),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                    ),
+                  ),
                 ),
               ],
             ),

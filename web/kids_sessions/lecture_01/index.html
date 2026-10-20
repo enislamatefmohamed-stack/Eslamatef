@@ -1,0 +1,1406 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>المحاضرة 01: الكمبيوتر من الداخل والخارج | جلسة تصوير تفاعلية</title>
+  
+  <!-- خطوط عربية وتقنية عصرية ومبهجة -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+
+  <style>
+    /* ==========================================================
+       DESIGN SYSTEM - THEME LIGHT & VIBRANT (فاتح ومبهج للأطفال)
+       ========================================================== */
+    :root {
+      --bg-base: #f8fafc;
+      --bg-surface: #ffffff;
+      --bg-surface-soft: #f1f5f9;
+      --bg-card: #ffffff;
+      
+      --text-main: #0f172a;
+      --text-muted: #475569;
+      --text-subtle: #64748b;
+      
+      --brand-blue: #2563eb;
+      --brand-blue-light: #dbeafe;
+      --brand-teal: #0d9488;
+      --brand-teal-light: #ccfbf1;
+      --brand-orange: #ea580c;
+      --brand-orange-light: #ffedd5;
+      --brand-purple: #7c3aed;
+      --brand-purple-light: #ede9fe;
+      --brand-green: #16a34a;
+      --brand-green-light: #dcfce7;
+      --brand-pink: #db2777;
+      --brand-pink-light: #fce7f3;
+      
+      --border-color: #e2e8f0;
+      --border-focus: #3b82f6;
+      --shadow-sm: 0 2px 4px rgba(15, 23, 42, 0.04);
+      --shadow-md: 0 10px 25px -5px rgba(15, 23, 42, 0.06), 0 8px 10px -6px rgba(15, 23, 42, 0.03);
+      --shadow-lg: 0 20px 35px -5px rgba(15, 23, 42, 0.08), 0 10px 15px -5px rgba(15, 23, 42, 0.04);
+      --radius-sm: 12px;
+      --radius-md: 18px;
+      --radius-lg: 26px;
+      
+      --font-arabic: 'Cairo', system-ui, -apple-system, sans-serif;
+      --font-mono: 'Inter', monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-base);
+      color: var(--text-main);
+      font-family: var(--font-arabic);
+      overflow: hidden;
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      user-select: none;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Ambient Background Light Elements */
+    .bg-light-pattern {
+      position: absolute;
+      inset: 0;
+      background-image: 
+        radial-gradient(circle at 15% 15%, rgba(37, 99, 235, 0.06) 0%, transparent 45%),
+        radial-gradient(circle at 85% 85%, rgba(124, 58, 237, 0.06) 0%, transparent 45%),
+        radial-gradient(circle at 50% 50%, rgba(13, 148, 136, 0.04) 0%, transparent 50%);
+      pointer-events: none;
+      z-index: 0;
+    }
+    
+    .bg-dots {
+      position: absolute;
+      inset: 0;
+      background-image: radial-gradient(#cbd5e1 1.2px, transparent 1.2px);
+      background-size: 24px 24px;
+      opacity: 0.45;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* Main Presentation Frame (16:9 Aspect Ratio) */
+    #presentation-viewport {
+      position: relative;
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      z-index: 1;
+    }
+
+    #presentation-frame {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      max-width: 177.78vh; /* 16:9 ratio */
+      max-height: 56.25vw;
+      background: var(--bg-surface);
+      border-radius: var(--radius-lg);
+      border: 2px solid #e2e8f0;
+      box-shadow: var(--shadow-lg);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Top Live Studio Bar */
+    .slide-topbar {
+      height: 64px;
+      padding: 0 32px;
+      background: #ffffff;
+      border-bottom: 2px solid #f1f5f9;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      z-index: 10;
+    }
+
+    .topbar-branding {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .brand-logo-img {
+      height: 42px;
+      width: auto;
+      border-radius: 8px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .brand-text-col {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .brand-title {
+      font-size: 16px;
+      font-weight: 800;
+      color: var(--brand-blue);
+      letter-spacing: -0.3px;
+    }
+
+    .brand-subtitle {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-subtle);
+    }
+
+    .topbar-meta {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .badge-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 14px;
+      border-radius: 100px;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .badge-blue {
+      background: var(--brand-blue-light);
+      color: var(--brand-blue);
+    }
+
+    .badge-orange {
+      background: var(--brand-orange-light);
+      color: var(--brand-orange);
+    }
+
+    .badge-green {
+      background: var(--brand-green-light);
+      color: var(--brand-green);
+    }
+
+    .timer-display {
+      font-family: var(--font-mono);
+      font-size: 15px;
+      font-weight: 800;
+      color: var(--text-muted);
+      background: #f8fafc;
+      padding: 6px 12px;
+      border-radius: var(--radius-sm);
+      border: 1px solid #e2e8f0;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* Slides Container */
+    .slides-wrapper {
+      position: relative;
+      flex: 1;
+      width: 100%;
+      height: calc(100% - 64px);
+      overflow: hidden;
+    }
+
+    .slide {
+      position: absolute;
+      inset: 0;
+      padding: 40px 56px;
+      display: none;
+      flex-direction: column;
+      justify-content: center;
+      opacity: 0;
+      transform: translateY(12px) scale(0.99);
+      transition: opacity 0.35s ease, transform 0.35s ease;
+      background: #ffffff;
+    }
+
+    .slide.active {
+      display: flex;
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+
+    /* Common Slide Elements */
+    .slide-header {
+      margin-bottom: 24px;
+    }
+
+    .slide-tag {
+      display: inline-block;
+      font-size: 13px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--brand-blue);
+      margin-bottom: 8px;
+    }
+
+    .slide-title {
+      font-size: 38px;
+      font-weight: 900;
+      color: var(--text-main);
+      line-height: 1.25;
+    }
+
+    .slide-subtitle {
+      font-size: 20px;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-top: 6px;
+    }
+
+    /* Grid Layouts */
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 32px;
+      align-items: center;
+      height: 100%;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+      align-items: stretch;
+    }
+
+    .grid-4 {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 20px;
+      align-items: stretch;
+    }
+
+    /* Cards */
+    .kid-card {
+      background: #ffffff;
+      border: 2px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 24px;
+      box-shadow: var(--shadow-sm);
+      transition: all 0.25s ease;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      position: relative;
+    }
+
+    .kid-card:hover {
+      border-color: var(--brand-blue);
+      box-shadow: var(--shadow-md);
+      transform: translateY(-4px);
+    }
+
+    .card-icon {
+      width: 58px;
+      height: 58px;
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 30px;
+      background: var(--bg-surface-soft);
+    }
+
+    .card-title {
+      font-size: 22px;
+      font-weight: 800;
+      color: var(--text-main);
+    }
+
+    .card-desc {
+      font-size: 16px;
+      line-height: 1.6;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    /* Visual Media Containers */
+    .image-container-right {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+    }
+
+    .embedded-img {
+      max-height: 440px;
+      max-width: 100%;
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-lg);
+      border: 3px solid #ffffff;
+      object-fit: cover;
+    }
+
+    /* Interactive Quiz & Buttons inside Slide */
+    .speed-test-box {
+      background: #f8fafc;
+      border: 2px dashed #cbd5e1;
+      border-radius: var(--radius-md);
+      padding: 24px;
+      text-align: center;
+      margin-top: 20px;
+    }
+
+    .speed-options {
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+      margin-top: 16px;
+    }
+
+    .option-btn {
+      padding: 14px 28px;
+      border-radius: var(--radius-sm);
+      border: 2px solid #cbd5e1;
+      background: #ffffff;
+      color: var(--text-main);
+      font-size: 18px;
+      font-weight: 800;
+      cursor: pointer;
+      font-family: var(--font-arabic);
+      transition: all 0.2s ease;
+    }
+
+    .option-btn:hover {
+      background: var(--brand-blue-light);
+      border-color: var(--brand-blue);
+      color: var(--brand-blue);
+      transform: scale(1.04);
+    }
+
+    .option-btn.correct {
+      background: var(--brand-green-light) !important;
+      border-color: var(--brand-green) !important;
+      color: var(--brand-green) !important;
+    }
+
+    .option-btn.wrong {
+      background: #fee2e2 !important;
+      border-color: #ef4444 !important;
+      color: #b91c1c !important;
+    }
+
+    /* Whiteboard Layer */
+    #drawing-canvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 50;
+    }
+
+    #drawing-canvas.active-mode {
+      pointer-events: auto;
+      cursor: crosshair;
+    }
+
+    /* Floating Studio Toolbar */
+    .studio-controls {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(12px);
+      border: 1.5px solid var(--border-color);
+      box-shadow: var(--shadow-lg);
+      padding: 8px 18px;
+      border-radius: 100px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      z-index: 100;
+    }
+
+    .ctrl-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      border: 1px solid #e2e8f0;
+      background: #ffffff;
+      color: var(--text-main);
+      font-size: 18px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .ctrl-btn:hover {
+      background: var(--brand-blue-light);
+      color: var(--brand-blue);
+      border-color: var(--brand-blue);
+      transform: scale(1.08);
+    }
+
+    .ctrl-btn.active {
+      background: var(--brand-blue);
+      color: #ffffff;
+      border-color: var(--brand-blue);
+    }
+
+    .slide-counter {
+      font-family: var(--font-mono);
+      font-size: 16px;
+      font-weight: 800;
+      color: var(--text-main);
+      padding: 0 10px;
+    }
+
+    .palette-box {
+      display: none;
+      align-items: center;
+      gap: 6px;
+      padding-right: 8px;
+      border-right: 1px solid #e2e8f0;
+    }
+
+    .palette-box.open {
+      display: flex;
+    }
+
+    .color-dot {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      cursor: pointer;
+      border: 2px solid #ffffff;
+      box-shadow: var(--shadow-sm);
+      transition: transform 0.15s ease;
+    }
+
+    .color-dot:hover, .color-dot.selected {
+      transform: scale(1.25);
+    }
+
+    /* Teacher Script Floating Teleprompter */
+    #teacher-notes-panel {
+      position: fixed;
+      bottom: 84px;
+      right: 24px;
+      width: 460px;
+      max-height: 280px;
+      background: rgba(255, 255, 255, 0.98);
+      backdrop-filter: blur(16px);
+      border: 2px solid var(--brand-blue);
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-lg);
+      padding: 20px;
+      z-index: 99;
+      display: none;
+      flex-direction: column;
+      gap: 10px;
+      overflow-y: auto;
+    }
+
+    #teacher-notes-panel.visible {
+      display: flex;
+    }
+
+    .notes-title {
+      font-size: 15px;
+      font-weight: 800;
+      color: var(--brand-blue);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .notes-body {
+      font-size: 15px;
+      line-height: 1.7;
+      color: var(--text-main);
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Ambient Light Graphics -->
+  <div class="bg-light-pattern"></div>
+  <div class="bg-dots"></div>
+
+  <!-- Main 16:9 Presentation Frame -->
+  <div id="presentation-viewport">
+    <div id="presentation-frame">
+      
+      <!-- Top Studio Navigation Bar -->
+      <header class="slide-topbar">
+        <div class="topbar-branding">
+          <img src="https://files.catbox.moe/8kzbd2.jpeg" alt="Logo" class="brand-logo-img">
+          <div class="brand-text-col">
+            <span class="brand-title">Eslam Atef | Code & AI</span>
+            <span class="brand-subtitle">كورس البرمجة والذكاء الاصطناعي للأطفال</span>
+          </div>
+        </div>
+
+        <div class="topbar-meta">
+          <div class="badge-pill badge-blue">
+            <span>المستوى 1: عالم الكمبيوتر</span>
+          </div>
+          <div class="badge-pill badge-orange">
+            <span id="slide-indicator">الشريحة 1 / 25</span>
+          </div>
+          <div class="timer-display">
+            <span>⏱️</span>
+            <span id="session-timer">00:00</span>
+          </div>
+        </div>
+      </header>
+
+      <!-- Whiteboard Drawing Canvas -->
+      <canvas id="drawing-canvas"></canvas>
+
+      <!-- ==========================================================
+           SLIDES CONTAINER (25 Slides Aligned with Teacher Script)
+           ========================================================== -->
+      <main class="slides-wrapper">
+
+        <!-- ----------------------------------------------------
+             SLIDE 1: الغلاف والترحيب
+             ---------------------------------------------------- -->
+        <section class="slide active" id="slide-1" data-notes="يا أهلاً يا أبطال، منورين يا أذكى مبرمجين ومهندسين في الدنيا! معاكم م/ إسلام عاطف، والنهاردة بنبدأ أول وأقوى خطوة في كورس البرمجة والذكاء الاصطناعي للأطفال. محاضرتنا الأولى بعنوان: الكمبيوتر من الداخل والخارج.. جاهزون للمغامرة؟ يلا بينا نكتشف أسرار الصندوق السحري!">
+          <div class="grid-2">
+            <div>
+              <span class="slide-tag">المحاضرة 01 • الانطلاقة الكبرى</span>
+              <h1 class="slide-title" style="font-size: 46px; color: var(--brand-blue);">الكمبيوتر من الداخل والخارج</h1>
+              <p class="slide-subtitle">رحلة ممتعة لاستكشاف أسرار الجسد والروح الرقمية</p>
+              
+              <div style="margin-top: 32px; display: flex; gap: 16px; flex-wrap: wrap;">
+                <div class="badge-pill badge-blue" style="font-size: 15px; padding: 10px 20px;">
+                  <span>المحاضر: م / إسلام عاطف</span>
+                </div>
+                <div class="badge-pill badge-green" style="font-size: 15px; padding: 10px 20px;">
+                  <span>الأعمار: 8 - 16 سنة</span>
+                </div>
+              </div>
+            </div>
+            <div class="image-container-right">
+              <img src="https://files.catbox.moe/0t58gy.png" alt="غلاف المحاضرة" class="embedded-img">
+            </div>
+          </div>
+        </section>
+
+        <!-- ----------------------------------------------------
+             SLIDE 2: أهداف المحاضرة
+             ---------------------------------------------------- -->
+        <section class="slide" id="slide-2" data-notes="بصوا معايا على الشاشة يا أبطال.. في مغامرة النهاردة عندنا 4 مهمات أساسية لازم نخرج واحنا أسيادهم: أولاً هنفهم يعني إيه كمبيوتر أصلاً وكيف يفكر، ثانياً هنعرف سر الهاردوير والسوفتوير، ثالثاً هنكتشف حواس الكمبيوتر من خلال وحدات الإدخال والإخراج، ورابعاً هنتعرف على المايسترو نظام التشغيل.">
+          <div class="slide-header">
+            <span class="slide-tag">خارطة اليوم</span>
+            <h2 class="slide-title">مهمات أبطالنا في محاضرة اليوم 🎯</h2>
+          </div>
+          <div class="grid-4">
+            <div class="kid-card">
+              <div class="card-icon" style="background: var(--brand-blue-light); color: var(--brand-blue);">🧠</div>
+              <h3 class="card-title">1. عقل الكمبيوتر</h3>
+              <p class="card-desc">كيف يفكر الحاسوب ولماذا هو مطيع وسريع كالصاروخ؟</p>
+            </div>
+            <div class="kid-card">
+              <div class="card-icon" style="background: var(--brand-orange-light); color: var(--brand-orange);">⚡</div>
+              <h3 class="card-title">2. الجسد والروح</h3>
+              <p class="card-desc">الفرق الذهبي بين الهاردوير (الملموس) والسوفتوير (البرامج).</p>
+            </div>
+            <div class="kid-card">
+              <div class="card-icon" style="background: var(--brand-green-light); color: var(--brand-green);">🎮</div>
+              <h3 class="card-title">3. الحواس الرقمية</h3>
+              <p class="card-desc">وحدات الإدخال (عيون وآذان) ووحدات الإخراج (اللسان والشاشة).</p>
+            </div>
+            <div class="kid-card">
+              <div class="card-icon" style="background: var(--brand-purple-light); color: var(--brand-purple);">👑</div>
+              <h3 class="card-title">4. المايسترو الكبير</h3>
+              <p class="card-desc">نظام التشغيل (Windows & Android) وكيف يدير الأجهزة.</p>
+            </div>
+          </div>
+        </section>
+
+        <!-- ----------------------------------------------------
+             SLIDE 3: مين فينا بيحب الألعاب؟
+             ---------------------------------------------------- -->
+        <section class="slide" id="slide-3" data-notes="قبل ما ندخل في الغويط.. عايز أسألكم سؤال سريع: مين هنا بيحب يلعب ألعاب؟ روبلوكس؟ ماين كرافت؟ ألعاب العربيات والسباق على الموبايل؟ شايف كل الأيادي مرفوعة وبحماس! طب عمر حد فيكم فكر وهو دايس على الشاشة ومركز في اللعبة: يا ترى إيه اللي بيحصل جوة الجهاز ده؟ وإزاي اللعبة دي اتعملت؟">
+          <div class="grid-2">
+            <div>
+              <span class="slide-tag">سؤال البداية</span>
+              <h2 class="slide-title">مين هنا بيحب الألعاب والجيمز؟ 🎮</h2>
+              <p class="slide-subtitle">روبلوكس؟ ماين كرافت؟ ألعاب السباق على الموبايل؟</p>
+              
+              <div style="margin-top: 28px;" class="kid-card">
+                <p style="font-size: 20px; font-weight: 700; color: var(--brand-purple);">
+                  💡 فكرت قبل كده إيه اللي بيحصل جوه الجهاز في اللحظة اللي بتدوس فيها على الزرار؟ وإزاي الشخصية بتتحرك بالسرعة دي؟
+                </p>
+              </div>
+            </div>
+            <div class="image-container-right">
+              <img src="https://files.catbox.moe/4e6ta5.png" alt="ألعاب الأطفال" class="embedded-img">
+            </div>
+          </div>
+        </section>
+
+        <!-- ----------------------------------------------------
+             SLIDE 4: الكمبيوتر كائن خارق.. ولا غبي؟
+             ---------------------------------------------------- -->
+        <section class="slide" id="slide-4" data-notes="النهاردة جاي أقولكم سر خطير أول مرة تسمعوه: الكمبيوتر في الحقيقة كائن غبي جداً ومبيعرفش يعمل أي حاجة لوحده إطلاقاً! متستغربوش! الكمبيوتر لو قعد مليون سنة مش هيعرف يجيب لنفسه كوباية مية، ولا هيكتب اسمه! أومال خارق ليه؟ لأنه سريع كسرعة الصاروخ، وبينفذ مليارات العمليات في ثانية واحدة.. بس بشرط: إحنا اللي نديله الأمر الصح!">
+          <div class="grid-2">
+            <div>
+              <span class="slide-tag">سر المبرمجين الأذكياء</span>
+              <h2 class="slide-title">هل الكمبيوتر كائن خارق.. أم غبي؟ 🤖</h2>
+              
+              <div style="margin-top: 24px; display: flex; flex-direction: column; gap: 16px;">
+                <div class="kid-card" style="border-right: 6px solid #ef4444;">
+                  <h4 style="font-size: 20px; color: #dc2626;">❌ الحقيقة الأولى: لا يفكر بمفرده!</h4>
+                  <p class="card-desc">لو تركته مليون سنة، لن يشرب كوب ماء ولن يكتب اسمه بمفرده!</p>
+                </div>
+                <div class="kid-card" style="border-right: 6px solid #16a34a;">
+                  <h4 style="font-size: 20px; color: #16a34a;">⚡ الحقيقة الثانية: سريع ومطيع كالصاروخ!</h4>
+                  <p class="card-desc">ينفذ مليارات العمليات في ثانية واحدة، ولكن فقط بالأمر الذي نعطيه له نحن المبرمجين!</p>
+                </div>
+              </div>
+            </div>
+            <div class="image-container-right">
+              <img src="https://files.catbox.moe/yudv8l.png" alt="تفكير الكمبيوتر" class="embedded-img">
+            </div>
+          </div>
+        </section>
+
+        <!-- ----------------------------------------------------
+             SLIDE 5: ما هو الكمبيوتر الحقيقي؟
+             ---------------------------------------------------- -->
+        <section class="slide" id="slide-5" data-notes="تعالوا نلخص فكرة الكمبيوتر في جملة واحدة يا مهندسين: الكمبيوتر هو آلة إلكترونية بتاخد مننا بيانات Data زي ضغطة زرار أو صورة.. تشغل مخها وتعمل لها معالجة Processing في جزء من الثانية.. وتطلعلنا مخرجات ومعلومات Output نشوفها على الشاشة أو نسمعها في السماعات!">
+          <div class="slide-header" style="text-align: center;">
+            <span class="slide-tag">المعادلة الثلاثية السحرية</span>
+            <h2 class="slide-title">كيف يعمل أي كمبيوتر في العالم؟ (I - P - O)</h2>
+          </div>
+          <div class="grid-3" style="margin-top: 20px;">
+            <div class="kid-card" style="text-align: center; border-top: 6px solid var(--brand-blue);">
+              <div class="card-icon" style="margin: 0 auto; background: var(--brand-blue-light); color: var(--brand-blue);">📥</div>
+              <h3 class="card-title">1. الإدخال (Input)</h3>
+              <p class="card-desc">تدخل له الحروف، النقرات، الصوت، أو الصورة.</p>
+            </div>
+            <div class="kid-card" style="text-align: center; border-top: 6px solid var(--brand-orange);">
+              <div class="card-icon" style="margin: 0 auto; background: var(--brand-orange-light); color: var(--brand-orange);">⚙️</div>
+              <h3 class="card-title">2. المعالجة (Processing)</h3>
+              <p class="card-desc">المعالج يحسب ويفكر ويجهز النتيجة في لحظة.</p>
+            </div>
+            <div class="kid-card" style="text-align: center; border-top: 6px solid var(--brand-green);">
+              <div class="card-icon" style="margin: 0 auto; background: var(--brand-green-light); color: var(--brand-green);">📤</div>
+              <h3 class="card-title">3. الإخراج (Output)</h3>
+              <p class="card-desc">تظهر الشخصية في اللعبة أو يخرج الصوت من السماعات.</p>
+            </div>
+          </div>
+        </section>
+
+        <!-- ----------------------------------------------------
+             SLIDE 6: آلة الزمن: كمبيوتر زمان مقابل اليوم
+             ---------------------------------------------------- -->
+        <section class="slide" id="slide-6" data-notes="شايفين الصورة دي؟ زمان أول كمبيوتر اتعمل في العالم كان اسمه ENIAC.. كان واخد أوضة نوم كاملة، وزنه أطنان، ومليان لمبات وأسلاك ضخمة! شوفوا بقى النهاردة بفضل العلم والبرمجة: الكمبيوتر بقى في جيبك على هيئة موبايل، وفي إيدك على هيئة ساعة ذكية، وبقوة أكبر آلاف المرات!">
+          <div class="grid-2">
+            <div>
+              <span class="slide-tag">آلة الزمن الرقمية</span>
+              <h2 class="slide-title">رحلة تطور الحواسيب عبر الزمن ⏳</h2>
+              
+              <div style="margin-top: 24px; display: flex; flex-direction: column; gap: 16px;">
+                <div class="kid-card">
+                  <h4 style="color: var(--text-muted); font-size: 18px;">🏛️ كمبيوتر زمان (ENIAC):</h4>
+                  <p class="card-desc">بحجم غرفة نوم كاملة، وزنه 30 طناً، ويسخن بسرعة البركان!</p>
+                </div>
+                <div class="kid-card" style="border: 2px solid var(--brand-teal);">
+                  <h4 style="color: var(--brand-teal); font-size: 18px;">📱 كمبيوتر اليوم:</h4>
+                  <p class="card-desc">ساعة ذكية في معصمك، وموبايل في جيبك بقوة تفوق حواسيب صعود القمر آلاف المرات!</p>
+                </div>
+              </div>
+            </div>
+            <div class="image-container-right">
+              <img src="https://files.catbox.moe/8t5fqy.png" alt="رحلة الكمبيوتر" class="embedded-img">
+            </div>
+          </div>
+        </section>
+
+        <!-- ----------------------------------------------------
+             SLIDE 7: الجسد والروح: الهاردوير والسوفتوير
+             ---------------------------------------------------- -->
+        <section class="slide" id="slide-7" data-notes="دلوقتي بقى ركزوا معايا في أهم قاعدة في عالم التكنولوجيا: الكمبيوتر مقسوم نصين: نص اسمه Hardware هاردوير.. وده جسد الجهاز، ونص اسمه Software سوفتوير.. وده روح الجهاز وعقله. ومن غير الجسد مفيش جهاز، ومن غير الروح الجهاز ده مجرد حتة حديدة ملهاش أي عازة!">
+          <div class="slide-header" style="text-align: center;">
+            <span class="slide-tag">القاعدة الذهبية الكبرى</span>
+            <h2 class="slide-title">الكمبيوتر = جسد (Hardware) + روح (Software)</h2>
+          </div>
+          <div class="grid-2" style="margin-top: 24px;">
+            <div class="kid-card" style="background: #eff6ff; border-color: var(--brand-blue); text-align: center;">
+              <div class="card-icon" style="margin: 0 auto; background: var(--brand-blue); color: #fff;">🖥️</div>
+              <h3 class="card-title" style="color: var(--brand-blue);">الهاردوير (Hardware)</h3>
+              <p style="font-size: 20px; font-weight: 800; color: var(--text-main);">الجسد المادي الملموس</p>
+              <p class="card-desc">الشاشة، الأسلاك، الماوس، الكيبورد، والكيسة وكل مسمار بداخلها.</p>
+            </div>
+            <div class="kid-card" style="background: #fdf2f8; border-color: var(--brand-pink); text-align: center;">
+              <div class="card-icon" style="margin: 0 auto; background: var(--brand-pink); color: #fff;">💡</div>
+              <h3 class="card-title" style="color: var(--brand-pink);">السوفتوير (Software)</h3>
+              <p style="font-size: 20px; font-weight: 800; color: var(--text-main);">الروح والعقل والأفكار</p>
+              <p class="card-desc">الألعاب، نظام الويندوز، التطبيقات، وأكواد البرمجة التي تدير كل شيء.</p>
+            </div>
+          </div>
+        </section>
+
+        <!-- ----------------------------------------------------
+             SLIDE 8: أبطال الهاردوير (ما تلمسه يدك)
+             ---------------------------------------------------- -->
+        <section class="slide" id="slide-8" data-notes="أي حاجة في الكمبيوتر تقدر تلمسها بإيدك، تخبط عليها، أو لو وقعت تعمل صوت.. دي هاردوير! زي إيه؟ الشاشة الزجاجية اللي بنشوف عليها، لوحة المفاتيح اللي بنكتب عليها، الماوس اللي بنمسكه بإيدنا، والكيسة والأسلاك اللي شايلة كل القطع.">
+          <div class="slide-header">
+            <span class="slide-tag">فريق الهاردوير</span>
+            <h2 class="slide-title">أبطال الهاردوير: كل ما تلمسه يداك 🖐️</h2>
+          </div>
+          <div class="grid-4">
+            <div class="kid-card">
+              <div class="card-icon">🖥️</div>
+              <h4 class="card-title">الشاشة</h4>
+              <p class="card-desc">زجاج وإلكترونيات تلمسها وتعرض لك الصورة.</p>
+            </div>
+            <div class="kid-card">
+              <div class="card-icon">⌨️</div>
+              <h4 class="card-title">لوحة المفاتيح</h4>
+              <p class="card-desc">أزرار بلاستيكية تضغط عليها بأصابعك.</p>
+            </div>
+            <div class="kid-card">
+              <div class="card-icon">🖱️</div>
+              <h4 class="card-title">الفأرة (الماوس)</h4>
+              <p class="card-desc">جسم ملموس تحركه بيدك فوق المكتب.</p>
+            </div>
+            <div class="kid-card">
+              <div class="card-icon">🔌</div>
+              <h4 class="card-title">الكيسة والأسلاك</h4>
+              <p class="card-desc">الصندوق المعدني الذي يحمي العقل الداخلي.</p>
+            </div>
+          </div>
+        </section>
+
+        <!-- ----------------------------------------------------
+             SLIDE 9: أبطال السوفتوير (الروح والأفكار)
+             ---------------------------------------------------- -->
+        <section class="slide" id="slide-9" data-notes="طب السوفتوير بقى؟ دي الأشياء اللي عايشة جوة الشاشة ومتقدرش تلمسها بإيدك خالص! زي الألعاب: سونيك وماريو وروبلوكس.. هل تقدر تمسك سونيك وتحطه في جيبك؟ وزي المتصفح جوجل كروم، والفيديوهات، والويندوز.. دي برامج وأكواد ذكية مصنوعة بالفكر.">
+          <div class="slide-header">
+            <span class="slide-tag">فريق السوفتوير</span>
+            <h2 class="slide-title">أبطال السوفتوير: الأفكار التي لا تُلمس 🌟</h2>
+          </div>
+          <div class="grid-3">
+            <div class="kid-card">
+              <div class="card-icon" style="background: #ede9fe; color: var(--brand-purple);">👾</div>
+              <h3 class="card-title">ألعاب الفيديو</h3>
+              <p class="card-desc">ماينكرافت وروبلوكس وسونيك؛ شخصيات ذكية تعيش بالداخل.</p>
+            </div>
+            <div class="kid-card">
+              <div class="card-icon" style="background: #e0f2fe; color: var(--brand-blue);">🌐</div>
+              <h3 class="card-title">متصفح الإنترنت</h3>
+              <p class="card-desc">جوجل كروم الذي يسافر بك حول العالم بدون أجنحة.</p>
+            </div>
+            <div class="kid-card">
+              <div class="card-icon" style="background: #fef3c7; color: var(--brand-orange);">💻</div>
+              <h3 class="card-title">نظام الويندوز</h3>
+              <p class="card-desc">البرنامج الأساسي الذي يجعل الشاشة تفتح وتعمل.</p>
+            </div>
+          </div>
+        </section>
+
+        <!-- ----------------------------------------------------
+             SLIDE 10: سؤال الأذكياء: ماريو في الجيب!
+             ---------------------------------------------------- -->
+        <section class="slide" id="slide-10" data-notes="شايفين السؤال العبقري ده؟ هل تقدر تحط شخصية ماريو في جيبك؟ لأ طبعاً! أنت تقدر تحط دراع البلايستيشن أو الموبايل في جيبك لأنهم هاردوير.. لكن ماريو نفسه سوفتوير عايش جوة الذاكرة ومبرمج بالأكواد!">
+          <div class="grid-2">
+            <div>
+              <span class="slide-tag">تحدي الذكاء السريع</span>
+              <h2 class="slide-title">هل تستطيع وضع شخصية "ماريو" في جيبك؟ 🤔</h2>
+              
+              <div style="margin-top: 24px;" class="kid-card">
+                <p style="font-size: 22px; font-weight: 800; color: var(--brand-blue); line-height: 1.6;">
+                  الجواب السحري: <br>
+                  تستطيع وضع <span style="color: var(--brand-orange);">ذراع البلايستيشن</span> في جيبك لأنه (Hardware ملموس).. <br>
+                  أما <span style="color: var(--brand-pink);">ماريو</span> فهو (Software) يعيش كأكواد داخل الذاكرة!
+                </p>
+              </div>
+            </div>
+            <div class="image-container-right">
+              <img src="https://files.catbox.moe/yudv8l.png" alt="سؤال الذكاء" class="embedded-img">
+            </div>
+          </div>
+        </section>
+
+        <!-- ----------------------------------------------------
+             SLIDE 11: جسم الإنسان vs الكمبيوتر
+             ---------------------------------------------------- -->
+        <section class="slide" id="slide-11" data-notes="شوفوا الشبه الرهيب بيننا وبين الكمبيوتر: عينك وإيدك وودنك ورجلك.. حاجات ملموسة بنسميها في الكمبيوتر Hardware. أفكارك وذكرياتك وفرحتك وحزنك.. حاجات مش ملموسة بنسميها في الكمبيوتر Software. سبحان الله، المبرمجين والمهندسين صمموا الكمبيوتر بحيث يشبه عقل وجسد الإنسان تماماً!">
+          <div class="slide-header" style="text-align: center;">
+            <span class="slide-tag">التطابق المذهل</span>
+            <h2 class="slide-title">المقارنة العبقرية: جسم الإنسان ضد الكمبيوتر 🧑‍💻</h2>
+          </div>
+          <div class="grid-2" style="margin-top: 24px;">
+            <div class="kid-card">
+              <h3 class="card-title" style="color: var(--brand-teal);">جسم الإنسان 👤</h3>
+              <p class="card-desc"><strong>الجسد (الأعضاء):</strong> اليدان، العينان، القلب، والعظام = هاردوير.</p>
+              <p class="card-desc"><strong>الروح (الأفكار):</strong> الذكريات، المشاعر، المعرفة، واللغات = سوفتوير.</p>
+            </div>
+            <div class="kid-card">
+              <h3 class="card-title" style="color: var(--brand-blue);">الكمبيوتر 💻</h3>
+              <p class="card-desc"><strong>العتاد (الأجزاء):</strong> الشاشة، الماوس، الأسلاك، والمعالج = هاردوير.</p>
+              <p class="card-desc"><strong>البرامج (الأكواد):</strong> الويندوز، الألعاب، الخوارزميات، والبيانات = سوفتوير.</p>
+            </div>
+          </div>
+        </section>
+
+        <!-- ----------------------------------------------------
+             SLIDE 12: لغز الحواس: وحدات الإدخال والإخراج
+             ---------------------------------------------------- -->
+        <section class="slide" id="slide-12" data-notes="دلوقتي بقى لغز المليون جنيه: إزاي الكمبيوتر بيحس بينا وبيكلمنا؟ عن طريق فريقين كبار: فريق بياخد المعلومات مننا ويدخلها جوة الجهاز اسمه: وحدات الإدخال Input Units، وفريق بيطلع النتيجة من جوة الجهاز ويوريها لنا اسمه: وحدات الإخراج Output Units.">
+          <div class="slide-header" style="text-align: center;">
+            <span class="slide-tag">الحواس الرقمية</span>
+            <h2 class="slide-title">كيف يحس بنا الكمبيوتر وكيف يحدثنا؟ 🔄</h2>
+          </div>
+          <div class="grid-2" style="margin-top: 24px;">
+            <div class="kid-card" style="border-right: 6px solid var(--brand-blue); text-align: center;">
+              <div class="card-icon" style="margin: 0 auto; background: var(--brand-blue-light); color: var(--brand-blue);">👂</div>
+              <h3 class="card-title">وحدات الإدخال (Input Units)</h3>
+              <p class="card-desc">تنقل صوتك ونقراتك وصورتك من العالم الخارجي إلى داخل عقل الحاسوب.</p>
+            </div>
+            <div class="kid-card" style="border-right: 6px solid var(--brand-green); text-align: center;">
+              <div class="card-icon" style="margin: 0 auto; background: var(--brand-green-light); color: var(--brand-green);">🗣️</div>
+              <h3 class="card-title">وحدات الإخراج (Output Units)</h3>
+              <p class="card-desc">تنقل الرسومات والأصوات والنتائج من داخل الحاسوب إلى عينيك وأذنيك.</p>
+            </div>
+          </div>
+        </section>
+
+        <!-- ----------------------------------------------------
+             SLIDE 13: عيون وآذان الكمبيوتر (وحدات الإدخال)
+             ---------------------------------------------------- -->
+        <section class="slide" id="slide-13" data-notes="بصوا على الشريحة معايا: الكيبورد بتدخل الحروف والأرقام، الماوس بيدخل الضغطات والنقرات ومكان الحركة، المايكروفون بيدخل صوتك وكلامك للجهاز، والكاميرا بتدخل صورتك وملامحك. كل دول شغالين كمدخلات Input زي ودان وعين الإنسان بالظبط!">
+          <div class="slide-header">
+            <span class="slide-tag">وحدات الإدخال</span>
+            <h2 class="slide-title">عيون وآذان الكمبيوتر: وحدات الإدخال (Input) 📥</h2>
+          </div>
+          <div class="grid-4">
+            <div class="kid-card">
+              <div class="card-icon">⌨️</div>
+              <h4 class="card-title">لوحة المفاتيح</h4>
+              <p class="card-desc">تدخل الحروف، الكلمات، وأرقام الأكواد.</p>
+            </div>
+            <div class="kid-card">
+              <div class="card-icon">🖱️</div>
+              <h4 class="card-title">الفأرة (الماوس)</h4>
+              <p class="card-desc">تدخل إحداثيات الحركة والنقرات المباشرة.</p>
+            </div>
+            <div class="kid-card">
+              <div class="card-icon">🎙️</div>
+              <h4 class="card-title">المايكروفون</h4>
+              <p class="card-desc">يدخل صوتك لتتحدث مع أصدقائك في اللعبة.</p>
+            </div>
+            <div class="kid-card">
+              <div class="card-icon">📷</div>
+              <h4 class="card-title">الكاميرا</h4>
+              <p class="card-desc">تلتقط صورتك وفيديوهاتك وتدخلها للجهاز.</p>
+            </div>
+          </div>
+        </section>
+
+        <!-- ----------------------------------------------------
+             SLIDE 14: لسان وشاشة الكمبيوتر (وحدات الإخراج)
+             ---------------------------------------------------- -->
+        <section class="slide" id="slide-14" data-notes="طب الكمبيوتر لما يحب يجاوبك ويرد عليك، بيستخدم إيه؟ الشاشة بتطلع لك الألوان والصور والمشاهد، السماعات بتطلع لك الأصوات والموسيقى وانفجارات اللعبة، والطابعة البرنتر بتطلع لك الورق والرسومات ملموسة في يدك. دول كلهم شغالين كمخرجات Output!">
+          <div class="slide-header">
+            <span class="slide-tag">وحدات الإخراج</span>
+            <h2 class="slide-title">لسان وشاشة الكمبيوتر: وحدات الإخراج (Output) 📤</h2>
+          </div>
+          <div class="grid-3">
+            <div class="kid-card">
+              <div class="card-icon">🖥️</div>
+              <h3 class="card-title">شاشة العرض (Monitor)</h3>
+              <p class="card-desc">تخرج لك كل الألوان والمؤثرات البصرية وألعابك بجودة عالية.</p>
+            </div>
+            <div class="kid-card">
+              <div class="card-icon">🔊</div>
+              <h3 class="card-title">مكبرات الصوت (Speakers)</h3>
+              <p class="card-desc">تخرج المؤثرات الصوتية والموسيقى وصوت المدرس في الدرس.</p>
+            </div>
+            <div class="kid-card">
+              <div class="card-icon">🖨️</div>
+              <h3 class="card-title">الطابعة (Printer)</h3>
+              <p class="card-desc">تخرج المستندات والرسومات من الشاشة إلى ورق في يدك.</p>
+            </div>
+          </div>
+        </section>
+
+        <!-- ----------------------------------------------------
+             SLIDE 15: تحدي السرعة 1 (المايكروفون)
+             ---------------------------------------------------- -->
+        <section class="slide" id="slide-15" data-notes="يلا نلعب تحدي السرعة التفاعلي يا أبطال! قدامكم سؤال على الشاشة: المايكروفون اللي بنتكلم فيه واحنا بنلعب.. Input ولا Output؟ مين يجاوب أسرع؟ برافوووو! وحدة إدخال Input Unit لأنه بياخد صوتك ويدخله جوة اللعبة!">
+          <div class="slide-header" style="text-align: center;">
+            <span class="slide-tag">تحدي السرعة 1</span>
+            <h2 class="slide-title">المايكروفون: وحدة إدخال أم إخراج؟ 🎙️</h2>
+          </div>
+          <div class="speed-test-box">
+            <p style="font-size: 24px; font-weight: 800; color: var(--text-main);">
+              عندما تتحدث مع زملائك في اللعبة، المايكروفون يرسل صوتك إلى أين؟
+            </p>
+            <div class="speed-options">
+              <button class="option-btn" onclick="checkOption(this, true, 'ممتاز يا بطل! المايكروفون يدخل صوتك للجهاز (Input) 🌟')">إدخال (Input Unit) ✅</button>
+              <button class="option-btn" onclick="checkOption(this, false, 'فكر تاني يا صديقي! هل المايكروفون يخرج أصواتاً أم يستقبل صوتك؟')">إخراج (Output Unit) ❌</button>
+            </div>
+            <div class="option-feedback" style="margin-top: 16px; font-size: 20px; font-weight: 800;"></div>
+          </div>
+        </section>
+
+        <!-- ----------------------------------------------------
+             SLIDE 16: تحدي السرعة 2 (السماعات)
+             ---------------------------------------------------- -->
+        <section class="slide" id="slide-16" data-notes="السؤال التاني للأذكياء فقط: السماعات الكبيرة اللي بنسمع منها صوت الانفجار والأغاني.. Input ولا Output؟ يا عيني على الإجابات الصح! وحدة إخراج Output Unit لأنها بتطلع الصوت من جوة الجهاز لودانك!">
+          <div class="slide-header" style="text-align: center;">
+            <span class="slide-tag">تحدي السرعة 2</span>
+            <h2 class="slide-title">السماعات الكبيرة: إدخال أم إخراج؟ 🎧</h2>
+          </div>
+          <div class="speed-test-box">
+            <p style="font-size: 24px; font-weight: 800; color: var(--text-main);">
+              أصوات الموسيقى وحركة السيارات تخرج من داخل الكمبيوتر إلى أذنيك!
+            </p>
+            <div class="speed-options">
+              <button class="option-btn" onclick="checkOption(this, false, 'حاول مجدداً! الصوت يخرج من الجهاز إليك وليس العكس.')">إدخال (Input Unit) ❌</button>
+              <button class="option-btn" onclick="checkOption(this, true, 'عبقري! السماعات وحدة إخراج تخرج الأصوات لآذاننا (Output) 🚀')">إخراج (Output Unit) ✅</button>
+            </div>
+            <div class="option-feedback" style="margin-top: 16px; font-size: 20px; font-weight: 800;"></div>
+          </div>
+        </section>
+
+        <!-- ----------------------------------------------------
+             SLIDE 17: داخل الكيسة: مخ الكمبيوتر CPU
+             ---------------------------------------------------- -->
+        <section class="slide" id="slide-17" data-notes="تعالوا نفتح الكيسة سوا ونشوف إيه اللي جوة الصندوق السحري ده! أهم قطعة مربعة صغيرة اسمها: المعالج CPU. ده يا سادة مخ الكمبيوتر وقلبه النابض! هو اللي بيجمع ويطرح ويفكر وينفذ كل أمر برمجي في أجزاء من المليار من الثانية!">
+          <div class="grid-2">
+            <div>
+              <span class="slide-tag">القلب والعقل النابض</span>
+              <h2 class="slide-title">المعالج (CPU): عقل الكمبيوتر الخارق 🧠⚡</h2>
+              
+              <div style="margin-top: 24px; display: flex; flex-direction: column; gap: 14px;">
+                <div class="kid-card">
+                  <h4 style="font-size: 19px; color: var(--brand-blue);">ماذا يفعل المعالج؟</h4>
+                  <p class="card-desc">يستقبل كل ضغطة ماوس وكل أمر ويحسب النتائج في أجزاء من المليار من الثانية!</p>
+                </div>
+                <div class="kid-card">
+                  <h4 style="font-size: 19px; color: var(--brand-orange);">السرعة الخارقة:</h4>
+                  <p class="card-desc">يقاس بالجيجاهرتز (GHz).. معالج 3.5 GHz ينفذ 3,500,000,000 عملية في ثانية واحدة!</p>
+                </div>
+              </div>
+            </div>
+            <div class="image-container-right">
+              <img src="https://files.catbox.moe/0t58gy.png" alt="المعالج والعتاد" class="embedded-img">
+            </div>
+          </div>
+        </section>
+
+        <!-- ----------------------------------------------------
+             SLIDE 18: الرامات مقابل الهارد ديسك
+             ---------------------------------------------------- -->
+        <section class="slide" id="slide-18" data-notes="عندنا جوة نوعين من الذاكرة: الرامات RAM عاملة زي سطح المكتب.. سريعة جداً، بتشيل اللعبة المفتوحة دلوقتي، بس لو الكهربا قطعت بتنسى كل حاجة! أما الهارد ديسك Storage ده الدولاب الكبير والمخزن الدائم اللي بيحفظ ألعابك وصورك لسنين طويلة حتى لو طفيت الجهاز!">
+          <div class="slide-header" style="text-align: center;">
+            <span class="slide-tag">لغز الذاكرة السحري</span>
+            <h2 class="slide-title">الرامات (RAM) مقابل القرص الصلب (Storage) 📦</h2>
+          </div>
+          <div class="grid-2" style="margin-top: 24px;">
+            <div class="kid-card" style="border-top: 6px solid var(--brand-orange);">
+              <h3 class="card-title" style="color: var(--brand-orange);">الرامات (RAM) ⚡</h3>
+              <p style="font-weight: 800; font-size: 18px;">مثل "سطح مكتب المذاكرة"</p>
+              <p class="card-desc">سريعة جداً كالبرق، تحمل البرامج المفتوحة الآن فقط، وتفقد بياناتها فور انقطاع الكهرباء.</p>
+            </div>
+            <div class="kid-card" style="border-top: 6px solid var(--brand-teal);">
+              <h3 class="card-title" style="color: var(--brand-teal);">القرص الصلب (SSD / HDD) 🗄️</h3>
+              <p style="font-weight: 800; font-size: 18px;">مثل "خزانة ودولاب الكتب"</p>
+              <p class="card-desc">تخزين دائم وآمن؛ يحفظ ألعابك وملفاتك ونظام التشغيل لسنوات طويلة حتى لو أطفأت الجهاز.</p>
+            </div>
+          </div>
+        </section>
+
+        <!-- ----------------------------------------------------
+             SLIDE 19: اللوحة الأم (Motherboard)
+             ---------------------------------------------------- -->
+        <section class="slide" id="slide-19" data-notes="شايفين اللوحة الخضراء الكبيرة اللي راكب عليها كل حاجة دي؟ دي اسمها اللوحة الأم Motherboard، وعاملة بالظبط زي شوارع وكباري المدينة.. هي اللي بتربط المعالج بالرامات بالهارد ديسك بالشاشة، وتخليهم يكلموا بعض بسرعة البرق!">
+          <div class="grid-2">
+            <div>
+              <span class="slide-tag">المدينة الرقمية</span>
+              <h2 class="slide-title">اللوحة الأم (Motherboard): سفينة الفضاء والشوارع 🚀</h2>
+              
+              <div style="margin-top: 24px;" class="kid-card">
+                <p style="font-size: 19px; line-height: 1.7; color: var(--text-main); font-weight: 700;">
+                  سُميت بالـ <span style="color: var(--brand-blue);">Motherboard</span> لأنها مثل الأم الحنونة التي تجمع كل أفراد العائلة في بيت واحد؛ تربط المعالج بالذاكرة وبكرت الشاشة عبر مسارات نحاسية سريعة تتدفق فيها البيانات كالنور!
+                </p>
+              </div>
+            </div>
+            <div class="image-container-right">
+              <img src="https://files.catbox.moe/0t58gy.png" alt="المازربورد" class="embedded-img">
+            </div>
+          </div>
+        </section>
+
+        <!-- ----------------------------------------------------
+             SLIDE 20: المدير الكبير: نظام التشغيل (OS)
+             ---------------------------------------------------- -->
+        <section class="slide" id="slide-20" data-notes="كل القطع دي محتاجة مدير ينظمها، مين المدير ده بقى؟ نظام التشغيل Operating System! ده عامل زي مدير المدرسة أو مايسترو الأوركسترا.. هو اللي بيقول للشاشة اعرضي دلوقتي، وللصوت اخرج هنا، وللبرنامج افتح هنا. من غيره القطع هتقعد تتخانق ومحدش هيفهم التاني!">
+          <div class="grid-2">
+            <div>
+              <span class="slide-tag">المايسترو الحكيم</span>
+              <h2 class="slide-title">نظام التشغيل (Operating System): مدير المدرسة الكبير 👑</h2>
+              
+              <div style="margin-top: 24px; display: flex; flex-direction: column; gap: 14px;">
+                <div class="kid-card">
+                  <h4 style="font-size: 19px; color: var(--brand-purple);">ماذا يحدث بدون نظام التشغيل؟</h4>
+                  <p class="card-desc">ستتصارع القطع، ولن يفهم المعالج ماذا تريده الشاشة، وسيتحول الجهاز لقطعة حديد صامتة!</p>
+                </div>
+                <div class="kid-card">
+                  <h4 style="font-size: 19px; color: var(--brand-green);">وظيفة المايسترو:</h4>
+                  <p class="card-desc">يوزع الذاكرة بعدالة، ويعطي كل برنامج وقته المناسب ليعمل بسلاسة وأمان.</p>
+                </div>
+              </div>
+            </div>
+            <div class="image-container-right">
+              <img src="https://files.catbox.moe/y98jh5.png" alt="نظام التشغيل" class="embedded-img">
+            </div>
+          </div>
+        </section>
+
+        <!-- ----------------------------------------------------
+             SLIDE 21: عائلة أنظمة التشغيل
+             ---------------------------------------------------- -->
+        <section class="slide" id="slide-21" data-notes="أنظمة التشغيل موجودة في كل أجهزتنا: الويندوز Windows في أجهزة الكمبيوتر واللاب توب، الأندرويد Android في معظم الموبايلات وشاشات التلفزيون، والـ iOS والـ macOS في أجهزة الآيفون والماك من أبل. كلهم مدراء شطار بيسهلوا حياتنا مع التكنولوجيا!">
+          <div class="slide-header">
+            <span class="slide-tag">عائلة الأنظمة</span>
+            <h2 class="slide-title">أشهر أنظمة التشغيل في حياتنا اليومية 🌍</h2>
+          </div>
+          <div class="grid-3">
+            <div class="kid-card" style="text-align: center;">
+              <div class="card-icon" style="margin: 0 auto; color: #0284c7; background: #e0f2fe;">🪟</div>
+              <h3 class="card-title">Windows</h3>
+              <p class="card-desc">ملك أجهزة الكمبيوتر والمكتبيات واللاب توب حول العالم.</p>
+            </div>
+            <div class="kid-card" style="text-align: center;">
+              <div class="card-icon" style="margin: 0 auto; color: #16a34a; background: #dcfce7;">🤖</div>
+              <h3 class="card-title">Android</h3>
+              <p class="card-desc">النظام الأخضر الذكي المنتشر في ملايين الهواتف والشاشات.</p>
+            </div>
+            <div class="kid-card" style="text-align: center;">
+              <div class="card-icon" style="margin: 0 auto; color: #475569; background: #f1f5f9;">🍏</div>
+              <h3 class="card-title">Apple (iOS / macOS)</h3>
+              <p class="card-desc">أنظمة الأناقة في أجهزة الآيفون والآيباد وحواسيب الماك.</p>
+            </div>
+          </div>
+        </section>
+
+        <!-- ----------------------------------------------------
+             SLIDE 22: لغز العباقرة: شاشة الموبايل التاتش!
+             ---------------------------------------------------- -->
+        <section class="slide" id="slide-22" data-notes="طب سؤال العباقرة بقى: شاشة الموبايل التاتش اللي بنلعب بيها.. Input ولا Output؟ مين البطل اللي يعرف؟ الشاشة التاتش دي يا سادة اختراع عبقري جمع الاتنين سوا! هي Output لأنها بتعرض لك الألوان واللعبة.. وفي نفس الوقت Input لأنك بتلمسها بإصبعك وتديها أوامر!">
+          <div class="grid-2">
+            <div>
+              <span class="slide-tag">لغز الأبطال الخارقين</span>
+              <h2 class="slide-title">شاشة الموبايل التاتش: إدخال أم إخراج؟ 📱⚡</h2>
+              
+              <div style="margin-top: 24px;" class="kid-card" style="border: 3px solid var(--brand-purple);">
+                <h3 class="card-title" style="color: var(--brand-purple);">الابتكار المزدوج (Two in One)!</h3>
+                <p class="card-desc" style="font-size: 19px; line-height: 1.7;">
+                  <strong>1. إخراج (Output):</strong> لأنها تعرض لك صورة اللعبة والفيديوهات بألوان زاهية.<br>
+                  <strong>2. إدخال (Input):</strong> لأنها تشعر بلمسات أصابعك وتستقبل منك الأوامر فوراً!
+                </p>
+              </div>
+            </div>
+            <div class="image-container-right">
+              <img src="https://files.catbox.moe/bh2ore.png" alt="الشاشة التاتش" class="embedded-img">
+            </div>
+          </div>
+        </section>
+
+        <!-- ----------------------------------------------------
+             SLIDE 23: النشاط العملي: ساعد الروبوت سبارك!
+             ---------------------------------------------------- -->
+        <section class="slide" id="slide-23" data-notes="ودلوقتي جه وقت الشغل والعملي يا مهندسين! قدامكم على أجهزتكم النشاط التفاعلي: عندنا شخصية الروبوت سبارك تايهة ومحتاجة تجمع أجزاء جسمها علشان تشتغل. هنطابق كل مكون بوظيفته، ونفرز مين شغال Input ومين Output.. وأول واحد هيخلص هياخد لقب مهندس المحاضرة وأول 100 نقطة!">
+          <div class="slide-header" style="text-align: center;">
+            <span class="slide-tag">المهمة الهندسية التفاعلية</span>
+            <h2 class="slide-title">تحدي الروبوت سبارك: ركّب المكونات الصحيحة! 🛠️</h2>
+          </div>
+          <div class="grid-3" style="margin-top: 20px;">
+            <div class="kid-card" style="border-right: 6px solid var(--brand-blue);">
+              <h4 style="font-size: 18px; color: var(--brand-blue);">المهمة 1: العقل المفكر</h4>
+              <p class="card-desc">اختر المعالج المناسب (CPU) وقم بتركيبه في المكان المخصص على اللوحة الأم.</p>
+            </div>
+            <div class="kid-card" style="border-right: 6px solid var(--brand-orange);">
+              <h4 style="font-size: 18px; color: var(--brand-orange);">المهمة 2: شريحة الذاكرة</h4>
+              <p class="card-desc">ركّب ذكريات الرام (RAM) السريعة لكي يستطيع الروبوت التحرك بلا تأخير.</p>
+            </div>
+            <div class="kid-card" style="border-right: 6px solid var(--brand-green);">
+              <h4 style="font-size: 18px; color: var(--brand-green);">المهمة 3: توصيل الحواس</h4>
+              <p class="card-desc">اربط الكاميرا والمايكروفون والشاشات لتكتمل حواس الروبوت بالكامل!</p>
+            </div>
+          </div>
+        </section>
+
+        <!-- ----------------------------------------------------
+             SLIDE 24: تحدي البطل المنزلي
+             ---------------------------------------------------- -->
+        <section class="slide" id="slide-24" data-notes="قبل ما نختم، عندي ليكم تحدي بوليسي للأبطال في البيت: عايزك تمشي في البيت زي المحقق الذكي، وتكتشف 10 أجهزة فيها كمبيوتر داخلي مخفي! فكر في الغسالة الأوتوماتيك، الميكروويف، التكييف، التلفزيون، والسيارة. اكتبهم في كشكول الأبطال وهنراجعهم سوا في بداية الحصة الجاية!">
+          <div class="grid-2">
+            <div>
+              <span class="slide-tag">مهمة المحقق الذكي</span>
+              <h2 class="slide-title">تحدي الأبطال المنزلي: ابحث عن العقول الخفية! 🕵️‍♂️🔍</h2>
+              
+              <div style="margin-top: 24px;" class="kid-card">
+                <p style="font-size: 20px; font-weight: 700; color: var(--text-main); line-height: 1.7;">
+                  امشِ في غرف منزلك وابحث عن <strong>3 أجهزة ذكية</strong> تحتوي على كمبيوتر مخفي بداخلها (مثال: الغسالة الذكية، الميكروويف، التلفزيون الذكي).. <br>
+                  واكتب لكل جهاز: ما هي وحدة إدخاله، وما هي وحدة إخراجه! 🏆
+                </p>
+              </div>
+            </div>
+            <div class="image-container-right">
+              <img src="https://files.catbox.moe/8t5fqy.png" alt="التحدي المنزلي" class="embedded-img">
+            </div>
+          </div>
+        </section>
+
+        <!-- ----------------------------------------------------
+             SLIDE 25: الاحتفال وخاتمة المحاضرة
+             ---------------------------------------------------- -->
+        <section class="slide" id="slide-25" data-notes="أنا فخور جداً بيكم وبذكائكم النهاردة يا أبطال المستقبل! النهاردة بدأنا أول خطوة وبقينا نفهم الكمبيوتر من الداخل والخارج. كل بطل فيكم يستحق أول وسام وأول 100 نقطة في رصيده معانا.. المحاضرة الجاية مغامرتنا هتكون: استخدام الكمبيوتر بذكاء وتنظيم الملفات باحتراف. أشوفكم على خير يا مبدعين، وسلام عليكم!">
+          <div class="grid-2">
+            <div>
+              <span class="slide-tag">إنجاز رائع ومستحق!</span>
+              <h2 class="slide-title" style="color: var(--brand-green);">ألف مبروك يا أبطال المستقبل! 🎉🏅</h2>
+              <p class="slide-subtitle">أتممتم المحاضرة 01 بنجاح وتألّق واكتسبتم أول 100 نقطة</p>
+              
+              <div style="margin-top: 24px;" class="kid-card">
+                <p style="font-size: 20px; font-weight: 800; color: var(--brand-blue);">
+                  موعدنا في المحاضرة 02: <br>
+                  "استخدام الكمبيوتر بذكاء واحتراف المبرمجين" 🚀
+                </p>
+              </div>
+            </div>
+            <div class="image-container-right">
+              <img src="https://files.catbox.moe/c5u0fs.png" alt="احتفال التخرج والتفوق" class="embedded-img">
+            </div>
+          </div>
+        </section>
+
+      </main>
+    </div>
+  </div>
+
+  <!-- Teacher Teleprompter Floating Panel -->
+  <aside id="teacher-notes-panel">
+    <div class="notes-title">
+      <span>🎙️ اسكربت كلام المدرس (المتحدث)</span>
+      <button onclick="toggleTeacherNotes()" style="background: none; border: none; font-size: 16px; cursor: pointer;">✕</button>
+    </div>
+    <div class="notes-body" id="teacher-notes-content">
+      ...
+    </div>
+  </aside>
+
+  <!-- Floating Studio Controls Toolbar -->
+  <div class="studio-controls">
+    <button class="ctrl-btn" onclick="prevSlide()" title="الشريحة السابقة (السهم الأيسر)">➡️</button>
+    <div class="slide-counter">
+      <span id="current-slide-num">1</span> / 25
+    </div>
+    <button class="ctrl-btn" onclick="nextSlide()" title="الشريحة التالية (مسطرة أو السهم الأيمن)">⬅️</button>
+
+    <div style="width: 1px; height: 24px; background: #e2e8f0; margin: 0 4px;"></div>
+
+    <!-- Whiteboard Toggle & Palette -->
+    <button class="ctrl-btn" id="btn-draw" onclick="toggleDrawingMode()" title="تفعيل السبورة الذكية للشرح">✏️</button>
+    
+    <div class="palette-box" id="palette-box">
+      <div class="color-dot selected" style="background: #1d4ed8;" onclick="setDrawColor('#1d4ed8', this)"></div>
+      <div class="color-dot" style="background: #dc2626;" onclick="setDrawColor('#dc2626', this)"></div>
+      <div class="color-dot" style="background: #16a34a;" onclick="setDrawColor('#16a34a', this)"></div>
+      <div class="color-dot" style="background: #ea580c;" onclick="setDrawColor('#ea580c', this)"></div>
+      <div class="color-dot" style="background: #9333ea;" onclick="setDrawColor('#9333ea', this)"></div>
+      <div class="color-dot" style="background: #0f172a;" onclick="setDrawColor('#0f172a', this)"></div>
+      <button class="ctrl-btn" style="width: 32px; height: 32px; font-size: 13px;" onclick="clearCanvas()" title="مسح السبورة">🗑️</button>
+    </div>
+
+    <div style="width: 1px; height: 24px; background: #e2e8f0; margin: 0 4px;"></div>
+
+    <button class="ctrl-btn" id="btn-notes" onclick="toggleTeacherNotes()" title="إظهار / إخفاء كلام المدرس">📜</button>
+    <button class="ctrl-btn" onclick="toggleFullScreen()" title="ملء الشاشة">⛶</button>
+  </div>
+
+  <script>
+    // ==========================================
+    // SLIDE PRESENTATION STATE & CONTROLLER
+    // ==========================================
+    const totalSlides = 25;
+    let currentSlide = 1;
+    let drawingMode = false;
+    let currentColor = '#1d4ed8';
+    let isDrawing = false;
+    let lastX = 0;
+    let lastY = 0;
+
+    const slides = document.querySelectorAll('.slide');
+    const indicator = document.getElementById('slide-indicator');
+    const counterNum = document.getElementById('current-slide-num');
+    const notesPanel = document.getElementById('teacher-notes-panel');
+    const notesContent = document.getElementById('teacher-notes-content');
+    const canvas = document.getElementById('drawing-canvas');
+    const ctx = canvas.getContext('2d');
+    const btnDraw = document.getElementById('btn-draw');
+    const paletteBox = document.getElementById('palette-box');
+
+    // Resize canvas
+    function resizeCanvas() {
+      canvas.width = canvas.parentElement.clientWidth;
+      canvas.height = canvas.parentElement.clientHeight;
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    function updateSlide() {
+      slides.forEach((s, idx) => {
+        s.classList.toggle('active', (idx + 1) === currentSlide);
+      });
+      indicator.textContent = `الشريحة ${currentSlide} / ${totalSlides}`;
+      counterNum.textContent = currentSlide;
+
+      // Update Teacher Notes
+      const activeSlideEl = document.getElementById(`slide-${currentSlide}`);
+      if (activeSlideEl && activeSlideEl.dataset.notes) {
+        notesContent.textContent = activeSlideEl.dataset.notes;
+      } else {
+        notesContent.textContent = 'لا توجد ملاحظات لهذه الشريحة.';
+      }
+    }
+
+    function nextSlide() {
+      if (currentSlide < totalSlides) {
+        currentSlide++;
+        updateSlide();
+      }
+    }
+
+    function prevSlide() {
+      if (currentSlide > 1) {
+        currentSlide--;
+        updateSlide();
+      }
+    }
+
+    // Keyboard navigation
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowLeft' || e.key === 'PageDown' || e.key === ' ') {
+        nextSlide();
+      } else if (e.key === 'ArrowRight' || e.key === 'PageUp') {
+        prevSlide();
+      } else if (e.key === 'd' || e.key === 'D' || e.key === 'ي') {
+        toggleDrawingMode();
+      } else if (e.key === 'n' || e.key === 'N' || e.key === 'ى') {
+        toggleTeacherNotes();
+      } else if (e.key === 'c' || e.key === 'C' || e.key === 'ؤ') {
+        clearCanvas();
+      }
+    });
+
+    // Drawing Whiteboard Features
+    function toggleDrawingMode() {
+      drawingMode = !drawingMode;
+      canvas.classList.toggle('active-mode', drawingMode);
+      btnDraw.classList.toggle('active', drawingMode);
+      paletteBox.classList.toggle('open', drawingMode);
+    }
+
+    function setDrawColor(color, el) {
+      currentColor = color;
+      document.querySelectorAll('.color-dot').forEach(d => d.classList.remove('selected'));
+      if (el) el.classList.add('selected');
+    }
+
+    function clearCanvas() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+    }
+
+    canvas.addEventListener('mousedown', (e) => {
+      if (!drawingMode) return;
+      isDrawing = true;
+      const rect = canvas.getBoundingClientRect();
+      lastX = e.clientX - rect.left;
+      lastY = e.clientY - rect.top;
+    });
+
+    canvas.addEventListener('mousemove', (e) => {
+      if (!isDrawing || !drawingMode) return;
+      const rect = canvas.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+
+      ctx.beginPath();
+      ctx.moveTo(lastX, lastY);
+      ctx.lineTo(x, y);
+      ctx.strokeStyle = currentColor;
+      ctx.lineWidth = 4;
+      ctx.lineCap = 'round';
+      ctx.stroke();
+
+      lastX = x;
+      lastY = y;
+    });
+
+    window.addEventListener('mouseup', () => { isDrawing = false; });
+
+    // Interactive Option Checker for Quiz Slides
+    function checkOption(btn, isCorrect, feedbackMsg) {
+      const container = btn.closest('.speed-test-box');
+      const allBtns = container.querySelectorAll('.option-btn');
+      allBtns.forEach(b => {
+        b.disabled = true;
+        b.style.opacity = '0.6';
+      });
+      btn.style.opacity = '1';
+      btn.classList.add(isCorrect ? 'correct' : 'wrong');
+
+      const fb = container.querySelector('.option-feedback');
+      fb.textContent = feedbackMsg;
+      fb.style.color = isCorrect ? 'var(--brand-green)' : '#dc2626';
+    }
+
+    // Teacher Notes Toggle
+    function toggleTeacherNotes() {
+      notesPanel.classList.toggle('visible');
+    }
+
+    // Full Screen Toggle
+    function toggleFullScreen() {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(() => {});
+      } else {
+        if (document.exitFullscreen) document.exitFullscreen();
+      }
+    }
+
+    // Session Timer
+    let secondsElapsed = 0;
+    const timerEl = document.getElementById('session-timer');
+    setInterval(() => {
+      secondsElapsed++;
+      const m = String(Math.floor(secondsElapsed / 60)).padStart(2, '0');
+      const s = String(secondsElapsed % 60).padStart(2, '0');
+      timerEl.textContent = `${m}:${s}`;
+    }, 1000);
+
+    // Initial load
+    updateSlide();
+  </script>
+</body>
+</html>

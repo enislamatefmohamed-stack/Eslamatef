@@ -1,0 +1,581 @@
+// ignore_for_file: avoid_web_libraries_in_flutter, deprecated_member_use
+import 'dart:html' as html;
+
+class KidsSessionItem {
+  final int number;
+  final String title;
+  final int levelNumber;
+  final String levelName;
+  final String description;
+  final int slidesCount;
+  final bool isReady;
+  final String? webUrl;
+  final String? quizUrl;
+  final List<String> topics;
+
+  const KidsSessionItem({
+    required this.number,
+    required this.title,
+    required this.levelNumber,
+    required this.levelName,
+    required this.description,
+    this.slidesCount = 25,
+    this.isReady = false,
+    this.webUrl,
+    this.quizUrl,
+    this.topics = const [],
+  });
+
+  String get formattedNumber => number < 10 ? '0$number' : '$number';
+
+  void launchSession() {
+    if (webUrl != null && webUrl!.isNotEmpty) {
+      html.window.open(webUrl!, '_blank');
+    }
+  }
+
+  void launchQuiz() {
+    if (quizUrl != null && quizUrl!.isNotEmpty) {
+      html.window.open(quizUrl!, '_blank');
+    }
+  }
+}
+
+class KidsCourseSessionsData {
+  static const List<String> levels = [
+    'الكل',
+    'المستوى 1: عالم الكمبيوتر والإنترنت',
+    'المستوى 2: التفكير البرمجي والخوارزميات',
+    'المستوى 3: تطوير ألعاب 2D',
+    'المستوى 4: لغة بايثون والمشاريع',
+    'المستوى 5: بناء التطبيقات والمشاريع',
+    'المستوى 6: الذكاء الاصطناعي وأدواته',
+    'المستوى 7: مشروع التخرج والاحتفال',
+  ];
+
+  static const List<KidsSessionItem> allSessions = [
+    // ----------------------------------------------------
+    // LEVEL 1: عالم الكمبيوتر والإنترنت والبرمجة (1 - 5)
+    // ----------------------------------------------------
+    KidsSessionItem(
+      number: 1,
+      title: "الكمبيوتر من الداخل والخارج",
+      levelNumber: 1,
+      levelName: "المستوى 1: عالم الكمبيوتر والإنترنت",
+      description: "الهاردوير والسوفتوير، المعالج CPU، الرام، ووحدات الإدخال والإخراج ونظام التشغيل.",
+      slidesCount: 25,
+      isReady: true,
+      webUrl: "kids_sessions/lecture_01/index.html",
+      quizUrl: "kids_sessions/lecture_01/quiz.html",
+      topics: ["Hardware vs Software", "CPU & RAM", "Input / Output", "Operating System"],
+    ),
+    KidsSessionItem(
+      number: 2,
+      title: "استخدام الكمبيوتر بذكاء واحتراف",
+      levelNumber: 1,
+      levelName: "المستوى 1: عالم الكمبيوتر والإنترنت",
+      description: "تنظيم الملفات والمجلدات، اختصارات الكيبورد (Ctrl+C, V, Z, S)، وصحة العيون 20-20-20.",
+      slidesCount: 25,
+      isReady: true,
+      webUrl: "kids_sessions/lecture_02/index.html",
+      quizUrl: "kids_sessions/lecture_02/quiz.html",
+      topics: ["تنظيم المجلدات", "اختصارات الكيبورد", "قاعدة 20-20-20", "العناية بالجهاز"],
+    ),
+    KidsSessionItem(
+      number: 3,
+      title: "الإنترنت والمواقع الإلكترونية",
+      levelNumber: 1,
+      levelName: "المستوى 1: عالم الكمبيوتر والإنترنت",
+      description: "كيف يعمل الإنترنت، كابلات قاع المحيط، الفرق بين الويب والإنترنت، قفل HTTPS، وحيل جوجل.",
+      slidesCount: 25,
+      isReady: true,
+      webUrl: "kids_sessions/lecture_03/index.html",
+      quizUrl: "kids_sessions/lecture_03/quiz.html",
+      topics: ["كابلات المحيط", "WWW vs Internet", "Web Browsers", "قفل HTTPS"],
+    ),
+    KidsSessionItem(
+      number: 4,
+      title: "الشبكات ببساطة",
+      levelNumber: 1,
+      levelName: "المستوى 1: عالم الكمبيوتر والإنترنت",
+      description: "الواي فاي والكابلات، العميل والخادم، وكيف يوزع الراوتر البيانات بين أجهزتنا.",
+      slidesCount: 25,
+      isReady: false,
+      topics: ["Wi-Fi", "Routers", "Client & Server", "IP Address"],
+    ),
+    KidsSessionItem(
+      number: 5,
+      title: "الأمان الرقمي والخصوصية",
+      levelNumber: 1,
+      levelName: "المستوى 1: عالم الكمبيوتر والإنترنت",
+      description: "كلمات المرور القوية، تجنب فخاخ التصيد الاحتيالي، وحماية بياناتك وصورك.",
+      slidesCount: 25,
+      isReady: false,
+      topics: ["كلمات المرور", "التصيد الاحتيالي", "الخصوصية", "الهوية الرقمية"],
+    ),
+
+    // ----------------------------------------------------
+    // LEVEL 2: التفكير البرمجي والخوارزميات (6 - 14)
+    // ----------------------------------------------------
+    KidsSessionItem(
+      number: 6,
+      title: "يعني إيه برمجة؟",
+      levelNumber: 2,
+      levelName: "المستوى 2: التفكير البرمجي والخوارزميات",
+      description: "لغات الآلة، كيف يطيعنا الحاسوب، ومن هو المبرمج ومستقبل التكنولوجيا.",
+      slidesCount: 25,
+      isReady: false,
+      topics: ["لغات البرمجة", "تعليمات الآلة", "تفكير المبرمج"],
+    ),
+    KidsSessionItem(
+      number: 7,
+      title: "أنواع البرمجة ولغاتها",
+      levelNumber: 2,
+      levelName: "المستوى 2: التفكير البرمجي والخوارزميات",
+      description: "الفرق بين البرمجة المرئية بالبلوكات والبرمجة النصية كبايثون وجافاسكريبت.",
+      slidesCount: 25,
+      isReady: false,
+      topics: ["Block-based", "Text-based", "Scratch", "Python"],
+    ),
+    KidsSessionItem(
+      number: 8,
+      title: "فكرة الخوارزمية (Algorithmic Thinking)",
+      levelNumber: 2,
+      levelName: "المستوى 2: التفكير البرمجي والخوارزميات",
+      description: "التفكير المنطقي الخطوة بخطوة وكيف نكتب وصفة دقيقة يتبعها الكمبيوتر.",
+      slidesCount: 25,
+      isReady: false,
+      topics: ["الخوارزميات", "حل المشكلات", "تسلسل المهام"],
+    ),
+    KidsSessionItem(
+      number: 9,
+      title: "الأوامر والتسلسل (Sequencing)",
+      levelNumber: 2,
+      levelName: "المستوى 2: التفكير البرمجي والخوارزميات",
+      description: "ترتيب الأوامر البرمجية وأثر الترتيب الصحيح في الوصول للهدف المطلوب.",
+      slidesCount: 25,
+      isReady: false,
+      topics: ["التسلسل", "ترتيب العمليات", "تتابع التعليمات"],
+    ),
+    KidsSessionItem(
+      number: 10,
+      title: "المدخلات والمخرجات (I/O in Code)",
+      levelNumber: 2,
+      levelName: "المستوى 2: التفكير البرمجي والخوارزميات",
+      description: "كيف يستقبل برنامجك مدخلات المستخدم ويعالجها ويظهر النتائج فوراً.",
+      slidesCount: 25,
+      isReady: false,
+      topics: ["Input Data", "Output Results", "التفاعل مع المستخدم"],
+    ),
+    KidsSessionItem(
+      number: 11,
+      title: "الشروط واتخاذ القرار (If / Else)",
+      levelNumber: 2,
+      levelName: "المستوى 2: التفكير البرمجي والخوارزميات",
+      description: "كيف يفكر الكود ويتخذ القرارات الذكية بناءً على الشروط المختلفة.",
+      slidesCount: 25,
+      isReady: false,
+      topics: ["الجمل الشرطية", "If / Else", "المنطق والقرارات"],
+    ),
+    KidsSessionItem(
+      number: 12,
+      title: "التكرار والحلقات (Loops)",
+      levelNumber: 2,
+      levelName: "المستوى 2: التفكير البرمجي والخوارزميات",
+      description: "تكرار الأوامر دون عناء وتوفير مجهود المبرمج باستخدام الحلقات التكرارية.",
+      slidesCount: 25,
+      isReady: false,
+      topics: ["حلقات التكرار", "Loops", "توفير الأكواد"],
+    ),
+    KidsSessionItem(
+      number: 13,
+      title: "صناديق المتغيرات (Variables)",
+      levelNumber: 2,
+      levelName: "المستوى 2: التفكير البرمجي والخوارزميات",
+      description: "حفظ النقاط، الأسماء، وذاكرة اللعبة داخل صناديق البيانات المتغيرة.",
+      slidesCount: 25,
+      isReady: false,
+      topics: ["المتغيرات", "حفظ النقاط", "أنواع البيانات"],
+    ),
+    KidsSessionItem(
+      number: 14,
+      title: "تصحيح الأخطاء البرمجية (Debugging)",
+      levelNumber: 2,
+      levelName: "المستوى 2: التفكير البرمجي والخوارزميات",
+      description: "فن صيد الحشرات والأخطاء البرمجية وإصلاح الكود بمهارة المحققين.",
+      slidesCount: 25,
+      isReady: false,
+      topics: ["صيد الأخطاء", "Debugging", "تتبع المشكلات"],
+    ),
+
+    // ----------------------------------------------------
+    // LEVEL 3: تطوير ألعاب 2D (15 - 21)
+    // ----------------------------------------------------
+    KidsSessionItem(
+      number: 15,
+      title: "من الفكرة إلى تصميم اللعبة",
+      levelNumber: 3,
+      levelName: "المستوى 3: تطوير ألعاب 2D",
+      description: "كتابة قصة اللعبة وتحديد البطل وقواعد الفوز والخسارة.",
+      slidesCount: 25,
+      isReady: false,
+      topics: ["تصميم الألعاب", "Game Design", "قصة اللعبة"],
+    ),
+    KidsSessionItem(
+      number: 16,
+      title: "الشخصيات والخلفيات (Sprites & Backdrops)",
+      levelNumber: 3,
+      levelName: "المستوى 3: تطوير ألعاب 2D",
+      description: "رسم وتجهيز كائنات اللعبة والعوالم والخلفيات المتحركة.",
+      slidesCount: 25,
+      isReady: false,
+      topics: ["Sprites", "Backdrops", "تصميم الشخصيات"],
+    ),
+    KidsSessionItem(
+      number: 17,
+      title: "أنظمة الحركة والتحكم (Controls)",
+      levelNumber: 3,
+      levelName: "المستوى 3: تطوير ألعاب 2D",
+      description: "التحكم في حركة الشخصيات بالأسهم، الجاذبية، والقفز الناعم.",
+      slidesCount: 25,
+      isReady: false,
+      topics: ["حركة الشخصيات", "الجاذبية", "التحكم بالأسهم"],
+    ),
+    KidsSessionItem(
+      number: 18,
+      title: "الاصطدام والتفاعل (Collision Detection)",
+      levelNumber: 3,
+      levelName: "المستوى 3: تطوير ألعاب 2D",
+      description: "ملامسة الحواجز والتقاط العملات الذهبية وهزيمة الوحوش في اللعبة.",
+      slidesCount: 25,
+      isReady: false,
+      topics: ["الاصطدام", "جمع الجوائز", "التفاعل"],
+    ),
+    KidsSessionItem(
+      number: 19,
+      title: "النقاط والمؤقت الزمني (Score & Timer)",
+      levelNumber: 3,
+      levelName: "المستوى 3: تطوير ألعاب 2D",
+      description: "إضافة عداد النقاط ومؤقت التحدي وشاشات الفوز والخسارة.",
+      slidesCount: 25,
+      isReady: false,
+      topics: ["عداد النقاط", "المؤقت الزمني", "شاشة الفوز"],
+    ),
+    KidsSessionItem(
+      number: 20,
+      title: "المراحل والمؤثرات الصوتية (Levels & Audio)",
+      levelNumber: 3,
+      levelName: "المستوى 3: تطوير ألعاب 2D",
+      description: "تدرج صعوبة المراحل وإضافة أصوات القفز والموسيقى التشجيعية.",
+      slidesCount: 25,
+      isReady: false,
+      topics: ["المراحل المتعددة", "المؤثرات الصوتية", "Sound FX"],
+    ),
+    KidsSessionItem(
+      number: 21,
+      title: "اختبار اللعبة وتحسينها (Playtesting)",
+      levelNumber: 3,
+      levelName: "المستوى 3: تطوير ألعاب 2D",
+      description: "تجربة الأصدقاء للعبة وصقل السرعة وإصلاح الصعوبة الزائدة.",
+      slidesCount: 25,
+      isReady: false,
+      topics: ["تجربة اللعبة", "Playtesting", "التحسينات النهائية"],
+    ),
+
+    // ----------------------------------------------------
+    // LEVEL 4: لغة بايثون والمشاريع (22 - 28)
+    // ----------------------------------------------------
+    KidsSessionItem(
+      number: 22,
+      title: "مقدمة إلى عالم بايثون (Hello Python)",
+      levelNumber: 4,
+      levelName: "المستوى 4: لغة بايثون والمشاريع",
+      description: "تثبيت بيئة العمل وكتابة أول سطر كود نصي حقيقي بلغة بايثون.",
+      slidesCount: 25,
+      isReady: false,
+      topics: ["Python", "Hello World", "بيئة العمل"],
+    ),
+    KidsSessionItem(
+      number: 23,
+      title: "المتغيرات وأنواع البيانات في بايثون",
+      levelNumber: 4,
+      levelName: "المستوى 4: لغة بايثون والمشاريع",
+      description: "التعامل مع النصوص، الأرقام الصحيحة والكسرية، والقيم المنطقية.",
+      slidesCount: 25,
+      isReady: false,
+      topics: ["Strings", "Integers", "Floats", "Booleans"],
+    ),
+    KidsSessionItem(
+      number: 24,
+      title: "الإدخال والإخراج في بايثون (print & input)",
+      levelNumber: 4,
+      levelName: "المستوى 4: لغة بايثون والمشاريع",
+      description: "برمجة الحوار والتفاعل بين البرنامج والمستخدم عبر الكونسول.",
+      slidesCount: 25,
+      isReady: false,
+      topics: ["print()", "input()", "التفاعل النصي"],
+    ),
+    KidsSessionItem(
+      number: 25,
+      title: "الشروط والقرارات في بايثون",
+      levelNumber: 4,
+      levelName: "المستوى 4: لغة بايثون والمشاريع",
+      description: "الجمل الشرطية if, elif, else وصناعة آلة حاسبة ذكية.",
+      slidesCount: 25,
+      isReady: false,
+      topics: ["if / elif / else", "المقارنات", "حاسبة ذكية"],
+    ),
+    KidsSessionItem(
+      number: 26,
+      title: "التكرار بحلقات بايثون (for & while)",
+      levelNumber: 4,
+      levelName: "المستوى 4: لغة بايثون والمشاريع",
+      description: "تكرار العمليات وصناعة عدادات الأرقام وطباعة الأشكال الهندسية.",
+      slidesCount: 25,
+      isReady: false,
+      topics: ["for loop", "while loop", "العدادات"],
+    ),
+    KidsSessionItem(
+      number: 27,
+      title: "القوائم والدوال في بايثون (Lists & Functions)",
+      levelNumber: 4,
+      levelName: "المستوى 4: لغة بايثون والمشاريع",
+      description: "تجميع البيانات في مصفوفات وتنظيم الأكواد في دوال قابلة لإعادة الاستخدام.",
+      slidesCount: 25,
+      isReady: false,
+      topics: ["Lists", "Functions", "def", "تنظيم الكود"],
+    ),
+    KidsSessionItem(
+      number: 28,
+      title: "مشروع متكامل بلغة بايثون",
+      levelNumber: 4,
+      levelName: "المستوى 4: لغة بايثون والمشاريع",
+      description: "صناعة لعبة مغامرات نصية تفاعلية Text-based Adventure Game.",
+      slidesCount: 25,
+      isReady: false,
+      topics: ["مشروع متكامل", "Text Game", "تحدي بايثون"],
+    ),
+
+    // ----------------------------------------------------
+    // LEVEL 5: بناء التطبيقات والمشاريع (29 - 35)
+    // ----------------------------------------------------
+    KidsSessionItem(
+      number: 29,
+      title: "من المشكلة إلى فكرة التطبيق",
+      levelNumber: 5,
+      levelName: "المستوى 5: بناء التطبيقات والمشاريع",
+      description: "تحديد احتياجات الناس وحل المشكلات الحقيقية بتطبيق ذكي.",
+      slidesCount: 25,
+      isReady: false,
+      topics: ["Problem Solving", "فكرة التطبيق", "تحليل الاحتياج"],
+    ),
+    KidsSessionItem(
+      number: 30,
+      title: "تصميم واجهة المستخدم (UI/UX Design)",
+      levelNumber: 5,
+      levelName: "المستوى 5: بناء التطبيقات والمشاريع",
+      description: "توزيع الأزرار والشاشات واختيار الألوان المتناسقة لراحة المستخدم.",
+      slidesCount: 25,
+      isReady: false,
+      topics: ["UI Design", "UX Experience", "تناسق الألوان"],
+    ),
+    KidsSessionItem(
+      number: 31,
+      title: "التفاعل وبرمجة الأحداث (Event-driven)",
+      levelNumber: 5,
+      levelName: "المستوى 5: بناء التطبيقات والمشاريع",
+      description: "برمجة ردود الأفعال عند النقر على الأزرار وإدخال البيانات.",
+      slidesCount: 25,
+      isReady: false,
+      topics: ["الأحداث", "Event Handling", "تفاعل الواجهة"],
+    ),
+    KidsSessionItem(
+      number: 32,
+      title: "تنظيم وتقسيم مهام المشروع",
+      levelNumber: 5,
+      levelName: "المستوى 5: بناء التطبيقات والمشاريع",
+      description: "هندسة البرمجيات وفصل ملفات الواجهة عن ملفات منطق البيانات.",
+      slidesCount: 25,
+      isReady: false,
+      topics: ["هندسة الكود", "Architecture", "تقسيم المهام"],
+    ),
+    KidsSessionItem(
+      number: 33,
+      title: "اختبار التطبيق وصيد الأخطاء (QA)",
+      levelNumber: 5,
+      levelName: "المستوى 5: بناء التطبيقات والمشاريع",
+      description: "فحص جودة البرنامج وتجربة السيناريوهات المختلفة لتجنب الانهيار.",
+      slidesCount: 25,
+      isReady: false,
+      topics: ["Testing", "Quality Assurance", "ثبات التطبيق"],
+    ),
+    KidsSessionItem(
+      number: 34,
+      title: "التحسينات والنشر التجريبي",
+      levelNumber: 5,
+      levelName: "المستوى 5: بناء التطبيقات والمشاريع",
+      description: "تجهيز التطبيق ليعمل على أجهزة الأصدقاء وتجربته ميدانياً.",
+      slidesCount: 25,
+      isReady: false,
+      topics: ["Deployment", "نشر التطبيق", "التجربة الميدانية"],
+    ),
+    KidsSessionItem(
+      number: 35,
+      title: "عرض وشرح فكرة المشروع (Pitching)",
+      levelNumber: 5,
+      levelName: "المستوى 5: بناء التطبيقات والمشاريع",
+      description: "مهارات العرض والتحدث أمام الجمهور لشرح فكرة وفائدة تطبيقك بثقة.",
+      slidesCount: 25,
+      isReady: false,
+      topics: ["Presentation", "الثقة بالنفس", "شرح المشروع"],
+    ),
+
+    // ----------------------------------------------------
+    // LEVEL 6: الذكاء الاصطناعي وأدواته (36 - 42)
+    // ----------------------------------------------------
+    KidsSessionItem(
+      number: 36,
+      title: "ما هو الذكاء الاصطناعي؟ (AI Concepts)",
+      levelNumber: 6,
+      levelName: "المستوى 6: الذكاء الاصطناعي وأدواته",
+      description: "كيف تفكر الآلة والفرق الجوهري بين البرمجة الكلاسيكية والذكاء الاصطناعي.",
+      slidesCount: 25,
+      isReady: false,
+      topics: ["AI Basics", "الذكاء الاصطناعي", "الآلات الذكية"],
+    ),
+    KidsSessionItem(
+      number: 37,
+      title: "كيف تتعلم الآلة وتستنتج الأنماط؟",
+      levelNumber: 6,
+      levelName: "المستوى 6: الذكاء الاصطناعي وأدواته",
+      description: "التعلم الآلي (Machine Learning) وكيف تتعرف الكاميرا على الوجوه والأشياء.",
+      slidesCount: 25,
+      isReady: false,
+      topics: ["Machine Learning", "التعرف على الصور", "تدريب النماذج"],
+    ),
+    KidsSessionItem(
+      number: 38,
+      title: "الذكاء الاصطناعي في حياتنا اليومية",
+      levelNumber: 6,
+      levelName: "المستوى 6: الذكاء الاصطناعي وأدواته",
+      description: "المساعدات الصوتية، سيارات تسلا ذاتية القيادة، وخوارزميات التوصيات.",
+      slidesCount: 25,
+      isReady: false,
+      topics: ["السيارات الذاتية", "المساعد الصوتي", "تطبيقات AI"],
+    ),
+    KidsSessionItem(
+      number: 39,
+      title: "الأدوات الذكية التوليدية المساعدة",
+      levelNumber: 6,
+      levelName: "المستوى 6: الذكاء الاصطناعي وأدواته",
+      description: "الذكاء الاصطناعي التوليدي لتوليد الصور، والأصوات، والأفكار الإبداعية.",
+      slidesCount: 25,
+      isReady: false,
+      topics: ["Generative AI", "توليد الصور", "الإبداع الرقمي"],
+    ),
+    KidsSessionItem(
+      number: 40,
+      title: "فن كتابة الأوامر الاحترافية (Prompts)",
+      levelNumber: 6,
+      levelName: "المستوى 6: الذكاء الاصطناعي وأدواته",
+      description: "هندسة الأوامر Prompt Engineering وكيف تتحدث مع نماذج AI بدقة واحتراف.",
+      slidesCount: 25,
+      isReady: false,
+      topics: ["Prompt Engineering", "هندسة الأوامر", "الحوار مع AI"],
+    ),
+    KidsSessionItem(
+      number: 41,
+      title: "الذكاء الاصطناعي والبرمجة كمساعد",
+      levelNumber: 6,
+      levelName: "المستوى 6: الذكاء الاصطناعي وأدواته",
+      description: "كيف يساعدنا الذكاء الاصطناعي كمساعد مبرمج ذكي لتصحيح الأخطاء وفهم الكود.",
+      slidesCount: 25,
+      isReady: false,
+      topics: ["AI Coding Buddy", "مساعد المبرمج", "تسريع العمل"],
+    ),
+    KidsSessionItem(
+      number: 42,
+      title: "الأمان والمسؤولية في استخدام AI",
+      levelNumber: 6,
+      levelName: "المستوى 6: الذكاء الاصطناعي وأدواته",
+      description: "أخلاقيات الذكاء الاصطناعي، الصدق، الأمان، وتجنب التزييف وحماية البيانات.",
+      slidesCount: 25,
+      isReady: false,
+      topics: ["AI Ethics", "الأمان والمسؤولية", "حقوق الملكية"],
+    ),
+
+    // ----------------------------------------------------
+    // LEVEL 7: مشروع التخرج والاحتفال (43 - 49)
+    // ----------------------------------------------------
+    KidsSessionItem(
+      number: 43,
+      title: "اختيار واعتماد فكرة التخرج",
+      levelNumber: 7,
+      levelName: "المستوى 7: مشروع التخرج والاحتفال",
+      description: "جلسة العصف الذهني واختيار فكرة مشروع تخرج حقيقي ومبتكر.",
+      slidesCount: 25,
+      isReady: false,
+      topics: ["فكرة التخرج", "العصف الذهني", "التخطيط"],
+    ),
+    KidsSessionItem(
+      number: 44,
+      title: "التخطيط الهندسي الشامل للمشروع",
+      levelNumber: 7,
+      levelName: "المستوى 7: مشروع التخرج والاحتفال",
+      description: "رسم المخطط المعماري وخارطة طريق مراحل التنفيذ بالتفصيل.",
+      slidesCount: 25,
+      isReady: false,
+      topics: ["Roadmap", "المخطط الهندسي", "إدارة المشروع"],
+    ),
+    KidsSessionItem(
+      number: 45,
+      title: "بناء النموذج الأولي وتشغيله (MVP)",
+      levelNumber: 7,
+      levelName: "المستوى 7: مشروع التخرج والاحتفال",
+      description: "إنشاء أول نسخة تعمل من مشروع التخرج وتجربة وظيفتها الأساسية.",
+      slidesCount: 25,
+      isReady: false,
+      topics: ["MVP", "النموذج الأولي", "التشغيل الأولي"],
+    ),
+    KidsSessionItem(
+      number: 46,
+      title: "التطوير البرمجي المتقدم للمشروع",
+      levelNumber: 7,
+      levelName: "المستوى 7: مشروع التخرج والاحتفال",
+      description: "إضافة المميزات المتقدمة والمؤثرات وتحسين واجهة المستخدم.",
+      slidesCount: 25,
+      isReady: false,
+      topics: ["التطوير المتقدم", "المميزات الإضافية", "تحسين الكود"],
+    ),
+    KidsSessionItem(
+      number: 47,
+      title: "فحص الجودة وتدقيق الاستقرار",
+      levelNumber: 7,
+      levelName: "المستوى 7: مشروع التخرج والاحتفال",
+      description: "التأكد من خلو المشروع النهائي من أي أخطاء وثباته عند جميع المستخدمين.",
+      slidesCount: 25,
+      isReady: false,
+      topics: ["Quality Check", "اختبار الثبات", "اللمسات الأخيرة"],
+    ),
+    KidsSessionItem(
+      number: 48,
+      title: "التوثيق وإعداد العرض التقديمي",
+      levelNumber: 7,
+      levelName: "المستوى 7: مشروع التخرج والاحتفال",
+      description: "تجهيز شرائح العرض النهائي وملف التوثيق لمناقشته أمام لجنة التحكيم.",
+      slidesCount: 25,
+      isReady: false,
+      topics: ["التوثيق", "Presentation Deck", "الاستعداد للعرض"],
+    ),
+    KidsSessionItem(
+      number: 49,
+      title: "يوم التخرج الكبير والاحتفال 🎓🏆",
+      levelNumber: 7,
+      levelName: "المستوى 7: مشروع التخرج والاحتفال",
+      description: "استعراض المشاريع الرائعة، توزيع الشهادات والجوائز، وتتويج أبطال المستقبل!",
+      slidesCount: 25,
+      isReady: false,
+      topics: ["التخرج", "الشهادات والأوسمة", "الاحتفال الكبير"],
+    ),
+  ];
+}

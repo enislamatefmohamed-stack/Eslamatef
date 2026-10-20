@@ -1,0 +1,1231 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>المحاضرة 03: الإنترنت والمواقع | جلسة تصوير تفاعلية</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg-base: #f8fafc;
+      --bg-surface: #ffffff;
+      --bg-surface-soft: #f1f5f9;
+      --text-main: #0f172a;
+      --text-muted: #475569;
+      --text-subtle: #64748b;
+      
+      --brand-blue: #2563eb;
+      --brand-blue-light: #dbeafe;
+      --brand-teal: #0d9488;
+      --brand-teal-light: #ccfbf1;
+      --brand-orange: #ea580c;
+      --brand-orange-light: #ffedd5;
+      --brand-purple: #7c3aed;
+      --brand-purple-light: #ede9fe;
+      --brand-green: #16a34a;
+      --brand-green-light: #dcfce7;
+      
+      --border-color: #e2e8f0;
+      --shadow-sm: 0 2px 4px rgba(15, 23, 42, 0.04);
+      --shadow-md: 0 10px 25px -5px rgba(15, 23, 42, 0.06), 0 8px 10px -6px rgba(15, 23, 42, 0.03);
+      --shadow-lg: 0 20px 35px -5px rgba(15, 23, 42, 0.08), 0 10px 15px -5px rgba(15, 23, 42, 0.04);
+      --radius-sm: 12px;
+      --radius-md: 18px;
+      --radius-lg: 26px;
+      
+      --font-arabic: 'Cairo', system-ui, sans-serif;
+      --font-mono: 'Inter', monospace;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background-color: var(--bg-base);
+      color: var(--text-main);
+      font-family: var(--font-arabic);
+      overflow: hidden;
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      user-select: none;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .bg-light-pattern {
+      position: absolute;
+      inset: 0;
+      background-image: 
+        radial-gradient(circle at 15% 15%, rgba(37, 99, 235, 0.06) 0%, transparent 45%),
+        radial-gradient(circle at 85% 85%, rgba(13, 148, 136, 0.06) 0%, transparent 45%);
+      pointer-events: none;
+      z-index: 0;
+    }
+    
+    .bg-dots {
+      position: absolute;
+      inset: 0;
+      background-image: radial-gradient(#cbd5e1 1.2px, transparent 1.2px);
+      background-size: 24px 24px;
+      opacity: 0.45;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    #presentation-viewport {
+      position: relative;
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      z-index: 1;
+    }
+
+    #presentation-frame {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      max-width: 177.78vh;
+      max-height: 56.25vw;
+      background: var(--bg-surface);
+      border-radius: var(--radius-lg);
+      border: 2px solid #e2e8f0;
+      box-shadow: var(--shadow-lg);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .slide-topbar {
+      height: 64px;
+      padding: 0 32px;
+      background: #ffffff;
+      border-bottom: 2px solid #f1f5f9;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      z-index: 10;
+    }
+
+    .topbar-branding {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .brand-logo-img { height: 42px; border-radius: 8px; }
+    .brand-title { font-size: 16px; font-weight: 800; color: var(--brand-blue); }
+    .brand-subtitle { font-size: 12px; font-weight: 600; color: var(--text-subtle); }
+
+    .topbar-meta { display: flex; align-items: center; gap: 16px; }
+
+    .badge-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 14px;
+      border-radius: 100px;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .badge-blue { background: var(--brand-blue-light); color: var(--brand-blue); }
+    .badge-orange { background: var(--brand-orange-light); color: var(--brand-orange); }
+    .badge-green { background: var(--brand-green-light); color: var(--brand-green); }
+
+    .timer-display {
+      font-family: var(--font-mono);
+      font-size: 15px;
+      font-weight: 800;
+      color: var(--text-muted);
+      background: #f8fafc;
+      padding: 6px 12px;
+      border-radius: var(--radius-sm);
+      border: 1px solid #e2e8f0;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .slides-wrapper {
+      position: relative;
+      flex: 1;
+      width: 100%;
+      height: calc(100% - 64px);
+      overflow: hidden;
+    }
+
+    .slide {
+      position: absolute;
+      inset: 0;
+      padding: 40px 56px;
+      display: none;
+      flex-direction: column;
+      justify-content: center;
+      opacity: 0;
+      transform: translateY(12px) scale(0.99);
+      transition: opacity 0.35s ease, transform 0.35s ease;
+      background: #ffffff;
+    }
+
+    .slide.active {
+      display: flex;
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+
+    .slide-header { margin-bottom: 24px; }
+
+    .slide-tag {
+      display: inline-block;
+      font-size: 13px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--brand-blue);
+      margin-bottom: 8px;
+    }
+
+    .slide-title {
+      font-size: 38px;
+      font-weight: 900;
+      color: var(--text-main);
+      line-height: 1.25;
+    }
+
+    .slide-subtitle {
+      font-size: 20px;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-top: 6px;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 32px;
+      align-items: center;
+      height: 100%;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+      align-items: stretch;
+    }
+
+    .grid-4 {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 20px;
+      align-items: stretch;
+    }
+
+    .kid-card {
+      background: #ffffff;
+      border: 2px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 24px;
+      box-shadow: var(--shadow-sm);
+      transition: all 0.25s ease;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .kid-card:hover {
+      border-color: var(--brand-blue);
+      box-shadow: var(--shadow-md);
+      transform: translateY(-4px);
+    }
+
+    .card-icon {
+      width: 58px;
+      height: 58px;
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 30px;
+      background: var(--bg-surface-soft);
+    }
+
+    .card-title { font-size: 22px; font-weight: 800; color: var(--text-main); }
+    .card-desc { font-size: 16px; line-height: 1.6; color: var(--text-muted); font-weight: 600; }
+
+    .image-container-right {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+    }
+
+    .embedded-img {
+      max-height: 440px;
+      max-width: 100%;
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-lg);
+      border: 3px solid #ffffff;
+      object-fit: cover;
+    }
+
+    .speed-test-box {
+      background: #f8fafc;
+      border: 2px dashed #cbd5e1;
+      border-radius: var(--radius-md);
+      padding: 24px;
+      text-align: center;
+      margin-top: 20px;
+    }
+
+    .speed-options {
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+      margin-top: 16px;
+    }
+
+    .option-btn {
+      padding: 14px 28px;
+      border-radius: var(--radius-sm);
+      border: 2px solid #cbd5e1;
+      background: #ffffff;
+      color: var(--text-main);
+      font-size: 18px;
+      font-weight: 800;
+      cursor: pointer;
+      font-family: var(--font-arabic);
+      transition: all 0.2s ease;
+    }
+
+    .option-btn:hover {
+      background: var(--brand-blue-light);
+      border-color: var(--brand-blue);
+      color: var(--brand-blue);
+    }
+
+    .option-btn.correct {
+      background: var(--brand-green-light) !important;
+      border-color: var(--brand-green) !important;
+      color: var(--brand-green) !important;
+    }
+
+    .option-btn.wrong {
+      background: #fee2e2 !important;
+      border-color: #ef4444 !important;
+      color: #b91c1c !important;
+    }
+
+    #drawing-canvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 50;
+    }
+
+    #drawing-canvas.active-mode {
+      pointer-events: auto;
+      cursor: crosshair;
+    }
+
+    .studio-controls {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(12px);
+      border: 1.5px solid var(--border-color);
+      box-shadow: var(--shadow-lg);
+      padding: 8px 18px;
+      border-radius: 100px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      z-index: 100;
+    }
+
+    .ctrl-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      border: 1px solid #e2e8f0;
+      background: #ffffff;
+      color: var(--text-main);
+      font-size: 18px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .ctrl-btn:hover {
+      background: var(--brand-blue-light);
+      color: var(--brand-blue);
+    }
+
+    .ctrl-btn.active {
+      background: var(--brand-blue);
+      color: #ffffff;
+    }
+
+    .slide-counter {
+      font-family: var(--font-mono);
+      font-size: 16px;
+      font-weight: 800;
+      padding: 0 10px;
+    }
+
+    .palette-box {
+      display: none;
+      align-items: center;
+      gap: 6px;
+      padding-right: 8px;
+      border-right: 1px solid #e2e8f0;
+    }
+
+    .palette-box.open { display: flex; }
+
+    .color-dot {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      cursor: pointer;
+      border: 2px solid #ffffff;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .color-dot:hover, .color-dot.selected { transform: scale(1.25); }
+
+    #teacher-notes-panel {
+      position: fixed;
+      bottom: 84px;
+      right: 24px;
+      width: 460px;
+      max-height: 280px;
+      background: rgba(255, 255, 255, 0.98);
+      backdrop-filter: blur(16px);
+      border: 2px solid var(--brand-blue);
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-lg);
+      padding: 20px;
+      z-index: 99;
+      display: none;
+      flex-direction: column;
+      gap: 10px;
+      overflow-y: auto;
+    }
+
+    #teacher-notes-panel.visible { display: flex; }
+
+    .notes-title {
+      font-size: 15px;
+      font-weight: 800;
+      color: var(--brand-blue);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .notes-body {
+      font-size: 15px;
+      line-height: 1.7;
+      color: var(--text-main);
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="bg-light-pattern"></div>
+  <div class="bg-dots"></div>
+
+  <div id="presentation-viewport">
+    <div id="presentation-frame">
+      
+      <header class="slide-topbar">
+        <div class="topbar-branding">
+          <img src="https://files.catbox.moe/8kzbd2.jpeg" alt="Logo" class="brand-logo-img">
+          <div class="brand-text-col">
+            <span class="brand-title">Eslam Atef | Code & AI</span>
+            <span class="brand-subtitle">كورس البرمجة والذكاء الاصطناعي للأطفال</span>
+          </div>
+        </div>
+
+        <div class="topbar-meta">
+          <div class="badge-pill badge-blue">
+            <span>المستوى 1: عالم الكمبيوتر</span>
+          </div>
+          <div class="badge-pill badge-orange">
+            <span id="slide-indicator">الشريحة 1 / 25</span>
+          </div>
+          <div class="timer-display">
+            <span>⏱️</span>
+            <span id="session-timer">00:00</span>
+          </div>
+        </div>
+      </header>
+
+      <canvas id="drawing-canvas"></canvas>
+
+      <main class="slides-wrapper">
+
+        <!-- SLIDE 1: الغلاف والترحيب -->
+        <section class="slide active" id="slide-1" data-notes="يا أهلاً يا أبطال المستقبل، منورين المحاضرة التالتة من كورس البرمجة والذكاء الاصطناعي للأطفال! بعد ما فهمنا الكمبيوتر من الداخل والخارج واتعلمنا إزاي نستخدمه باحتراف.. النهاردة بقى جه وقت نفتح الباب الكبير اللي بيربط جهازنا بكل أجهزة كوكب الأرض: عالم الإنترنت والويب السحري! جاهزون لرحلة الطيران حول العالم في أجزاء من الثانية؟ يلا بينا ننطلق!">
+          <div class="grid-2">
+            <div>
+              <span class="slide-tag">المحاضرة 03 • رحلة حول العالم</span>
+              <h1 class="slide-title" style="font-size: 44px; color: var(--brand-blue);">الإنترنت والمواقع الإلكترونية</h1>
+              <p class="slide-subtitle">كيف نسافر في الشبكة العنكبوتية، وكيف تعمل المواقع والمتصفحات؟</p>
+              
+              <div style="margin-top: 32px; display: flex; gap: 16px; flex-wrap: wrap;">
+                <div class="badge-pill badge-blue" style="font-size: 15px; padding: 10px 20px;">
+                  <span>المحاضر: م / إسلام عاطف</span>
+                </div>
+                <div class="badge-pill badge-green" style="font-size: 15px; padding: 10px 20px;">
+                  <span>الأعمار: 8 - 16 سنة</span>
+                </div>
+              </div>
+            </div>
+            <div class="image-container-right">
+              <img src="https://files.catbox.moe/8t5fqy.png" alt="الإنترنت والمواقع" class="embedded-img">
+            </div>
+          </div>
+        </section>
+
+        <!-- SLIDE 2: مهمات المحاضرة -->
+        <section class="slide" id="slide-2" data-notes="بصوا معايا يا أبطال.. في محاضرة النهاردة عندنا 4 مهمات شيقة جداً: أولاً هنعرف يعني إيه إنترنت أصلاً وإزاي الرسائل بتسافر عبر القارات، ثانياً هنكتشف الفرق بين الإنترنت والويب، ثالثاً هنتعرف على سفينة الفضاء الرقمية المتصفح وسر الرابط URL، ورابعاً هنتعلم فن البحث السريع في جوجل!">
+          <div class="slide-header">
+            <span class="slide-tag">خارطة الاستكشاف</span>
+            <h2 class="slide-title">مهمات البطل في عالم الإنترنت 🌐🎯</h2>
+          </div>
+          <div class="grid-4">
+            <div class="kid-card">
+              <div class="card-icon" style="color: var(--brand-blue); background: var(--brand-blue-light);">🌍</div>
+              <h3 class="card-title">1. سر الإنترنت</h3>
+              <p class="card-desc">كيف ترتبط مليارات الحواسيب حول العالم بأسلاك عملاقة.</p>
+            </div>
+            <div class="kid-card">
+              <div class="card-icon" style="color: var(--brand-orange); background: var(--brand-orange-light);">🕸️</div>
+              <h3 class="card-title">2. شبكة الويب</h3>
+              <p class="card-desc">ما هي الـ WWW ولماذا هي مجرد خدمة من خدمات الإنترنت؟</p>
+            </div>
+            <div class="kid-card">
+              <div class="card-icon" style="color: var(--brand-teal); background: var(--brand-teal-light);">🚀</div>
+              <h3 class="card-title">3. المتصفح والـ URL</h3>
+              <p class="card-desc">سفينة الفضاء كروم وسر عنوان الموقع وقفل الأمان 🔒.</p>
+            </div>
+            <div class="kid-card">
+              <div class="card-icon" style="color: var(--brand-purple); background: var(--brand-purple-light);">🔎</div>
+              <h3 class="card-title">4. البحث الاحترافي</h3>
+              <p class="card-desc">حيل جوجل الذكية للوصول لأي معلومة في ثانية واحدة.</p>
+            </div>
+          </div>
+        </section>
+
+        <!-- SLIDE 3: لغز السفر الفوري -->
+        <section class="slide" id="slide-3" data-notes="لو قلتلك إنك عايز تبعت رسالة لصديقك اللي عايش في أمريكا أو اليابان.. زمان بالجوابات الورقية والبريد كانت بتاخد شهور على ما توصل في السفن والقطارات! النهاردة بتبعت له رسالة على الواتساب أو تلعبوا سوا أونلاين في نفس اللحظة.. إزاي ده بيحصل؟ ده بفضل المعجزة البشرية الكبرى: شبكة الإنترنت!">
+          <div class="grid-2">
+            <div>
+              <span class="slide-tag">معجزة التواصل الفوري</span>
+              <h2 class="slide-title">من البريد البطيء إلى سرعة الضوء ⚡📨</h2>
+              
+              <div style="margin-top: 24px; display: flex; flex-direction: column; gap: 14px;">
+                <div class="kid-card">
+                  <h4 style="color: var(--text-muted);">📜 زمان (الرسائل الورقية):</h4>
+                  <p class="card-desc">شهور طويلة عبر السفن والخيول لتصل رسالة واحدة من قارة لقارة!</p>
+                </div>
+                <div class="kid-card" style="border: 2px solid var(--brand-blue);">
+                  <h4 style="color: var(--brand-blue);">🚀 اليوم مع الإنترنت:</h4>
+                  <p class="card-desc">رسائل وفيديوهات ومكالمات وألعاب حية مع أصدقائك عبر المحيطات في جزء من الثانية!</p>
+                </div>
+              </div>
+            </div>
+            <div class="image-container-right">
+              <img src="https://files.catbox.moe/y98jh5.png" alt="الرحلة الرقمية" class="embedded-img">
+            </div>
+          </div>
+        </section>
+
+        <!-- SLIDE 4: ما هو الإنترنت الحقيقي؟ -->
+        <section class="slide" id="slide-4" data-notes="الإنترنت مش سحابة سحرية طايرة في الفضاء، الإنترنت هو حقيقة ملموسة! هو عبارة عن مليارات أجهزة الكمبيوتر والموبايلات والسيرفرات حول العالم، مربوطة ببعضها بكابلات ضخمة ماشية في قاع المحيطات وتحت الأرض، وبأبراج لاسلكية سريعة!">
+          <div class="grid-2">
+            <div>
+              <span class="slide-tag">الحقيقة الملموسة</span>
+              <h2 class="slide-title">ما هو الإنترنت الحقيقي؟ (شبكة الشبكات) 🌐</h2>
+              
+              <div style="margin-top: 24px;" class="kid-card">
+                <p style="font-size: 20px; font-weight: 700; line-height: 1.7; color: var(--text-main);">
+                  الإنترنت ليس سحابة خيالية في السماء! <br>
+                  هو عبارة عن <strong>مليارات الأجهزة والسيرفرات المترابطة</strong> عبر كابلات ألياف ضوئية عملاقة تحت الأرض وفي قاع المحيطات وأبراج لاسلكية تنقل البيانات بسرعة الضوء!
+                </p>
+              </div>
+            </div>
+            <div class="image-container-right">
+              <img src="https://files.catbox.moe/0t58gy.png" alt="شبكة الإنترنت" class="embedded-img">
+            </div>
+          </div>
+        </section>
+
+        <!-- SLIDE 5: كابلات قاع المحيطات -->
+        <section class="slide" id="slide-5" data-notes="شايفين الصورة العجيبة دي؟ أكتر من 95% من بيانات الإنترنت العالمية بتسافر عبر كابلات ألياف بصرية Fiber Optics ممدودة في قاع المحيط جنب الأسماك والحيتان! الكابلات دي بتنقل الفيديوهات والرسائل بسرعة الضوء تماماً!">
+          <div class="grid-2">
+            <div>
+              <span class="slide-tag">أعماق البحار والمحيطات</span>
+              <h2 class="slide-title">كابلات الإنترنت في قاع المحيط! 🌊🔌</h2>
+              
+              <div style="margin-top: 24px; display: flex; flex-direction: column; gap: 14px;">
+                <div class="kid-card">
+                  <h4 style="font-size: 19px; color: var(--brand-teal);">ألياف ضوئية خارقة (Fiber Optics):</h4>
+                  <p class="card-desc">أسلاك زجاجية دقيقة كالشعرة تنقل إشارات الليزر والبيانات بسرعة 300,000 كم/ثانية!</p>
+                </div>
+                <div class="kid-card">
+                  <h4 style="font-size: 19px; color: var(--brand-blue);">أكثر من 95% من بيانات العالم:</h4>
+                  <p class="card-desc">فيديوهات يوتيوب وألعابك تسافر عبر هذه الكابلات المارة بجوار الأسماك والحيتان!</p>
+                </div>
+              </div>
+            </div>
+            <div class="image-container-right">
+              <img src="https://files.catbox.moe/yudv8l.png" alt="كابلات المحيط" class="embedded-img">
+            </div>
+          </div>
+        </section>
+
+        <!-- SLIDE 6: الفرق الذهبي: الإنترنت vs الويب -->
+        <section class="slide" id="slide-6" data-notes="كتير من الناس فاكرين إن الإنترنت هو هو الويب، لكن المبرمج الذكي عارف الفرق: الإنترنت Internet هو شبكة الطرق السريعة والكابلات والأسلاك اللي بتربط العالم. الويب World Wide Web هو السيارات والمدن والمواقع اللي ماشية فوق تلك الطرق! الويب هو مجرد خدمة من خدمات الإنترنت، زي ما الواتساب والألعاب أونلاين خدمات برضه!">
+          <div class="slide-header" style="text-align: center;">
+            <span class="slide-tag">الفرق الجوهري للأذكياء</span>
+            <h2 class="slide-title">الإنترنت (Internet) مقابل الويب (Web) 🛣️🚗</h2>
+          </div>
+          <div class="grid-2" style="margin-top: 24px;">
+            <div class="kid-card" style="border-top: 6px solid var(--brand-blue); text-align: center;">
+              <div class="card-icon" style="margin: 0 auto; color: var(--brand-blue);">🛣️</div>
+              <h3 class="card-title">الإنترنت (Internet)</h3>
+              <p style="font-size: 19px; font-weight: 800;">مثل "شبكة الطرق السريعة والكابلات"</p>
+              <p class="card-desc">البنية التحتية والأسلاك والأجهزة التي تربط العالم ببعضه.</p>
+            </div>
+            <div class="kid-card" style="border-top: 6px solid var(--brand-orange); text-align: center;">
+              <div class="card-icon" style="margin: 0 auto; color: var(--brand-orange);">🏙️</div>
+              <h3 class="card-title">الويب (WWW)</h3>
+              <p style="font-size: 19px; font-weight: 800;">مثل "السيارات والمتاجر والمدن"</p>
+              <p class="card-desc">المواقع والصفحات الإلكترونية التي تسافر عبر تلك الشبكة.</p>
+            </div>
+          </div>
+        </section>
+
+        <!-- SLIDE 7: حكاية الـ WWW -->
+        <section class="slide" id="slide-7" data-notes="حروف www اللي بنشوفها قبل أي موقع دي اختصار لـ World Wide Web.. وهي عبارة عن مكتبة عملاقة فيها مليارات الصفحات المترابطة مع بعضها بروابط سحرية، أول ما تدوس على كلمة تنقلك لصفحة تانية في لحظة!">
+          <div class="grid-2">
+            <div>
+              <span class="slide-tag">المكتبة الكبرى</span>
+              <h2 class="slide-title">ما هي الـ WWW؟ (World Wide Web) 🕸️</h2>
+              
+              <div style="margin-top: 24px;" class="kid-card">
+                <p style="font-size: 20px; font-weight: 700; line-height: 1.7; color: var(--text-main);">
+                  الشبكة العنكبوتية العالمية: <br>
+                  مكتبة رقمية عملاقة تحتوي على مليارات الصفحات المرتبطة ببعضها البعض بخيوط سحرية تسمى <strong>الروابط (Hyperlinks)</strong>؛ نقرة واحدة تنقلك من صفحة إلى أخرى في غمضة عين!
+                </p>
+              </div>
+            </div>
+            <div class="image-container-right">
+              <img src="https://files.catbox.moe/8t5fqy.png" alt="الشبكة العنكبوتية" class="embedded-img">
+            </div>
+          </div>
+        </section>
+
+        <!-- SLIDE 8: سفينة الفضاء: متصفح الويب (Browser) -->
+        <section class="slide" id="slide-8" data-notes="علشان تقدر تسافر وتشوف صفحات الويب دي محتاج سفينة فضاء.. السفينة دي اسمها: متصفح الويب Web Browser! زي Google Chrome، و Microsoft Edge، و Safari، و Firefox. المتصفح هو البرنامج اللي بياخد كود الموقع ويحوله لصور وفيديوهات وألوان جميلة تشوفها بعينيك!">
+          <div class="slide-header">
+            <span class="slide-tag">سفينة الاستكشاف</span>
+            <h2 class="slide-title">متصفح الويب (Web Browser): سفينة الفضاء الرقمية 🚀</h2>
+          </div>
+          <div class="grid-4">
+            <div class="kid-card" style="text-align: center;">
+              <div class="card-icon" style="margin: 0 auto; color: #ea580c;">🌐</div>
+              <h4 class="card-title">Google Chrome</h4>
+              <p class="card-desc">المتصفح الأكثر شهرة وسرعة في العالم.</p>
+            </div>
+            <div class="kid-card" style="text-align: center;">
+              <div class="card-icon" style="margin: 0 auto; color: #2563eb;">🌊</div>
+              <h4 class="card-title">Microsoft Edge</h4>
+              <p class="card-desc">سفينة مايكروسوفت المدمجة في الويندوز.</p>
+            </div>
+            <div class="kid-card" style="text-align: center;">
+              <div class="card-icon" style="margin: 0 auto; color: #0284c7;">🧭</div>
+              <h4 class="card-title">Apple Safari</h4>
+              <p class="card-desc">متصفح أجهزة الآيفون والماك الأنيق.</p>
+            </div>
+            <div class="kid-card" style="text-align: center;">
+              <div class="card-icon" style="margin: 0 auto; color: #ea580c;">🦊</div>
+              <h4 class="card-title">Mozilla Firefox</h4>
+              <p class="card-desc">الثعلب البرتقالي السريع وحامي الخصوصية.</p>
+            </div>
+          </div>
+        </section>
+
+        <!-- SLIDE 9: تحدي التعرف على المتصفحات السريع -->
+        <section class="slide" id="slide-9" data-notes="يلا نلعب تحدي سريع على الشاشة: أي من الأيقونات دي هو المتصفح الشهير جوجل كروم؟ برافوووو! الأيقونة الدائرية الملونة بالأحمر والأصفر والأخضر والأزرق! أنتم شطار جداً!">
+          <div class="slide-header" style="text-align: center;">
+            <span class="slide-tag">تحدي الملاحظة السريع</span>
+            <h2 class="slide-title">أين هو متصفح جوجل كروم (Google Chrome)؟ 🎯</h2>
+          </div>
+          <div class="speed-test-box">
+            <div class="speed-options">
+              <button class="option-btn" onclick="checkOption(this, false, 'لا! هذا سلة المحذوفات.')">سلة المحذوفات ❌</button>
+              <button class="option-btn" onclick="checkOption(this, true, 'عبقري! الدائرة الملونة بألوان جوجل الرباعية هي جوجل كروم 🌟')">الدائرة الملونة (Chrome) ✅</button>
+              <button class="option-btn" onclick="checkOption(this, false, 'لا! هذا برنامج الآلة الحاسبة.')">الآلة الحاسبة ❌</button>
+            </div>
+            <div class="option-feedback" style="margin-top: 16px; font-size: 20px; font-weight: 800;"></div>
+          </div>
+        </section>
+
+        <!-- SLIDE 10: عنوان الموقع السحري: ما هو الـ URL؟ -->
+        <section class="slide" id="slide-10" data-notes="زي ما بيتك في الحقيقة ليه عنوان ورقم شارع واسم مدينة علشان أصحابك يزوروك.. كل موقع على الإنترنت ليه عنوان فريد اسمه URL أو رابط الموقع Link. مثال: www.google.com أو eslamatef.com!">
+          <div class="grid-2">
+            <div>
+              <span class="slide-tag">العنوان الرقمي</span>
+              <h2 class="slide-title">ما هو عنوان الموقع (URL)؟ 📍</h2>
+              <p class="slide-subtitle">هو العنوان الفريد الذي يوجه متصفحك إلى الخزانة المحددة على الإنترنت</p>
+              
+              <div style="margin-top: 24px;" class="kid-card">
+                <p style="font-size: 20px; font-weight: 800; color: var(--brand-blue); font-family: var(--font-mono);">
+                  https://www.google.com
+                </p>
+                <p class="card-desc">
+                  مثل عنوان منزلك بالضبط: رقم البيت + اسم الشارع + المدينة.. يستحيل أن يتشابه اثنان في نفس العنوان على الويب!
+                </p>
+              </div>
+            </div>
+            <div class="image-container-right">
+              <img src="https://files.catbox.moe/yudv8l.png" alt="العنوان الرقمي" class="embedded-img">
+            </div>
+          </div>
+        </section>
+
+        <!-- SLIDE 11: تشريح عنوان الموقع -->
+        <section class="slide" id="slide-11" data-notes="تعالوا نفكك الرابط ده حتة حتة: 1. https ده بروتوكول الأمان والتشفير، 2. www الشبكة العنكبوتية، 3. eslamatef اسم الموقع الفريد، 4. com نوع النطاق موقع تجاري أو مؤسسي.">
+          <div class="slide-header" style="text-align: center;">
+            <span class="slide-tag">التشريح الهندسي</span>
+            <h2 class="slide-title">مما يتكون عنوان الموقع (URL)؟ 🔬</h2>
+          </div>
+          <div class="grid-4" style="margin-top: 24px;">
+            <div class="kid-card" style="text-align: center;">
+              <span style="font-size: 24px; font-weight: 900; color: var(--brand-green);">https://</span>
+              <h4 class="card-title">بروتوكول الأمان</h4>
+              <p class="card-desc">الحارس المشفر لنقل البيانات بأمان.</p>
+            </div>
+            <div class="kid-card" style="text-align: center;">
+              <span style="font-size: 24px; font-weight: 900; color: var(--brand-blue);">www.</span>
+              <h4 class="card-title">الشبكة العالمية</h4>
+              <p class="card-desc">World Wide Web</p>
+            </div>
+            <div class="kid-card" style="text-align: center;">
+              <span style="font-size: 24px; font-weight: 900; color: var(--brand-orange);">eslamatef</span>
+              <h4 class="card-title">اسم الموقع</h4>
+              <p class="card-desc">الهوية الخاصة بالمنصة.</p>
+            </div>
+            <div class="kid-card" style="text-align: center;">
+              <span style="font-size: 24px; font-weight: 900; color: var(--brand-purple);">.com</span>
+              <h4 class="card-title">النطاق (Domain)</h4>
+              <p class="card-desc">نوع الموقع (تجاري، تعليمي .edu، حكومي .gov).</p>
+            </div>
+          </div>
+        </section>
+
+        <!-- SLIDE 12: سر قفل الأمان الصغير -->
+        <section class="slide" id="slide-12" data-notes="وأنت بتتصفح أي موقع، بص دايماً فوق جنب العنوان.. لو لقيت علامة القفل الصغير الأخضر أو الرمادي وكلمة HTTPS: ده معناه إن الموقع آمن، وبياناتك مشفرة ومحدش يقدر يتجسس عليها أو يسرقها!">
+          <div class="grid-2">
+            <div>
+              <span class="slide-tag">درع الحماية المشفر</span>
+              <h2 class="slide-title">سر قفل الأمان الصغير (HTTPS) 🔒✨</h2>
+              
+              <div style="margin-top: 24px;" class="kid-card" style="border: 3px solid var(--brand-green);">
+                <h3 class="card-title" style="color: var(--brand-green);">علامة الأمان الموثوقة:</h3>
+                <p class="card-desc" style="font-size: 19px; line-height: 1.7;">
+                  حرف <strong>S</strong> يعني (Secure - آمن)! <br>
+                  يعني أن كل رسالة أو كلمة مرور ترسلها للموقع يتم وضعها داخل صندوق فولاذي مشفر بقفل سحري لا يفتحه إلا السيرفر الموثوق فقط!
+                </p>
+              </div>
+            </div>
+            <div class="image-container-right">
+              <img src="https://files.catbox.moe/c5u0fs.png" alt="قفل الأمان" class="embedded-img">
+            </div>
+          </div>
+        </section>
+
+        <!-- SLIDE 13: العميل والسيرفر -->
+        <section class="slide" id="slide-13" data-notes="الكمبيوتر بتاعك اللي قاعد عليه اسمه: العميل Client لأنه بيطلب الخدمة. أما الكمبيوتر العملاق اللي شايل الفيديوهات وموقع اليوتيوب وشغال 24 ساعة بدون نوم، فاسمه: السيرفر Server! أنت تطلب الفيديو، والسيرفر يبعتهولك في ثانية واحدة!">
+          <div class="slide-header" style="text-align: center;">
+            <span class="slide-tag">ثنائي الويب العظيم</span>
+            <h2 class="slide-title">العميل (Client) مقابل الخادم (Server) 💻🔄🏢</h2>
+          </div>
+          <div class="grid-2" style="margin-top: 24px;">
+            <div class="kid-card" style="border-right: 6px solid var(--brand-blue); text-align: center;">
+              <div class="card-icon" style="margin: 0 auto; color: var(--brand-blue);">🧑‍💻</div>
+              <h3 class="card-title">جهاز العميل (Client)</h3>
+              <p class="card-desc">جهازك الشخصي (كمبيوترك أو موبايلك) الذي يطلب فتح صفحة أو تشغيل لعبة.</p>
+            </div>
+            <div class="kid-card" style="border-right: 6px solid var(--brand-purple); text-align: center;">
+              <div class="card-icon" style="margin: 0 auto; color: var(--brand-purple);">🏢</div>
+              <h3 class="card-title">الخادم الخارق (Server)</h3>
+              <p class="card-desc">حاسوب عملاق يعمل 24 ساعة في مراكز بيانات ضخمة، يحفظ الملفات ويرسلها للعميل فوراً.</p>
+            </div>
+          </div>
+        </section>
+
+        <!-- SLIDE 14: تحدي السرعة: العميل vs السيرفر -->
+        <section class="slide" id="slide-14" data-notes="سؤال سريع للأذكياء: لما بتطلب تشغل فيديو كرتون على يوتيوب.. مين اللي بيبعتلك الفيديو؟ ممتاز! السيرفر الخارق بتاع يوتيوب!">
+          <div class="slide-header" style="text-align: center;">
+            <span class="slide-tag">تحدي الأذكياء السريع</span>
+            <h2 class="slide-title">من الذي يخزن فيديوهات يوتيوب ويرسلها لنا؟ 🎬</h2>
+          </div>
+          <div class="speed-test-box">
+            <div class="speed-options">
+              <button class="option-btn" onclick="checkOption(this, false, 'خطأ! كابل الماوس ينقل حركتك أنت فقط.')">كابل الماوس ❌</button>
+              <button class="option-btn" onclick="checkOption(this, true, 'رائع! خوادم وسيرفرات يوتيوب العملاقة هي التي ترسل الفيديو 🚀')">سيرفرات يوتيوب (Servers) ✅</button>
+              <button class="option-btn" onclick="checkOption(this, false, 'لا! الشاشة تعرض فقط ولا تخزن الفيديوهات العالمية.')">شاشة العرض ❌</button>
+            </div>
+            <div class="option-feedback" style="margin-top: 16px; font-size: 20px; font-weight: 800;"></div>
+          </div>
+        </section>
+
+        <!-- SLIDE 15: محركات البحث -->
+        <section class="slide" id="slide-15" data-notes="على الإنترنت فيه أكتر من 2 مليار موقع! إزاي بتلاقي الموقع اللي أنت عايزه؟ عن طريق المحقق الذكي اللي اسمه: محرك البحث Search Engine! وأشهرهم على الإطلاق: جوجل Google وبينج Bing.">
+          <div class="grid-2">
+            <div>
+              <span class="slide-tag">المحقق الذكي في بحر الإنترنت</span>
+              <h2 class="slide-title">محركات البحث (Search Engines) 🔎</h2>
+              <p class="slide-subtitle">كيف نعثر على صفحة واحدة وسط 2 مليار موقع حول العالم؟</p>
+              
+              <div style="margin-top: 24px;" class="kid-card">
+                <p style="font-size: 19px; line-height: 1.7; color: var(--text-main); font-weight: 700;">
+                  محرك البحث (مثل <strong>Google</strong>) يرسل عناكب برمجية ذكية تجوب صفحات الويب وتفهرس كل كلمة، لتجيب عن أي سؤال تطرحه في جزء من الثانية!
+                </p>
+              </div>
+            </div>
+            <div class="image-container-right">
+              <img src="https://files.catbox.moe/yudv8l.png" alt="محرك البحث" class="embedded-img">
+            </div>
+          </div>
+        </section>
+
+        <!-- SLIDE 16: كيف تبحث كالمحترفين في جوجل؟ -->
+        <section class="slide" id="slide-16" data-notes="المبرمج المحترف مبيكتبش كلام عشوائي، بيستخدم حيل ذكية: 1. لو عايز تبحث عن جملة بالظبط، حطها بين علامتي تنصيص: كورس برمجة أطفال، 2. لو عايز نوع ملف معين، اكتب: filetype:pdf، 3. اكتب كلمات واضحة ومحددة بدل الأسئلة الطويلة!">
+          <div class="slide-header">
+            <span class="slide-tag">حيل المبرمجين</span>
+            <h2 class="slide-title">حيل البحث الاحترافي في جوجل 🔎💡</h2>
+          </div>
+          <div class="grid-3">
+            <div class="kid-card">
+              <div class="card-icon">🎯</div>
+              <h4 class="card-title">علامات التنصيص " "</h4>
+              <p class="card-desc">اكتب <code>"برمجة بايثون للأطفال"</code> للبحث عن الجملة كما هي بالضبط دون زيادة أو نقصان.</p>
+            </div>
+            <div class="kid-card">
+              <div class="card-icon">📑</div>
+              <h4 class="card-title">تحديد نوع الملف</h4>
+              <p class="card-desc">اكتب <code>filetype:pdf</code> لتحميل ملخصات وكتب جاهزة ومباشرة دون صفحات إعلانات.</p>
+            </div>
+            <div class="kid-card">
+              <div class="card-icon">⚡</div>
+              <h4 class="card-title">الكلمات المفتاحية</h4>
+              <p class="card-desc">استخدم كلمات واضحة ومباشرة مثل "كورس إسلام عاطف" بدل كتابة أسئلة طويلة.</p>
+            </div>
+          </div>
+        </section>
+
+        <!-- SLIDE 17: الروابط التشعبية (Hyperlinks) -->
+        <section class="slide" id="slide-17" data-notes="أول ما تحط الماوس على كلمة وتلاقي مؤشر الماوس اتحول لشكل كف يد صغير.. ده معناه إن الكلمة دي وراها باب سحري بنسميه رابط تشعبي Hyperlink! بمجرد ما تدوس عليه، بينقلك فوراً لصفحة جديدة أو لموقع تاني خالص!">
+          <div class="grid-2">
+            <div>
+              <span class="slide-tag">الأبواب السحرية</span>
+              <h2 class="slide-title">الروابط التشعبية (Hyperlinks) 🚪✨</h2>
+              
+              <div style="margin-top: 24px;" class="kid-card">
+                <p style="font-size: 20px; line-height: 1.7; font-weight: 700;">
+                  عندما يتحول مؤشر الفأرة من سهم ↖️ إلى كف يد يشير بإصبعه 👆.. <br>
+                  فأنت تقف فوق <strong>رابط تشعبي</strong>! هو باب سري ينقلك إلى عالم أو صفحة أو فيديو جديد فور النقر عليه!
+                </p>
+              </div>
+            </div>
+            <div class="image-container-right">
+              <img src="https://files.catbox.moe/8t5fqy.png" alt="الروابط التشعبية" class="embedded-img">
+            </div>
+          </div>
+        </section>
+
+        <!-- SLIDE 18: لغات صناعة صفحات الويب -->
+        <section class="slide" id="slide-18" data-notes="صفحة الويب اللي شايفها دي مصنوعة من إيه؟ مصنوعة من 3 لغات برمجة عظيمة هنتعلمهم في الكورس ده: 1. HTML العظام وهيكل الصفحة، 2. CSS الملابس والألوان الجميلة، 3. JavaScript العقل والحركة والتفاعل!">
+          <div class="slide-header" style="text-align: center;">
+            <span class="slide-tag">سر صناعة المواقع</span>
+            <h2 class="slide-title">الثلاثي العظيم لصناعة صفحات الويب 🌐🏗️</h2>
+          </div>
+          <div class="grid-3" style="margin-top: 24px;">
+            <div class="kid-card" style="border-top: 6px solid #ea580c; text-align: center;">
+              <h3 class="card-title" style="color: #ea580c;">1. HTML 🦴</h3>
+              <p style="font-weight: 800;">الهيكل والعظام</p>
+              <p class="card-desc">تحدد العناوين والنصوص والأزرار والصور ومكان كل عنصر في الصفحة.</p>
+            </div>
+            <div class="kid-card" style="border-top: 6px solid #2563eb; text-align: center;">
+              <h3 class="card-title" style="color: #2563eb;">2. CSS 🎨</h3>
+              <p style="font-weight: 800;">الملابس والألوان</p>
+              <p class="card-desc">تمنح الصفحة ألوانها الزاهية والخطوط الجميلة والتنسيق الأنيق المبهج.</p>
+            </div>
+            <div class="kid-card" style="border-top: 6px solid #eab308; text-align: center;">
+              <h3 class="card-title" style="color: #ca8a04;">3. JavaScript ⚡</h3>
+              <p style="font-weight: 800;">العقل والحركة</p>
+              <p class="card-desc">تتحكم في المؤثرات والرسوم المتحركة والتفاعل والرد على نقرات المستخدم!</p>
+            </div>
+          </div>
+        </section>
+
+        <!-- SLIDE 19: الأمان والخصوصية -->
+        <section class="slide" id="slide-19" data-notes="الإنترنت عالم مبهر، بس لازم نكون أذكياء: إياك تدوس على أي رابط مجهول يقولك: اضغط هنا لتربح آيفون مجاناً أو مبروك كسبت مليون دولار! دي كلها فخاخ وروابط احتيالية.. المبرمج الذكي لا يضغط أبداً إلا على الروابط الموثوقة ويستشير والديه دائماً.">
+          <div class="grid-2">
+            <div>
+              <span class="slide-tag">درع الأمان الرقمي</span>
+              <h2 class="slide-title">احذر الروابط المشبوهة والفخاخ! ⚠️🛡️</h2>
+              
+              <div style="margin-top: 24px;" class="kid-card" style="border: 3px solid #dc2626;">
+                <h4 style="color: #dc2626; font-size: 20px;">🚫 قواعد البطل الذكي:</h4>
+                <p class="card-desc" style="font-size: 18px; line-height: 1.7;">
+                  1. لا تضغط أبداً على روابط "ربحت مليون دولار" أو "اضغط هنا لتربح جوائز فورية".<br>
+                  2. لا تكتب كلمة مرورك أو بياناتك إلا على المواقع الموثوقة.<br>
+                  3. استشر والديك أو معلمك فوراً إذا ظهر لك إعلان مريب!
+                </p>
+              </div>
+            </div>
+            <div class="image-container-right">
+              <img src="https://files.catbox.moe/y98jh5.png" alt="الأمان الرقمي" class="embedded-img">
+            </div>
+          </div>
+        </section>
+
+        <!-- SLIDE 20: النشاط العملي: فحص موقع واستخراج أسراره -->
+        <section class="slide" id="slide-20" data-notes="ودلوقتي جه وقت التجربة العملية! هنفتح المتصفح سوا، وندخل على موقع الأكاديمية: eslamatef-sepia.vercel.app وهنعمل: 1. نلاحظ قفل الأمان HTTPS، 2. نقرأ اسم الدومين والامتداد، 3. نضغط كليك يمين ونختار View Page Source علشان نتفرج على الكود الحقيقي للموقع!">
+          <div class="slide-header" style="text-align: center;">
+            <span class="slide-tag">التطبيق العملي 1</span>
+            <h2 class="slide-title">فحص موقع الأكاديمية واستكشاف أسراره 🕵️‍♂️💻</h2>
+          </div>
+          <div class="grid-3" style="margin-top: 24px;">
+            <div class="kid-card" style="border-right: 6px solid var(--brand-green);">
+              <h4 style="color: var(--brand-green); font-size: 19px;">1. التحقق من القفل 🔒</h4>
+              <p class="card-desc">تأكد من وجود علامة القفل بجانب رابط موقعنا الرسمي للتأكد من أمانه التام.</p>
+            </div>
+            <div class="kid-card" style="border-right: 6px solid var(--brand-blue);">
+              <h4 style="color: var(--brand-blue); font-size: 19px;">2. قراءة النطاق</h4>
+              <p class="card-desc">حلل أجزاء الرابط: البروتوكول، واسم الموقع، والنطاق النهائي.</p>
+            </div>
+            <div class="kid-card" style="border-right: 6px solid var(--brand-purple);">
+              <h4 style="color: var(--brand-purple); font-size: 19px;">3. رؤية الكود السحري</h4>
+              <p class="card-desc">انقر كليك يمين واختر <code>View Page Source</code> لترى أكواد HTML التي تبني الصفحة!</p>
+            </div>
+          </div>
+        </section>
+
+        <!-- SLIDE 21: التدريب على البحث الاحترافي -->
+        <section class="slide" id="slide-21" data-notes="هنفتح محرك البحث جوجل ونجرب حيلة علامات التنصيص: اكتب: Eslam Atef Code & AI وشوف إزاي النتائج بتطلع دقيقة ومحددة في ثانية واحدة!">
+          <div class="grid-2">
+            <div>
+              <span class="slide-tag">التطبيق العملي 2</span>
+              <h2 class="slide-title">تطبيق حيلة علامات التنصيص في جوجل 🎯</h2>
+              
+              <div style="margin-top: 24px;" class="kid-card">
+                <p style="font-size: 20px; font-weight: 700; color: var(--text-main); line-height: 1.7;">
+                  افتح متصفحك واكتب في شريط بحث جوجل: <br>
+                  <code style="background: #f1f5f9; padding: 6px 12px; border-radius: 8px; color: var(--brand-blue);">"Eslam Atef Code & AI"</code> <br><br>
+                  ولاحظ كيف تظهر لك نتائج دقيقة تقودك لقناة اليوتيوب والموقع الرسمي فوراً!
+                </p>
+              </div>
+            </div>
+            <div class="image-container-right">
+              <img src="https://files.catbox.moe/0t58gy.png" alt="بحث جوجل" class="embedded-img">
+            </div>
+          </div>
+        </section>
+
+        <!-- SLIDE 22: لغز الأبطال: الموقع الذي لا يفتح! -->
+        <section class="slide" id="slide-22" data-notes="لو كتبت رابط ومفتحش وطلعلك رقم 404 (Page Not Found).. ده معناه إيه؟ معناه إن الصفحة دي مش موجودة أو أنت كتبت العنوان بحرف غلط! راجع حروف العنوان بدقة وهيفتح معاك فوراً!">
+          <div class="grid-2">
+            <div>
+              <span class="slide-tag">لغز المبرمجين</span>
+              <h2 class="slide-title">لغز الخطأ الشهير: 404 Page Not Found ❓</h2>
+              
+              <div style="margin-top: 24px;" class="kid-card">
+                <h3 class="card-title" style="color: var(--brand-orange);">ماذا يعني هذا الرمز؟</h3>
+                <p class="card-desc" style="font-size: 19px; line-height: 1.7;">
+                  رمز <strong>404</strong> يخبرك به السيرفر عندما تبحث عن صفحة غير موجودة أو قمت بكتابة حرف واحد خطأ في العنوان! <br>
+                  الحل: راجع حروف الرابط بدقة أو ارجع للصفحة الرئيسية.
+                </p>
+              </div>
+            </div>
+            <div class="image-container-right">
+              <img src="https://files.catbox.moe/yudv8l.png" alt="خطأ 404" class="embedded-img">
+            </div>
+          </div>
+        </section>
+
+        <!-- SLIDE 23: لغز الروبوت سبارك والشبكة السحرية -->
+        <section class="slide" id="slide-23" data-notes="الروبوت سبارك عايز يبعت رسالة لصديقه في الفضاء.. ما هو المسار الصحيح للرسالة؟ من جهاز العميل عبر الراوتر والإنترنت إلى السيرفر ثم إلى المستلم بنجاح!">
+          <div class="slide-header" style="text-align: center;">
+            <span class="slide-tag">لغز الأبطال</span>
+            <h2 class="slide-title">مسار الرسالة السحرية: كيف تسافر بياناتك؟ 🚀</h2>
+          </div>
+          <div class="grid-4" style="margin-top: 24px;">
+            <div class="kid-card" style="text-align: center;">
+              <span style="font-size: 32px;">📱</span>
+              <h4 class="card-title">1. العميل</h4>
+              <p class="card-desc">تكتب الرسالة وتضغط إرسال.</p>
+            </div>
+            <div class="kid-card" style="text-align: center;">
+              <span style="font-size: 32px;">📶</span>
+              <h4 class="card-title">2. الراوتر</h4>
+              <p class="card-desc">يحول الرسالة لنبضات ضوء وسلكية.</p>
+            </div>
+            <div class="kid-card" style="text-align: center;">
+              <span style="font-size: 32px;">🏢</span>
+              <h4 class="card-title">3. السيرفر</h4>
+              <p class="card-desc">يعالج الرسالة ويوجهها للمستلم.</p>
+            </div>
+            <div class="kid-card" style="text-align: center;">
+              <span style="font-size: 32px;">🎉</span>
+              <h4 class="card-title">4. المستلم</h4>
+              <p class="card-desc">تصل لصديقك في ثانية واحدة!</p>
+            </div>
+          </div>
+        </section>
+
+        <!-- SLIDE 24: تحدي البطل المنزلي -->
+        <section class="slide" id="slide-24" data-notes="تحدي البيت: ادخل على 3 مواقع مفضلة عندك (مثال: ويكيبيديا، يوتيوب، موقع مدرستك).. واكتب في كشكول الأبطال: ما هو الـ URL الكامل لكل موقع، وهل يمتلك قفل الأمان HTTPS؟">
+          <div class="grid-2">
+            <div>
+              <span class="slide-tag">المهمة الأسبوعية</span>
+              <h2 class="slide-title">تحدي البطل المنزلي: قبطان الويب 🏆🚢</h2>
+              
+              <div style="margin-top: 24px;" class="kid-card">
+                <p style="font-size: 20px; font-weight: 700; color: var(--text-main); line-height: 1.7;">
+                  1. ادخل على 3 مواقع مفضلة لديك على متصفحك.<br>
+                  2. انسخ الـ URL الكامل لكل موقع وتأكد من وجود قفل الأمان HTTPS.<br>
+                  3. شاركنا أسماء المواقع وتجربتك في مجتمع الأبطال!
+                </p>
+              </div>
+            </div>
+            <div class="image-container-right">
+              <img src="https://files.catbox.moe/8t5fqy.png" alt="الواجب المنزلي" class="embedded-img">
+            </div>
+          </div>
+        </section>
+
+        <!-- SLIDE 25: الاحتفال وخاتمة المحاضرة -->
+        <section class="slide" id="slide-25" data-notes="ألف مبروك يا أبطال الشبكة العنكبوتية! النهاردة اتعلمتم كيف يسافر العالم الرقمي عبر المحيطات، وفهمتم الفرق بين الويب والإنترنت. كسبتم 100 نقطة جديدة ووسام قبطان الإنترنت. المحاضرة الجاية مغامرتنا هتكون أعمق: الشبكات ببساطة: كيف يكلم الراوتر أجهزتنا؟ أشوفكم على خير يا مبدعين!">
+          <div class="grid-2">
+            <div>
+              <span class="slide-tag">تألق واستحقاق!</span>
+              <h2 class="slide-title" style="color: var(--brand-green);">ألف مبروك يا أبطال الشبكة العالمية! 🎉🏅</h2>
+              <p class="slide-subtitle">أتممتم المحاضرة 03 بنجاح ونلتم وسام 'قبطان الإنترنت'</p>
+              
+              <div style="margin-top: 24px;" class="kid-card">
+                <p style="font-size: 20px; font-weight: 800; color: var(--brand-blue);">
+                  موعدنا في المحاضرة 04: <br>
+                  "الشبكات ببساطة: كيف يكلم الراوتر أجهزتنا؟" 📶🌐
+                </p>
+              </div>
+            </div>
+            <div class="image-container-right">
+              <img src="https://files.catbox.moe/c5u0fs.png" alt="الاحتفال والنجاح" class="embedded-img">
+            </div>
+          </div>
+        </section>
+
+      </main>
+    </div>
+  </div>
+
+  <aside id="teacher-notes-panel">
+    <div class="notes-title">
+      <span>🎙️ اسكربت كلام المدرس (المتحدث)</span>
+      <button onclick="toggleTeacherNotes()" style="background: none; border: none; font-size: 16px; cursor: pointer;">✕</button>
+    </div>
+    <div class="notes-body" id="teacher-notes-content">...</div>
+  </aside>
+
+  <div class="studio-controls">
+    <button class="ctrl-btn" onclick="prevSlide()" title="السابق">➡️</button>
+    <div class="slide-counter">
+      <span id="current-slide-num">1</span> / 25
+    </div>
+    <button class="ctrl-btn" onclick="nextSlide()" title="التالي">⬅️</button>
+
+    <div style="width: 1px; height: 24px; background: #e2e8f0; margin: 0 4px;"></div>
+
+    <button class="ctrl-btn" id="btn-draw" onclick="toggleDrawingMode()" title="السبورة الذكية">✏️</button>
+    
+    <div class="palette-box" id="palette-box">
+      <div class="color-dot selected" style="background: #1d4ed8;" onclick="setDrawColor('#1d4ed8', this)"></div>
+      <div class="color-dot" style="background: #dc2626;" onclick="setDrawColor('#dc2626', this)"></div>
+      <div class="color-dot" style="background: #16a34a;" onclick="setDrawColor('#16a34a', this)"></div>
+      <div class="color-dot" style="background: #ea580c;" onclick="setDrawColor('#ea580c', this)"></div>
+      <div class="color-dot" style="background: #9333ea;" onclick="setDrawColor('#9333ea', this)"></div>
+      <div class="color-dot" style="background: #0f172a;" onclick="setDrawColor('#0f172a', this)"></div>
+      <button class="ctrl-btn" style="width: 32px; height: 32px; font-size: 13px;" onclick="clearCanvas()" title="مسح">🗑️</button>
+    </div>
+
+    <div style="width: 1px; height: 24px; background: #e2e8f0; margin: 0 4px;"></div>
+
+    <button class="ctrl-btn" id="btn-notes" onclick="toggleTeacherNotes()" title="اسكربت المدرس">📜</button>
+    <button class="ctrl-btn" onclick="toggleFullScreen()" title="ملء الشاشة">⛶</button>
+  </div>
+
+  <script>
+    const totalSlides = 25;
+    let currentSlide = 1;
+    let drawingMode = false;
+    let currentColor = '#1d4ed8';
+    let isDrawing = false;
+    let lastX = 0;
+    let lastY = 0;
+
+    const slides = document.querySelectorAll('.slide');
+    const indicator = document.getElementById('slide-indicator');
+    const counterNum = document.getElementById('current-slide-num');
+    const notesPanel = document.getElementById('teacher-notes-panel');
+    const notesContent = document.getElementById('teacher-notes-content');
+    const canvas = document.getElementById('drawing-canvas');
+    const ctx = canvas.getContext('2d');
+    const btnDraw = document.getElementById('btn-draw');
+    const paletteBox = document.getElementById('palette-box');
+
+    function resizeCanvas() {
+      canvas.width = canvas.parentElement.clientWidth;
+      canvas.height = canvas.parentElement.clientHeight;
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    function updateSlide() {
+      slides.forEach((s, idx) => {
+        s.classList.toggle('active', (idx + 1) === currentSlide);
+      });
+      indicator.textContent = `الشريحة ${currentSlide} / ${totalSlides}`;
+      counterNum.textContent = currentSlide;
+
+      const activeSlideEl = document.getElementById(`slide-${currentSlide}`);
+      if (activeSlideEl && activeSlideEl.dataset.notes) {
+        notesContent.textContent = activeSlideEl.dataset.notes;
+      } else {
+        notesContent.textContent = 'لا توجد ملاحظات لهذه الشريحة.';
+      }
+    }
+
+    function nextSlide() {
+      if (currentSlide < totalSlides) {
+        currentSlide++;
+        updateSlide();
+      }
+    }
+
+    function prevSlide() {
+      if (currentSlide > 1) {
+        currentSlide--;
+        updateSlide();
+      }
+    }
+
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowLeft' || e.key === 'PageDown' || e.key === ' ') nextSlide();
+      else if (e.key === 'ArrowRight' || e.key === 'PageUp') prevSlide();
+      else if (e.key === 'd' || e.key === 'D') toggleDrawingMode();
+      else if (e.key === 'n' || e.key === 'N') toggleTeacherNotes();
+      else if (e.key === 'c' || e.key === 'C') clearCanvas();
+    });
+
+    function toggleDrawingMode() {
+      drawingMode = !drawingMode;
+      canvas.classList.toggle('active-mode', drawingMode);
+      btnDraw.classList.toggle('active', drawingMode);
+      paletteBox.classList.toggle('open', drawingMode);
+    }
+
+    function setDrawColor(color, el) {
+      currentColor = color;
+      document.querySelectorAll('.color-dot').forEach(d => d.classList.remove('selected'));
+      if (el) el.classList.add('selected');
+    }
+
+    function clearCanvas() { ctx.clearRect(0, 0, canvas.width, canvas.height); }
+
+    canvas.addEventListener('mousedown', (e) => {
+      if (!drawingMode) return;
+      isDrawing = true;
+      const rect = canvas.getBoundingClientRect();
+      lastX = e.clientX - rect.left;
+      lastY = e.clientY - rect.top;
+    });
+
+    canvas.addEventListener('mousemove', (e) => {
+      if (!isDrawing || !drawingMode) return;
+      const rect = canvas.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+
+      ctx.beginPath();
+      ctx.moveTo(lastX, lastY);
+      ctx.lineTo(x, y);
+      ctx.strokeStyle = currentColor;
+      ctx.lineWidth = 4;
+      ctx.lineCap = 'round';
+      ctx.stroke();
+
+      lastX = x;
+      lastY = y;
+    });
+
+    window.addEventListener('mouseup', () => { isDrawing = false; });
+
+    function checkOption(btn, isCorrect, feedbackMsg) {
+      const container = btn.closest('.speed-test-box');
+      const allBtns = container.querySelectorAll('.option-btn');
+      allBtns.forEach(b => {
+        b.disabled = true;
+        b.style.opacity = '0.6';
+      });
+      btn.style.opacity = '1';
+      btn.classList.add(isCorrect ? 'correct' : 'wrong');
+
+      const fb = container.querySelector('.option-feedback');
+      fb.textContent = feedbackMsg;
+      fb.style.color = isCorrect ? 'var(--brand-green)' : '#dc2626';
+    }
+
+    function toggleTeacherNotes() { notesPanel.classList.toggle('visible'); }
+
+    function toggleFullScreen() {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(() => {});
+      } else {
+        if (document.exitFullscreen) document.exitFullscreen();
+      }
+    }
+
+    let secondsElapsed = 0;
+    const timerEl = document.getElementById('session-timer');
+    setInterval(() => {
+      secondsElapsed++;
+      const m = String(Math.floor(secondsElapsed / 60)).padStart(2, '0');
+      const s = String(secondsElapsed % 60).padStart(2, '0');
+      timerEl.textContent = `${m}:${s}`;
+    }, 1000);
+
+    updateSlide();
+  </script>
+</body>
+</html>

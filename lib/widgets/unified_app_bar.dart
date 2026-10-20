@@ -176,16 +176,31 @@ class UnifiedAppHeader extends StatelessWidget implements PreferredSizeWidget {
                             if (AuthService.instance.isAdmin && !isMobile)
                               Padding(
                                 padding: const EdgeInsets.only(left: 6),
-                                child: ElevatedButton.icon(
-                                  onPressed: () => Navigator.of(context).pushNamed('/admin'),
-                                  icon: const Icon(Icons.admin_panel_settings_rounded, size: 15),
-                                  label: Text("لوحة التحكم", style: GoogleFonts.cairo(fontSize: 11, fontWeight: FontWeight.bold)),
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: const Color(0xFF0284C7),
-                                    foregroundColor: Colors.white,
-                                    elevation: 0,
-                                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                                child: InkWell(
+                                  onTap: () => Navigator.of(context).pushNamed('/admin'),
+                                  borderRadius: BorderRadius.circular(18),
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                                    decoration: BoxDecoration(
+                                      color: const Color(0xFF0284C7).withOpacity(0.12),
+                                      borderRadius: BorderRadius.circular(18),
+                                      border: Border.all(color: const Color(0xFF0284C7).withOpacity(0.4)),
+                                    ),
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        const Icon(Icons.admin_panel_settings_rounded, size: 14, color: Color(0xFF0284C7)),
+                                        const SizedBox(width: 4),
+                                        Text(
+                                          "لوحة التحكم",
+                                          style: GoogleFonts.cairo(
+                                            fontSize: 11,
+                                            fontWeight: FontWeight.bold,
+                                            color: const Color(0xFF0284C7),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
                                   ),
                                 ),
                               ),
@@ -195,16 +210,16 @@ class UnifiedAppHeader extends StatelessWidget implements PreferredSizeWidget {
                                 onTap: () => AchievementsDialog.show(context),
                                 borderRadius: BorderRadius.circular(18),
                                 child: Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+                                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                                   decoration: BoxDecoration(
-                                    color: const Color(0xFFF59E0B).withValues(alpha: 0.12),
+                                    color: const Color(0xFF0284C7).withOpacity(0.12),
                                     borderRadius: BorderRadius.circular(18),
-                                    border: Border.all(color: const Color(0xFFF59E0B).withValues(alpha: 0.4)),
+                                    border: Border.all(color: const Color(0xFF0284C7).withOpacity(0.4)),
                                   ),
                                   child: Row(
                                     mainAxisSize: MainAxisSize.min,
                                     children: [
-                                      const Icon(Icons.emoji_events_rounded, size: 14, color: Color(0xFFD97706)),
+                                      const Icon(Icons.emoji_events_rounded, size: 14, color: Color(0xFF0284C7)),
                                       if (!isMobile) ...[
                                         const SizedBox(width: 4),
                                         Text(
@@ -212,7 +227,7 @@ class UnifiedAppHeader extends StatelessWidget implements PreferredSizeWidget {
                                           style: GoogleFonts.cairo(
                                             fontSize: 11,
                                             fontWeight: FontWeight.bold,
-                                            color: const Color(0xFFD97706),
+                                            color: const Color(0xFF0284C7),
                                           ),
                                         ),
                                       ],
@@ -225,19 +240,19 @@ class UnifiedAppHeader extends StatelessWidget implements PreferredSizeWidget {
                               padding: const EdgeInsets.only(left: 6),
                               child: InkWell(
                                 onTap: () => Navigator.of(context).pushNamed('/profile'),
-                                borderRadius: BorderRadius.circular(20),
+                                borderRadius: BorderRadius.circular(18),
                                 child: Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+                                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                                   decoration: BoxDecoration(
-                                    color: const Color(0xFF8B5CF6).withOpacity(0.12),
+                                    color: const Color(0xFF0284C7).withOpacity(0.12),
                                     borderRadius: BorderRadius.circular(18),
-                                    border: Border.all(color: const Color(0xFF8B5CF6).withOpacity(0.3)),
+                                    border: Border.all(color: const Color(0xFF0284C7).withOpacity(0.4)),
                                   ),
                                   child: Row(
                                     children: [
                                       CircleAvatar(
                                         radius: 11,
-                                        backgroundColor: const Color(0xFF8B5CF6),
+                                        backgroundColor: const Color(0xFF0284C7),
                                         backgroundImage: (user.photoURL != null && user.photoURL!.isNotEmpty)
                                             ? NetworkImage(user.photoURL!)
                                             : null,
@@ -249,9 +264,9 @@ class UnifiedAppHeader extends StatelessWidget implements PreferredSizeWidget {
                                       if (!isMobile) ...[
                                         const SizedBox(width: 5),
                                         Text(
-                                          AuthService.instance.isAdmin ? "الأدمن" : "حسابي",
+                                          AuthService.instance.isAdmin ? "الأدمن" : "الملف الشخصي",
                                           style: GoogleFonts.cairo(
-                                              fontSize: 11, fontWeight: FontWeight.bold, color: const Color(0xFF8B5CF6)),
+                                              fontSize: 11, fontWeight: FontWeight.bold, color: const Color(0xFF0284C7)),
                                         ),
                                       ],
                                     ],

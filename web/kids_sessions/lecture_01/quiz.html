@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>الاختبار الإلكتروني: أبطال العتاد والبرمجيات | المحاضرة 01</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg: #f8fafc;
+      --card-bg: #ffffff;
+      --text: #0f172a;
+      --text-muted: #64748b;
+      --blue: #2563eb;
+      --blue-light: #eff6ff;
+      --green: #16a34a;
+      --green-light: #dcfce7;
+      --red: #dc2626;
+      --red-light: #fee2e2;
+      --orange: #ea580c;
+      --purple: #7c3aed;
+      --border: #e2e8f0;
+      --radius: 20px;
+      --shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.08);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Cairo', sans-serif;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 30px 16px;
+    }
+
+    .quiz-container {
+      width: 100%;
+      max-width: 760px;
+      background: var(--card-bg);
+      border-radius: var(--radius);
+      border: 2px solid var(--border);
+      box-shadow: var(--shadow);
+      padding: 36px 32px;
+      position: relative;
+    }
+
+    .quiz-header {
+      text-align: center;
+      margin-bottom: 28px;
+      border-bottom: 2px solid #f1f5f9;
+      padding-bottom: 20px;
+    }
+
+    .brand-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--blue-light);
+      color: var(--blue);
+      padding: 6px 16px;
+      border-radius: 100px;
+      font-size: 14px;
+      font-weight: 800;
+      margin-bottom: 12px;
+    }
+
+    .quiz-title {
+      font-size: 28px;
+      font-weight: 900;
+      color: var(--text);
+    }
+
+    .quiz-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 16px;
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text-muted);
+    }
+
+    .progress-bar-container {
+      width: 100%;
+      height: 10px;
+      background: #e2e8f0;
+      border-radius: 10px;
+      margin: 16px 0 24px;
+      overflow: hidden;
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--blue), var(--purple));
+      width: 10%;
+      transition: width 0.3s ease;
+    }
+
+    .question-box {
+      margin-bottom: 24px;
+    }
+
+    .q-number {
+      font-size: 14px;
+      font-weight: 800;
+      color: var(--blue);
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+
+    .q-text {
+      font-size: 22px;
+      font-weight: 800;
+      color: var(--text);
+      line-height: 1.5;
+    }
+
+    .options-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-top: 20px;
+    }
+
+    .option-card {
+      padding: 16px 20px;
+      border: 2px solid var(--border);
+      border-radius: 14px;
+      background: #ffffff;
+      font-size: 17px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      transition: all 0.2s ease;
+    }
+
+    .option-card:hover:not(.disabled) {
+      border-color: var(--blue);
+      background: var(--blue-light);
+      transform: translateX(-4px);
+    }
+
+    .option-letter {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      background: #f1f5f9;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      color: var(--text-muted);
+    }
+
+    .option-card.correct {
+      background: var(--green-light) !important;
+      border-color: var(--green) !important;
+      color: var(--green) !important;
+    }
+    .option-card.correct .option-letter {
+      background: var(--green);
+      color: #fff;
+    }
+
+    .option-card.wrong {
+      background: var(--red-light) !important;
+      border-color: var(--red) !important;
+      color: var(--red) !important;
+    }
+    .option-card.wrong .option-letter {
+      background: var(--red);
+      color: #fff;
+    }
+
+    .feedback-box {
+      margin-top: 20px;
+      padding: 16px;
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: 700;
+      display: none;
+      line-height: 1.6;
+    }
+
+    .btn-next {
+      margin-top: 24px;
+      width: 100%;
+      padding: 16px;
+      background: var(--blue);
+      color: #ffffff;
+      border: none;
+      border-radius: 14px;
+      font-size: 18px;
+      font-weight: 800;
+      cursor: pointer;
+      display: none;
+      transition: background 0.2s ease;
+    }
+
+    .btn-next:hover {
+      background: #1d4ed8;
+    }
+
+    /* Result Card */
+    .result-screen {
+      display: none;
+      text-align: center;
+      padding: 20px 0;
+    }
+
+    .result-badge {
+      font-size: 72px;
+      margin-bottom: 12px;
+    }
+
+    .result-score {
+      font-size: 42px;
+      font-weight: 900;
+      color: var(--blue);
+      margin: 12px 0;
+    }
+
+    .result-msg {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--text-muted);
+      margin-bottom: 28px;
+    }
+
+    .btn-restart {
+      padding: 14px 32px;
+      background: var(--green);
+      color: #fff;
+      font-size: 18px;
+      font-weight: 800;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="quiz-container">
+    <div class="quiz-header">
+      <div class="brand-badge">
+        <span>🚀 Eslam Atef | Code & AI</span>
+        <span>•</span>
+        <span>المستوى 1</span>
+      </div>
+      <h1 class="quiz-title">الاختبار الإلكتروني: الكمبيوتر من الداخل والخارج 💻</h1>
+      
+      <div class="quiz-meta">
+        <span id="question-counter">السؤال 1 من 10</span>
+        <span id="score-counter">النقاط: 0 ⭐</span>
+      </div>
+
+      <div class="progress-bar-container">
+        <div class="progress-bar-fill" id="progress-bar"></div>
+      </div>
+    </div>
+
+    <!-- Active Question View -->
+    <div id="quiz-body">
+      <div class="question-box">
+        <div class="q-number" id="q-category">سؤال في العتاد والبرمجيات</div>
+        <div class="q-text" id="q-text">جاري تحميل السؤال...</div>
+      </div>
+
+      <div class="options-list" id="options-container">
+        <!-- Filled by JS -->
+      </div>
+
+      <div class="feedback-box" id="feedback-box"></div>
+
+      <button class="btn-next" id="btn-next" onclick="nextQuestion()">السؤال التالي ➡️</button>
+    </div>
+
+    <!-- Result View -->
+    <div class="result-screen" id="result-screen">
+      <div class="result-badge" id="res-badge">🏆</div>
+      <h2 style="font-size: 32px; font-weight: 900;">تهانينا يا بطل البرمجة!</h2>
+      <div class="result-score" id="final-score">100 / 100</div>
+      <p class="result-msg" id="final-msg">أنت عبقري حقيقي وتستحق وسام مهندس العتاد الأول!</p>
+      <button class="btn-restart" onclick="restartQuiz()">إعادة الاختبار 🔄</button>
+    </div>
+  </div>
+
+  <script>
+    const questions = [
+      {
+        q: "أي من المكونات التالية يعتبر مثالاً على الهاردوير (Hardware) الملموس؟",
+        cat: "الهاردوير والسوفتوير",
+        options: [
+          "شاشة الكمبيوتر والفأرة",
+          "لعبة روبلوكس",
+          "نظام التشغيل ويندوز",
+          "متصفح جوجل كروم"
+        ],
+        answer: 0,
+        tip: "الهاردوير هو كل جزء مادي تستطيع لمسه ورؤيته بيدك كالماوس والشاشة!"
+      },
+      {
+        q: "ما هو الجزء المسؤول عن التفكير والعمليات الحسابية داخل الكمبيوتر (عقل الحاسوب)؟",
+        cat: "مكونات الكيسة",
+        options: [
+          "السماعات (Speakers)",
+          "المعالج (CPU)",
+          "الماوس (Mouse)",
+          "الطابعة (Printer)"
+        ],
+        answer: 1,
+        tip: "المعالج CPU هو وحدة المعالجة المركزية وعقل الكمبيوتر الذي ينفذ مليارات العمليات في الثانية!"
+      },
+      {
+        q: "تعتبر الفأرة (Mouse) ولوحة المفاتيح (Keyboard) من وحدات:",
+        cat: "دورة البيانات",
+        options: [
+          "الإخراج (Output Units)",
+          "التخزين الدائم (Storage)",
+          "الإدخال (Input Units)",
+          "الإنترنت (Network)"
+        ],
+        answer: 2,
+        tip: "الفأرة والكيبورد تدخل الأوامر والنقرات والحروف إلى داخل الجهاز، لذا هي وحدات إدخال!"
+      },
+      {
+        q: "شاشة العرض (Monitor) ومكبرات الصوت (Speakers) تعتبر وحدات:",
+        cat: "دورة البيانات",
+        options: [
+          "إدخال (Input)",
+          "إخراج (Output)",
+          "معالجة (Processing)",
+          "حفظ مؤقت (RAM)"
+        ],
+        answer: 1,
+        tip: "الشاشة تخرج لك الصور والألوان، والسماعات تخرج الأصوات والموسيقى!"
+      },
+      {
+        q: "شاشة الموبايل التي تعمل باللمس (Touchscreen) تعتبر:",
+        cat: "الأجهزة الذكية",
+        options: [
+          "وحدة إدخال فقط",
+          "وحدة إخراج فقط",
+          "وحدة إدخال وإخراج معاً",
+          "لا شيء مما سبق"
+        ],
+        answer: 2,
+        tip: "التاتش سكرين اختراع رائع؛ تعرض لك اللعبة (إخراج) وتلمسها بأصابعك (إدخال)!"
+      },
+      {
+        q: "الذاكرة السريعة المؤقتة التي تفقد بياناتها فور انقطاع الكهرباء هي:",
+        cat: "الذاكرة والتخزين",
+        options: [
+          "القرص الصلب (Hard Disk)",
+          "الذاكرة العشوائية (RAM)",
+          "لوحة المفاتيح",
+          "الفلاش ميموري"
+        ],
+        answer: 1,
+        tip: "الرام RAM مثل سطح المكتب، سريعة جداً لكنها مؤقتة وتنسى كل شيء بدون كهرباء!"
+      },
+      {
+        q: "اللوحة الكبيرة التي تجمع وتربط كل قطع الكمبيوتر ببعضها تُسمى:",
+        cat: "مكونات الحاسوب",
+        options: [
+          "اللوحة الأم (Motherboard)",
+          "لوحة التحكم",
+          "لوحة الرسام",
+          "لوحة المفاتيح"
+        ],
+        answer: 0,
+        tip: "الـ Motherboard هي شبكة الطرق السريعة وسفينة الفضاء التي تربط المعالج بالرام بالشاشة!"
+      },
+      {
+        q: "ما هو دور نظام التشغيل (مثل Windows أو Android)؟",
+        cat: "البرمجيات والأنظمة",
+        options: [
+          "تبريد الجهاز من الحرارة",
+          "المايسترو والمدير الذي ينظم عمل البرامج والأجهزة معاً",
+          "صنع الكابلات والأسلاك",
+          "إصدار أصوات الموسيقى فقط"
+        ],
+        answer: 1,
+        tip: "نظام التشغيل هو المايسترو ومدير المدرسة الذي يجعل كل القطع والبرامج تتفاهم وتعمل بانسجام!"
+      },
+      {
+        q: "أين تُحفظ الألعاب والملفات بشكل دائم حتى عند إغلاق الكمبيوتر لشهور؟",
+        cat: "الذاكرة والتخزين",
+        options: [
+          "في الرام (RAM)",
+          "في وحدة التخزين الدائم (SSD / Hard Disk)",
+          "في كابل الكهرباء",
+          "في الماوس"
+        ],
+        answer: 1,
+        tip: "القرص الصلب SSD أو HDD هو خزانة الكتب والمكتبة الدائمة التي تحفظ ملفاتك لسنوات!"
+      },
+      {
+        q: "لماذا نقول إن الكمبيوتر جهاز مطيع وسريع ولكنه ليس ذكياً بمفرده؟",
+        cat: "فلسفة البرمجة",
+        options: [
+          "لأنه كائن خارق يصنع قراراته بنفسه",
+          "لأنه ينفذ فقط الأوامر التي يبرمجها له المبرمجون بدقة وسرعة",
+          "لأنه ينام بالليل ويستيقظ بالصباح",
+          "لأنه مصنوع من الذهب"
+        ],
+        answer: 1,
+        tip: "الكمبيوتر جهاز سريع ومطيع، لكن البشر والمبرمجين هم من يعلمونه ويوجهونه بالأكواد!"
+      }
+    ];
+
+    let currentQ = 0;
+    let score = 0;
+    let answered = false;
+
+    const qText = document.getElementById('q-text');
+    const qCat = document.getElementById('q-category');
+    const optionsContainer = document.getElementById('options-container');
+    const qCounter = document.getElementById('question-counter');
+    const sCounter = document.getElementById('score-counter');
+    const progressBar = document.getElementById('progress-bar');
+    const feedbackBox = document.getElementById('feedback-box');
+    const btnNext = document.getElementById('btn-next');
+    const quizBody = document.getElementById('quiz-body');
+    const resultScreen = document.getElementById('result-screen');
+    const finalScore = document.getElementById('final-score');
+    const finalMsg = document.getElementById('final-msg');
+    const resBadge = document.getElementById('res-badge');
+
+    const letters = ['أ', 'ب', 'ج', 'د'];
+
+    function loadQuestion() {
+      answered = false;
+      feedbackBox.style.display = 'none';
+      btnNext.style.display = 'none';
+
+      const item = questions[currentQ];
+      qText.textContent = item.q;
+      qCat.textContent = `سؤال ${currentQ + 1} • ${item.cat}`;
+      qCounter.textContent = `السؤال ${currentQ + 1} من ${questions.length}`;
+      sCounter.textContent = `النقاط: ${score} ⭐`;
+      progressBar.style.width = `${((currentQ + 1) / questions.length) * 100}%`;
+
+      optionsContainer.innerHTML = '';
+      item.options.forEach((opt, idx) => {
+        const div = document.createElement('div');
+        div.className = 'option-card';
+        div.innerHTML = `
+          <div class="option-letter">${letters[idx]}</div>
+          <div>${opt}</div>
+        `;
+        div.onclick = () => selectOption(idx, div);
+        optionsContainer.appendChild(div);
+      });
+    }
+
+    function selectOption(idx, el) {
+      if (answered) return;
+      answered = true;
+
+      const item = questions[currentQ];
+      const allCards = optionsContainer.querySelectorAll('.option-card');
+      allCards.forEach(c => c.classList.add('disabled'));
+
+      if (idx === item.answer) {
+        score += 10;
+        el.classList.add('correct');
+        feedbackBox.style.display = 'block';
+        feedbackBox.style.background = 'var(--green-light)';
+        feedbackBox.style.color = 'var(--green)';
+        feedbackBox.innerHTML = `✨ <strong>إجابة صحيحة وممتازة!</strong><br>${item.tip}`;
+      } else {
+        el.classList.add('wrong');
+        allCards[item.answer].classList.add('correct');
+        feedbackBox.style.display = 'block';
+        feedbackBox.style.background = 'var(--red-light)';
+        feedbackBox.style.color = 'var(--red)';
+        feedbackBox.innerHTML = `💡 <strong>إجابة غير صحيحة، فكر في القاعدة:</strong><br>${item.tip}`;
+      }
+
+      sCounter.textContent = `النقاط: ${score} ⭐`;
+      btnNext.style.display = 'block';
+    }
+
+    function nextQuestion() {
+      if (currentQ < questions.length - 1) {
+        currentQ++;
+        loadQuestion();
+      } else {
+        showResults();
+      }
+    }
+
+    function showResults() {
+      quizBody.style.display = 'none';
+      resultScreen.style.display = 'block';
+      finalScore.textContent = `${score} / 100`;
+
+      if (score >= 90) {
+        resBadge.textContent = '🏆';
+        finalMsg.textContent = 'ما شاء الله! عبقري متألق وتستحق وسام مهندس العتاد والبرمجيات الذهبي!';
+      } else if (score >= 70) {
+        resBadge.textContent = '🌟';
+        finalMsg.textContent = 'رائع جداً! مستوى ممتاز وبطل حقيقي في فهم أسرار الحاسوب!';
+      } else {
+        resBadge.textContent = '💪';
+        finalMsg.textContent = 'محاولة جيدة يا بطل، راجع شرائح الدرس وجرب مرة تانية لتحصل على 100%! ';
+      }
+    }
+
+    function restartQuiz() {
+      currentQ = 0;
+      score = 0;
+      quizBody.style.display = 'block';
+      resultScreen.style.display = 'none';
+      loadQuestion();
+    }
+
+    // Start quiz
+    loadQuestion();
+  </script>
+</body>
+</html>

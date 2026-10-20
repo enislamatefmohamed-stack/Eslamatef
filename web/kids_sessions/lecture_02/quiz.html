@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>الاختبار الإلكتروني: استخدام الكمبيوتر بذكاء | المحاضرة 02</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg: #f8fafc;
+      --card-bg: #ffffff;
+      --text: #0f172a;
+      --text-muted: #64748b;
+      --blue: #2563eb;
+      --blue-light: #eff6ff;
+      --green: #16a34a;
+      --green-light: #dcfce7;
+      --red: #dc2626;
+      --red-light: #fee2e2;
+      --orange: #ea580c;
+      --purple: #7c3aed;
+      --border: #e2e8f0;
+      --radius: 20px;
+      --shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.08);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Cairo', sans-serif; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 30px 16px;
+    }
+
+    .quiz-container {
+      width: 100%;
+      max-width: 760px;
+      background: var(--card-bg);
+      border-radius: var(--radius);
+      border: 2px solid var(--border);
+      box-shadow: var(--shadow);
+      padding: 36px 32px;
+      position: relative;
+    }
+
+    .quiz-header {
+      text-align: center;
+      margin-bottom: 28px;
+      border-bottom: 2px solid #f1f5f9;
+      padding-bottom: 20px;
+    }
+
+    .brand-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--blue-light);
+      color: var(--blue);
+      padding: 6px 16px;
+      border-radius: 100px;
+      font-size: 14px;
+      font-weight: 800;
+      margin-bottom: 12px;
+    }
+
+    .quiz-title {
+      font-size: 28px;
+      font-weight: 900;
+      color: var(--text);
+    }
+
+    .quiz-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 16px;
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text-muted);
+    }
+
+    .progress-bar-container {
+      width: 100%;
+      height: 10px;
+      background: #e2e8f0;
+      border-radius: 10px;
+      margin: 16px 0 24px;
+      overflow: hidden;
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--blue), var(--green));
+      width: 10%;
+      transition: width 0.3s ease;
+    }
+
+    .question-box { margin-bottom: 24px; }
+
+    .q-number {
+      font-size: 14px;
+      font-weight: 800;
+      color: var(--blue);
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+
+    .q-text {
+      font-size: 22px;
+      font-weight: 800;
+      color: var(--text);
+      line-height: 1.5;
+    }
+
+    .options-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-top: 20px;
+    }
+
+    .option-card {
+      padding: 16px 20px;
+      border: 2px solid var(--border);
+      border-radius: 14px;
+      background: #ffffff;
+      font-size: 17px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      transition: all 0.2s ease;
+    }
+
+    .option-card:hover:not(.disabled) {
+      border-color: var(--blue);
+      background: var(--blue-light);
+      transform: translateX(-4px);
+    }
+
+    .option-letter {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      background: #f1f5f9;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      color: var(--text-muted);
+    }
+
+    .option-card.correct {
+      background: var(--green-light) !important;
+      border-color: var(--green) !important;
+      color: var(--green) !important;
+    }
+    .option-card.correct .option-letter { background: var(--green); color: #fff; }
+
+    .option-card.wrong {
+      background: var(--red-light) !important;
+      border-color: var(--red) !important;
+      color: var(--red) !important;
+    }
+    .option-card.wrong .option-letter { background: var(--red); color: #fff; }
+
+    .feedback-box {
+      margin-top: 20px;
+      padding: 16px;
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: 700;
+      display: none;
+      line-height: 1.6;
+    }
+
+    .btn-next {
+      margin-top: 24px;
+      width: 100%;
+      padding: 16px;
+      background: var(--blue);
+      color: #ffffff;
+      border: none;
+      border-radius: 14px;
+      font-size: 18px;
+      font-weight: 800;
+      cursor: pointer;
+      display: none;
+    }
+
+    .result-screen {
+      display: none;
+      text-align: center;
+      padding: 20px 0;
+    }
+
+    .result-badge { font-size: 72px; margin-bottom: 12px; }
+    .result-score { font-size: 42px; font-weight: 900; color: var(--blue); margin: 12px 0; }
+    .result-msg { font-size: 20px; font-weight: 700; color: var(--text-muted); margin-bottom: 28px; }
+    .btn-restart {
+      padding: 14px 32px;
+      background: var(--green);
+      color: #fff;
+      font-size: 18px;
+      font-weight: 800;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="quiz-container">
+    <div class="quiz-header">
+      <div class="brand-badge">
+        <span>🚀 Eslam Atef | Code & AI</span>
+        <span>•</span>
+        <span>المستوى 1</span>
+      </div>
+      <h1 class="quiz-title">الاختبار الإلكتروني: استخدام الكمبيوتر بذكاء واحتراف 💻✨</h1>
+      
+      <div class="quiz-meta">
+        <span id="question-counter">السؤال 1 من 10</span>
+        <span id="score-counter">النقاط: 0 ⭐</span>
+      </div>
+
+      <div class="progress-bar-container">
+        <div class="progress-bar-fill" id="progress-bar"></div>
+      </div>
+    </div>
+
+    <div id="quiz-body">
+      <div class="question-box">
+        <div class="q-number" id="q-category">سؤال في مهارات المحترفين</div>
+        <div class="q-text" id="q-text">جاري تحميل السؤال...</div>
+      </div>
+
+      <div class="options-list" id="options-container"></div>
+      <div class="feedback-box" id="feedback-box"></div>
+      <button class="btn-next" id="btn-next" onclick="nextQuestion()">السؤال التالي ➡️</button>
+    </div>
+
+    <div class="result-screen" id="result-screen">
+      <div class="result-badge" id="res-badge">🏆</div>
+      <h2 style="font-size: 32px; font-weight: 900;">إنجاز باهر يا بطل التنظيم!</h2>
+      <div class="result-score" id="final-score">100 / 100</div>
+      <p class="result-msg" id="final-msg">أنت تستحق وسام المبرمج المنظم والمحترف بجدارة!</p>
+      <button class="btn-restart" onclick="restartQuiz()">إعادة الاختبار 🔄</button>
+    </div>
+  </div>
+
+  <script>
+    const questions = [
+      {
+        q: "ما هو الاختصار السحري على لوحة المفاتيح المخصص لنسخ النصوص والملفات (Copy)؟",
+        cat: "اختصارات الكيبورد",
+        options: ["Ctrl + V", "Ctrl + C", "Ctrl + Z", "Ctrl + S"],
+        answer: 1,
+        tip: "Ctrl + C هو اختصار النسخ (Copy)، بينما Ctrl + V هو اللصق (Paste)!"
+      },
+      {
+        q: "إذا حذفت سطراً من الكود بالخطأ، أي اختصار يعيد الزمن خطوة للوراء لإنقاذه (Undo)؟",
+        cat: "اختصارات الكيبورد",
+        options: ["Ctrl + Z", "Ctrl + P", "Ctrl + X", "Alt + F4"],
+        answer: 0,
+        tip: "Ctrl + Z هي تعويذة الإنقاذ السحرية للتراجع الفوري عن آخر خطأ!"
+      },
+      {
+        q: "لحفظ مشروعك أولاً بأول حتى لا يضيع إذا انقطعت الكهرباء، نضغط باستمرار على:",
+        cat: "اختصارات الكيبورد",
+        options: ["Ctrl + A", "Ctrl + S", "Ctrl + F", "Space"],
+        answer: 1,
+        tip: "Ctrl + S اختصار الحفظ السريع (Save)، قاعدة ذهبية لكل مبرمج!"
+      },
+      {
+        q: "الملف الذي ينتهي بـ .mp3 يعتبر ملفاً من عائلة:",
+        cat: "امتدادات الملفات",
+        options: ["الصور والرسومات", "المستندات المكتوبة", "الأصوات والموسيقى", "أكواد بايثون"],
+        answer: 2,
+        tip: ".mp3 هي عائلة الملفات الصوتية، بينما .png للصور و .mp4 للفيديوهات!"
+      },
+      {
+        q: "ما هي القاعدة الطبية الذهبية لحماية العينين من إجهاد الشاشات؟",
+        cat: "صحة الأبطال",
+        options: ["قاعدة 10-10-10", "قاعدة 20-20-20", "قاعدة 50-50-50", "النظر للشمس مباشرة"],
+        answer: 1,
+        tip: "كل 20 دقيقة، انظر لمسافة 20 قدماً (6 أمتار) لمدة 20 ثانية!"
+      },
+      {
+        q: "أي من العادات التالية تعتبر صحيحة للحفاظ على سلامة الظهر والرقبة أمام الحاسوب؟",
+        cat: "صحة الأبطال",
+        options: [
+          "الجلوس منحنياً ومقوس الظهر للأمام",
+          "الجلوس بظهر مستقيم مفرود ومحاذاة الشاشة لمستوى العينين",
+          "وضع اللاب توب على الأرض والجلوس مائلاً",
+          "اللعب في الظلام التام لساعات متواصلة"
+        ],
+        answer: 1,
+        tip: "الظهر المستقيم والقدمان المستقرتان على الأرض يحميان عمودك الفقري وقوتك البدنية!"
+      },
+      {
+        q: "لماذا يُحظر وضع العصائر أو المأكولات بجانب لوحة المفاتيح واللاب توب؟",
+        cat: "العناية بالأجهزة",
+        options: [
+          "لأن الكمبيوتر يكره العصائر فقط",
+          "لأن تسرب السوائل قد يسبب قفلة كهربائية ويدمر اللوحة الأم فوراً",
+          "لأن السوائل تجعل الجهاز ينام",
+          "لا يوجد أي خطر إطلاقاً"
+        ],
+        answer: 1,
+        tip: "نقطة عصير واحدة تسقط في مفاتيح الكيبورد قادرة على حرق الدوائر الإلكترونية الحساسة!"
+      },
+      {
+        q: "ما هي الطريقة الاحترافية الصحيحة لإيقاف تشغيل الكمبيوتر (Shut Down)؟",
+        cat: "العناية بالأجهزة",
+        options: [
+          "نزع الفيشة من الحائط فجأة",
+          "الضغط المطول على زر الباور لكتم الكهرباء",
+          "فتح قائمة Start واختيار أمر إيقاف التشغيل (Shut Down)",
+          "سكب الماء على المراوح"
+        ],
+        answer: 2,
+        tip: "أمر Shut Down يمنح نظام التشغيل فرصة لإغلاق الملفات وتخزينها بأمان على الهارد ديسك!"
+      },
+      {
+        q: "أي من أسماء المجلدات التالية يعتبر تسمية ذكية واحترافية لمشروعك؟",
+        cat: "تنظيم الملفات",
+        options: [
+          "asdfghjkl",
+          "ملف جديد 123",
+          "مشروع_لعبة_المتاهة_المحاضرة_02",
+          "حاجة مش مهمة"
+        ],
+        answer: 2,
+        tip: "التسمية الذكية والواضحة تجعلك أنت وفريقك تجدون المشروع في ثانية واحدة حتى بعد سنوات!"
+      },
+      {
+        q: "إذا نسيت مكان حفظ أحد ملفاتك، ماذا تستخدم في الـ File Explorer للبحث عنه؟",
+        cat: "مهارات البحث",
+        options: [
+          "شريط البحث الذكي (Search Bar) وكتابة اسم الملف أو امتداده",
+          "حذف كل الملفات الأخرى",
+          "إعادة تنصيب الويندوز",
+          "الاتصال بشركة الكهرباء"
+        ],
+        answer: 0,
+        tip: "شريط البحث يبحث لك في كل المجلدات ويحضر لك ملفك فوراً كالرادار الذكي!"
+      }
+    ];
+
+    let currentQ = 0;
+    let score = 0;
+    let answered = false;
+
+    const qText = document.getElementById('q-text');
+    const qCat = document.getElementById('q-category');
+    const optionsContainer = document.getElementById('options-container');
+    const qCounter = document.getElementById('question-counter');
+    const sCounter = document.getElementById('score-counter');
+    const progressBar = document.getElementById('progress-bar');
+    const feedbackBox = document.getElementById('feedback-box');
+    const btnNext = document.getElementById('btn-next');
+    const quizBody = document.getElementById('quiz-body');
+    const resultScreen = document.getElementById('result-screen');
+    const finalScore = document.getElementById('final-score');
+    const finalMsg = document.getElementById('final-msg');
+    const resBadge = document.getElementById('res-badge');
+    const letters = ['أ', 'ب', 'ج', 'د'];
+
+    function loadQuestion() {
+      answered = false;
+      feedbackBox.style.display = 'none';
+      btnNext.style.display = 'none';
+
+      const item = questions[currentQ];
+      qText.textContent = item.q;
+      qCat.textContent = `سؤال ${currentQ + 1} • ${item.cat}`;
+      qCounter.textContent = `السؤال ${currentQ + 1} من ${questions.length}`;
+      sCounter.textContent = `النقاط: ${score} ⭐`;
+      progressBar.style.width = `${((currentQ + 1) / questions.length) * 100}%`;
+
+      optionsContainer.innerHTML = '';
+      item.options.forEach((opt, idx) => {
+        const div = document.createElement('div');
+        div.className = 'option-card';
+        div.innerHTML = `
+          <div class="option-letter">${letters[idx]}</div>
+          <div>${opt}</div>
+        `;
+        div.onclick = () => selectOption(idx, div);
+        optionsContainer.appendChild(div);
+      });
+    }
+
+    function selectOption(idx, el) {
+      if (answered) return;
+      answered = true;
+
+      const item = questions[currentQ];
+      const allCards = optionsContainer.querySelectorAll('.option-card');
+      allCards.forEach(c => c.classList.add('disabled'));
+
+      if (idx === item.answer) {
+        score += 10;
+        el.classList.add('correct');
+        feedbackBox.style.display = 'block';
+        feedbackBox.style.background = 'var(--green-light)';
+        feedbackBox.style.color = 'var(--green)';
+        feedbackBox.innerHTML = `✨ <strong>إجابة ممتازة وذكية!</strong><br>${item.tip}`;
+      } else {
+        el.classList.add('wrong');
+        allCards[item.answer].classList.add('correct');
+        feedbackBox.style.display = 'block';
+        feedbackBox.style.background = 'var(--red-light)';
+        feedbackBox.style.color = 'var(--red)';
+        feedbackBox.innerHTML = `💡 <strong>إجابة غير دقيقة، تذكر القاعدة:</strong><br>${item.tip}`;
+      }
+
+      sCounter.textContent = `النقاط: ${score} ⭐`;
+      btnNext.style.display = 'block';
+    }
+
+    function nextQuestion() {
+      if (currentQ < questions.length - 1) {
+        currentQ++;
+        loadQuestion();
+      } else {
+        showResults();
+      }
+    }
+
+    function showResults() {
+      quizBody.style.display = 'none';
+      resultScreen.style.display = 'block';
+      finalScore.textContent = `${score} / 100`;
+
+      if (score >= 90) {
+        resBadge.textContent = '🏆';
+        finalMsg.textContent = 'رائع ومبهر! أنت تتقن مهارات استخدام الحاسوب كمهندس برمجيات محترف!';
+      } else if (score >= 70) {
+        resBadge.textContent = '🌟';
+        finalMsg.textContent = 'نتيجة ممتازة وبطل منظم جداً في استخدامك للأدوات والاختصارات!';
+      } else {
+        resBadge.textContent = '💪';
+        finalMsg.textContent = 'محاولة طيبة يا بطل! راجع الشرائح وطبق على جهازك وأعد الاختبار لتحصل على 100%!';
+      }
+    }
+
+    function restartQuiz() {
+      currentQ = 0;
+      score = 0;
+      quizBody.style.display = 'block';
+      resultScreen.style.display = 'none';
+      loadQuestion();
+    }
+
+    loadQuestion();
+  </script>
+</body>
+</html>

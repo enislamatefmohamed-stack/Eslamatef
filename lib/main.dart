@@ -18,6 +18,7 @@ import 'pages/quiz_page.dart';
 import 'pages/student_profile_page.dart';
 import 'pages/checkout_page.dart';
 import 'widgets/auth_modal.dart';
+import 'widgets/achievements_dialog.dart';
 import 'services/site_data_service.dart';
 import 'services/auth_service.dart';
 import 'services/user_service.dart';
@@ -458,14 +459,31 @@ class _HomePageState extends State<HomePage> {
                                     icon: const Icon(Icons.admin_panel_settings_rounded, size: 16),
                                     label: Text("لوحة التحكم", style: GoogleFonts.cairo(fontSize: 12, fontWeight: FontWeight.bold)),
                                     style: ElevatedButton.styleFrom(
-                                      backgroundColor: const Color(0xFF0284C7),
-                                      foregroundColor: Colors.white,
+                                      backgroundColor: const Color(0xFF0284C7).withOpacity(0.12),
+                                      foregroundColor: const Color(0xFF0284C7),
                                       elevation: 0,
+                                      side: BorderSide(color: const Color(0xFF0284C7).withOpacity(0.4)),
                                       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
                                     ),
                                   ),
                                 ),
+                              Padding(
+                                padding: const EdgeInsets.only(left: 8),
+                                child: ElevatedButton.icon(
+                                  onPressed: () => AchievementsDialog.show(context),
+                                  icon: const Icon(Icons.emoji_events_rounded, size: 16),
+                                  label: Text("إنجازاتي", style: GoogleFonts.cairo(fontSize: 12, fontWeight: FontWeight.bold)),
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: const Color(0xFF0284C7).withOpacity(0.12),
+                                    foregroundColor: const Color(0xFF0284C7),
+                                    elevation: 0,
+                                    side: BorderSide(color: const Color(0xFF0284C7).withOpacity(0.4)),
+                                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                                  ),
+                                ),
+                              ),
                               Padding(
                                 padding: const EdgeInsets.only(left: 8),
                                 child: InkWell(
@@ -474,22 +492,22 @@ class _HomePageState extends State<HomePage> {
                                   child: Container(
                                     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                                     decoration: BoxDecoration(
-                                      color: const Color(0xFF8B5CF6).withOpacity(0.12),
+                                      color: const Color(0xFF0284C7).withOpacity(0.12),
                                       borderRadius: BorderRadius.circular(20),
-                                      border: Border.all(color: const Color(0xFF8B5CF6).withOpacity(0.3)),
+                                      border: Border.all(color: const Color(0xFF0284C7).withOpacity(0.4)),
                                     ),
                                     child: Row(
                                       children: [
                                         CircleAvatar(
                                           radius: 12,
-                                          backgroundColor: const Color(0xFF8B5CF6),
+                                          backgroundColor: const Color(0xFF0284C7),
                                           backgroundImage: (user.photoURL != null && user.photoURL!.isNotEmpty) ? NetworkImage(user.photoURL!) : null,
                                           child: (user.photoURL == null || user.photoURL!.isEmpty)
                                               ? Text((user.displayName ?? 'ط')[0], style: const TextStyle(fontSize: 10, color: Colors.white, fontWeight: FontWeight.bold))
                                               : null,
                                         ),
                                         const SizedBox(width: 6),
-                                        Text(AuthService.instance.isAdmin ? "الأدمن" : "حسابي", style: GoogleFonts.cairo(fontSize: 12, fontWeight: FontWeight.bold, color: const Color(0xFF8B5CF6))),
+                                        Text("الملف الشخصي", style: GoogleFonts.cairo(fontSize: 12, fontWeight: FontWeight.bold, color: const Color(0xFF0284C7))),
                                       ],
                                     ),
                                   ),
