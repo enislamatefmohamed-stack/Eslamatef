@@ -1,0 +1,1020 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>جلسة تصوير المحاضرة 04 | الشبكات ببساطة: كيف يكلم الكمبيوتر أصحابه؟</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #0284c7;
+            --primary-light: #38bdf8;
+            --primary-dark: #0369a1;
+            --bg-light: #f8fafc;
+            --card-bg: #ffffff;
+            --text-dark: #0f172a;
+            --text-muted: #64748b;
+            --accent-green: #10b981;
+            --accent-amber: #f59e0b;
+            --accent-purple: #8b5cf6;
+            --border: #e2e8f0;
+            --shadow: 0 10px 25px -5px rgba(2, 132, 199, 0.1), 0 8px 10px -6px rgba(2, 132, 199, 0.1);
+            --shadow-lg: 0 20px 30px -10px rgba(2, 132, 199, 0.15);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Cairo', sans-serif;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        body {
+            background-color: var(--bg-light);
+            color: var(--text-dark);
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            user-select: none;
+        }
+
+        /* Top Bar */
+        .top-bar {
+            background: #ffffff;
+            border-bottom: 2px solid var(--border);
+            padding: 12px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+            z-index: 10;
+        }
+
+        .badge-lec {
+            background: rgba(2, 132, 199, 0.1);
+            color: var(--primary);
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-weight: 800;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border: 1px solid rgba(2, 132, 199, 0.2);
+        }
+
+        .lec-title {
+            font-size: 18px;
+            font-weight: 800;
+            color: var(--text-dark);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .top-controls {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .btn-ctrl {
+            background: #f1f5f9;
+            border: 1px solid var(--border);
+            color: var(--text-dark);
+            padding: 6px 14px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 13px;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-ctrl:hover {
+            background: #e2e8f0;
+            border-color: #cbd5e1;
+        }
+
+        .btn-wb {
+            background: #ede9fe;
+            color: var(--accent-purple);
+            border-color: #ddd6fe;
+        }
+
+        .btn-wb:hover {
+            background: #ddd6fe;
+        }
+
+        /* Presentation Workspace */
+        .viewport {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 24px;
+            position: relative;
+        }
+
+        .slide-deck {
+            width: 100%;
+            max-width: 1100px;
+            height: 90%;
+            max-height: 680px;
+            background: var(--card-bg);
+            border-radius: 24px;
+            box-shadow: var(--shadow-lg);
+            border: 2px solid var(--border);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .slide {
+            flex: 1;
+            padding: 40px 50px;
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            animation: fadeIn 0.35s ease-out;
+        }
+
+        .slide.active {
+            display: flex;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.98) translateY(10px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+
+        /* Slide Typography & Elements */
+        .slide-tag {
+            background: #e0f2fe;
+            color: var(--primary-dark);
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 800;
+            margin-bottom: 16px;
+            letter-spacing: 0.5px;
+            display: inline-block;
+        }
+
+        .slide-heading {
+            font-size: 34px;
+            font-weight: 900;
+            color: var(--text-dark);
+            margin-bottom: 16px;
+            line-height: 1.3;
+        }
+
+        .slide-desc {
+            font-size: 18px;
+            color: var(--text-muted);
+            max-width: 800px;
+            line-height: 1.7;
+            margin-bottom: 24px;
+            font-weight: 600;
+        }
+
+        .hero-icon {
+            font-size: 80px;
+            margin-bottom: 16px;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        /* Interactive Grid Layouts */
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+            width: 100%;
+            max-width: 900px;
+            margin-top: 10px;
+        }
+
+        .feature-card {
+            background: #f8fafc;
+            border: 2px solid var(--border);
+            border-radius: 16px;
+            padding: 24px 18px;
+            text-align: center;
+            transition: all 0.25s;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-4px);
+            border-color: var(--primary-light);
+            box-shadow: var(--shadow);
+            background: #ffffff;
+        }
+
+        .feature-card .icon {
+            font-size: 42px;
+            margin-bottom: 12px;
+        }
+
+        .feature-card h3 {
+            font-size: 17px;
+            font-weight: 800;
+            color: var(--text-dark);
+            margin-bottom: 8px;
+        }
+
+        .feature-card p {
+            font-size: 13px;
+            color: var(--text-muted);
+            line-height: 1.5;
+        }
+
+        /* Comparison Box */
+        .compare-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            width: 100%;
+            max-width: 850px;
+            margin-top: 10px;
+        }
+
+        .compare-box {
+            padding: 24px;
+            border-radius: 18px;
+            text-align: right;
+            border: 2px solid;
+        }
+
+        .compare-box.wired {
+            background: #f0fdf4;
+            border-color: #86efac;
+        }
+
+        .compare-box.wireless {
+            background: #eff6ff;
+            border-color: #93c5fd;
+        }
+
+        .compare-box h3 {
+            font-size: 20px;
+            font-weight: 900;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .compare-box ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .compare-box li {
+            font-size: 14.5px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #334155;
+        }
+
+        /* IP Address Visualizer */
+        .ip-visualizer {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 12px;
+            margin: 20px 0;
+        }
+
+        .ip-octet {
+            background: #ffffff;
+            border: 2.5px solid var(--primary);
+            border-radius: 14px;
+            padding: 16px 20px;
+            box-shadow: 0 4px 12px rgba(2, 132, 199, 0.15);
+            text-align: center;
+        }
+
+        .ip-octet .num {
+            font-size: 28px;
+            font-weight: 900;
+            color: var(--primary-dark);
+            font-family: monospace;
+        }
+
+        .ip-octet .label {
+            font-size: 11px;
+            color: var(--text-muted);
+            font-weight: 700;
+            margin-top: 4px;
+        }
+
+        .ip-dot {
+            font-size: 32px;
+            font-weight: 900;
+            color: var(--primary);
+        }
+
+        /* Interactive Quiz Option Buttons */
+        .quiz-options {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            width: 100%;
+            max-width: 650px;
+            margin-top: 10px;
+        }
+
+        .quiz-opt {
+            background: #f8fafc;
+            border: 2px solid var(--border);
+            border-radius: 14px;
+            padding: 16px 20px;
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--text-dark);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: all 0.2s;
+        }
+
+        .quiz-opt:hover {
+            border-color: var(--primary);
+            background: #ffffff;
+            transform: translateX(-4px);
+        }
+
+        .quiz-opt.correct {
+            background: #dcfce7 !important;
+            border-color: #22c55e !important;
+            color: #15803d !important;
+        }
+
+        .quiz-opt.wrong {
+            background: #fee2e2 !important;
+            border-color: #ef4444 !important;
+            color: #b91c1c !important;
+        }
+
+        /* Bottom Controls Bar */
+        .bottom-bar {
+            background: #ffffff;
+            border-top: 2px solid var(--border);
+            padding: 14px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 10;
+        }
+
+        .slide-counter {
+            font-weight: 800;
+            color: var(--text-dark);
+            font-size: 15px;
+            background: #f1f5f9;
+            padding: 6px 16px;
+            border-radius: 20px;
+        }
+
+        .nav-btn {
+            background: var(--primary);
+            color: #ffffff;
+            border: none;
+            padding: 10px 24px;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 800;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s;
+        }
+
+        .nav-btn:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(2, 132, 199, 0.3);
+        }
+
+        .nav-btn.secondary {
+            background: #f1f5f9;
+            color: var(--text-dark);
+            border: 1px solid var(--border);
+        }
+
+        .nav-btn.secondary:hover {
+            background: #e2e8f0;
+            box-shadow: none;
+        }
+
+        /* Whiteboard Modal */
+        .whiteboard-modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(4px);
+            z-index: 100;
+            justify-content: center;
+            align-items: center;
+            padding: 30px;
+        }
+
+        .wb-container {
+            width: 100%;
+            max-width: 1100px;
+            height: 90%;
+            background: #ffffff;
+            border-radius: 20px;
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .wb-header {
+            background: #f8fafc;
+            border-bottom: 2px solid var(--border);
+            padding: 12px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .wb-tools {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .wb-tool {
+            padding: 6px 12px;
+            border-radius: 6px;
+            border: 1px solid var(--border);
+            background: #ffffff;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 12px;
+        }
+
+        .wb-tool.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        canvas {
+            flex: 1;
+            cursor: crosshair;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Top Bar -->
+    <header class="top-bar">
+        <div class="lec-title">
+            <span class="badge-lec">المحاضرة 04</span>
+            <span>الشبكات ببساطة: كيف يكلم الكمبيوتر أصحابه؟ 🌐</span>
+        </div>
+        <div class="top-controls">
+            <button class="btn-ctrl btn-wb" onclick="toggleWhiteboard()">✏️ السبورة الذكية</button>
+            <button class="btn-ctrl" onclick="toggleFullscreen()">⛶ ملء الشاشة</button>
+            <button class="btn-ctrl" onclick="window.location.href='quiz.html'">🧪 الاختبار الإلكتروني</button>
+        </div>
+    </header>
+
+    <!-- Main Viewport -->
+    <main class="viewport">
+        <div class="slide-deck">
+
+            <!-- Slide 1 -->
+            <div class="slide active" data-slide="1">
+                <div class="hero-icon">🌐 🔌</div>
+                <div class="slide-tag">المستوى 1: عالم الكمبيوتر والإنترنت</div>
+                <h1 class="slide-heading">الشبكات ببساطة: كيف يكلم الكمبيوتر أصحابه؟</h1>
+                <p class="slide-desc">مرحباً بكم يا أبطال المستقبل في المحاضرة الرابعة! سنتعلم اليوم كيف ترتبط أجهزتنا معاً، وسر الراوتر، وكابل الإيثرنت، والواي فاي، والرقم القومي للجهاز (IP Address)!</p>
+                <div style="font-size: 15px; font-weight: 800; color: var(--primary);">المحاضر: م / إسلام عاطف (Eslam Atef | Code & AI)</div>
+            </div>
+
+            <!-- Slide 2 -->
+            <div class="slide" data-slide="2">
+                <div class="slide-tag">أهداف المحاضرة 🎯</div>
+                <h2 class="slide-heading">مهمات بطل الشبكات اليوم</h2>
+                <div class="cards-grid">
+                    <div class="feature-card">
+                        <div class="icon">🕸️</div>
+                        <h3>1. ما هي الشبكة؟</h3>
+                        <p>فهم كيف تتحدث الأجهزة وتتبادل البيانات فورياً.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="icon">👮‍♂️</div>
+                        <h3>2. شرطي المرور (الراوتر)</h3>
+                        <p>اكتشاف دور الراوتر كمنظم ذكي لحركة البيانات في بيتنا.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="icon">⚡</div>
+                        <h3>3. سلكي vs لاسلكي</h3>
+                        <p>المقارنة بين كابل الإيثرنت السريع وموجات الواي فاي.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="icon">🆔</div>
+                        <h3>4. الرقم القومي (IP)</h3>
+                        <p>سر عنوان الـ IP وكيف يوزع الراوتر البيانات بعدل.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 3 -->
+            <div class="slide" data-slide="3">
+                <div class="slide-tag">لغز التفكير 🏝️</div>
+                <h2 class="slide-heading">لغز الجزيرة المنعزلة</h2>
+                <div class="hero-icon">🏝️ 💻</div>
+                <p class="slide-desc">تخيل أنك تعيش وحيداً على جزيرة في وسط المحيط بدون أي وسيلة تواصل!<br>كذلك الكمبيوتر المنعزل (Stand-alone): لا يمكنه إرسال رسالة، ولا فتح يوتيوب، ولا مشاركة لعبة مع أصدقائه حتى يتصل بالشبكة!</p>
+            </div>
+
+            <!-- Slide 4 -->
+            <div class="slide" data-slide="4">
+                <div class="slide-tag">مفهوم أساسي 💡</div>
+                <h2 class="slide-heading">ما هي شبكة الكمبيوتر (Network)؟</h2>
+                <p class="slide-desc">الشبكة هي جسر التواصل: عندما نوصل جهازين أو أكثر معاً لتبادل الرسائل والصور والألعاب، تتشكل شبكة الكمبيوتر!</p>
+                <div class="cards-grid" style="max-width: 750px;">
+                    <div class="feature-card">
+                        <div class="icon">💬</div>
+                        <h3>تبادل الرسائل</h3>
+                        <p>التحدث واللعب الجماعي أونلاين في نفس اللحظة.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="icon">🖨️</div>
+                        <h3>مشاركة الأجهزة</h3>
+                        <p>طابعة واحدة تطبع لكل أجهزة البيت والمكتب!</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="icon">🚀</div>
+                        <h3>الوصول للإنترنت</h3>
+                        <p>فتح المواقع والفيديوهات بضغطة زر واحدة.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 5 -->
+            <div class="slide" data-slide="5">
+                <div class="slide-tag">في بيتنا شبكة 🏠</div>
+                <h2 class="slide-heading">شبكة المنزل الصغيرة (LAN)</h2>
+                <div class="hero-icon">🏠 💻 📱 📺</div>
+                <p class="slide-desc">الشبكة المحلية (Local Area Network - LAN) هي الشبكة الصغيرة داخل بيتك أو مدرستك:<br>تربط اللابتوب، وموبايل بابا وماما، والتلفزيون الذكي، والبلايستيشن في مكان واحد!</p>
+            </div>
+
+            <!-- Slide 6 -->
+            <div class="slide" data-slide="6">
+                <div class="slide-tag">البطل الخارق 🦸‍♂️</div>
+                <h2 class="slide-heading">الراوتر (Router): شرطي المرور الرقمي</h2>
+                <p class="slide-desc">الراوتر هو الجهاز الذكي في الصالة الذي يعمل 24 ساعة بدون نوم:<br>يستقبل الإنترنت الخارجي من الشارع، ويوزعه بانتظام على كل جهاز بدون أي فوضى أو تصادم للبيانات!</p>
+                <div class="feature-card" style="max-width: 500px; margin: 0 auto; background: #f0fdf4; border-color: #86efac;">
+                    <div class="icon">🚦</div>
+                    <h3 style="color: #166534;">مهمة الراوتر الأساسية</h3>
+                    <p style="color: #15803d;">توجيه كل باقة بيانات (Data Packet) لجهازها الصحيح فوراً وبدقة 100%.</p>
+                </div>
+            </div>
+
+            <!-- Slide 7 -->
+            <div class="slide" data-slide="7">
+                <div class="slide-tag">أسرار الهوائيات 📡</div>
+                <h2 class="slide-heading">كيف ينشر الراوتر الإشارة؟</h2>
+                <div class="hero-icon">📡 〰️ 📱</div>
+                <p class="slide-desc">القرون الصغيرة الموجودة في الراوتر هي هوائيات بث (Antennas):<br>تحول أسلاك الإنترنت إلى موجات راديو غير مرئية تسبح في هواء الغرفة لتلتقطها الأجهزة فوراً!</p>
+            </div>
+
+            <!-- Slide 8 -->
+            <div class="slide" data-slide="8">
+                <div class="slide-tag">الطريقة الأولى: السلكية 🔌</div>
+                <h2 class="slide-heading">كابل الإيثرنت (Ethernet): السلك الخارق السريع</h2>
+                <p class="slide-desc">الكابل الأصفر أو الأزرق الشهير الذي يتصل بظهر الكمبيوتر:</p>
+                <div class="cards-grid" style="max-width: 800px;">
+                    <div class="feature-card">
+                        <div class="icon">⚡</div>
+                        <h3>أسرع اتصال</h3>
+                        <p>ينقل البيانات بسرعة قصوى بدون أي هدر.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="icon">🎮</div>
+                        <h3>عشق محترفي الألعاب</h3>
+                        <p>استقرار كامل (Zero Lag) وبدون أي تقطيع فجائي.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="icon">🛡️</div>
+                        <h3>محمي من التشويش</h3>
+                        <p>لا يتأثر بالجدران السميكة أو المسافات البعيدة.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 9 -->
+            <div class="slide" data-slide="9">
+                <div class="slide-tag">الطريقة الثانية: اللاسلكية 📶</div>
+                <h2 class="slide-heading">الواي فاي (Wi-Fi): حرية الحركة بدون أسلاك</h2>
+                <div class="hero-icon">📶 📲</div>
+                <p class="slide-desc">اتصال هوائي سحري يمنحك حرية التنقل في أي غرفة بالموبايل واللابتوب مع بقائك متصلاً بالعالم بدون كابلات أو قيود!</p>
+            </div>
+
+            <!-- Slide 10 -->
+            <div class="slide" data-slide="10">
+                <div class="slide-tag">مقارنة الأبطال ⚖️</div>
+                <h2 class="slide-heading">السلكي (Ethernet) مقابل اللاسلكي (Wi-Fi)</h2>
+                <div class="compare-container">
+                    <div class="compare-box wired">
+                        <h3 style="color: #166534;">🔌 كابل الإيثرنت (Wired)</h3>
+                        <ul>
+                            <li>✅ سرعة فائقة وثبات كالقطار السريع.</li>
+                            <li>✅ مثالي للألعاب ومكالمات الفيديو.</li>
+                            <li>❌ عيبه: مقيد بطول السلك ومكان الجهاز.</li>
+                        </ul>
+                    </div>
+                    <div class="compare-box wireless">
+                        <h3 style="color: #1e40af;">📶 الواي فاي (Wireless)</h3>
+                        <ul>
+                            <li>✅ حرية حركة تامة وسهولة مريحة.</li>
+                            <li>✅ يتصل به الموبايل والتابلت واللابتوب.</li>
+                            <li>⚠️ قد يضعف قليلاً وراء الحوائط الخرسانية.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 11 -->
+            <div class="slide" data-slide="11">
+                <div class="slide-tag">الرقم القومي السري 🆔</div>
+                <h2 class="slide-heading">ما هو عنوان الـ IP (IP Address)؟</h2>
+                <div class="hero-icon">🪪 💻</div>
+                <p class="slide-desc">مثلما يمتلك كل مواطن بطاقة رقم قومي ولكل منزل عنوان فريد:<br>يمتلك كل جهاز على الشبكة عنواناً فريداً يسمى عنوان IP (Internet Protocol) ليعرف الراوتر هويته بدقة!</p>
+            </div>
+
+            <!-- Slide 12 -->
+            <div class="slide" data-slide="12">
+                <div class="slide-tag">تشريح العنوان 🔍</div>
+                <h2 class="slide-heading">كيف يبدو شكل عنوان الـ IP؟</h2>
+                <div class="ip-visualizer">
+                    <div class="ip-octet"><div class="num">192</div><div class="label">غرفة 1</div></div>
+                    <div class="ip-dot">.</div>
+                    <div class="ip-octet"><div class="num">168</div><div class="label">غرفة 2</div></div>
+                    <div class="ip-dot">.</div>
+                    <div class="ip-octet"><div class="num">1</div><div class="label">غرفة 3</div></div>
+                    <div class="ip-dot">.</div>
+                    <div class="ip-octet" style="border-color: var(--accent-amber);"><div class="num" style="color: var(--accent-amber);">5</div><div class="label">رقم جهازك</div></div>
+                </div>
+                <p class="slide-desc">أربعة أرقام تفصلها ثلاث نقاط.. كل رقم يمثل غرفة تحدد هوية ومكان جهازك في الشبكة!</p>
+            </div>
+
+            <!-- Slide 13 -->
+            <div class="slide" data-slide="13">
+                <div class="slide-tag">سر ذكاء الراوتر 🧠</div>
+                <h2 class="slide-heading">كيف يرسل الراوتر كل فيديو لصاحبه؟</h2>
+                <div class="cards-grid" style="max-width: 800px;">
+                    <div class="feature-card">
+                        <div class="icon">📺</div>
+                        <h3>تلفزيون الصالة (192.168.1.2)</h3>
+                        <p>طلب فيلم كرتون.. يصله الفيلم وحده على شاشته!</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="icon">📱</div>
+                        <h3>موبايل البطل (192.168.1.5)</h3>
+                        <p>طلب لعبة روبلوكس.. تصله اللعبة وحدها على جهازه!</p>
+                    </div>
+                </div>
+                <p class="slide-desc" style="margin-top: 20px;">الراوتر يقرأ رقم الـ IP في كل طلب ويرد على صاحبه دون خلط أو خطأ!</p>
+            </div>
+
+            <!-- Slide 14 -->
+            <div class="slide" data-slide="14">
+                <div class="slide-tag">تحدي السرعة للأذكياء ⚡</div>
+                <h2 class="slide-heading">من الذي يوزع عناوين الـ IP في المنزل؟</h2>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer(this, false)"><span>أ) شاشة التلفزيون</span><span>📺</span></div>
+                    <div class="quiz-opt" onclick="checkAnswer(this, true)"><span>ب) جهاز الراوتر الذكي (Router)</span><span>✅</span></div>
+                    <div class="quiz-opt" onclick="checkAnswer(this, false)"><span>ج) كيبورد الكمبيوتر</span><span>⌨️</span></div>
+                </div>
+            </div>
+
+            <!-- Slide 15 -->
+            <div class="slide" data-slide="15">
+                <div class="slide-tag">سرعة الإنترنت ⏱️</div>
+                <h2 class="slide-heading">ما هي وحدة قياس السرعة (Mbps)؟</h2>
+                <div class="hero-icon">🏎️ 💨</div>
+                <p class="slide-desc">تقاس سرعة الإنترنت بوحدة <strong>الميجابايت في الثانية (Mbps)</strong>:<br>كلما كان الرقم أعلى (مثلاً 30 Mbps أو 100 Mbps)، كلما انهمرت البيانات بسرعة الصاروخ وفتحت الفيديوهات بدون انتظار!</p>
+            </div>
+
+            <!-- Slide 16 -->
+            <div class="slide" data-slide="16">
+                <div class="slide-tag">الحركتان السحريتان 🔄</div>
+                <h2 class="slide-heading">التنزيل (Download) مقابل الرفع (Upload)</h2>
+                <div class="compare-container">
+                    <div class="compare-box" style="background: #fdf4ff; border-color: #f0abfc;">
+                        <h3 style="color: #86198f;">📥 الداونلود (Download)</h3>
+                        <p style="font-size: 14px; color: #4a044e; margin-bottom: 8px;">استقبال البيانات من السيرفر لجهازك.</p>
+                        <p style="font-size: 12px; color: #701a75;">أمثلة: مشاهدة فيديو يوتيوب، تنزيل لعبة جديدة، قراءة مقال.</p>
+                    </div>
+                    <div class="compare-box" style="background: #fffbeb; border-color: #fde68a;">
+                        <h3 style="color: #92400e;">📤 الأبلود (Upload)</h3>
+                        <p style="font-size: 14px; color: #78350f; margin-bottom: 8px;">إرسال البيانات من جهازك للسيرفر والإنترنت.</p>
+                        <p style="font-size: 12px; color: #b45309;">أمثلة: رفع فيديو على تيك توك، إرسال فويس نوت على واتساب.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 17 -->
+            <div class="slide" data-slide="17">
+                <div class="slide-tag">تحدي السرعة 2 🚀</div>
+                <h2 class="slide-heading">إرسال صورة لصديقك على واتساب = ؟</h2>
+                <div class="quiz-options">
+                    <div class="quiz-opt" onclick="checkAnswer(this, false)"><span>أ) داونلود (Download)</span><span>📥</span></div>
+                    <div class="quiz-opt" onclick="checkAnswer(this, true)"><span>ب) أبلود (Upload)</span><span>📤</span></div>
+                    <div class="quiz-opt" onclick="checkAnswer(this, false)"><span>ج) فورمات (Format)</span><span>🗑️</span></div>
+                </div>
+            </div>
+
+            <!-- Slide 18 -->
+            <div class="slide" data-slide="18">
+                <div class="slide-tag">حلول المهندسين 🛠️</div>
+                <h2 class="slide-heading">لماذا يبطأ الإنترنت أحياناً؟ وكيف نحلها؟</h2>
+                <div class="cards-grid">
+                    <div class="feature-card">
+                        <div class="icon">🧱</div>
+                        <h3>الجدران العازلة</h3>
+                        <p>الخرسانة تحجب الواي فاي. الحل: الاقتراب من الراوتر.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="icon">👥</div>
+                        <h3>كثرة الأجهزة المتصلة</h3>
+                        <p>أجهزة كثيرة تشاهد أفلاماً في وقت واحد تسحب السرعة.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="icon">🔄</div>
+                        <h3>الحل السحري: إعادة التشغيل</h3>
+                        <p>أغلق الراوتر 30 ثانية وشغله ليفسح الذاكرة ويعود صاروخاً!</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 19 -->
+            <div class="slide" data-slide="19">
+                <div class="slide-tag">الأمان والخصوصية 🔒</div>
+                <h2 class="slide-heading">قفل باب بيتك الرقمي: كلمة سر الواي فاي</h2>
+                <div class="hero-icon">🔐 📶</div>
+                <p class="slide-desc">شبكة الواي فاي كباب منزلك: لا تتركها مفتوحة بدون كلمة سر، ولا تجعل الباسورد سهلاً (مثل 12345678)!<br>المبرمج الذكي يصنع كلمة سر قوية من حروف كبيرة وصغيرة وأرقام ورموز لحماية باقته وأسرته.</p>
+            </div>
+
+            <!-- Slide 20 -->
+            <div class="slide" data-slide="20">
+                <div class="slide-tag">التجربة العملية 1 💻</div>
+                <h2 class="slide-heading">اكتشف رقم الـ IP لجهازك عبر الأوامر</h2>
+                <p class="slide-desc">سنفتح الآن موجه الأوامر (Command Prompt - CMD) ونكتب التعويذة السحرية:</p>
+                <div style="background: #0f172a; color: #38bdf8; padding: 20px 30px; border-radius: 14px; font-family: monospace; font-size: 22px; font-weight: 900; letter-spacing: 1px; margin: 10px 0;">
+                    > ipconfig
+                </div>
+                <p class="slide-desc">اضغط Enter وشاهد عنوان الـ IPv4 الخاص بجهازك يظهر أمامك كالمحققين الرقميين!</p>
+            </div>
+
+            <!-- Slide 21 -->
+            <div class="slide" data-slide="21">
+                <div class="slide-tag">التجربة العملية 2 ⏱️</div>
+                <h2 class="slide-heading">قياس سرعة الإنترنت الحقيقية (Speedtest)</h2>
+                <div class="hero-icon">🧭 🚀</div>
+                <p class="slide-desc">سنفتح موقع <strong>speedtest.net</strong> ونضغط الزر الذهبي <strong>GO</strong> لنشاهد عداد السرعة يتحرك ويقيس سرعة التنزيل والرفع بالمللي ثانية!</p>
+            </div>
+
+            <!-- Slide 22 -->
+            <div class="slide" data-slide="22">
+                <div class="slide-tag">نشاط بدني وصحي 🧘‍♂️</div>
+                <h2 class="slide-heading">استراحة الأبطال وتجديد الطاقة</h2>
+                <div class="hero-icon">🙆‍♂️ 🤸‍♂️</div>
+                <p class="slide-desc">قف على قدميك الآن يا بطل.. افرد ذراعيك للأعلى وافتح أصابع يديك وأغلقها.. خذ نفساً عميقاً وبص بعيداً لمدة 20 ثانية.. ممتاز! تجدد نشاط العقل والجسم!</p>
+            </div>
+
+            <!-- Slide 23 -->
+            <div class="slide" data-slide="23">
+                <div class="slide-tag">مهمة الروبوت سبارك 🤖</div>
+                <h2 class="slide-heading">ساعد سبارك في إعادة اتصال الشبكة!</h2>
+                <div class="cards-grid" style="max-width: 800px;">
+                    <div class="feature-card">
+                        <div class="icon">1️⃣</div>
+                        <h3>توصيل الكهرباء</h3>
+                        <p>التأكد من تشغيل زر الباور ونور اللمبات.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="icon">2️⃣</div>
+                        <h3>تركيب كابل الإيثرنت</h3>
+                        <p>سماع صوت التكة (Click) لتثبيت الكابل في الكمبيوتر.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="icon">3️⃣</div>
+                        <h3>نور لمبة الإنترنت</h3>
+                        <p>اللون الأخضر يعني الاتصال بنجاح بالعالم!</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 24 -->
+            <div class="slide" data-slide="24">
+                <div class="slide-tag">تحدي البطل المنزلي 🏆</div>
+                <h2 class="slide-heading">تحدي مفتش شبكة المنزل الذكي</h2>
+                <div class="cards-grid" style="max-width: 800px;">
+                    <div class="feature-card">
+                        <div class="icon">🔢</div>
+                        <h3>1. عد الأجهزة</h3>
+                        <p>عد كم جهاز متصل براوتر منزلك اليوم (موبايلات، شاشات، لابتوب).</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="icon">🆔</div>
+                        <h3>2. رقم الـ IP</h3>
+                        <p>اكتب أمر ipconfig وسجل عنوان جهازك في كشكول الأبطال.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="icon">🏎️</div>
+                        <h3>3. فحص السرعة</h3>
+                        <p>قس سرعة النت وسجل رقم الـ Mbps في التعليقات!</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 25 -->
+            <div class="slide" data-slide="25">
+                <div class="hero-icon">🎖️ 🎉 🚀</div>
+                <div class="slide-tag">وسام مهندس الشبكات الصغير</div>
+                <h1 class="slide-heading">ألف مبروك يا أبطال الشبكات!</h1>
+                <p class="slide-desc">اليوم أتقنتم أسرار شبكة الكمبيوتر، الراوتر، الإيثرنت، الواي فاي، وعنوان الـ IP.<br>أضفتم 100 نقطة جديدة لرصيدكم.. والمحاضرة القادمة سنتعلم أقوى المهارات: <strong>الأمان الرقمي والخصوصية: كيف نحمي أنفسنا من الفيروسات والقراصنة؟</strong></p>
+                <div style="font-size: 16px; font-weight: 800; color: var(--primary);">نراكم في المحاضرة القادمة يا مبدعين!</div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Bottom Controls Bar -->
+    <footer class="bottom-bar">
+        <button class="nav-btn secondary" id="prevBtn" onclick="prevSlide()">السابق ⬅️</button>
+        <div class="slide-counter" id="slideCounter">الشريحة 1 من 25</div>
+        <button class="nav-btn" id="nextBtn" onclick="nextSlide()">التالي ➡️</button>
+    </footer>
+
+    <!-- Whiteboard Modal -->
+    <div class="whiteboard-modal" id="wbModal">
+        <div class="wb-container">
+            <div class="wb-header">
+                <div style="font-weight: 800; font-size: 16px;">السبورة الذكية للشرح التفاعلي ✏️</div>
+                <div class="wb-tools">
+                    <button class="wb-tool active" onclick="setWbColor('#0284c7', this)">أزرق</button>
+                    <button class="wb-tool" onclick="setWbColor('#ef4444', this)">أحمر</button>
+                    <button class="wb-tool" onclick="setWbColor('#10b981', this)">أخضر</button>
+                    <button class="wb-tool" onclick="setWbColor('#0f172a', this)">أسود</button>
+                    <button class="wb-tool" onclick="clearWb()">مسح الكل 🗑️</button>
+                    <button class="wb-tool" style="background: #fee2e2; color: #ef4444;" onclick="toggleWhiteboard()">إغلاق ✖</button>
+                </div>
+            </div>
+            <canvas id="wbCanvas"></canvas>
+        </div>
+    </div>
+
+    <script>
+        let currentSlide = 1;
+        const totalSlides = 25;
+
+        function showSlide(n) {
+            const slides = document.querySelectorAll('.slide');
+            if (n > totalSlides) currentSlide = totalSlides;
+            if (n < 1) currentSlide = 1;
+            
+            slides.forEach(slide => slide.classList.remove('active'));
+            slides[currentSlide - 1].classList.add('active');
+            
+            document.getElementById('slideCounter').innerText = `الشريحة ${currentSlide} من ${totalSlides}`;
+            document.getElementById('prevBtn').disabled = (currentSlide === 1);
+            document.getElementById('nextBtn').innerText = (currentSlide === totalSlides) ? 'تم الدرس 🎉' : 'التالي ➡️';
+            playTone(400 + currentSlide * 15, 0.05);
+        }
+
+        function nextSlide() {
+            if (currentSlide < totalSlides) {
+                currentSlide++;
+                showSlide(currentSlide);
+            }
+        }
+
+        function prevSlide() {
+            if (currentSlide > 1) {
+                currentSlide--;
+                showSlide(currentSlide);
+            }
+        }
+
+        // Keyboard Navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft' || e.key === ' ' || e.key === 'PageDown') nextSlide();
+            if (e.key === 'ArrowRight' || e.key === 'PageUp') prevSlide();
+            if (e.key === 'f' || e.key === 'F') toggleFullscreen();
+            if (e.key === 'w' || e.key === 'W') toggleWhiteboard();
+        });
+
+        // Simple Audio Feedback
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        function playTone(freq, dur) {
+            try {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.frequency.value = freq;
+                gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + dur);
+                osc.start();
+                osc.stop(audioCtx.currentTime + dur);
+            } catch(e) {}
+        }
+
+        // Quiz checking
+        function checkAnswer(el, isCorrect) {
+            const parent = el.parentElement;
+            parent.querySelectorAll('.quiz-opt').forEach(opt => opt.classList.remove('correct', 'wrong'));
+            if (isCorrect) {
+                el.classList.add('correct');
+                playTone(600, 0.2);
+            } else {
+                el.classList.add('wrong');
+                playTone(200, 0.2);
+            }
+        }
+
+        // Fullscreen
+        function toggleFullscreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(() => {});
+            } else {
+                if (document.exitFullscreen) document.exitFullscreen();
+            }
+        }
+
+        // Whiteboard Logic
+        const wbModal = document.getElementById('wbModal');
+        const canvas = document.getElementById('wbCanvas');
+        const ctx = canvas.getContext('2d');
+        let painting = false;
+        let drawColor = '#0284c7';
+
+        function toggleWhiteboard() {
+            const isShown = wbModal.style.display === 'flex';
+            wbModal.style.display = isShown ? 'none' : 'flex';
+            if (!isShown) resizeCanvas();
+        }
+
+        function resizeCanvas() {
+            canvas.width = canvas.parentElement.clientWidth;
+            canvas.height = canvas.parentElement.clientHeight - 60;
+            ctx.lineCap = 'round';
+            ctx.lineWidth = 4;
+            ctx.strokeStyle = drawColor;
+        }
+
+        function setWbColor(color, btn) {
+            drawColor = color;
+            ctx.strokeStyle = color;
+            document.querySelectorAll('.wb-tool').forEach(t => t.classList.remove('active'));
+            btn.classList.add('active');
+        }
+
+        function clearWb() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
+
+        canvas.addEventListener('mousedown', (e) => { painting = true; draw(e); });
+        canvas.addEventListener('mouseup', () => { painting = false; ctx.beginPath(); });
+        canvas.addEventListener('mousemove', draw);
+
+        function draw(e) {
+            if (!painting) return;
+            const rect = canvas.getBoundingClientRect();
+            ctx.lineTo(e.clientX - rect.left, e.clientY - rect.top);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(e.clientX - rect.left, e.clientY - rect.top);
+        }
+
+        // Init
+        showSlide(1);
+    </script>
+</body>
+</html>

@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>اختبار المحاضرة 04 | الشبكات ببساطة: كيف يكلم الكمبيوتر أصحابه؟</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #0284c7;
+            --primary-dark: #0369a1;
+            --bg-light: #f8fafc;
+            --card-bg: #ffffff;
+            --text-dark: #0f172a;
+            --text-muted: #64748b;
+            --success: #10b981;
+            --danger: #ef4444;
+            --border: #e2e8f0;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Cairo', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-light);
+            color: var(--text-dark);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .quiz-wrapper {
+            background: var(--card-bg);
+            width: 100%;
+            max-width: 780px;
+            border-radius: 24px;
+            box-shadow: 0 20px 40px -15px rgba(2, 132, 199, 0.15);
+            border: 2px solid var(--border);
+            padding: 36px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .quiz-header {
+            text-align: center;
+            margin-bottom: 24px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid var(--border);
+        }
+
+        .lec-pill {
+            display: inline-block;
+            background: rgba(2, 132, 199, 0.1);
+            color: var(--primary);
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 800;
+            margin-bottom: 10px;
+        }
+
+        .quiz-title {
+            font-size: 24px;
+            font-weight: 900;
+            color: var(--text-dark);
+            margin-bottom: 6px;
+        }
+
+        .quiz-desc {
+            font-size: 14px;
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+
+        .progress-box {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            font-weight: 700;
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+
+        .progress-bar-bg {
+            background: #e2e8f0;
+            border-radius: 10px;
+            height: 10px;
+            width: 100%;
+            overflow: hidden;
+            margin-bottom: 24px;
+        }
+
+        .progress-bar-fill {
+            background: linear-gradient(90deg, var(--primary), #38bdf8);
+            height: 100%;
+            width: 10%;
+            transition: width 0.3s ease;
+        }
+
+        .question-box {
+            margin-bottom: 24px;
+        }
+
+        .q-number {
+            font-size: 14px;
+            font-weight: 800;
+            color: var(--primary);
+            margin-bottom: 6px;
+        }
+
+        .q-text {
+            font-size: 19px;
+            font-weight: 800;
+            color: var(--text-dark);
+            line-height: 1.5;
+            margin-bottom: 20px;
+        }
+
+        .options-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .opt-btn {
+            background: #f8fafc;
+            border: 2px solid var(--border);
+            border-radius: 14px;
+            padding: 16px 20px;
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--text-dark);
+            cursor: pointer;
+            text-align: right;
+            transition: all 0.2s;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .opt-btn:hover {
+            border-color: var(--primary);
+            background: #ffffff;
+            transform: translateX(-4px);
+        }
+
+        .opt-btn.correct {
+            background: #dcfce7 !important;
+            border-color: var(--success) !important;
+            color: #166534 !important;
+        }
+
+        .opt-btn.wrong {
+            background: #fee2e2 !important;
+            border-color: var(--danger) !important;
+            color: #991b1b !important;
+        }
+
+        .explanation {
+            display: none;
+            margin-top: 16px;
+            padding: 14px 18px;
+            background: #f0f9ff;
+            border-right: 4px solid var(--primary);
+            border-radius: 8px;
+            font-size: 13.5px;
+            color: #0369a1;
+            font-weight: 600;
+            line-height: 1.6;
+        }
+
+        .action-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 24px;
+            padding-top: 20px;
+            border-top: 2px solid var(--border);
+        }
+
+        .btn-next {
+            background: var(--primary);
+            color: #ffffff;
+            border: none;
+            padding: 12px 28px;
+            border-radius: 12px;
+            font-size: 15px;
+            font-weight: 800;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: none;
+        }
+
+        .btn-next:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+
+        /* Result View */
+        .result-view {
+            display: none;
+            text-align: center;
+            padding: 20px 0;
+        }
+
+        .result-badge {
+            font-size: 72px;
+            margin-bottom: 16px;
+            animation: bounce 1s infinite alternate;
+        }
+
+        @keyframes bounce {
+            from { transform: translateY(0); }
+            to { transform: translateY(-10px); }
+        }
+
+        .score-circle {
+            width: 130px;
+            height: 130px;
+            border-radius: 50%;
+            background: #f0f9ff;
+            border: 4px solid var(--primary);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            margin: 0 auto 20px;
+        }
+
+        .score-num {
+            font-size: 34px;
+            font-weight: 900;
+            color: var(--primary-dark);
+        }
+
+        .score-total {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--text-muted);
+        }
+
+        .btn-restart {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 12px;
+            font-weight: 800;
+            font-size: 15px;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="quiz-wrapper">
+        <!-- Header -->
+        <div class="quiz-header">
+            <span class="lec-pill">المحاضرة 04</span>
+            <h1 class="quiz-title">اختبار مهندس الشبكات الصغير 🌐</h1>
+            <p class="quiz-desc">أجب عن الـ 10 أسئلة واكتشف مستواك واحصل على وسام المحاضرة!</p>
+        </div>
+
+        <!-- Quiz Container -->
+        <div id="quizContainer">
+            <div class="progress-box">
+                <span id="qCount">السؤال 1 من 10</span>
+                <span id="scoreLive">النقاط: 0</span>
+            </div>
+            <div class="progress-bar-bg">
+                <div class="progress-bar-fill" id="progressFill"></div>
+            </div>
+
+            <div class="question-box">
+                <div class="q-number" id="qNumber">سؤال #1</div>
+                <div class="q-text" id="qText">نص السؤال يظهر هنا...</div>
+                <div class="options-list" id="optionsList"></div>
+                <div class="explanation" id="explanationBox"></div>
+            </div>
+
+            <div class="action-row">
+                <button class="btn-next" id="nextBtn" onclick="nextQuestion()">السؤال التالي ➡️</button>
+            </div>
+        </div>
+
+        <!-- Result View -->
+        <div class="result-view" id="resultView">
+            <div class="result-badge" id="resIcon">🏆</div>
+            <h2 style="font-size: 26px; font-weight: 900; margin-bottom: 8px;" id="resTitle">أداء عبقري يا بطل!</h2>
+            <p style="font-size: 14px; color: var(--text-muted); margin-bottom: 20px;" id="resDesc">لقد أثبتت فهمك المتميز لكيفية تواصل أجهزة الكمبيوتر عبر الشبكة.</p>
+
+            <div class="score-circle">
+                <div class="score-num" id="resScore">10</div>
+                <div class="score-total">من 10</div>
+            </div>
+
+            <button class="btn-restart" onclick="restartQuiz()">إعادة الاختبار 🔄</button>
+            <button class="btn-restart" style="background: #f1f5f9; color: var(--text-dark); margin-right: 10px;" onclick="window.location.href='index.html'">العودة لجلسة العرض 🎬</button>
+        </div>
+    </div>
+
+    <script>
+        const questions = [
+            {
+                q: "ما هي وظيفة شبكة الكمبيوتر (Computer Network) الأساسية؟",
+                options: [
+                    "ربط الأجهزة معاً لتبادل الرسائل والملفات والألعاب",
+                    "تنظيف الشاشة بقطعة قماش ناعمة",
+                    "حفظ الملفات بعد إيقاف تشغيل الجهاز فقط",
+                    "تقليل استهلاك كهرباء المنزل"
+                ],
+                correct: 0,
+                exp: "الشبكة وُجدت لربط جهازين أو أكثر معاً ليتواصلوا ويتبادلوا البيانات والألعاب."
+            },
+            {
+                q: "ما هو دور جهاز الراوتر (Router) في شبكة المنزل؟",
+                options: [
+                    "طباعة الأوراق الملونة",
+                    "شرطي المرور الذي يوجه البيانات لكل جهاز بدون فوضى",
+                    "مسح الفيروسات من الهارد ديسك فقط",
+                    "زيادة صوت سماعات الكمبيوتر"
+                ],
+                correct: 1,
+                exp: "الراوتر يشبه شرطي المرور الرقمي، يوزع باقات الإنترنت على كل جهاز بانتظام."
+            },
+            {
+                q: "ما هو الاسم العلمي لكابل الإنترنت السلكي الأصفر السريع؟",
+                options: [
+                    "كابل الشاحن (Charger)",
+                    "كابل الإيثرنت (Ethernet Cable)",
+                    "كابل السماعات (AUX)",
+                    "كابل التلفزيون (HDMI)"
+                ],
+                correct: 1,
+                exp: "كابل الإيثرنت (Ethernet) هو السلك المتصل بالراوتر لنقل البيانات بسرعة وثبات فائقين."
+            },
+            {
+                q: "ما هي ميزة الاتصال اللاسلكي (Wi-Fi) الأكبر؟",
+                options: [
+                    "حرية الحركة والتنقل في أي مكان بدون قيود الأسلاك",
+                    "أنه يعمل حتى لو انقطعت الكهرباء عن الراوتر",
+                    "أنه لا يحتاج إلى كلمة سر نهائياً",
+                    "أنه يمنع الفيروسات تماماً"
+                ],
+                correct: 0,
+                exp: "الواي فاي يعتمد على موجات الراديو فيمنحك حرية الحركة في المنزل بجهازك."
+            },
+            {
+                q: "ما هو عنوان الـ IP (IP Address) في عالم الشبكات؟",
+                options: [
+                    "الرقم القومي وبطاقة الهوية الفريدة للجهاز على الشبكة",
+                    "كلمة سر لعبة روبلوكس",
+                    "اسم المبرمج الذي صنع الكمبيوتر",
+                    "سعر شراء الجهاز في المتجر"
+                ],
+                correct: 0,
+                exp: "عنوان الـ IP هو الرقم الفريد لكل جهاز (مثل 192.168.1.5) ليعرف الراوتر وجهة كل باقة بيانات."
+            },
+            {
+                q: "أي من هذه العناوين يمثل شكلاً صحيحاً لعنوان IP؟",
+                options: [
+                    "eslam@gmail.com",
+                    "192.168.1.10",
+                    "www.google.com",
+                    "C:\\Users\\Desktop"
+                ],
+                correct: 1,
+                exp: "عنوان الـ IP يتكون من 4 مجموعات من الأرقام تفصلها ثلاث نقاط (IPv4)."
+            },
+            {
+                q: "ماذا تسمى عملية تنزيل لعبة جديدة أو فيديو من السيرفر لجهازك؟",
+                options: [
+                    "أبلود (Upload)",
+                    "داونلود (Download)",
+                    "ريستارت (Restart)",
+                    "فورمات (Format)"
+                ],
+                correct: 1,
+                exp: "الداونلود (Download) هو نقل البيانات من السيرفر الخارجي إلى جهازك."
+            },
+            {
+                q: "ماذا تسمى عملية إرسال صورة أو فويس نوت من جهازك لصديقك على واتساب؟",
+                options: [
+                    "أبلود (Upload)",
+                    "داونلود (Download)",
+                    "طباعة (Print)",
+                    "مسح (Delete)"
+                ],
+                correct: 0,
+                exp: "الأبلود (Upload) هو رفع البيانات من جهازك للخارج عبر الشبكة."
+            },
+            {
+                q: "ما هو الأمر الذي نكتبه في شاشة الأوامر (CMD) لمعرفة عنوان الـ IP لجهازنا؟",
+                options: [
+                    "speedtest",
+                    "ipconfig",
+                    "google",
+                    "open-network"
+                ],
+                correct: 1,
+                exp: "أمر ipconfig في الويندوز يعرض كافة تفاصيل عناوين الشبكة والـ IPv4 للجهاز فوراً."
+            },
+            {
+                q: "لماذا يضع المبرمج كلمة سر قوية لشبكة الواي فاي المنزلية؟",
+                options: [
+                    "لتسريع حركة الماوس",
+                    "لحماية باقة الإنترنت وخصوصية بيانات الأسرة من المتطفلين",
+                    "لتغيير لون الراوتر",
+                    "لتقليل استهلاك بطارية اللابتوب"
+                ],
+                correct: 1,
+                exp: "كلمة السر القوية تحمي شبكة منزلك وأجهزتك من المتطفلين وسرقة باقة الإنترنت."
+            }
+        ];
+
+        let curQ = 0;
+        let score = 0;
+        let answered = false;
+
+        function loadQuestion() {
+            answered = false;
+            const q = questions[curQ];
+            document.getElementById('qNumber').innerText = `سؤال #${curQ + 1}`;
+            document.getElementById('qText').innerText = q.q;
+            document.getElementById('qCount').innerText = `السؤال ${curQ + 1} من ${questions.length}`;
+            document.getElementById('scoreLive').innerText = `النقاط: ${score * 10}`;
+            document.getElementById('progressFill').style.width = `${((curQ + 1) / questions.length) * 100}%`;
+            
+            const exp = document.getElementById('explanationBox');
+            exp.style.display = 'none';
+            document.getElementById('nextBtn').style.display = 'none';
+
+            const optList = document.getElementById('optionsList');
+            optList.innerHTML = '';
+
+            q.options.forEach((opt, idx) => {
+                const btn = document.createElement('div');
+                btn.className = 'opt-btn';
+                btn.innerHTML = `<span>${opt}</span><span>⚪</span>`;
+                btn.onclick = () => selectOption(btn, idx);
+                optList.appendChild(btn);
+            });
+        }
+
+        function selectOption(btn, idx) {
+            if (answered) return;
+            answered = true;
+            const q = questions[curQ];
+            const allOpts = document.querySelectorAll('.opt-btn');
+
+            if (idx === q.correct) {
+                btn.classList.add('correct');
+                btn.querySelector('span:last-child').innerText = '✅';
+                score++;
+            } else {
+                btn.classList.add('wrong');
+                btn.querySelector('span:last-child').innerText = '❌';
+                allOpts[q.correct].classList.add('correct');
+                allOpts[q.correct].querySelector('span:last-child').innerText = '✅';
+            }
+
+            document.getElementById('scoreLive').innerText = `النقاط: ${score * 10}`;
+            const exp = document.getElementById('explanationBox');
+            exp.innerText = `💡 التوضيح: ${q.exp}`;
+            exp.style.display = 'block';
+            document.getElementById('nextBtn').style.display = 'block';
+        }
+
+        function nextQuestion() {
+            if (curQ < questions.length - 1) {
+                curQ++;
+                loadQuestion();
+            } else {
+                showResults();
+            }
+        }
+
+        function showResults() {
+            document.getElementById('quizContainer').style.display = 'none';
+            const resView = document.getElementById('resultView');
+            resView.style.display = 'block';
+
+            document.getElementById('resScore').innerText = score;
+            const resTitle = document.getElementById('resTitle');
+            const resDesc = document.getElementById('resDesc');
+            const resIcon = document.getElementById('resIcon');
+
+            if (score >= 9) {
+                resIcon.innerText = '🥇';
+                resTitle.innerText = 'مهندس شبكات عبقري ومحترف!';
+                resDesc.innerText = 'ما شاء الله! إجابات مثالية تثبت استيعابك الكامل لسر الراوتر والـ IP والإيثرنت.';
+            } else if (score >= 7) {
+                resIcon.innerText = '🥈';
+                resTitle.innerText = 'بطل متألق ومتميز جداً!';
+                resDesc.innerText = 'نتيجة رائعة جداً! لديك فهم عميق لشبكات الكمبيوتر وطرق عملها.';
+            } else {
+                resIcon.innerText = '🥉';
+                resTitle.innerText = 'محاولة طيبة.. راجع الشرح وأعد الاختبار!';
+                resDesc.innerText = 'راجع جلسة العرض مرة أخرى وركز في الفرق بين السلكي واللاسلكي وعنوان الـ IP.';
+            }
+        }
+
+        function restartQuiz() {
+            curQ = 0;
+            score = 0;
+            document.getElementById('quizContainer').style.display = 'block';
+            document.getElementById('resultView').style.display = 'none';
+            loadQuestion();
+        }
+
+        // Start Quiz
+        loadQuestion();
+    </script>
+</body>
+</html>
