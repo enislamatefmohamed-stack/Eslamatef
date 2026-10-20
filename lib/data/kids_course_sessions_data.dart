@@ -123,13 +123,15 @@ class KidsCourseSessionsData {
     // ----------------------------------------------------
     KidsSessionItem(
       number: 6,
-      title: "يعني إيه برمجة؟",
+      title: "يعني إيه برمجة؟ كيف تجعل الكمبيوتر يطيعك بذكاء؟",
       levelNumber: 2,
       levelName: "المستوى 2: التفكير البرمجي والخوارزميات",
       description: "لغات الآلة، كيف يطيعنا الحاسوب، ومن هو المبرمج ومستقبل التكنولوجيا.",
       slidesCount: 25,
-      isReady: false,
-      topics: ["لغات البرمجة", "تعليمات الآلة", "تفكير المبرمج"],
+      isReady: true,
+      webUrl: "kids_sessions/lecture_06/index.html",
+      quizUrl: "kids_sessions/lecture_06/quiz.html",
+      topics: ["لغات البرمجة", "تعليمات الآلة", "Binary 0 & 1", "تفكير المبرمج", "Compiler"],
     ),
     KidsSessionItem(
       number: 7,
