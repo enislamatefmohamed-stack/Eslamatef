@@ -1292,14 +1292,15 @@ class _HomePageState extends State<HomePage> {
       'lecturesCount': '49 محاضرة كاملة',
       'rating': '5.0',
       'students': '+380 بطل',
+      'image': 'assets/images/kids_course_cover.png',
       'icon': Icons.smart_toy_rounded,
       'gradient': [const Color(0xFF0284C7), const Color(0xFF0369A1)],
-      'highlights': ['25 شريحة بيضاء تفاعلية/درس', 'اختبارات إلكترونية فورية', 'مشاريع ألعاب حقيقية'],
     });
 
     // 2. Courses from Dashboard & Firestore
     for (final c in SiteDataService.instance.courses) {
       final lessons = (c['lessons'] as List?) ?? [];
+      final img = (c['image'] ?? c['imageUrl'] ?? '').toString();
       list.add({
         'id': c['id'] ?? '',
         'title': c['title'] ?? 'كورس جديد',
@@ -1310,9 +1311,9 @@ class _HomePageState extends State<HomePage> {
         'lecturesCount': '${lessons.length} محاضرة',
         'rating': '4.9',
         'students': '+500 طالب',
+        'image': img.isNotEmpty ? img : 'assets/images/slide4.png',
         'icon': Icons.code_rounded,
         'gradient': [const Color(0xFF6366F1), const Color(0xFF4338CA)],
-        'highlights': ['تطبيق عملي خطوة بخطوة', 'مشاريع واقعية', 'شهادة إتمام'],
       });
     }
 
@@ -1328,9 +1329,9 @@ class _HomePageState extends State<HomePage> {
         'lecturesCount': '36 محاضرة',
         'rating': '5.0',
         'students': '+1,200 مهندس',
+        'image': 'assets/images/slide1.png',
         'icon': Icons.web_rounded,
         'gradient': [const Color(0xFF8B5CF6), const Color(0xFF6D28D9)],
-        'highlights': ['React & Node.js', 'قواعد بيانات SQL & MongoDB', 'بناء مشاريع حقيقية'],
       });
       list.add({
         'id': 'flutter_mobile',
@@ -1342,9 +1343,23 @@ class _HomePageState extends State<HomePage> {
         'lecturesCount': '28 محاضرة',
         'rating': '4.9',
         'students': '+850 مطور',
+        'image': 'assets/images/slide2.png',
         'icon': Icons.phone_android_rounded,
         'gradient': [const Color(0xFF0D9488), const Color(0xFF0F766E)],
-        'highlights': ['Clean Architecture', 'State Management', 'نشر التطبيقات على المتاجر'],
+      });
+      list.add({
+        'id': 'python_ai',
+        'title': 'مسار بايثون والذكاء الاصطناعي (Python & AI Engineering)',
+        'subtitle': 'تعلم لغة بايثون، تحليل البيانات، بناء خوارزميات تعلم الآلة ونماذج الذكاء الاصطناعي التوليدي.',
+        'category': 'الذكاء الاصطناعي',
+        'badge': '🤖 مستقبل التكنولوجيا',
+        'level': 'شامل',
+        'lecturesCount': '32 محاضرة',
+        'rating': '5.0',
+        'students': '+920 مهندس',
+        'image': 'assets/images/slide3.png',
+        'icon': Icons.psychology_rounded,
+        'gradient': [const Color(0xFFEA580C), const Color(0xFFC2410C)],
       });
     }
 
@@ -1412,7 +1427,7 @@ class _HomePageState extends State<HomePage> {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        "استكشف أحدث البرامج التعليمية المعتمدة وانطلق في رحلة التعلم التفاعلي مع مشروعات حقيقية وتطبيق خطوة بخطوة.",
+                        "اضغط على أي كورس لفتحه والبدء في الشروحات والتطبيقات العملية فوراً.",
                         style: GoogleFonts.cairo(
                           fontSize: isMobile ? 12.5 : 14,
                           color: isDark ? AppColors.textSecondary : AppColors.textSecondaryLight,
@@ -1454,7 +1469,7 @@ class _HomePageState extends State<HomePage> {
               onEnter: (_) => setState(() => _isCoursesSliderHovered = true),
               onExit: (_) => setState(() => _isCoursesSliderHovered = false),
               child: SizedBox(
-                height: isMobile ? 360 : 255,
+                height: isMobile ? 260 : 310,
                 child: PageView.builder(
                   controller: _coursesPageController,
                   onPageChanged: (idx) => setState(() => _currentCourseSlide = idx),
@@ -1462,7 +1477,7 @@ class _HomePageState extends State<HomePage> {
                   itemBuilder: (ctx, idx) {
                     final course = courses[idx];
                     return Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 8),
+                      padding: const EdgeInsets.symmetric(horizontal: 10),
                       child: _buildCourseSliderCard(course, isMobile, isDark),
                     );
                   },
@@ -1509,323 +1524,251 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _buildCourseSliderCard(Map<String, dynamic> course, bool isMobile, bool isDark) {
+    final imgPath = (course['image'] ?? '').toString();
     final gradient = (course['gradient'] as List<Color>?) ?? [const Color(0xFF0284C7), const Color(0xFF0369A1)];
-    final icon = (course['icon'] as IconData?) ?? Icons.school_rounded;
-    final highlights = (course['highlights'] as List<String>?) ?? [];
 
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      child: GestureDetector(
+        onTap: () {
+          // Clicking directly on the card opens the course
+          if (course['id'] == 'kids_coding_49') {
+            Navigator.of(context).pushNamed('/courses');
+          } else {
+            Navigator.of(context).pushNamed('/courses');
+          }
+        },
+        child: Container(
+          decoration: BoxDecoration(
+            color: isDark ? const Color(0xFF0F172A) : Colors.white,
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(
+              color: isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0),
+              width: 1.5,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: gradient.first.withOpacity(0.2),
+                blurRadius: 18,
+                offset: const Offset(0, 8),
+              ),
+            ],
+          ),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(20),
+            child: Stack(
+              fit: StackFit.expand,
+              children: [
+                // 1. Course Image (Fills the entire card)
+                _buildCourseCardImage(imgPath, gradient),
+
+                // 2. Cinematic Gradient Overlay (Ensures text is crystal clear)
+                Container(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [
+                        Colors.black.withOpacity(0.6),
+                        Colors.black.withOpacity(0.1),
+                        Colors.black.withOpacity(0.4),
+                        Colors.black.withOpacity(0.92),
+                      ],
+                      stops: const [0.0, 0.35, 0.6, 1.0],
+                    ),
+                  ),
+                ),
+
+                // 3. Floating Play Button Icon in Center
+                Center(
+                  child: Container(
+                    padding: const EdgeInsets.all(14),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF0284C7).withOpacity(0.85),
+                      shape: BoxShape.circle,
+                      border: Border.all(color: Colors.white, width: 2),
+                      boxShadow: [
+                        BoxShadow(
+                          color: const Color(0xFF0284C7).withOpacity(0.6),
+                          blurRadius: 20,
+                          spreadRadius: 2,
+                        ),
+                      ],
+                    ),
+                    child: const Icon(Icons.play_arrow_rounded, color: Colors.white, size: 36),
+                  ),
+                ),
+
+                // 4. Top Floating Badges
+                Positioned(
+                  top: 14,
+                  left: 14,
+                  right: 14,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                        decoration: BoxDecoration(
+                          color: Colors.black.withOpacity(0.65),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: Colors.white.withOpacity(0.2)),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(Icons.auto_stories_rounded, color: Colors.white, size: 14),
+                            const SizedBox(width: 6),
+                            Text(
+                              course['lecturesCount'] ?? '',
+                              style: GoogleFonts.cairo(
+                                color: Colors.white,
+                                fontSize: 11,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF0284C7).withOpacity(0.95),
+                          borderRadius: BorderRadius.circular(12),
+                          boxShadow: [
+                            BoxShadow(
+                              color: const Color(0xFF0284C7).withOpacity(0.4),
+                              blurRadius: 8,
+                            ),
+                          ],
+                        ),
+                        child: Text(
+                          course['badge'] ?? 'كورس متميز',
+                          style: GoogleFonts.cairo(
+                            color: Colors.white,
+                            fontSize: 11,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+
+                // 5. Bottom Overlay Info (Title, Level, Rating, Click to open)
+                Positioned(
+                  bottom: 14,
+                  left: 16,
+                  right: 16,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      // Level & Category
+                      Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withOpacity(0.2),
+                              borderRadius: BorderRadius.circular(6),
+                            ),
+                            child: Text(
+                              course['level'] ?? '',
+                              style: GoogleFonts.cairo(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            course['category'] ?? '',
+                            style: GoogleFonts.cairo(color: Colors.white.withOpacity(0.85), fontSize: 11.5),
+                          ),
+                          const Spacer(),
+                          const Icon(Icons.star_rounded, color: Color(0xFFF59E0B), size: 16),
+                          const SizedBox(width: 4),
+                          Text(
+                            course['rating'] ?? '5.0',
+                            style: GoogleFonts.cairo(color: Colors.white, fontSize: 11.5, fontWeight: FontWeight.bold),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 6),
+
+                      // Title
+                      Text(
+                        course['title'] ?? '',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: GoogleFonts.cairo(
+                          fontSize: isMobile ? 15 : 18,
+                          fontWeight: FontWeight.w900,
+                          color: Colors.white,
+                          shadows: [
+                            Shadow(color: Colors.black.withOpacity(0.8), blurRadius: 8),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+
+                      // Click Prompt Action
+                      Row(
+                        children: [
+                          Text(
+                            "اضغط هنا لفتح ومشاهدة الكورس 🚀",
+                            style: GoogleFonts.cairo(
+                              fontSize: 12,
+                              fontWeight: FontWeight.bold,
+                              color: const Color(0xFF38BDF8),
+                            ),
+                          ),
+                          const SizedBox(width: 4),
+                          const Icon(Icons.arrow_forward_rounded, size: 14, color: Color(0xFF38BDF8)),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCourseCardImage(String imgPath, List<Color> gradient) {
+    if (imgPath.startsWith('http')) {
+      return Image.network(
+        imgPath,
+        fit: BoxFit.cover,
+        width: double.infinity,
+        height: double.infinity,
+        errorBuilder: (context, error, stackTrace) => _buildFallbackCardGradient(gradient),
+      );
+    }
+    if (imgPath.isNotEmpty) {
+      return Image.asset(
+        imgPath,
+        fit: BoxFit.cover,
+        width: double.infinity,
+        height: double.infinity,
+        errorBuilder: (context, error, stackTrace) => _buildFallbackCardGradient(gradient),
+      );
+    }
+    return _buildFallbackCardGradient(gradient);
+  }
+
+  Widget _buildFallbackCardGradient(List<Color> gradient) {
     return Container(
       decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF0F172A) : Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-          color: isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0),
-          width: 1.2,
+        gradient: LinearGradient(
+          colors: gradient,
+          begin: Alignment.topRight,
+          end: Alignment.bottomLeft,
         ),
-        boxShadow: [
-          BoxShadow(
-            color: gradient.first.withOpacity(0.1),
-            blurRadius: 18,
-            offset: const Offset(0, 6),
-          ),
-        ],
       ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(20),
-        child: isMobile
-            ? Column(
-                children: [
-                  // Top Gradient Header Bar
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(colors: gradient),
-                    ),
-                    child: Row(
-                      children: [
-                        Icon(icon, color: Colors.white, size: 20),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: Text(
-                            course['badge'] ?? 'كورس جديد',
-                            style: GoogleFonts.cairo(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
-                          ),
-                        ),
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                          decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.2),
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: Text(
-                            course['lecturesCount'] ?? '',
-                            style: GoogleFonts.cairo(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  // Mobile Body
-                  Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.all(14),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            course['title'] ?? '',
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                            style: GoogleFonts.cairo(
-                              fontSize: 15,
-                              fontWeight: FontWeight.bold,
-                              color: isDark ? Colors.white : const Color(0xFF0F172A),
-                              height: 1.35,
-                            ),
-                          ),
-                          const SizedBox(height: 6),
-                          Text(
-                            course['subtitle'] ?? '',
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                            style: GoogleFonts.cairo(
-                              fontSize: 11.5,
-                              color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
-                              height: 1.4,
-                            ),
-                          ),
-                          const Spacer(),
-                          Row(
-                            children: [
-                              Expanded(
-                                child: ElevatedButton.icon(
-                                  onPressed: () => Navigator.of(context).pushNamed('/courses'),
-                                  icon: const Icon(Icons.play_circle_fill_rounded, size: 16),
-                                  label: Text("ابدأ الكورس 🚀", style: GoogleFonts.cairo(fontWeight: FontWeight.bold, fontSize: 12)),
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: const Color(0xFF0284C7),
-                                    foregroundColor: Colors.white,
-                                    padding: const EdgeInsets.symmetric(vertical: 8),
-                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
-              )
-            : Row(
-                children: [
-                  // Right Visual Banner
-                  Container(
-                    width: 220,
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: gradient,
-                        begin: Alignment.topRight,
-                        end: Alignment.bottomLeft,
-                      ),
-                    ),
-                    padding: const EdgeInsets.all(22),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.all(16),
-                          decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.18),
-                            shape: BoxShape.circle,
-                          ),
-                          child: Icon(icon, color: Colors.white, size: 40),
-                        ),
-                        const SizedBox(height: 12),
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                          decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.22),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Text(
-                            course['level'] ?? '',
-                            style: GoogleFonts.cairo(
-                              color: Colors.white,
-                              fontSize: 11.5,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          course['lecturesCount'] ?? '',
-                          style: GoogleFonts.cairo(
-                            color: Colors.white.withOpacity(0.9),
-                            fontSize: 12,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-
-                  // Left Course Info & Actions
-                  Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: [
-                              Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
-                                decoration: BoxDecoration(
-                                  color: const Color(0xFF0284C7).withOpacity(0.1),
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                                child: Text(
-                                  course['badge'] ?? 'جديد',
-                                  style: GoogleFonts.cairo(
-                                    fontSize: 11,
-                                    fontWeight: FontWeight.bold,
-                                    color: const Color(0xFF0284C7),
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(width: 10),
-                              Text(
-                                "المسار: ${course['category'] ?? ''}",
-                                style: GoogleFonts.cairo(
-                                  fontSize: 12,
-                                  color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
-                                ),
-                              ),
-                              const Spacer(),
-                              Row(
-                                children: [
-                                  const Icon(Icons.star_rounded, color: Color(0xFFF59E0B), size: 16),
-                                  const SizedBox(width: 4),
-                                  Text(
-                                    course['rating'] ?? '5.0',
-                                    style: GoogleFonts.cairo(
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.bold,
-                                      color: isDark ? Colors.white : const Color(0xFF1E293B),
-                                    ),
-                                  ),
-                                  const SizedBox(width: 6),
-                                  Text(
-                                    "(${course['students'] ?? ''})",
-                                    style: GoogleFonts.cairo(fontSize: 11, color: const Color(0xFF94A3B8)),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 10),
-                          Text(
-                            course['title'] ?? '',
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: GoogleFonts.cairo(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                              color: isDark ? Colors.white : const Color(0xFF0F172A),
-                            ),
-                          ),
-                          const SizedBox(height: 6),
-                          Text(
-                            course['subtitle'] ?? '',
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                            style: GoogleFonts.cairo(
-                              fontSize: 13,
-                              color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
-                              height: 1.45,
-                            ),
-                          ),
-                          const Spacer(),
-                          // Highlights Row
-                          if (highlights.isNotEmpty) ...[
-                            Wrap(
-                              spacing: 8,
-                              runSpacing: 6,
-                              children: highlights.map((h) {
-                                return Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                                  decoration: BoxDecoration(
-                                    color: isDark ? const Color(0xFF1E293B) : const Color(0xFFF1F5F9),
-                                    borderRadius: BorderRadius.circular(6),
-                                  ),
-                                  child: Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      const Icon(Icons.check_circle_rounded, size: 12, color: Color(0xFF0284C7)),
-                                      const SizedBox(width: 4),
-                                      Text(
-                                        h,
-                                        style: GoogleFonts.cairo(
-                                          fontSize: 11,
-                                          fontWeight: FontWeight.w600,
-                                          color: isDark ? const Color(0xFFE2E8F0) : const Color(0xFF334155),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                );
-                              }).toList(),
-                            ),
-                            const SizedBox(height: 14),
-                          ],
-                          // Action Buttons
-                          Row(
-                            children: [
-                              ElevatedButton.icon(
-                                onPressed: () => Navigator.of(context).pushNamed('/courses'),
-                                icon: const Icon(Icons.play_circle_fill_rounded, size: 16),
-                                label: Text(
-                                  "ابدأ استكشاف الكورس 🚀",
-                                  style: GoogleFonts.cairo(fontWeight: FontWeight.bold, fontSize: 13),
-                                ),
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: const Color(0xFF0284C7),
-                                  foregroundColor: Colors.white,
-                                  elevation: 0,
-                                  padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
-                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                                ),
-                              ),
-                              const SizedBox(width: 10),
-                              OutlinedButton.icon(
-                                onPressed: () {
-                                  if (course['id'] == 'kids_coding_49') {
-                                    Navigator.of(context).pushNamed('/admin');
-                                  } else {
-                                    Navigator.of(context).pushNamed('/courses');
-                                  }
-                                },
-                                icon: const Icon(Icons.slideshow_rounded, size: 15, color: Color(0xFF0284C7)),
-                                label: Text(
-                                  course['id'] == 'kids_coding_49' ? "جلسات التصوير 🎬" : "تفاصيل المنهج 📋",
-                                  style: GoogleFonts.cairo(fontSize: 12.5, fontWeight: FontWeight.bold, color: const Color(0xFF0284C7)),
-                                ),
-                                style: OutlinedButton.styleFrom(
-                                  side: const BorderSide(color: Color(0xFFBAE6FD)),
-                                  backgroundColor: const Color(0xFF0284C7).withOpacity(0.08),
-                                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
-              ),
+      child: Center(
+        child: Icon(Icons.code_rounded, size: 60, color: Colors.white.withOpacity(0.4)),
       ),
     );
   }
