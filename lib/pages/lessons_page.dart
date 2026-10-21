@@ -5,6 +5,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../theme/app_theme.dart';
 import '../services/site_data_service.dart';
 import '../widgets/article_content_renderer.dart';
+import '../widgets/interactive_html_view/interactive_html_view.dart';
 import '../widgets/youtube_embedded_player.dart';
 import '../widgets/auth_modal.dart';
 import '../widgets/safe_network_image/safe_network_image.dart';
@@ -559,7 +560,34 @@ class _LessonsPageState extends State<LessonsPage> {
                 const Divider(),
                 const SizedBox(height: 14),
                 if (displayContent.isNotEmpty)
-                  ArticleContentRenderer(content: displayContent, isDark: isDark)
+                  (displayContent.contains('<script') ||
+                          displayContent.contains('<!DOCTYPE html') ||
+                          displayContent.contains('class="quiz') ||
+                          displayContent.contains("class='quiz"))
+                      ? Container(
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(16),
+                            border: Border.all(
+                                color: isDark
+                                    ? const Color(0xFF1E293B)
+                                    : const Color(0xFFE2E8F0)),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(isDark ? 0.3 : 0.04),
+                                blurRadius: 16,
+                                offset: const Offset(0, 4),
+                              ),
+                            ],
+                          ),
+                          clipBehavior: Clip.antiAlias,
+                          child: InteractiveHtmlView(
+                            rawHtml: displayContent,
+                            id: (lesson['id'] ?? 'lesson_body_html').toString(),
+                            height: 900,
+                          ),
+                        )
+                      : ArticleContentRenderer(content: displayContent, isDark: isDark)
                 else
                   Padding(
                     padding: const EdgeInsets.symmetric(vertical: 24),
@@ -641,20 +669,36 @@ class _LessonsPageState extends State<LessonsPage> {
       showDialog(
         context: context,
         builder: (ctx) {
+          final dialogWidth = MediaQuery.of(ctx).size.width < 900
+              ? (MediaQuery.of(ctx).size.width * 0.95)
+              : 850.0;
           return AlertDialog(
             backgroundColor: isDark ? const Color(0xFF0F172A) : Colors.white,
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+            contentPadding: const EdgeInsets.all(16),
             title: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(lesson['quizTitle'] ?? 'اختبار فهم الدرس', style: GoogleFonts.cairo(fontWeight: FontWeight.bold)),
+                Row(
+                  children: [
+                    const Icon(Icons.psychology_rounded, color: Color(0xFF10B981)),
+                    const SizedBox(width: 8),
+                    Text(lesson['quizTitle'] ?? 'اختبار فهم الدرس', style: GoogleFonts.cairo(fontWeight: FontWeight.bold, fontSize: 18)),
+                  ],
+                ),
                 IconButton(icon: const Icon(Icons.close), onPressed: () => Navigator.pop(ctx)),
               ],
             ),
             content: SizedBox(
-              width: MediaQuery.of(ctx).size.width < 750 ? (MediaQuery.of(ctx).size.width * 0.88) : 750,
-              child: SingleChildScrollView(
-                child: ArticleContentRenderer(content: quizHtml, isDark: isDark),
+              width: dialogWidth,
+              height: 750,
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(14),
+                child: InteractiveHtmlView(
+                  rawHtml: quizHtml,
+                  id: (lesson['id'] ?? 'lesson_quiz').toString(),
+                  height: 750,
+                ),
               ),
             ),
           );

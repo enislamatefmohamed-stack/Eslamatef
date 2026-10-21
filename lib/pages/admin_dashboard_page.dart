@@ -3595,6 +3595,9 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
     final titleCtrl = TextEditingController();
     final contentCtrl = TextEditingController();
     final htmlCtrl = TextEditingController();
+    final quizTitleCtrl = TextEditingController(text: 'اختبار فهم الدرس');
+    final quizHtmlCtrl = TextEditingController();
+    bool hasLessonQuiz = false;
     bool isPaid = false;
     int editorTab = 0; // 0: محرر بلوجر العادي, 1: محرر كود HTML
 
@@ -3784,6 +3787,64 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                           ),
                         ),
                       ],
+                      const SizedBox(height: 18),
+
+                      // 4. Lesson Specific Interactive Quiz Card
+                      Container(
+                        padding: const EdgeInsets.all(14),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFF0FDF4),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: const Color(0xFFBBF7D0)),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Row(
+                                  children: [
+                                    const Icon(Icons.psychology_rounded, color: Color(0xFF16A34A), size: 22),
+                                    const SizedBox(width: 8),
+                                    Text(
+                                      "إضافة اختبار خاص بهذا الدرس (Quiz) 📝",
+                                      style: GoogleFonts.cairo(fontWeight: FontWeight.bold, fontSize: 13, color: const Color(0xFF166534)),
+                                    ),
+                                  ],
+                                ),
+                                Switch(
+                                  value: hasLessonQuiz,
+                                  activeColor: const Color(0xFF16A34A),
+                                  onChanged: (v) => setDlgState(() => hasLessonQuiz = v),
+                                ),
+                              ],
+                            ),
+                            if (hasLessonQuiz) ...[
+                              const SizedBox(height: 10),
+                              TextField(
+                                controller: quizTitleCtrl,
+                                decoration: _inputDecoration("عنوان اختبار الدرس (مثال: اختبار المحاضرة 01)"),
+                              ),
+                              const SizedBox(height: 10),
+                              Container(
+                                decoration: BoxDecoration(color: const Color(0xFF0F172A), borderRadius: BorderRadius.circular(10)),
+                                padding: const EdgeInsets.all(12),
+                                child: TextField(
+                                  controller: quizHtmlCtrl,
+                                  maxLines: 8,
+                                  style: const TextStyle(fontFamily: 'monospace', fontSize: 13, color: Color(0xFF4ADE80)),
+                                  decoration: const InputDecoration(
+                                    border: InputBorder.none,
+                                    hintText: "<!-- الصق هنا كود HTML التفاعلي الكامل لاختبار هذا الدرس -->",
+                                    hintStyle: TextStyle(color: Colors.white24, fontFamily: 'monospace'),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ],
+                        ),
+                      ),
                     ],
                   ),
                 ),
@@ -3823,6 +3884,9 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                       video = (vidMatch.group(1) ?? vidMatch.group(2) ?? '').trim();
                     }
 
+                    final lessonQuizTitle = quizTitleCtrl.text.trim().isNotEmpty ? quizTitleCtrl.text.trim() : 'اختبار فهم الدرس';
+                    final lessonQuizHtml = quizHtmlCtrl.text.trim();
+
                     if (isCourse) {
                       // Append to course's lessons list
                       final courseIdx = _dataService.courses.indexWhere((c) => c['id'].toString() == selectedPlaylistId);
@@ -3840,6 +3904,9 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                           'editorType': editorTab == 0 ? 'visual' : 'html',
                           'content': content,
                           'htmlCode': htmlCode,
+                          'hasQuiz': hasLessonQuiz,
+                          'quizTitle': lessonQuizTitle,
+                          'quizHtml': lessonQuizHtml,
                         });
                         await _dataService.updateCourse(course['id'], {'lessons': lessonsList});
                       }
@@ -3864,6 +3931,9 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                         'content': content,
                         'htmlCode': htmlCode,
                         'status': 'منشور',
+                        'hasQuiz': hasLessonQuiz,
+                        'quizTitle': lessonQuizTitle,
+                        'quizHtml': lessonQuizHtml,
                       });
                     }
 
