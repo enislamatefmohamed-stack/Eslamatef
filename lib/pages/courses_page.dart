@@ -1,10 +1,14 @@
+// ignore_for_file: avoid_web_libraries_in_flutter, deprecated_member_use
+import 'dart:html' as html;
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../theme/app_theme.dart';
 import '../services/site_data_service.dart';
 import '../widgets/article_content_renderer.dart';
+import '../widgets/interactive_html_view/interactive_html_view.dart';
 import '../widgets/youtube_embedded_player.dart';
 import '../widgets/auth_modal.dart';
 import '../widgets/safe_network_image/safe_network_image.dart';
@@ -28,8 +32,64 @@ class _CoursesPageState extends State<CoursesPage> {
   @override
   void initState() {
     super.initState();
+    _checkUrlParameters();
     _dataService.addListener(_onDataChanged);
     _checkEnrollment();
+  }
+
+  void _checkUrlParameters() {
+    try {
+      final uri = Uri.base;
+      final courseId = uri.queryParameters['course'] ?? uri.queryParameters['courseId'] ?? uri.queryParameters['id'];
+      final lessonId = uri.queryParameters['lesson'] ?? uri.queryParameters['lessonId'];
+
+      if (courseId != null && courseId.isNotEmpty) {
+        final matchedCourses = _dataService.courses.where((c) => c['id'].toString() == courseId).toList();
+        if (matchedCourses.isNotEmpty) {
+          _activeCourse = matchedCourses.first;
+          _checkEnrollment();
+
+          if (lessonId != null && lessonId.isNotEmpty) {
+            final lessons = List<Map<String, dynamic>>.from(_activeCourse!['lessons'] ?? []);
+            final matchedLessons = lessons.where((l) => (l['id'] ?? '').toString() == lessonId).toList();
+            if (matchedLessons.isNotEmpty) {
+              _activeLesson = matchedLessons.first;
+            }
+          }
+        }
+      }
+    } catch (_) {}
+  }
+
+  void _syncUrl() {
+    try {
+      String newUrl;
+      if (_activeCourse != null) {
+        final cid = (_activeCourse!['id'] ?? '').toString();
+        if (_activeLesson != null) {
+          final lid = (_activeLesson!['id'] ?? '').toString();
+          newUrl = '#/courses?course=$cid&lesson=$lid';
+        } else {
+          newUrl = '#/courses?course=$cid';
+        }
+      } else {
+        newUrl = '#/courses';
+      }
+      html.window.history.pushState(null, '', newUrl);
+    } catch (_) {}
+  }
+
+  void _copyLink(String url, String message) {
+    Clipboard.setData(ClipboardData(text: url));
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(message, style: GoogleFonts.cairo(fontWeight: FontWeight.bold)),
+          backgroundColor: const Color(0xFF059669),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    }
   }
 
   void _checkEnrollment() async {
@@ -48,6 +108,9 @@ class _CoursesPageState extends State<CoursesPage> {
 
   void _onDataChanged() {
     if (mounted) {
+      if (_activeCourse == null) {
+        _checkUrlParameters();
+      }
       _checkEnrollment();
       setState(() {});
     }
@@ -227,9 +290,15 @@ class _CoursesPageState extends State<CoursesPage> {
                   currentRoute: '/courses',
                   pageTitle: 'الكورسات والمسارات البرمجية',
                   onBack: _activeLesson != null
-                      ? () => setState(() => _activeLesson = null)
+                      ? () {
+                          setState(() => _activeLesson = null);
+                          _syncUrl();
+                        }
                       : (_activeCourse != null
-                          ? () => setState(() => _activeCourse = null)
+                          ? () {
+                              setState(() => _activeCourse = null);
+                              _syncUrl();
+                            }
                           : null),
                 ),
                 Expanded(
@@ -386,7 +455,13 @@ class _CoursesPageState extends State<CoursesPage> {
                                           child: Text("📂 ${lessons.length} درس وفيديو", style: GoogleFonts.cairo(fontSize: 12, fontWeight: FontWeight.bold)),
                                         ),
                                         ElevatedButton(
-                                          onPressed: () => setState(() => _activeCourse = course),
+                                          onPressed: () {
+                                            setState(() {
+                                              _activeCourse = course;
+                                              _activeLesson = null;
+                                            });
+                                            _syncUrl();
+                                          },
                                           style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF00E5FF), foregroundColor: Colors.black),
                                           child: Text("فتح الكورس ➔", style: GoogleFonts.cairo(fontSize: 12, fontWeight: FontWeight.bold)),
                                         ),
@@ -430,14 +505,31 @@ class _CoursesPageState extends State<CoursesPage> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             if (isMobile) ...[
-              Align(
-                alignment: Alignment.centerRight,
-                child: OutlinedButton.icon(
-                  onPressed: () => setState(() => _activeCourse = null),
-                  icon: const Icon(Icons.arrow_forward_rounded, size: 16),
-                  label: Text("العودة لكافة الكورسات", style: GoogleFonts.cairo(fontWeight: FontWeight.bold, fontSize: 12)),
-                  style: OutlinedButton.styleFrom(foregroundColor: const Color(0xFF00E5FF)),
-                ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  OutlinedButton.icon(
+                    onPressed: () {
+                      setState(() {
+                        _activeCourse = null;
+                        _activeLesson = null;
+                      });
+                      _syncUrl();
+                    },
+                    icon: const Icon(Icons.arrow_forward_rounded, size: 16),
+                    label: Text("العودة للكورسات", style: GoogleFonts.cairo(fontWeight: FontWeight.bold, fontSize: 12)),
+                    style: OutlinedButton.styleFrom(foregroundColor: const Color(0xFF00E5FF)),
+                  ),
+                  OutlinedButton.icon(
+                    onPressed: () => _copyLink(
+                      'https://eslamatef-sepia.vercel.app/#/courses?course=$courseId',
+                      "تم نسخ رابط الكورس المباشر 📋",
+                    ),
+                    icon: const Icon(Icons.link_rounded, size: 16),
+                    label: Text("مشاركة الكورس", style: GoogleFonts.cairo(fontWeight: FontWeight.bold, fontSize: 12)),
+                    style: OutlinedButton.styleFrom(foregroundColor: const Color(0xFF10B981)),
+                  ),
+                ],
               ),
               const SizedBox(height: 12),
               Text(
@@ -448,10 +540,26 @@ class _CoursesPageState extends State<CoursesPage> {
               Row(
                 children: [
                   OutlinedButton.icon(
-                    onPressed: () => setState(() => _activeCourse = null),
+                    onPressed: () {
+                      setState(() {
+                        _activeCourse = null;
+                        _activeLesson = null;
+                      });
+                      _syncUrl();
+                    },
                     icon: const Icon(Icons.arrow_forward_rounded, size: 16),
                     label: Text("العودة لكافة الكورسات", style: GoogleFonts.cairo(fontWeight: FontWeight.bold)),
                     style: OutlinedButton.styleFrom(foregroundColor: const Color(0xFF00E5FF)),
+                  ),
+                  const SizedBox(width: 12),
+                  OutlinedButton.icon(
+                    onPressed: () => _copyLink(
+                      'https://eslamatef-sepia.vercel.app/#/courses?course=$courseId',
+                      "تم نسخ رابط الكورس المباشر 📋",
+                    ),
+                    icon: const Icon(Icons.link_rounded, size: 16),
+                    label: Text("نسخ رابط الكورس 📋", style: GoogleFonts.cairo(fontWeight: FontWeight.bold)),
+                    style: OutlinedButton.styleFrom(foregroundColor: const Color(0xFF10B981)),
                   ),
                   const SizedBox(width: 16),
                   Expanded(
@@ -755,6 +863,7 @@ class _CoursesPageState extends State<CoursesPage> {
                                 }
                               }
                               setState(() => _activeLesson = lesson);
+                              _syncUrl();
                               if (lessonId.isNotEmpty) {
                                 _dataService.markLessonWatched(courseId: courseId, lessonId: lessonId, userId: user.uid);
                                 setState(() => _watchedLessonIds.add(lessonId));
@@ -872,6 +981,7 @@ class _CoursesPageState extends State<CoursesPage> {
                                 }
                               }
                               setState(() => _activeLesson = lesson);
+                              _syncUrl();
                               if (lessonId.isNotEmpty) {
                                 _dataService.markLessonWatched(courseId: courseId, lessonId: lessonId, userId: user.uid);
                                 setState(() => _watchedLessonIds.add(lessonId));
@@ -1046,7 +1156,10 @@ class _CoursesPageState extends State<CoursesPage> {
         isDark: isDark,
         isPaid: isPaid,
         courseId: courseId,
-        onBack: () => setState(() => _activeLesson = null),
+        onBack: () {
+          setState(() => _activeLesson = null);
+          _syncUrl();
+        },
       );
     }
 
@@ -1057,15 +1170,32 @@ class _CoursesPageState extends State<CoursesPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // Back button
-            Align(
-              alignment: Alignment.centerRight,
-              child: OutlinedButton.icon(
-                onPressed: () => setState(() => _activeLesson = null),
-                icon: const Icon(Icons.arrow_forward_rounded, size: 16),
-                label: Text("العودة لقائمة دروس الكورس", style: GoogleFonts.cairo(fontWeight: FontWeight.bold)),
-                style: OutlinedButton.styleFrom(foregroundColor: const Color(0xFF00E5FF)),
-              ),
+            // Back button & Copy Lesson Link
+            Wrap(
+              spacing: 12,
+              runSpacing: 8,
+              alignment: WrapAlignment.spaceBetween,
+              crossAxisAlignment: WrapCrossAlignment.center,
+              children: [
+                OutlinedButton.icon(
+                  onPressed: () {
+                    setState(() => _activeLesson = null);
+                    _syncUrl();
+                  },
+                  icon: const Icon(Icons.arrow_forward_rounded, size: 16),
+                  label: Text("العودة لقائمة دروس الكورس", style: GoogleFonts.cairo(fontWeight: FontWeight.bold)),
+                  style: OutlinedButton.styleFrom(foregroundColor: const Color(0xFF00E5FF)),
+                ),
+                OutlinedButton.icon(
+                  onPressed: () => _copyLink(
+                    'https://eslamatef-sepia.vercel.app/#/courses?course=$courseId&lesson=$lessonId',
+                    "تم نسخ رابط هذه المحاضرة المباشر 📋",
+                  ),
+                  icon: const Icon(Icons.link_rounded, size: 16),
+                  label: Text("نسخ رابط المحاضرة 📋", style: GoogleFonts.cairo(fontWeight: FontWeight.bold)),
+                  style: OutlinedButton.styleFrom(foregroundColor: const Color(0xFF10B981)),
+                ),
+              ],
             ),
             const SizedBox(height: 16),
 
@@ -1147,9 +1277,19 @@ class _CoursesPageState extends State<CoursesPage> {
                 ),
                 const SizedBox(height: 12),
                 const Divider(),
-                const SizedBox(height: 14),
                 if (displayContent.isNotEmpty)
-                  ArticleContentRenderer(content: displayContent, isDark: isDark)
+                  (displayContent.contains('<script') ||
+                          displayContent.contains('<!DOCTYPE') ||
+                          displayContent.contains('<html') ||
+                          displayContent.contains('class="quiz') ||
+                          displayContent.contains("id='quiz") ||
+                          displayContent.contains('class="option-item"'))
+                      ? InteractiveHtmlView(
+                          id: 'course_lesson_content_${lessonId.isNotEmpty ? lessonId : 'view'}',
+                          rawHtml: displayContent,
+                          height: 700,
+                        )
+                      : ArticleContentRenderer(content: displayContent, isDark: isDark)
                 else
                   Padding(
                     padding: const EdgeInsets.symmetric(vertical: 24),
@@ -1376,8 +1516,11 @@ class _CoursesPageState extends State<CoursesPage> {
             ),
             content: SizedBox(
               width: 750,
-              child: SingleChildScrollView(
-                child: ArticleContentRenderer(content: quizHtml, isDark: isDark),
+              height: 600,
+              child: InteractiveHtmlView(
+                id: 'lesson_quiz_dialog_${lesson['id'] ?? 'item'}',
+                rawHtml: quizHtml,
+                height: 600,
               ),
             ),
           );
