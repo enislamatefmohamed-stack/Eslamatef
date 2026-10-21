@@ -5998,6 +5998,21 @@ function checkScore() {
                     ),
                     ElevatedButton.icon(
                       onPressed: () {
+                        final quizLink = 'https://eslamatef-sepia.vercel.app/#/quiz?id=${q['id']}';
+                        Clipboard.setData(ClipboardData(text: quizLink));
+                        _showSnackBar("تم نسخ رابط الاختبار: $quizLink (يمكنك وضعه في المقال)");
+                      },
+                      icon: const Icon(Icons.link_rounded, size: 16),
+                      label: Text("نسخ الرابط 📋", style: GoogleFonts.cairo(fontSize: 12, fontWeight: FontWeight.bold)),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF059669),
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    ElevatedButton.icon(
+                      onPressed: () {
                         setState(() {
                           _editingQuiz = q;
                           _quizTitleEditorCtrl.text = q['title'] ?? 'اختبار تفاعلي';
@@ -6125,15 +6140,20 @@ function checkScore() {
       'status': 'منشور',
       'date': "${DateTime.now().year}-${DateTime.now().month.toString().padLeft(2, '0')}-${DateTime.now().day.toString().padLeft(2, '0')}",
     };
+    final quizId = quizData['id'] as String;
     if (_editingQuiz == null) {
       await _dataService.addInteractiveQuiz(quizData);
     } else {
       await _dataService.updateInteractiveQuiz(_editingQuiz!['id'], quizData);
     }
+    final quizLink = 'https://eslamatef-sepia.vercel.app/#/quiz?id=$quizId';
+    Clipboard.setData(ClipboardData(text: quizLink));
     setState(() {
       _editingQuiz = null;
+      _quizTitleEditorCtrl.clear();
+      _quizHtmlEditorCtrl.clear();
     });
-    _showSnackBar("تم حفظ ونشر الاختبار بنجاح 🚀");
+    _showSnackBar("تم حفظ ونشر الاختبار بنجاح وتم نسخ رابطه تلقائياً: $quizLink 🚀");
   }
 
   // =========================================================================

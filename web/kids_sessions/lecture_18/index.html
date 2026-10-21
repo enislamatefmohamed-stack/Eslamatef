@@ -641,785 +641,482 @@
                 
                 <!-- Slides Container -->
                 <div class="slides-wrapper" id="slidesWrapper">
-                    
-        <!-- SLIDE 1 -->
-        <section class="slide active" id="slide-1" data-slide="1" data-notes="يا أهلاً بكل أبطال ومبرمجي المستقبل! منورين المحاضرة رقم 18 من كورس البرمجة والذكاء الاصطناعي للأطفال! النهاردة ميعادنا مع درس شيق جداً وعنوانه: الاصطدام والتفاعل (Collision Detection). ملامسة الحواجز والتقاط العملات الذهبية وهزيمة الوحوش في اللعبة. جاهزون لمغامرة اليوم؟ يلا بينا ننطلق!">
-            <div class="slide-inner-body">
-                
-            <div class="hero-center">
-                <div class="hero-icons">🚀 💻 ⭐</div>
-                <h1 class="hero-title">الاصطدام والتفاعل (Collision Detection)</h1>
-                <p class="hero-subtitle">أهلاً بكم يا أبطال المستقبل في المحاضرة 18 من كورس البرمجة والذكاء الاصطناعي للأطفال!</p>
-                <div class="hero-tags"><span class="k-badge">✨ الاصطدام</span><span class="k-badge">✨ جمع الجوائز</span><span class="k-badge">✨ التفاعل الحركي</span><span class="k-badge">✨ حواجز اللعبة</span></div>
-                <div class="hero-meta-box">
-                    <span>👨‍🏫 المدرب: م / إسلام عاطف</span>
-                    <span class="meta-dot">•</span>
-                    <span>🎓 المستوى 3: تطوير ألعاب 2D</span>
-                    <span class="meta-dot">•</span>
-                    <span>⏱️ مدة الجلسة: 25 شريحة تفاعلية</span>
-                </div>
-            </div>
-        
-            </div>
-        </section>
-    
-        <!-- SLIDE 2 -->
-        <section class="slide " id="slide-2" data-slide="2" data-notes="بصوا معايا يا أبطال على خريطة أهدافنا لمحاضرة النهاردة: أولاً: هنفهم المفهوم الأساسي لـ الاصطدام والتفاعل (Collision Detection) وإزاي بنطبقه. ثانياً: هنتعلم طريقة التفكير المنطقي والخطوات المتبعة. ثالثاً: هندخل في التطبيق العملي ونشوف النتيجة قدام عيوننا على الشاشة. ورابعاً: هنحل ألغاز وتحديات ممتعة تثبت المعلومة في دماغنا!">
-            <div class="slide-inner-body">
-                
-            <div class="slide-heading-row">
-                <span class="slide-category">خريطة التعلم اليومية 🗺️</span>
-                <h2 class="slide-main-title">الأهداف الذهبية للمحاضرة 18</h2>
-            </div>
-            <div class="grid-4-balance">
-                <div class="k-card-compact border-blue">
-                    <span class="card-emoji">🎯</span>
-                    <h3 class="card-h">1. الفهم الجوهري</h3>
-                    <p class="card-p">استيعاب مبدأ الاصطدام ببساطة وبدون أي تعقيد.</p>
-                </div>
-                <div class="k-card-compact border-purple">
-                    <span class="card-emoji">💡</span>
-                    <h3 class="card-h">2. التفكير المنطقي</h3>
-                    <p class="card-p">تحليل المسائل كمهندسي البرمجيات خطوة بخطوة.</p>
-                </div>
-                <div class="k-card-compact border-teal">
-                    <span class="card-emoji">🛠️</span>
-                    <h3 class="card-h">3. التدريب العملي</h3>
-                    <p class="card-p">كتابة الأكواد وتجربة الحل حياً داخل بيئة العمل.</p>
-                </div>
-                <div class="k-card-compact border-orange">
-                    <span class="card-emoji">🏆</span>
-                    <h3 class="card-h">4. وسام الإتقان</h3>
-                    <p class="card-p">حل التحدي البرمجي وحصد أول 100 نقطة إنجاز.</p>
-                </div>
-            </div>
-        
-            </div>
-        </section>
-    
-        <!-- SLIDE 3 -->
-        <section class="slide " id="slide-3" data-slide="3" data-notes="شايفين يا أبطال النقطة اللي قدامنا في الشريحة 3؟ هنا بنركز على التفاعل. الفكرة الأساسية إننا بنفهم الكمبيوتر خطوة بخطوة إزاي يتعامل مع المشكلة. في البرمجة بنحب البساطة والدقة، ولما نكتب كود منظم وسهل، لعبتنا أو برنامجنا بيشتغل بسلاسة وسرعة فائقة بدون أي تعليق!">
-            <div class="slide-inner-body">
-                
-            <div class="slide-heading-row">
-                <span class="slide-category">محور الشرح 03 • التفاعل الحركي</span>
-                <h2 class="slide-main-title">الاصطدام والتفاعل (Collision Detection) - الجزء (3)</h2>
-            </div>
-            <div class="grid-3-balance">
-                <div class="k-card-compact border-blue">
-                    <div class="card-top-icon">⚙️</div>
-                    <h3 class="card-h">الأساس النظري والمنطقي</h3>
-                    <p class="card-p">كيف يترجم الكمبيوتر أمر <strong>التفاعل الحركي</strong> وينفذه بسرعة فائقة في المعالج والذاكرة.</p>
-                    <div class="card-tag-pill">منطق الحاسوب 🧠</div>
-                </div>
-                <div class="k-card-compact border-purple">
-                    <div class="card-top-icon">🎮</div>
-                    <h3 class="card-h">التطبيق العملي في المشاريع</h3>
-                    <p class="card-p">توظيف هذا المفهوم في التحكم بالأبطال، صناعة التحديات، وحساب النقاط بدقة.</p>
-                    <div class="card-tag-pill">صناعة الألعاب 🚀</div>
-                </div>
-                <div class="k-card-compact border-teal">
-                    <div class="card-top-icon">🛡️</div>
-                    <h3 class="card-h">أسرار المبرمجين المحترفين</h3>
-                    <p class="card-p">نصائح هندسية لكتابة كود نظيف وسريع وسهل القراءة وخالٍ من أي تعقيد.</p>
-                    <div class="card-tag-pill">الكود النظيف ✨</div>
-                </div>
-            </div>
-        
-            </div>
-        </section>
-    
-        <!-- SLIDE 4 -->
-        <section class="slide " id="slide-4" data-slide="4" data-notes="شايفين يا أبطال النقطة اللي قدامنا في الشريحة 4؟ هنا بنركز على الاصطدام. الفكرة الأساسية إننا بنفهم الكمبيوتر خطوة بخطوة إزاي يتعامل مع المشكلة. في البرمجة بنحب البساطة والدقة، ولما نكتب كود منظم وسهل، لعبتنا أو برنامجنا بيشتغل بسلاسة وسرعة فائقة بدون أي تعليق!">
-            <div class="slide-inner-body">
-                
-            <div class="slide-heading-row">
-                <span class="slide-category">محور الشرح 04 • حواجز اللعبة</span>
-                <h2 class="slide-main-title">الاصطدام والتفاعل (Collision Detection) - الجزء (4)</h2>
-            </div>
-            <div class="grid-3-balance">
-                <div class="k-card-compact border-blue">
-                    <div class="card-top-icon">⚙️</div>
-                    <h3 class="card-h">الأساس النظري والمنطقي</h3>
-                    <p class="card-p">كيف يترجم الكمبيوتر أمر <strong>حواجز اللعبة</strong> وينفذه بسرعة فائقة في المعالج والذاكرة.</p>
-                    <div class="card-tag-pill">منطق الحاسوب 🧠</div>
-                </div>
-                <div class="k-card-compact border-purple">
-                    <div class="card-top-icon">🎮</div>
-                    <h3 class="card-h">التطبيق العملي في المشاريع</h3>
-                    <p class="card-p">توظيف هذا المفهوم في التحكم بالأبطال، صناعة التحديات، وحساب النقاط بدقة.</p>
-                    <div class="card-tag-pill">صناعة الألعاب 🚀</div>
-                </div>
-                <div class="k-card-compact border-teal">
-                    <div class="card-top-icon">🛡️</div>
-                    <h3 class="card-h">أسرار المبرمجين المحترفين</h3>
-                    <p class="card-p">نصائح هندسية لكتابة كود نظيف وسريع وسهل القراءة وخالٍ من أي تعقيد.</p>
-                    <div class="card-tag-pill">الكود النظيف ✨</div>
-                </div>
-            </div>
-        
-            </div>
-        </section>
-    
-        <!-- SLIDE 5 -->
-        <section class="slide " id="slide-5" data-slide="5" data-notes="شايفين يا أبطال النقطة اللي قدامنا في الشريحة 5؟ هنا بنركز على جمع الجوائز. الفكرة الأساسية إننا بنفهم الكمبيوتر خطوة بخطوة إزاي يتعامل مع المشكلة. في البرمجة بنحب البساطة والدقة، ولما نكتب كود منظم وسهل، لعبتنا أو برنامجنا بيشتغل بسلاسة وسرعة فائقة بدون أي تعليق!">
-            <div class="slide-inner-body">
-                
-            <div class="slide-heading-row">
-                <span class="slide-category">محور الشرح 05 • الاصطدام</span>
-                <h2 class="slide-main-title">الاصطدام والتفاعل (Collision Detection) - الجزء (5)</h2>
-            </div>
-            <div class="grid-3-balance">
-                <div class="k-card-compact border-blue">
-                    <div class="card-top-icon">⚙️</div>
-                    <h3 class="card-h">الأساس النظري والمنطقي</h3>
-                    <p class="card-p">كيف يترجم الكمبيوتر أمر <strong>الاصطدام</strong> وينفذه بسرعة فائقة في المعالج والذاكرة.</p>
-                    <div class="card-tag-pill">منطق الحاسوب 🧠</div>
-                </div>
-                <div class="k-card-compact border-purple">
-                    <div class="card-top-icon">🎮</div>
-                    <h3 class="card-h">التطبيق العملي في المشاريع</h3>
-                    <p class="card-p">توظيف هذا المفهوم في التحكم بالأبطال، صناعة التحديات، وحساب النقاط بدقة.</p>
-                    <div class="card-tag-pill">صناعة الألعاب 🚀</div>
-                </div>
-                <div class="k-card-compact border-teal">
-                    <div class="card-top-icon">🛡️</div>
-                    <h3 class="card-h">أسرار المبرمجين المحترفين</h3>
-                    <p class="card-p">نصائح هندسية لكتابة كود نظيف وسريع وسهل القراءة وخالٍ من أي تعقيد.</p>
-                    <div class="card-tag-pill">الكود النظيف ✨</div>
-                </div>
-            </div>
-        
-            </div>
-        </section>
-    
-        <!-- SLIDE 6 -->
-        <section class="slide " id="slide-6" data-slide="6" data-notes="شايفين يا أبطال النقطة اللي قدامنا في الشريحة 6؟ هنا بنركز على التفاعل. الفكرة الأساسية إننا بنفهم الكمبيوتر خطوة بخطوة إزاي يتعامل مع المشكلة. في البرمجة بنحب البساطة والدقة، ولما نكتب كود منظم وسهل، لعبتنا أو برنامجنا بيشتغل بسلاسة وسرعة فائقة بدون أي تعليق!">
-            <div class="slide-inner-body">
-                
-            <div class="slide-heading-row">
-                <span class="slide-category">محور الشرح 06 • جمع الجوائز</span>
-                <h2 class="slide-main-title">الاصطدام والتفاعل (Collision Detection) - الجزء (6)</h2>
-            </div>
-            <div class="grid-3-balance">
-                <div class="k-card-compact border-blue">
-                    <div class="card-top-icon">⚙️</div>
-                    <h3 class="card-h">الأساس النظري والمنطقي</h3>
-                    <p class="card-p">كيف يترجم الكمبيوتر أمر <strong>جمع الجوائز</strong> وينفذه بسرعة فائقة في المعالج والذاكرة.</p>
-                    <div class="card-tag-pill">منطق الحاسوب 🧠</div>
-                </div>
-                <div class="k-card-compact border-purple">
-                    <div class="card-top-icon">🎮</div>
-                    <h3 class="card-h">التطبيق العملي في المشاريع</h3>
-                    <p class="card-p">توظيف هذا المفهوم في التحكم بالأبطال، صناعة التحديات، وحساب النقاط بدقة.</p>
-                    <div class="card-tag-pill">صناعة الألعاب 🚀</div>
-                </div>
-                <div class="k-card-compact border-teal">
-                    <div class="card-top-icon">🛡️</div>
-                    <h3 class="card-h">أسرار المبرمجين المحترفين</h3>
-                    <p class="card-p">نصائح هندسية لكتابة كود نظيف وسريع وسهل القراءة وخالٍ من أي تعقيد.</p>
-                    <div class="card-tag-pill">الكود النظيف ✨</div>
-                </div>
-            </div>
-        
-            </div>
-        </section>
-    
-        <!-- SLIDE 7 -->
-        <section class="slide " id="slide-7" data-slide="7" data-notes="شايفين يا أبطال النقطة اللي قدامنا في الشريحة 7؟ هنا بنركز على الاصطدام. الفكرة الأساسية إننا بنفهم الكمبيوتر خطوة بخطوة إزاي يتعامل مع المشكلة. في البرمجة بنحب البساطة والدقة، ولما نكتب كود منظم وسهل، لعبتنا أو برنامجنا بيشتغل بسلاسة وسرعة فائقة بدون أي تعليق!">
-            <div class="slide-inner-body">
-                
-            <div class="slide-heading-row">
-                <span class="slide-category">محور الشرح 07 • التفاعل الحركي</span>
-                <h2 class="slide-main-title">الاصطدام والتفاعل (Collision Detection) - الجزء (7)</h2>
-            </div>
-            <div class="grid-3-balance">
-                <div class="k-card-compact border-blue">
-                    <div class="card-top-icon">⚙️</div>
-                    <h3 class="card-h">الأساس النظري والمنطقي</h3>
-                    <p class="card-p">كيف يترجم الكمبيوتر أمر <strong>التفاعل الحركي</strong> وينفذه بسرعة فائقة في المعالج والذاكرة.</p>
-                    <div class="card-tag-pill">منطق الحاسوب 🧠</div>
-                </div>
-                <div class="k-card-compact border-purple">
-                    <div class="card-top-icon">🎮</div>
-                    <h3 class="card-h">التطبيق العملي في المشاريع</h3>
-                    <p class="card-p">توظيف هذا المفهوم في التحكم بالأبطال، صناعة التحديات، وحساب النقاط بدقة.</p>
-                    <div class="card-tag-pill">صناعة الألعاب 🚀</div>
-                </div>
-                <div class="k-card-compact border-teal">
-                    <div class="card-top-icon">🛡️</div>
-                    <h3 class="card-h">أسرار المبرمجين المحترفين</h3>
-                    <p class="card-p">نصائح هندسية لكتابة كود نظيف وسريع وسهل القراءة وخالٍ من أي تعقيد.</p>
-                    <div class="card-tag-pill">الكود النظيف ✨</div>
-                </div>
-            </div>
-        
-            </div>
-        </section>
-    
-        <!-- SLIDE 8 -->
-        <section class="slide " id="slide-8" data-slide="8" data-notes="شايفين يا أبطال النقطة اللي قدامنا في الشريحة 8؟ هنا بنركز على جمع الجوائز. الفكرة الأساسية إننا بنفهم الكمبيوتر خطوة بخطوة إزاي يتعامل مع المشكلة. في البرمجة بنحب البساطة والدقة، ولما نكتب كود منظم وسهل، لعبتنا أو برنامجنا بيشتغل بسلاسة وسرعة فائقة بدون أي تعليق!">
-            <div class="slide-inner-body">
-                
-            <div class="slide-heading-row">
-                <span class="slide-category badge-challenge">⚡ تحدي سرعة ذكاء المبرمج (1)</span>
-                <h2 class="slide-main-title">اختبر مهاراتك الفورية كمهندس المستقبل! 🕵️‍♂️</h2>
-            </div>
-            <div class="quiz-challenge-card">
-                <p class="quiz-question-txt">ما هو القرار الهندسي والبرمجي الأصح لتطبيق <strong>الاصطدام</strong> بكفاءة وأمان؟</p>
-                <div class="quiz-options-list">
-                    <button class="quiz-opt-btn" onclick="checkSlideQuiz(this, true, 'أحسنت صنعاً يا بطل! التخطيط المسبق والكود النظيف هما أساس نجاح كل مبرمج محترف! 🌟')">
-                        <span class="opt-letter">أ</span>
-                        <span class="opt-txt">التخطيط المسبق والتسلسل المنطقي خطوة بخطوة واختبار كل أمر بدقة. ✅</span>
-                    </button>
-                    <button class="quiz-opt-btn" onclick="checkSlideQuiz(this, false, 'إجابة غير صحيحة! التسرع العشوائي ينتج عنه أخطاء برمجية يصعب حلها.')">
-                        <span class="opt-letter">ب</span>
-                        <span class="opt-txt">كتابة الأوامر عشوائياً وتخمين النتائج بدون تفكير أو تنظيم. ❌</span>
-                    </button>
-                    <button class="quiz-opt-btn" onclick="checkSlideQuiz(this, false, 'المبرمج البطل لا يستسلم أبداً! الخطأ فرصة للتعلم وحل المشكلات.')">
-                        <span class="opt-letter">ج</span>
-                        <span class="opt-txt">إغلاق البرنامج والاستسلام فور مواجهة أول عقبة. ❌</span>
-                    </button>
-                </div>
-                <div class="quiz-feedback-box" id="quiz-feedback-8"></div>
-            </div>
-        
-            </div>
-        </section>
-    
-        <!-- SLIDE 9 -->
-        <section class="slide " id="slide-9" data-slide="9" data-notes="شايفين يا أبطال النقطة اللي قدامنا في الشريحة 9؟ هنا بنركز على التفاعل. الفكرة الأساسية إننا بنفهم الكمبيوتر خطوة بخطوة إزاي يتعامل مع المشكلة. في البرمجة بنحب البساطة والدقة، ولما نكتب كود منظم وسهل، لعبتنا أو برنامجنا بيشتغل بسلاسة وسرعة فائقة بدون أي تعليق!">
-            <div class="slide-inner-body">
-                
-            <div class="slide-heading-row">
-                <span class="slide-category">محور الشرح 09 • الاصطدام</span>
-                <h2 class="slide-main-title">الاصطدام والتفاعل (Collision Detection) - الجزء (9)</h2>
-            </div>
-            <div class="grid-3-balance">
-                <div class="k-card-compact border-blue">
-                    <div class="card-top-icon">⚙️</div>
-                    <h3 class="card-h">الأساس النظري والمنطقي</h3>
-                    <p class="card-p">كيف يترجم الكمبيوتر أمر <strong>الاصطدام</strong> وينفذه بسرعة فائقة في المعالج والذاكرة.</p>
-                    <div class="card-tag-pill">منطق الحاسوب 🧠</div>
-                </div>
-                <div class="k-card-compact border-purple">
-                    <div class="card-top-icon">🎮</div>
-                    <h3 class="card-h">التطبيق العملي في المشاريع</h3>
-                    <p class="card-p">توظيف هذا المفهوم في التحكم بالأبطال، صناعة التحديات، وحساب النقاط بدقة.</p>
-                    <div class="card-tag-pill">صناعة الألعاب 🚀</div>
-                </div>
-                <div class="k-card-compact border-teal">
-                    <div class="card-top-icon">🛡️</div>
-                    <h3 class="card-h">أسرار المبرمجين المحترفين</h3>
-                    <p class="card-p">نصائح هندسية لكتابة كود نظيف وسريع وسهل القراءة وخالٍ من أي تعقيد.</p>
-                    <div class="card-tag-pill">الكود النظيف ✨</div>
-                </div>
-            </div>
-        
-            </div>
-        </section>
-    
-        <!-- SLIDE 10 -->
-        <section class="slide " id="slide-10" data-slide="10" data-notes="شايفين يا أبطال النقطة اللي قدامنا في الشريحة 10؟ هنا بنركز على الاصطدام. الفكرة الأساسية إننا بنفهم الكمبيوتر خطوة بخطوة إزاي يتعامل مع المشكلة. في البرمجة بنحب البساطة والدقة، ولما نكتب كود منظم وسهل، لعبتنا أو برنامجنا بيشتغل بسلاسة وسرعة فائقة بدون أي تعليق!">
-            <div class="slide-inner-body">
-                
-            <div class="slide-heading-row">
-                <span class="slide-category">محور الشرح 10 • جمع الجوائز</span>
-                <h2 class="slide-main-title">الاصطدام والتفاعل (Collision Detection) - الجزء (10)</h2>
-            </div>
-            <div class="grid-3-balance">
-                <div class="k-card-compact border-blue">
-                    <div class="card-top-icon">⚙️</div>
-                    <h3 class="card-h">الأساس النظري والمنطقي</h3>
-                    <p class="card-p">كيف يترجم الكمبيوتر أمر <strong>جمع الجوائز</strong> وينفذه بسرعة فائقة في المعالج والذاكرة.</p>
-                    <div class="card-tag-pill">منطق الحاسوب 🧠</div>
-                </div>
-                <div class="k-card-compact border-purple">
-                    <div class="card-top-icon">🎮</div>
-                    <h3 class="card-h">التطبيق العملي في المشاريع</h3>
-                    <p class="card-p">توظيف هذا المفهوم في التحكم بالأبطال، صناعة التحديات، وحساب النقاط بدقة.</p>
-                    <div class="card-tag-pill">صناعة الألعاب 🚀</div>
-                </div>
-                <div class="k-card-compact border-teal">
-                    <div class="card-top-icon">🛡️</div>
-                    <h3 class="card-h">أسرار المبرمجين المحترفين</h3>
-                    <p class="card-p">نصائح هندسية لكتابة كود نظيف وسريع وسهل القراءة وخالٍ من أي تعقيد.</p>
-                    <div class="card-tag-pill">الكود النظيف ✨</div>
-                </div>
-            </div>
-        
-            </div>
-        </section>
-    
-        <!-- SLIDE 11 -->
-        <section class="slide " id="slide-11" data-slide="11" data-notes="شايفين يا أبطال النقطة اللي قدامنا في الشريحة 11؟ هنا بنركز على جمع الجوائز. الفكرة الأساسية إننا بنفهم الكمبيوتر خطوة بخطوة إزاي يتعامل مع المشكلة. في البرمجة بنحب البساطة والدقة، ولما نكتب كود منظم وسهل، لعبتنا أو برنامجنا بيشتغل بسلاسة وسرعة فائقة بدون أي تعليق!">
-            <div class="slide-inner-body">
-                
-            <div class="slide-heading-row">
-                <span class="slide-category">محور الشرح 11 • التفاعل الحركي</span>
-                <h2 class="slide-main-title">الاصطدام والتفاعل (Collision Detection) - الجزء (11)</h2>
-            </div>
-            <div class="grid-3-balance">
-                <div class="k-card-compact border-blue">
-                    <div class="card-top-icon">⚙️</div>
-                    <h3 class="card-h">الأساس النظري والمنطقي</h3>
-                    <p class="card-p">كيف يترجم الكمبيوتر أمر <strong>التفاعل الحركي</strong> وينفذه بسرعة فائقة في المعالج والذاكرة.</p>
-                    <div class="card-tag-pill">منطق الحاسوب 🧠</div>
-                </div>
-                <div class="k-card-compact border-purple">
-                    <div class="card-top-icon">🎮</div>
-                    <h3 class="card-h">التطبيق العملي في المشاريع</h3>
-                    <p class="card-p">توظيف هذا المفهوم في التحكم بالأبطال، صناعة التحديات، وحساب النقاط بدقة.</p>
-                    <div class="card-tag-pill">صناعة الألعاب 🚀</div>
-                </div>
-                <div class="k-card-compact border-teal">
-                    <div class="card-top-icon">🛡️</div>
-                    <h3 class="card-h">أسرار المبرمجين المحترفين</h3>
-                    <p class="card-p">نصائح هندسية لكتابة كود نظيف وسريع وسهل القراءة وخالٍ من أي تعقيد.</p>
-                    <div class="card-tag-pill">الكود النظيف ✨</div>
-                </div>
-            </div>
-        
-            </div>
-        </section>
-    
-        <!-- SLIDE 12 -->
-        <section class="slide " id="slide-12" data-slide="12" data-notes="تحدي الأذكياء السريع قدامنا على الشاشة: لما نيجي نطبق مفهوم الاصطدام، يا ترى إيه هو التصرف الصحيح للمبرمج البطل؟ هل نكتب كود عشوائي؟ ولا نفكر ونرتب خطواتنا ونختبر كل خطوة؟ برافوووو عليكم! التفكير والتسلسل المنطقي هو سر نجاح أي مبرمج محترف!">
-            <div class="slide-inner-body">
-                
-            <div class="slide-heading-row">
-                <span class="slide-category">محور الشرح 12 • حواجز اللعبة</span>
-                <h2 class="slide-main-title">الاصطدام والتفاعل (Collision Detection) - الجزء (12)</h2>
-            </div>
-            <div class="grid-3-balance">
-                <div class="k-card-compact border-blue">
-                    <div class="card-top-icon">⚙️</div>
-                    <h3 class="card-h">الأساس النظري والمنطقي</h3>
-                    <p class="card-p">كيف يترجم الكمبيوتر أمر <strong>حواجز اللعبة</strong> وينفذه بسرعة فائقة في المعالج والذاكرة.</p>
-                    <div class="card-tag-pill">منطق الحاسوب 🧠</div>
-                </div>
-                <div class="k-card-compact border-purple">
-                    <div class="card-top-icon">🎮</div>
-                    <h3 class="card-h">التطبيق العملي في المشاريع</h3>
-                    <p class="card-p">توظيف هذا المفهوم في التحكم بالأبطال، صناعة التحديات، وحساب النقاط بدقة.</p>
-                    <div class="card-tag-pill">صناعة الألعاب 🚀</div>
-                </div>
-                <div class="k-card-compact border-teal">
-                    <div class="card-top-icon">🛡️</div>
-                    <h3 class="card-h">أسرار المبرمجين المحترفين</h3>
-                    <p class="card-p">نصائح هندسية لكتابة كود نظيف وسريع وسهل القراءة وخالٍ من أي تعقيد.</p>
-                    <div class="card-tag-pill">الكود النظيف ✨</div>
-                </div>
-            </div>
-        
-            </div>
-        </section>
-    
-        <!-- SLIDE 13 -->
-        <section class="slide " id="slide-13" data-slide="13" data-notes="شايفين يا أبطال النقطة اللي قدامنا في الشريحة 13؟ هنا بنركز على الاصطدام. الفكرة الأساسية إننا بنفهم الكمبيوتر خطوة بخطوة إزاي يتعامل مع المشكلة. في البرمجة بنحب البساطة والدقة، ولما نكتب كود منظم وسهل، لعبتنا أو برنامجنا بيشتغل بسلاسة وسرعة فائقة بدون أي تعليق!">
-            <div class="slide-inner-body">
-                
-            <div class="slide-heading-row">
-                <span class="slide-category">محور الشرح 13 • الاصطدام</span>
-                <h2 class="slide-main-title">الاصطدام والتفاعل (Collision Detection) - الجزء (13)</h2>
-            </div>
-            <div class="grid-3-balance">
-                <div class="k-card-compact border-blue">
-                    <div class="card-top-icon">⚙️</div>
-                    <h3 class="card-h">الأساس النظري والمنطقي</h3>
-                    <p class="card-p">كيف يترجم الكمبيوتر أمر <strong>الاصطدام</strong> وينفذه بسرعة فائقة في المعالج والذاكرة.</p>
-                    <div class="card-tag-pill">منطق الحاسوب 🧠</div>
-                </div>
-                <div class="k-card-compact border-purple">
-                    <div class="card-top-icon">🎮</div>
-                    <h3 class="card-h">التطبيق العملي في المشاريع</h3>
-                    <p class="card-p">توظيف هذا المفهوم في التحكم بالأبطال، صناعة التحديات، وحساب النقاط بدقة.</p>
-                    <div class="card-tag-pill">صناعة الألعاب 🚀</div>
-                </div>
-                <div class="k-card-compact border-teal">
-                    <div class="card-top-icon">🛡️</div>
-                    <h3 class="card-h">أسرار المبرمجين المحترفين</h3>
-                    <p class="card-p">نصائح هندسية لكتابة كود نظيف وسريع وسهل القراءة وخالٍ من أي تعقيد.</p>
-                    <div class="card-tag-pill">الكود النظيف ✨</div>
-                </div>
-            </div>
-        
-            </div>
-        </section>
-    
-        <!-- SLIDE 14 -->
-        <section class="slide " id="slide-14" data-slide="14" data-notes="شايفين يا أبطال النقطة اللي قدامنا في الشريحة 14؟ هنا بنركز على جمع الجوائز. الفكرة الأساسية إننا بنفهم الكمبيوتر خطوة بخطوة إزاي يتعامل مع المشكلة. في البرمجة بنحب البساطة والدقة، ولما نكتب كود منظم وسهل، لعبتنا أو برنامجنا بيشتغل بسلاسة وسرعة فائقة بدون أي تعليق!">
-            <div class="slide-inner-body">
-                
-            <div class="slide-heading-row">
-                <span class="slide-category">محور الشرح 14 • جمع الجوائز</span>
-                <h2 class="slide-main-title">الاصطدام والتفاعل (Collision Detection) - الجزء (14)</h2>
-            </div>
-            <div class="grid-3-balance">
-                <div class="k-card-compact border-blue">
-                    <div class="card-top-icon">⚙️</div>
-                    <h3 class="card-h">الأساس النظري والمنطقي</h3>
-                    <p class="card-p">كيف يترجم الكمبيوتر أمر <strong>جمع الجوائز</strong> وينفذه بسرعة فائقة في المعالج والذاكرة.</p>
-                    <div class="card-tag-pill">منطق الحاسوب 🧠</div>
-                </div>
-                <div class="k-card-compact border-purple">
-                    <div class="card-top-icon">🎮</div>
-                    <h3 class="card-h">التطبيق العملي في المشاريع</h3>
-                    <p class="card-p">توظيف هذا المفهوم في التحكم بالأبطال، صناعة التحديات، وحساب النقاط بدقة.</p>
-                    <div class="card-tag-pill">صناعة الألعاب 🚀</div>
-                </div>
-                <div class="k-card-compact border-teal">
-                    <div class="card-top-icon">🛡️</div>
-                    <h3 class="card-h">أسرار المبرمجين المحترفين</h3>
-                    <p class="card-p">نصائح هندسية لكتابة كود نظيف وسريع وسهل القراءة وخالٍ من أي تعقيد.</p>
-                    <div class="card-tag-pill">الكود النظيف ✨</div>
-                </div>
-            </div>
-        
-            </div>
-        </section>
-    
-        <!-- SLIDE 15 -->
-        <section class="slide " id="slide-15" data-slide="15" data-notes="شايفين يا أبطال النقطة اللي قدامنا في الشريحة 15؟ هنا بنركز على التفاعل. الفكرة الأساسية إننا بنفهم الكمبيوتر خطوة بخطوة إزاي يتعامل مع المشكلة. في البرمجة بنحب البساطة والدقة، ولما نكتب كود منظم وسهل، لعبتنا أو برنامجنا بيشتغل بسلاسة وسرعة فائقة بدون أي تعليق!">
-            <div class="slide-inner-body">
-                
-            <div class="slide-heading-row">
-                <span class="slide-category">محور الشرح 15 • التفاعل الحركي</span>
-                <h2 class="slide-main-title">الاصطدام والتفاعل (Collision Detection) - الجزء (15)</h2>
-            </div>
-            <div class="grid-3-balance">
-                <div class="k-card-compact border-blue">
-                    <div class="card-top-icon">⚙️</div>
-                    <h3 class="card-h">الأساس النظري والمنطقي</h3>
-                    <p class="card-p">كيف يترجم الكمبيوتر أمر <strong>التفاعل الحركي</strong> وينفذه بسرعة فائقة في المعالج والذاكرة.</p>
-                    <div class="card-tag-pill">منطق الحاسوب 🧠</div>
-                </div>
-                <div class="k-card-compact border-purple">
-                    <div class="card-top-icon">🎮</div>
-                    <h3 class="card-h">التطبيق العملي في المشاريع</h3>
-                    <p class="card-p">توظيف هذا المفهوم في التحكم بالأبطال، صناعة التحديات، وحساب النقاط بدقة.</p>
-                    <div class="card-tag-pill">صناعة الألعاب 🚀</div>
-                </div>
-                <div class="k-card-compact border-teal">
-                    <div class="card-top-icon">🛡️</div>
-                    <h3 class="card-h">أسرار المبرمجين المحترفين</h3>
-                    <p class="card-p">نصائح هندسية لكتابة كود نظيف وسريع وسهل القراءة وخالٍ من أي تعقيد.</p>
-                    <div class="card-tag-pill">الكود النظيف ✨</div>
-                </div>
-            </div>
-        
-            </div>
-        </section>
-    
-        <!-- SLIDE 16 -->
-        <section class="slide " id="slide-16" data-slide="16" data-notes="شايفين يا أبطال النقطة اللي قدامنا في الشريحة 16؟ هنا بنركز على الاصطدام. الفكرة الأساسية إننا بنفهم الكمبيوتر خطوة بخطوة إزاي يتعامل مع المشكلة. في البرمجة بنحب البساطة والدقة، ولما نكتب كود منظم وسهل، لعبتنا أو برنامجنا بيشتغل بسلاسة وسرعة فائقة بدون أي تعليق!">
-            <div class="slide-inner-body">
-                
-            <div class="slide-heading-row">
-                <span class="slide-category badge-challenge">⚡ تحدي سرعة ذكاء المبرمج (2)</span>
-                <h2 class="slide-main-title">اختبر مهاراتك الفورية كمهندس المستقبل! 🕵️‍♂️</h2>
-            </div>
-            <div class="quiz-challenge-card">
-                <p class="quiz-question-txt">ما هو القرار الهندسي والبرمجي الأصح لتطبيق <strong>الاصطدام</strong> بكفاءة وأمان؟</p>
-                <div class="quiz-options-list">
-                    <button class="quiz-opt-btn" onclick="checkSlideQuiz(this, true, 'أحسنت صنعاً يا بطل! التخطيط المسبق والكود النظيف هما أساس نجاح كل مبرمج محترف! 🌟')">
-                        <span class="opt-letter">أ</span>
-                        <span class="opt-txt">التخطيط المسبق والتسلسل المنطقي خطوة بخطوة واختبار كل أمر بدقة. ✅</span>
-                    </button>
-                    <button class="quiz-opt-btn" onclick="checkSlideQuiz(this, false, 'إجابة غير صحيحة! التسرع العشوائي ينتج عنه أخطاء برمجية يصعب حلها.')">
-                        <span class="opt-letter">ب</span>
-                        <span class="opt-txt">كتابة الأوامر عشوائياً وتخمين النتائج بدون تفكير أو تنظيم. ❌</span>
-                    </button>
-                    <button class="quiz-opt-btn" onclick="checkSlideQuiz(this, false, 'المبرمج البطل لا يستسلم أبداً! الخطأ فرصة للتعلم وحل المشكلات.')">
-                        <span class="opt-letter">ج</span>
-                        <span class="opt-txt">إغلاق البرنامج والاستسلام فور مواجهة أول عقبة. ❌</span>
-                    </button>
-                </div>
-                <div class="quiz-feedback-box" id="quiz-feedback-16"></div>
-            </div>
-        
-            </div>
-        </section>
-    
-        <!-- SLIDE 17 -->
-        <section class="slide " id="slide-17" data-slide="17" data-notes="شايفين يا أبطال النقطة اللي قدامنا في الشريحة 17؟ هنا بنركز على جمع الجوائز. الفكرة الأساسية إننا بنفهم الكمبيوتر خطوة بخطوة إزاي يتعامل مع المشكلة. في البرمجة بنحب البساطة والدقة، ولما نكتب كود منظم وسهل، لعبتنا أو برنامجنا بيشتغل بسلاسة وسرعة فائقة بدون أي تعليق!">
-            <div class="slide-inner-body">
-                
-            <div class="slide-heading-row">
-                <span class="slide-category">محور الشرح 17 • الاصطدام</span>
-                <h2 class="slide-main-title">الاصطدام والتفاعل (Collision Detection) - الجزء (17)</h2>
-            </div>
-            <div class="grid-3-balance">
-                <div class="k-card-compact border-blue">
-                    <div class="card-top-icon">⚙️</div>
-                    <h3 class="card-h">الأساس النظري والمنطقي</h3>
-                    <p class="card-p">كيف يترجم الكمبيوتر أمر <strong>الاصطدام</strong> وينفذه بسرعة فائقة في المعالج والذاكرة.</p>
-                    <div class="card-tag-pill">منطق الحاسوب 🧠</div>
-                </div>
-                <div class="k-card-compact border-purple">
-                    <div class="card-top-icon">🎮</div>
-                    <h3 class="card-h">التطبيق العملي في المشاريع</h3>
-                    <p class="card-p">توظيف هذا المفهوم في التحكم بالأبطال، صناعة التحديات، وحساب النقاط بدقة.</p>
-                    <div class="card-tag-pill">صناعة الألعاب 🚀</div>
-                </div>
-                <div class="k-card-compact border-teal">
-                    <div class="card-top-icon">🛡️</div>
-                    <h3 class="card-h">أسرار المبرمجين المحترفين</h3>
-                    <p class="card-p">نصائح هندسية لكتابة كود نظيف وسريع وسهل القراءة وخالٍ من أي تعقيد.</p>
-                    <div class="card-tag-pill">الكود النظيف ✨</div>
-                </div>
-            </div>
-        
-            </div>
-        </section>
-    
-        <!-- SLIDE 18 -->
-        <section class="slide " id="slide-18" data-slide="18" data-notes="شايفين يا أبطال النقطة اللي قدامنا في الشريحة 18؟ هنا بنركز على التفاعل. الفكرة الأساسية إننا بنفهم الكمبيوتر خطوة بخطوة إزاي يتعامل مع المشكلة. في البرمجة بنحب البساطة والدقة، ولما نكتب كود منظم وسهل، لعبتنا أو برنامجنا بيشتغل بسلاسة وسرعة فائقة بدون أي تعليق!">
-            <div class="slide-inner-body">
-                
-            <div class="slide-heading-row">
-                <span class="slide-category">محور الشرح 18 • جمع الجوائز</span>
-                <h2 class="slide-main-title">الاصطدام والتفاعل (Collision Detection) - الجزء (18)</h2>
-            </div>
-            <div class="grid-3-balance">
-                <div class="k-card-compact border-blue">
-                    <div class="card-top-icon">⚙️</div>
-                    <h3 class="card-h">الأساس النظري والمنطقي</h3>
-                    <p class="card-p">كيف يترجم الكمبيوتر أمر <strong>جمع الجوائز</strong> وينفذه بسرعة فائقة في المعالج والذاكرة.</p>
-                    <div class="card-tag-pill">منطق الحاسوب 🧠</div>
-                </div>
-                <div class="k-card-compact border-purple">
-                    <div class="card-top-icon">🎮</div>
-                    <h3 class="card-h">التطبيق العملي في المشاريع</h3>
-                    <p class="card-p">توظيف هذا المفهوم في التحكم بالأبطال، صناعة التحديات، وحساب النقاط بدقة.</p>
-                    <div class="card-tag-pill">صناعة الألعاب 🚀</div>
-                </div>
-                <div class="k-card-compact border-teal">
-                    <div class="card-top-icon">🛡️</div>
-                    <h3 class="card-h">أسرار المبرمجين المحترفين</h3>
-                    <p class="card-p">نصائح هندسية لكتابة كود نظيف وسريع وسهل القراءة وخالٍ من أي تعقيد.</p>
-                    <div class="card-tag-pill">الكود النظيف ✨</div>
-                </div>
-            </div>
-        
-            </div>
-        </section>
-    
-        <!-- SLIDE 19 -->
-        <section class="slide " id="slide-19" data-slide="19" data-notes="شايفين يا أبطال النقطة اللي قدامنا في الشريحة 19؟ هنا بنركز على الاصطدام. الفكرة الأساسية إننا بنفهم الكمبيوتر خطوة بخطوة إزاي يتعامل مع المشكلة. في البرمجة بنحب البساطة والدقة، ولما نكتب كود منظم وسهل، لعبتنا أو برنامجنا بيشتغل بسلاسة وسرعة فائقة بدون أي تعليق!">
-            <div class="slide-inner-body">
-                
-            <div class="slide-heading-row">
-                <span class="slide-category">محور الشرح 19 • التفاعل الحركي</span>
-                <h2 class="slide-main-title">الاصطدام والتفاعل (Collision Detection) - الجزء (19)</h2>
-            </div>
-            <div class="grid-3-balance">
-                <div class="k-card-compact border-blue">
-                    <div class="card-top-icon">⚙️</div>
-                    <h3 class="card-h">الأساس النظري والمنطقي</h3>
-                    <p class="card-p">كيف يترجم الكمبيوتر أمر <strong>التفاعل الحركي</strong> وينفذه بسرعة فائقة في المعالج والذاكرة.</p>
-                    <div class="card-tag-pill">منطق الحاسوب 🧠</div>
-                </div>
-                <div class="k-card-compact border-purple">
-                    <div class="card-top-icon">🎮</div>
-                    <h3 class="card-h">التطبيق العملي في المشاريع</h3>
-                    <p class="card-p">توظيف هذا المفهوم في التحكم بالأبطال، صناعة التحديات، وحساب النقاط بدقة.</p>
-                    <div class="card-tag-pill">صناعة الألعاب 🚀</div>
-                </div>
-                <div class="k-card-compact border-teal">
-                    <div class="card-top-icon">🛡️</div>
-                    <h3 class="card-h">أسرار المبرمجين المحترفين</h3>
-                    <p class="card-p">نصائح هندسية لكتابة كود نظيف وسريع وسهل القراءة وخالٍ من أي تعقيد.</p>
-                    <div class="card-tag-pill">الكود النظيف ✨</div>
-                </div>
-            </div>
-        
-            </div>
-        </section>
-    
-        <!-- SLIDE 20 -->
-        <section class="slide " id="slide-20" data-slide="20" data-notes="شايفين يا أبطال النقطة اللي قدامنا في الشريحة 20؟ هنا بنركز على جمع الجوائز. الفكرة الأساسية إننا بنفهم الكمبيوتر خطوة بخطوة إزاي يتعامل مع المشكلة. في البرمجة بنحب البساطة والدقة، ولما نكتب كود منظم وسهل، لعبتنا أو برنامجنا بيشتغل بسلاسة وسرعة فائقة بدون أي تعليق!">
-            <div class="slide-inner-body">
-                
-            <div class="slide-heading-row">
-                <span class="slide-category">محور الشرح 20 • حواجز اللعبة</span>
-                <h2 class="slide-main-title">الاصطدام والتفاعل (Collision Detection) - الجزء (20)</h2>
-            </div>
-            <div class="grid-3-balance">
-                <div class="k-card-compact border-blue">
-                    <div class="card-top-icon">⚙️</div>
-                    <h3 class="card-h">الأساس النظري والمنطقي</h3>
-                    <p class="card-p">كيف يترجم الكمبيوتر أمر <strong>حواجز اللعبة</strong> وينفذه بسرعة فائقة في المعالج والذاكرة.</p>
-                    <div class="card-tag-pill">منطق الحاسوب 🧠</div>
-                </div>
-                <div class="k-card-compact border-purple">
-                    <div class="card-top-icon">🎮</div>
-                    <h3 class="card-h">التطبيق العملي في المشاريع</h3>
-                    <p class="card-p">توظيف هذا المفهوم في التحكم بالأبطال، صناعة التحديات، وحساب النقاط بدقة.</p>
-                    <div class="card-tag-pill">صناعة الألعاب 🚀</div>
-                </div>
-                <div class="k-card-compact border-teal">
-                    <div class="card-top-icon">🛡️</div>
-                    <h3 class="card-h">أسرار المبرمجين المحترفين</h3>
-                    <p class="card-p">نصائح هندسية لكتابة كود نظيف وسريع وسهل القراءة وخالٍ من أي تعقيد.</p>
-                    <div class="card-tag-pill">الكود النظيف ✨</div>
-                </div>
-            </div>
-        
-            </div>
-        </section>
-    
-        <!-- SLIDE 21 -->
-        <section class="slide " id="slide-21" data-slide="21" data-notes="شايفين يا أبطال النقطة اللي قدامنا في الشريحة 21؟ هنا بنركز على التفاعل. الفكرة الأساسية إننا بنفهم الكمبيوتر خطوة بخطوة إزاي يتعامل مع المشكلة. في البرمجة بنحب البساطة والدقة، ولما نكتب كود منظم وسهل، لعبتنا أو برنامجنا بيشتغل بسلاسة وسرعة فائقة بدون أي تعليق!">
-            <div class="slide-inner-body">
-                
-            <div class="slide-heading-row">
-                <span class="slide-category">محور الشرح 21 • الاصطدام</span>
-                <h2 class="slide-main-title">الاصطدام والتفاعل (Collision Detection) - الجزء (21)</h2>
-            </div>
-            <div class="grid-3-balance">
-                <div class="k-card-compact border-blue">
-                    <div class="card-top-icon">⚙️</div>
-                    <h3 class="card-h">الأساس النظري والمنطقي</h3>
-                    <p class="card-p">كيف يترجم الكمبيوتر أمر <strong>الاصطدام</strong> وينفذه بسرعة فائقة في المعالج والذاكرة.</p>
-                    <div class="card-tag-pill">منطق الحاسوب 🧠</div>
-                </div>
-                <div class="k-card-compact border-purple">
-                    <div class="card-top-icon">🎮</div>
-                    <h3 class="card-h">التطبيق العملي في المشاريع</h3>
-                    <p class="card-p">توظيف هذا المفهوم في التحكم بالأبطال، صناعة التحديات، وحساب النقاط بدقة.</p>
-                    <div class="card-tag-pill">صناعة الألعاب 🚀</div>
-                </div>
-                <div class="k-card-compact border-teal">
-                    <div class="card-top-icon">🛡️</div>
-                    <h3 class="card-h">أسرار المبرمجين المحترفين</h3>
-                    <p class="card-p">نصائح هندسية لكتابة كود نظيف وسريع وسهل القراءة وخالٍ من أي تعقيد.</p>
-                    <div class="card-tag-pill">الكود النظيف ✨</div>
-                </div>
-            </div>
-        
-            </div>
-        </section>
-    
-        <!-- SLIDE 22 -->
-        <section class="slide " id="slide-22" data-slide="22" data-notes="شايفين يا أبطال النقطة اللي قدامنا في الشريحة 22؟ هنا بنركز على الاصطدام. الفكرة الأساسية إننا بنفهم الكمبيوتر خطوة بخطوة إزاي يتعامل مع المشكلة. في البرمجة بنحب البساطة والدقة، ولما نكتب كود منظم وسهل، لعبتنا أو برنامجنا بيشتغل بسلاسة وسرعة فائقة بدون أي تعليق!">
-            <div class="slide-inner-body">
-                
-            <div class="slide-heading-row">
-                <span class="slide-category">محور الشرح 22 • جمع الجوائز</span>
-                <h2 class="slide-main-title">الاصطدام والتفاعل (Collision Detection) - الجزء (22)</h2>
-            </div>
-            <div class="grid-3-balance">
-                <div class="k-card-compact border-blue">
-                    <div class="card-top-icon">⚙️</div>
-                    <h3 class="card-h">الأساس النظري والمنطقي</h3>
-                    <p class="card-p">كيف يترجم الكمبيوتر أمر <strong>جمع الجوائز</strong> وينفذه بسرعة فائقة في المعالج والذاكرة.</p>
-                    <div class="card-tag-pill">منطق الحاسوب 🧠</div>
-                </div>
-                <div class="k-card-compact border-purple">
-                    <div class="card-top-icon">🎮</div>
-                    <h3 class="card-h">التطبيق العملي في المشاريع</h3>
-                    <p class="card-p">توظيف هذا المفهوم في التحكم بالأبطال، صناعة التحديات، وحساب النقاط بدقة.</p>
-                    <div class="card-tag-pill">صناعة الألعاب 🚀</div>
-                </div>
-                <div class="k-card-compact border-teal">
-                    <div class="card-top-icon">🛡️</div>
-                    <h3 class="card-h">أسرار المبرمجين المحترفين</h3>
-                    <p class="card-p">نصائح هندسية لكتابة كود نظيف وسريع وسهل القراءة وخالٍ من أي تعقيد.</p>
-                    <div class="card-tag-pill">الكود النظيف ✨</div>
-                </div>
-            </div>
-        
-            </div>
-        </section>
-    
-        <!-- SLIDE 23 -->
-        <section class="slide " id="slide-23" data-slide="23" data-notes="شايفين يا أبطال النقطة اللي قدامنا في الشريحة 23؟ هنا بنركز على جمع الجوائز. الفكرة الأساسية إننا بنفهم الكمبيوتر خطوة بخطوة إزاي يتعامل مع المشكلة. في البرمجة بنحب البساطة والدقة، ولما نكتب كود منظم وسهل، لعبتنا أو برنامجنا بيشتغل بسلاسة وسرعة فائقة بدون أي تعليق!">
-            <div class="slide-inner-body">
-                
-            <div class="slide-heading-row">
-                <span class="slide-category">محور الشرح 23 • التفاعل الحركي</span>
-                <h2 class="slide-main-title">الاصطدام والتفاعل (Collision Detection) - الجزء (23)</h2>
-            </div>
-            <div class="grid-3-balance">
-                <div class="k-card-compact border-blue">
-                    <div class="card-top-icon">⚙️</div>
-                    <h3 class="card-h">الأساس النظري والمنطقي</h3>
-                    <p class="card-p">كيف يترجم الكمبيوتر أمر <strong>التفاعل الحركي</strong> وينفذه بسرعة فائقة في المعالج والذاكرة.</p>
-                    <div class="card-tag-pill">منطق الحاسوب 🧠</div>
-                </div>
-                <div class="k-card-compact border-purple">
-                    <div class="card-top-icon">🎮</div>
-                    <h3 class="card-h">التطبيق العملي في المشاريع</h3>
-                    <p class="card-p">توظيف هذا المفهوم في التحكم بالأبطال، صناعة التحديات، وحساب النقاط بدقة.</p>
-                    <div class="card-tag-pill">صناعة الألعاب 🚀</div>
-                </div>
-                <div class="k-card-compact border-teal">
-                    <div class="card-top-icon">🛡️</div>
-                    <h3 class="card-h">أسرار المبرمجين المحترفين</h3>
-                    <p class="card-p">نصائح هندسية لكتابة كود نظيف وسريع وسهل القراءة وخالٍ من أي تعقيد.</p>
-                    <div class="card-tag-pill">الكود النظيف ✨</div>
-                </div>
-            </div>
-        
-            </div>
-        </section>
-    
-        <!-- SLIDE 24 -->
-        <section class="slide " id="slide-24" data-slide="24" data-notes="ألف مبروك يا أبطال المستقبل! النهاردة حققتم إنجاز رائع جداً وأتقنتم كل مهارات المحاضرة 18 في المستوى 3: تطوير ألعاب 2D! فخور جداً بتركيزكم وإبداعكم المستمر في كل خطوة بنمشيها سوا!">
-            <div class="slide-inner-body">
-                
-            <div class="slide-heading-row">
-                <span class="slide-category badge-mission">📝 مهمة البطل العملية</span>
-                <h2 class="slide-main-title">تحدي الواجب المنزلي: طبق ما تعلمته في عالمك! 🌟</h2>
-            </div>
-            <div class="grid-2-balance">
-                <div class="k-card-rich">
-                    <div class="rich-header">
-                        <span class="rich-icon">💻</span>
-                        <h3 class="rich-title">المهمة التطبيقية في المنزل</h3>
+<div class="slide slide-1 active" data-title="المقدمة والهدف" data-notes="أهلاً بكم يا عباقرة الألعاب في المحاضرة الثامنة عشرة! بطلنا دلوقتي بيجري ويقفز برشاقة في الهواء، لكن لو عدى جنب عملة ذهبية هيعدي من وسطها كأنه شبح، ولو عدى في وسط وحش مش هيحس بيه! علشان اللعبة تكون حقيقية وتفاعلية، محتاجين نمنحه &#39;حاسة اللمس والشعور&#39; بالأشياء! والنهاردة هنتعلم سحر &#39;الاصطدام والتفاعل&#39; (Collision Detection & Interactions) في سكراتش!">
+        <div class="slide-header">
+            <span class="slide-tag">المحاضرة 18 • المستوى 3</span>
+            <span class="slide-badge">عالم التفاعل</span>
+        </div>
+        <div class="slide-body text-center">
+            <div class="hero-icon animated-bounce">💥 🪙 🚪</div>
+            <h1 class="main-title">الاصطدام والتفاعل (Collision Detection)</h1>
+            <p class="subtitle">كيف يشعر البطل بالعملات الذهبية، ويتفادى فخاخ الوحوش، ويفتح الأبواب السرية؟</p>
+            <div class="info-card-grid two-cols mt-4">
+                <div class="glass-card"><span class="card-icon">🪙</span><h3>تفاعلات المكافأة (Collectibles)</h3><p>جمع الذهب، المفاتيح، والنجوم لزيادة النقاط وترقية البطل</p></div>
+                <div class="glass-card"><span class="card-icon">⚡</span><h3>تفاعلات الخطر (Hazards & Enemies)</h3><p>الارتداد عند لمس الوحوش، خسارة القلوب، وتفادي الفخاخ</p></div>
+            </div>
+        </div>
+    </div>
+<div class="slide slide-2" data-title="مفهوم فحص الاصطدام" data-notes="يعني إيه &#39;فحص الاصطدام&#39; (Collision Detection) في البرمجة؟ هو كود بيسأل في كل جزء من الثانية: هل جسم البطل تداخل أو لمس جسم كائن تاني على المسرح؟ لو الإجابة نعم (True)، يحصل تفاعل فوري: يجمع ذهب، يخسر قلب، أو يفتح بوابة سرية!">
+        <div class="slide-header">
+            <span class="slide-tag">المفهوم الأساسي</span>
+            <span class="slide-badge">Collision Detection</span>
+        </div>
+        <div class="slide-body">
+            <h2 class="slide-title">ما هو فحص الاصطدام (Collision Detection)؟ 💥</h2>
+            <p class="slide-desc">حاسة اللمس الرقمية التي تجعل الكائنات تشعر بوجود بعضها وتتفاعل فوراً عند التلامس.</p>
+            <div class="steps-flow mt-3">
+                <div class="flow-step"><span class="num">1</span><span>فحص التلامس</span></div>
+                <div class="flow-arrow">➡️</div>
+                <div class="flow-step"><span class="num">2</span><span>تحقق الشرط (True)</span></div>
+                <div class="flow-arrow">➡️</div>
+                <div class="flow-step"><span class="num">3</span><span>صوت ومؤثر بصري</span></div>
+                <div class="flow-arrow">➡️</div>
+                <div class="flow-step success-step"><span class="num">4</span><span>تعديل النتيجة أو الطاقة!</span></div>
+            </div>
+        </div>
+    </div>
+<div class="slide slide-3" data-title="مكعبات التحسس في سكراتش" data-notes="في سكراتش، عائلة &#39;التحسس&#39; (Sensing) ذات اللون السماوي الجميل بتقدملنا 3 مكعبات سحرية سداسية الشكل: المكعب الأول هو `touching [Sprite]?` (ملامسة كائن معين)، المكعب التاني هو `touching color [#]?` (ملامسة لون محدد)، والمكعب التالت هو `color [#] is touching [#]?` (ملامسة لون للون آخر)!">
+        <div class="slide-header">
+            <span class="slide-tag">مكعبات سكراتش</span>
+            <span class="slide-badge">Sensing Blocks</span>
+        </div>
+        <div class="slide-body">
+            <h2 class="slide-title">مكعبات الاستشعار السداسية في سكراتش 🧩</h2>
+            <div class="info-card-grid three-cols mt-3">
+                <div class="glass-card">
+                    <span class="card-icon">👾</span>
+                    <h4>ملامسة كائن معين</h4>
+                    <code>&lt;touching [Sprite v]?&gt;</code>
+                    <p>فحص الاصطدام بالوحش أو العملة أو الباب.</p>
+                </div>
+                <div class="glass-card">
+                    <span class="card-icon">🎨</span>
+                    <h4>ملامسة لون محدد</h4>
+                    <code>&lt;touching color [#]?&gt;</code>
+                    <p>فحص لمس الحمم البركانية الحمراء أو الأرضية الخضراء.</p>
+                </div>
+                <div class="glass-card">
+                    <span class="card-icon">🔀</span>
+                    <h4>تلامس لونين معاً</h4>
+                    <code>&lt;color [#] is touching [#]?&gt;</code>
+                    <p>فحص لمس أقدام البطل تحديداً لمنصة خشبية.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+<div class="slide slide-4" data-title="كود جمع العملات الذهبية" data-notes="تعالوا نشوف أول تفاعل مفرح في الألعاب: &#39;جمع العملات والكنوز&#39; (Collecting Items)! لما البطل يلمس العملة، بيحصل 3 خطوات سحرية سريعة: 1. تشغيل صوت الرنين الذهبي (ding!). 2. زيادة صندوق النتيجة: `change [score] by (1)`. 3. إخفاء العملة فوراً من المسرح: `hide`!">
+        <div class="slide-header">
+            <span class="slide-tag">تطبيق الكنز</span>
+            <span class="slide-badge">Coin Collecting</span>
+        </div>
+        <div class="slide-body">
+            <h2 class="slide-title">كود جمع العملات والكنوز (Collecting Items) 🪙✨</h2>
+            <div class="code-preview-box mt-3">
+                <span class="code-lang">Scratch Coin Script</span>
+                <code>when green flag clicked<br>show &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;// إظهار العملة في بداية المرحلة<br>forever {<br>&nbsp;&nbsp;&nbsp;&nbsp;if &lt;touching [Hero v]?&gt; then {<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;play sound [coin_ding.mp3 v] &nbsp;// 1. تشغيل صوت الرنين الذهبي 🎵<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;change [score v] by (10) &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;// 2. زيادة النقاط 10 🪙<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;hide &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;// 3. إخفاء العملة فوراً! 🙈<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br>}</code>
+            </div>
+        </div>
+    </div>
+<div class="slide slide-5" data-title="فخ النقاط المتكررة وحله" data-notes="فخ المبتدئين الشهير في جمع الذهب: لو نسيت تحط بلوك الإخفاء `hide` فوراً بعد لمس العملة، البطل هيفضل ملامس للعملة لمدة نصف ثانية، وفي النصف ثانية دي الكود هيزود النتيجة 50 نقطة بدلاً من نقطة واحدة! علشان كده لازم العملة تختفي في نفس اللحظة اللي تزيد فيها النقاط!">
+        <div class="slide-header">
+            <span class="slide-tag">فخ المبتدئين</span>
+            <span class="slide-badge">Multi-Score Bug</span>
+        </div>
+        <div class="slide-body">
+            <h2 class="slide-title">فخ النقاط المتكررة: 50 نقطة بدلاً من 10! ⚠️🪙</h2>
+            <div class="comparison-grid two-cols mt-3">
+                <div class="glass-card danger-card">
+                    <h3>❌ كود معطوب بدون إخفاء فوري</h3>
+                    <code>if &lt;touching Hero?&gt; then<br>&nbsp;&nbsp;&nbsp;&nbsp;change score by (10)<br>&nbsp;&nbsp;&nbsp;&nbsp;wait (1) secs ; hide</code>
+                    <p>أثناء ثانية الانتظار، يظل البطل ملامساً للعملة فتزيد النقاط 60 مرة متتالية!</p>
+                </div>
+                <div class="glass-card success-card">
+                    <h3>✅ كود آمن بإخفاء فوري</h3>
+                    <code>if &lt;touching Hero?&gt; then<br>&nbsp;&nbsp;&nbsp;&nbsp;hide &nbsp;&lt;-- إخفاء فوري في أول سطر<br>&nbsp;&nbsp;&nbsp;&nbsp;change score by (10)</code>
+                    <p>تختفي العملة في أول إطار فتضمن زيادة النقاط مرة واحدة فقط بدقة 100%!</p>
+                </div>
+            </div>
+        </div>
+    </div>
+<div class="slide slide-6" data-title="الاصطدام بالوحوش وخسارة القلوب" data-notes="التفاعل التاني الحماسي هو &#39;الاصطدام بالوحوش والأعداء&#39; (Hazard Collision): لما البطل يلمس شوكة أو وحش شرير، إيه اللي بيحصل؟ 1. تشغيل صوت صرخة أو ضربة (Ouch!). 2. إنقاص عدد القلوب: `change [lives] by (-1)`. 3. تنفيذ حركة الارتداد للخلف!">
+        <div class="slide-header">
+            <span class="slide-tag">تفاعل الخطر</span>
+            <span class="slide-badge">Hazard Collision</span>
+        </div>
+        <div class="slide-body">
+            <h2 class="slide-title">الاصطدام بالوحش: صوت الإصابة وخسارة قلب 💔👾</h2>
+            <div class="concept-card highlight-card mt-3">
+                <div class="card-badge">كود تفاعل الأعداء</div>
+                <div class="code-preview-box mt-2">
+                    <code>if &lt;touching [Enemy v]?&gt; and &lt;(is_invincible) == (False)&gt; then {<br>&nbsp;&nbsp;&nbsp;&nbsp;play sound [ouch.mp3 v] &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;// صوت التألم 📢<br>&nbsp;&nbsp;&nbsp;&nbsp;change [lives v] by (-1) &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;// خصم قلب حياة ❤️<br>&nbsp;&nbsp;&nbsp;&nbsp;broadcast [KnockbackHero v] &nbsp;&nbsp;&nbsp;// تفعيل الارتداد للخلف 🚀<br>}</code>
+                </div>
+            </div>
+        </div>
+    </div>
+<div class="slide slide-7" data-title="حركة الارتداد للخلف Knockback" data-notes="سر المحترفين: &#39;حركة الارتداد للخلف&#39; (Knockback Physics)! لو البطل خسر قلب وفضل واقف جوه الوحش، هيموت في أقل من ثانية وتخلص كل قلوبه! علشان كده بنبرمج كود يدفع البطل خطوتين للخلف فوراً (`change x by -20`) ويدفعه للأعلى قليلاً، علشان يبعد عن الخطر ويستعد للمحاولة من جديد!">
+        <div class="slide-header">
+            <span class="slide-tag">فيزياء الصدمة</span>
+            <span class="slide-badge">Knockback</span>
+        </div>
+        <div class="slide-body">
+            <h2 class="slide-title">حركة الارتداد للخلف (Knockback): فرصة ثانية للنجاة! 🦘💥</h2>
+            <p class="slide-desc">دفع البطل خطوتين للخلف وللأعلى عند لمس الوحش لمنع موته الفوري.</p>
+            <div class="info-card-grid two-cols mt-3">
+                <div class="glass-card">
+                    <span class="card-icon">⬅️</span>
+                    <h3>الارتداد الأفقي</h3>
+                    <p>دفع معاكس لاتجاه حركة البطل:</p>
+                    <code>change x by (-25)</code>
+                </div>
+                <div class="glass-card">
+                    <span class="card-icon">⬆️</span>
+                    <h3>القفزة الخفيفة للأعلى</h3>
+                    <p>رفع البطل بعيداً عن رأس الوحش:</p>
+                    <code>set [y_velocity v] to (8)</code>
+                </div>
+            </div>
+        </div>
+    </div>
+<div class="slide slide-8" data-title="فترة الحصانة والوميض الشفاف" data-notes="سلاح الأمان التاني: &#39;فترة الحصانة والوميض الشفاف&#39; (Invincibility Frames / i-Frames)! أول ما البطل يتخبط، بنخليه يومض ويختفي ويرجع بسرعة باستخدام مؤثر الشفافية: كرر 5 مرات [غير مؤثر الشفافية بـ 50، انتظر 0.1 ثانية، شيل المؤثر]! وخلال الثانيتين دول، بيكون محمي من أي ضربة جديدة! زي النجم في لعبة ماريو!">
+        <div class="slide-header">
+            <span class="slide-tag">حماية البطل</span>
+            <span class="slide-badge">i-Frames</span>
+        </div>
+        <div class="slide-body">
+            <h2 class="slide-title">فترة الحصانة المؤقتة والوميض الشفاف (i-Frames) 🛡️👻</h2>
+            <p class="slide-desc">إعطاء البطل ثانيتين من الحماية المطلقة بعد الإصابة لكي يهرب من مسرح الخطر.</p>
+            <div class="code-preview-box mt-3">
+                <span class="code-lang">Scratch i-Frames Script</span>
+                <code>set [is_invincible v] to [True]<br>repeat (4) {<br>&nbsp;&nbsp;&nbsp;&nbsp;set [ghost v] effect to (60) &nbsp;// وميض شبه شفاف 👻<br>&nbsp;&nbsp;&nbsp;&nbsp;wait (0.1) seconds<br>&nbsp;&nbsp;&nbsp;&nbsp;set [ghost v] effect to (0) &nbsp;&nbsp;// عودة المظهر الطبيعي<br>&nbsp;&nbsp;&nbsp;&nbsp;wait (0.1) seconds<br>}<br>set [is_invincible v] to [False] // انتهاء درع الحماية 🟢</code>
+            </div>
+        </div>
+    </div>
+<div class="slide slide-9" data-title="ميكانيكا المفتاح والباب المغلق" data-notes="تفاعل &#39;المفتاح والباب المغلق&#39; (Key & Locked Door): من أمتع الألغاز في ألعاب المغامرات! بنعمل متغير منطقي اسمه `has_key` بيبدأ بـ False. لما البطل يلمس المفتاح، يتحول لـ True والمفتاح يختفي. ولما يروح عند الباب الخشبي، الباب يفحص: هل `has_key == True`؟ لو نعم، الباب يفتح ويختفي ويدخل البطل المرحلة التالية!">
+        <div class="slide-header">
+            <span class="slide-tag">ألغاز الألعاب</span>
+            <span class="slide-badge">Key & Door</span>
+        </div>
+        <div class="slide-body">
+            <h2 class="slide-title">لغز المفتاح والباب المغلق: كيف يفتح البطل الطريق؟ 🗝️🚪</h2>
+            <div class="comparison-grid two-cols mt-3">
+                <div class="glass-card primary-card">
+                    <span class="card-icon">🗝️</span>
+                    <h3>1. كود كائن المفتاح</h3>
+                    <code>if &lt;touching Hero?&gt; then {<br>&nbsp;&nbsp;&nbsp;&nbsp;set [has_key v] to [True]<br>&nbsp;&nbsp;&nbsp;&nbsp;play sound [pickup_key.mp3]<br>&nbsp;&nbsp;&nbsp;&nbsp;hide<br>}</code>
+                </div>
+                <div class="glass-card success-card">
+                    <span class="card-icon">🚪</span>
+                    <h3>2. كود كائن الباب المغلق</h3>
+                    <code>if &lt;touching Hero?&gt; and &lt;(has_key) == [True]&gt; then {<br>&nbsp;&nbsp;&nbsp;&nbsp;play sound [door_open.mp3]<br>&nbsp;&nbsp;&nbsp;&nbsp;hide // فتح الباب والسماح بالمرور 🎉<br>}</code>
+                </div>
+            </div>
+        </div>
+    </div>
+<div class="slide slide-10" data-title="دفع الصناديق وحل الألغاز" data-notes="تفاعل &#39;دفع الصناديق والصخور&#39; (Pushable Crates): في ألعاب الألغاز، البطل يقدر يزق صندوق خشب علشان يسد بيه حفرة أو يقف فوقه ويوصل لمنصة عالية! بنقول للصندوق: لو لمسك البطل، غير موقعك بنفس اتجاه وسرعة البطل!">
+        <div class="slide-header">
+            <span class="slide-tag">تفاعل الأجسام</span>
+            <span class="slide-badge">Pushable Crates</span>
+        </div>
+        <div class="slide-body">
+            <h2 class="slide-title">دفع الصناديق الخشبية (Pushable Crates) 📦💪</h2>
+            <p class="slide-desc">دفع صندوق خشبي لسد حفرة حمم بركانية أو لصنع منصة قفز مرتفعة.</p>
+            <div class="code-preview-box mt-3">
+                <span class="code-lang">Scratch Crate Script</span>
+                <code>when green flag clicked<br>forever {<br>&nbsp;&nbsp;&nbsp;&nbsp;if &lt;touching [Hero v]?&gt; then {<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if &lt;(direction of [Hero v]) == (90)&gt; then change x by (4) &nbsp;// دفع لليمين ➡️<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if &lt;(direction of [Hero v]) == (-90)&gt; then change x by (-4) // دفع لليسار ⬅️<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br>}</code>
+            </div>
+        </div>
+    </div>
+<div class="slide slide-11" data-title="تكسير الكتل كألعاب ماريو" data-notes="تفاعل &#39;تكسير الكتل&#39; (Breakable Blocks): زي بلوكات الطوب في ماريو! لما البطل يقفز ويخبط البلوك برأسه من تحت: يظهر صوت تكسير، وتتطاير شظايا حجرية صغيرة، ويختفي البلوك ويطلع مكانه فطر سحري أو عملة ذهبية!">
+        <div class="slide-header">
+            <span class="slide-tag">ألعاب المنصات</span>
+            <span class="slide-badge">Breakable Blocks</span>
+        </div>
+        <div class="slide-body">
+            <h2 class="slide-title">تكسير الكتل برأس البطل كألعاب ماريو! 🧱💥</h2>
+            <div class="interactive-process mt-3">
+                <div class="process-box"><span class="step-icon">🦘</span><h4>1. قفز لأعلى</h4><p>سرعة صعود موجب (+Y)</p></div>
+                <div class="arrow">➡️</div>
+                <div class="process-box"><span class="step-icon">💥</span><h4>2. خبط الكتلة</h4><p>ملامسة رأس البطل لقاع البلوك</p></div>
+                <div class="arrow">➡️</div>
+                <div class="process-box"><span class="step-icon">🧱</span><h4>3. تكسير واختفاء</h4><p>صوت تكسير وتطاير الحصى</p></div>
+                <div class="arrow">➡️</div>
+                <div class="process-box"><span class="step-icon">🎁</span><h4>4. خروج الكنز</h4><p>ظهور فطر سحري أو ذهب!</p></div>
+            </div>
+        </div>
+    </div>
+<div class="slide slide-12" data-title="منصة النطاطة الخارقة" data-notes="تفاعل &#39;منصة النطاطة السحرية&#39; (Bouncing Trampoline): لما البطل يسقط فوق منصة الترامبولين الخضراء: `if <touching [Trampoline]?>`، بنعطيه دفعة قفز مضاعفة وخارقة: `set [y_velocity] to (20)`! فتلاقيه طار للسماء العالية ووصل لكنز كان مستحيل الوصول إليه!">
+        <div class="slide-header">
+            <span class="slide-tag">منصات خارقة</span>
+            <span class="slide-badge">Trampoline Pad</span>
+        </div>
+        <div class="slide-body">
+            <h2 class="slide-title">منصة النطاطة الخارقة (Super Spring Pad) 🟢🚀</h2>
+            <div class="feature-box success-border mt-3">
+                <div class="box-icon">🚀</div>
+                <div class="box-content">
+                    <h4>مضاعفة قوة القفز إلى 20:</h4>
+                    <div class="code-preview-box mt-2">
+                        <code>if &lt;touching [Trampoline v]?&gt; then {<br>&nbsp;&nbsp;&nbsp;&nbsp;set [y_velocity v] to (20) &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;// قفزة عملاقة تعانق السماء! ⬆️⚡<br>&nbsp;&nbsp;&nbsp;&nbsp;play sound [boing_spring.mp3 v] // نغمة زنبرك مرحة ومبهجة 🎵<br>}</code>
                     </div>
-                    <ul class="rich-list">
-                        <li>راجع مشروع الدرس وطبق مفهوم <strong>الاصطدام</strong> بنفسك.</li>
-                        <li>جرّب إضافة ميزة جديدة أو فكرة مبتكرة من خيالك الخاص.</li>
-                        <li>التقط لقطة شاشة لإنجازك وشاركه في مجتمع التليجرام والواتساب.</li>
+                </div>
+            </div>
+        </div>
+    </div>
+<div class="slide slide-13" data-title="إطلاق القذائف والليزر" data-notes="تفاعل &#39;إطلاق القذائف والليزر&#39; (Projectiles & Lasers): إزاي نخلي البطل أو السفينة تطلق رصاص ليزر؟ باستخدام قوة &#39;الاستنساخ&#39; (Clones) في سكراتش! لما اللاعب يضغط مسافة: بنقول: `create clone of [Laser]`!">
+        <div class="slide-header">
+            <span class="slide-tag">ألعاب الأكشن</span>
+            <span class="slide-badge">Lasers & Clones</span>
+        </div>
+        <div class="slide-body">
+            <h2 class="slide-title">إطلاق القذائف والليزر: قوة الاستنساخ (Clones) 🔫⚡</h2>
+            <p class="slide-desc">كيف نطلق عشرات طلقات الليزر دون رسم كائن لكل طلقة؟</p>
+            <div class="code-preview-box mt-3">
+                <span class="code-lang">Scratch Hero Shoot Script</span>
+                <code>if &lt;key [f v] pressed?&gt; then {<br>&nbsp;&nbsp;&nbsp;&nbsp;create clone of [LaserBullet v] &nbsp;// إنشاء نسخة سريعة من الليزر ⚡<br>&nbsp;&nbsp;&nbsp;&nbsp;wait (0.2) seconds &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;// منع إطلاق ملايين الطلقات في ثانية واحدة!<br>}</code>
+            </div>
+        </div>
+    </div>
+<div class="slide slide-14" data-title="دورة حياة طلقة الليزر" data-notes="دورة حياة القذيفة المستنسخة: أول ما النسخة تتولد (`when I start as a clone`)، تروح لمكان البطل، وتتحرك للأمام بسرعة 15 خطوة. وتفحص طول طريقها: لو لمست وحش أو لمست حافة الشاشة، تنفجر وتحذف نفسها فوراً بـ `delete this clone`!">
+        <div class="slide-header">
+            <span class="slide-tag">برمجة الاستنساخ</span>
+            <span class="slide-badge">Clone Lifecycle</span>
+        </div>
+        <div class="slide-body">
+            <h2 class="slide-title">دورة حياة طلقة الليزر: من الانطلاق حتى الانفجار 💥</h2>
+            <div class="code-preview-box mt-3">
+                <span class="code-lang">Laser Clone Script</span>
+                <code>when I start as a clone<br>go to [Hero v] &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;// الانطلاق من موقع البطل بالضبط<br>point in direction (direction of [Hero v])<br>show<br>repeat until &lt;&lt;touching [Enemy v]?&gt; or &lt;touching [edge v]?&gt;&gt; {<br>&nbsp;&nbsp;&nbsp;&nbsp;move (15) steps &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;// انطلاق سريع للأمام 🚀<br>}<br>delete this clone &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;// حذف النسخة فوراً عند الاصطدام 🧹</code>
+            </div>
+        </div>
+    </div>
+<div class="slide slide-15" data-title="هزيمة الوحش بالقفز فوق رأسه" data-notes="تفاعل &#39;هزيمة الوحش بالقفز فوق رأسه&#39; (Stomping Enemies): في لعبة ماريو، لو لمست الوحش من الجنب بتخسر قلب، لكن لو قفزت فوق دماغه بيموت الوحش وتكسب 100 نقطة! بنبرمجها إزاي؟ بنفحص: هل موقع البطل في محور Y أعلى من موقع الوحش وسرعته سالبة لأسفل؟ لو نعم، الوحش يتسحق والبطل ينط في الهواء محتفلاً!">
+        <div class="slide-header">
+            <span class="slide-tag">قتال الألعاب</span>
+            <span class="slide-badge">Mario Stomp</span>
+        </div>
+        <div class="slide-body">
+            <h2 class="slide-title">هزيمة الوحش بالقفز فوق رأسه كألعاب ماريو! 🍄👟</h2>
+            <div class="comparison-grid two-cols mt-3">
+                <div class="glass-card danger-card">
+                    <h3>❌ لمس الوحش من الجانب</h3>
+                    <p>إذا كان البطل في نفس مستوى الوحش أفقياً: يخسر البطل قلباً ويرتد للخلف!</p>
+                </div>
+                <div class="glass-card success-card">
+                    <h3>✅ الهبوط فوق رأس الوحش</h3>
+                    <p>إذا كان البطل يهبط من الأعلى <code>(y_velocity &lt; 0)</code> فوق رأس الوحش: يُهزم الوحش ويختفي، وينط البطل للأعلى محتفلاً!</p>
+                </div>
+            </div>
+        </div>
+    </div>
+<div class="slide slide-16" data-title="بوابات الانتقال الآني" data-notes="تفاعل &#39;بوابات الانتقال الآني&#39; (Teleportation Portals): بوابتان سحريتان: بوابة زرقاء على الشمال وبوابة برتقالية على اليمين! أول ما يدخل البطل في البوابة الزرقاء، الكود يغير إحداثياته في لمح البصر وينقله فوراً أمام البوابة البرتقالية!">
+        <div class="slide-header">
+            <span class="slide-tag">الخيال العلمي</span>
+            <span class="slide-badge">Portals</span>
+        </div>
+        <div class="slide-body">
+            <h2 class="slide-title">بوابات الانتقال الآني (Teleportation Portals) 🌀🌌</h2>
+            <div class="info-card-grid two-cols mt-3">
+                <div class="glass-card primary-card">
+                    <span class="card-icon">🔵</span>
+                    <h3>البوابة الزرقاء (مدخل)</h3>
+                    <p>عند لمس البوابة الزرقاء في يسار الشاشة:</p>
+                    <code>go to [OrangePortal v]<br>change x by (30) # خروج فوري لليمين!</code>
+                </div>
+                <div class="glass-card warning-card">
+                    <span class="card-icon">🟠</span>
+                    <h3>البوابة البرتقالية (مخرج)</h3>
+                    <p>يخرج منها البطل بنشاط وسرعة مع تشغيل صوت ليزري فضائي ممتع!</p>
+                </div>
+            </div>
+        </div>
+    </div>
+<div class="slide slide-17" data-title="استشعار اللون مقابل الكائن" data-notes="الفرق بين &#39;استشعار الكائن&#39; و&#39;استشعار اللون&#39;: استشعار الكائن `touching [Sprite]` أسرع وأدق، وبيكون ممتاز للأبطال والعملات. أما استشعار اللون `touching color [#]` فهو رائع لفحص الأرضيات والمنصات (زي لمس اللون الأخضر للأرض واللون الأحمر للحمم البركانية)!">
+        <div class="slide-header">
+            <span class="slide-tag">مقارنة فنية</span>
+            <span class="slide-badge">Color vs Sprite</span>
+        </div>
+        <div class="slide-body">
+            <h2 class="slide-title">متى نستخدم استشعار الكائن ومتى نستخدم اللون؟ 🎨👾</h2>
+            <div class="comparison-grid two-cols mt-3">
+                <div class="glass-card success-card">
+                    <h3>استشعار الكائن (touching Sprite)</h3>
+                    <ul class="bullet-list">
+                        <li>أسرع وأخف على معالج الكمبيوتر</li>
+                        <li>لا يتأثر بتغيير إضاءة أو لون الكائن</li>
+                        <li>مثالي للأعداء، العملات، المقذوفات، والأبواب</li>
                     </ul>
                 </div>
-                <div class="k-card-rich highlight-bg">
-                    <div class="rich-header">
-                        <span class="rich-icon">⭐</span>
-                        <h3 class="rich-title">معايير تقييم وسام الإتقان</h3>
-                    </div>
-                    <ul class="rich-list">
-                        <li><strong>الدقة:</strong> تشغيل البرنامج دون أي أخطاء برمجية (50 نقطة).</li>
-                        <li><strong>الإبداع:</strong> لمستك الشخصية في التصميم أو الأفكار (30 نقطة).</li>
-                        <li><strong>الالتزام:</strong> تسليم الحل قبل بداية المحاضرة القادمة (20 نقطة).</li>
+                <div class="glass-card primary-card">
+                    <h3>استشعار اللون (touching Color)</h3>
+                    <ul class="bullet-list">
+                        <li>رائع لتحديد أجزاء معينة (أقدام البطل فقط)</li>
+                        <li>رائع لفحص بيئة المسرح (عشب أخضر، ماء أزرق، لافا حمراء)</li>
+                        <li>يحتاج دقة مطابقة كود اللون بالضبط بقطارة الألوان</li>
                     </ul>
                 </div>
             </div>
-        
+        </div>
+    </div>
+<div class="slide slide-18" data-title="صناديق التصادم العادلة Hitboxes" data-notes="فخ &#39;الاصطدام الشبحي&#39; (Ghost Collision Trap): لو عندك كائن مخفي في سكراتش، لازم تتأكد إنه مش بيتفاعل مع البطل وهو مخفي! علشان كده بنحط دايماً شرط إضافي: افحص الاصطدام فقط لو كانت العملة مرئية (`is_collected == False`)!">
+        <div class="slide-header">
+            <span class="slide-tag">احترافية الألعاب</span>
+            <span class="slide-badge">Hitbox Design</span>
+        </div>
+        <div class="slide-body">
+            <h2 class="slide-title">صناديق التصادم (Hitboxes): العدالة في اللعب! 📦⚖️</h2>
+            <p class="slide-desc">لماذا نجعل مساحة التصادم أصغر قليلاً من الصورة المرسومة؟</p>
+            <div class="concept-card highlight-card mt-3">
+                <div class="card-badge">قاعدة نينتندو الذهبية</div>
+                <h3>إذا لمست شوكة طرف شعر البطل.. فلا تجعله يموت!</h3>
+                <p class="mt-2">المصممون المحترفون يجعلون صندوق التصادم الفعلي محصوراً في قلب جسم البطل (Torso). هذا يمنح اللاعب شعوراً بالراحة ويجعله ينجو في اللحظات الأخيرة بشق الأنفس، مما يزيد الإثارة بنسبة 1000%!</p>
             </div>
-        </section>
-    
-        <!-- SLIDE 25 -->
-        <section class="slide " id="slide-25" data-slide="25" data-notes="واجبكم ومهمتكم البطولية لهذا الأسبوع: تفتحوا ملف الواجب المنزلي وتطبقوا التحدي العملي على أجهزتكم، وبعدها تفتحوا اختبار المحاضرة الإلكتروني وتحلوه وتجمعوا وسام التفوق بنسبة 100%! شكراً لكم يا أبطال، ومتحمس جداً أشوفكم في المحاضرة القادمة! سلام يا مبدعين!">
-            <div class="slide-inner-body">
-                
-            <div class="hero-center celebration-bg">
-                <div class="hero-icons">🎉 🏅 🏆</div>
-                <h1 class="hero-title text-success">ألف مبروك يا أبطال المستقبل!</h1>
-                <p class="hero-subtitle">أتممتم المحاضرة 18 بنجاح باهر وتألقتم في فهم وتطبيق الاصطدام والتفاعل (Collision Detection)!</p>
-                <div class="score-pill">+100 نقطة إنجاز أضيفت لرصيدك البرمجي 🎖️</div>
-                <div class="next-lecture-box">
-                    <span class="next-badge">المحطة القادمة 🚀</span>
-                    <p class="next-title">استعدوا للمحاضرة القادمة لمواصلة رحلتكم الشيقة في المستوى 3: تطوير ألعاب 2D!</p>
+        </div>
+    </div>
+<div class="slide slide-19" data-title="اهتزاز الشاشة ومؤثرات الصدمة" data-notes="مفهوم &#39;صندوق التصادم&#39; (Hitbox): في ألعاب القتال والمنصات، رسمة البطل ممكن يكون فيها ريشة أو سيف طويل، لو الوحش لمس طرف الريشة ومات البطل اللاعب هيحس بالظلم! علشان كده بنعمل صندوق التصادم (Hitbox) أصغر قليلاً ومحكماً حول جسم البطل ليصبح اللعب عادلاً ومريحاً!">
+        <div class="slide-header">
+            <span class="slide-tag">مؤثرات قوية</span>
+            <span class="slide-badge">Screen Shake</span>
+        </div>
+        <div class="slide-body">
+            <h2 class="slide-title">اهتزاز الشاشة (Screen Shake): قوة الضربة الحقيقية! 📳💥</h2>
+            <div class="code-preview-box mt-3">
+                <span class="code-lang">Scratch Screen Shake Script</span>
+                <code>when I receive [BigExplosion v]<br>repeat (4) {<br>&nbsp;&nbsp;&nbsp;&nbsp;change x by (pick random (-6) to (6)) &nbsp;// هزة عشوائية أفقية<br>&nbsp;&nbsp;&nbsp;&nbsp;change y by (pick random (-6) to (6)) &nbsp;// هزة عشوائية رأسية<br>&nbsp;&nbsp;&nbsp;&nbsp;wait (0.02) seconds<br>}<br>go to x: (0) y: (0) &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;// عودة المسرح لمركزه المستقر 🟢</code>
+            </div>
+        </div>
+    </div>
+<div class="slide slide-20" data-title="غرفة الألغاز التفاعلية الكاملة" data-notes="المؤثرات التفاعلية للاصطدام (Visual & Audio Feedback): لما يحصل اصطدام قوي، لازم شاشة اللعبة تهتز هزة خفيفة (Screen Shake) وتتطاير شرارات ضوئية ويصدر صوت انفجار! دي المؤثرات اللي بتخلي اللاعب يحس بقوة اللعبة وعظمتها!">
+        <div class="slide-header">
+            <span class="slide-tag">تجميع العناصر</span>
+            <span class="slide-badge">Puzzle Room</span>
+        </div>
+        <div class="slide-body">
+            <h2 class="slide-title">غرفة الألغاز الكاملة: كل العناصر تعمل معاً! 🏰🧩</h2>
+            <div class="info-card-grid four-cols mt-3 text-center">
+                <div class="glass-card">
+                    <span class="card-icon">🗝️</span>
+                    <h4>1. احصل على المفتاح</h4>
+                    <p>قفز فوق وحش الدورية</p>
+                </div>
+                <div class="glass-card">
+                    <span class="card-icon">📦</span>
+                    <h4>2. ادفع الصندوق</h4>
+                    <p>لسد فجوة الأشواك الحادة</p>
+                </div>
+                <div class="glass-card">
+                    <span class="card-icon">🟢</span>
+                    <h4>3. نط من النطاطة</h4>
+                    <p>للوصول للرف المرتفع</p>
+                </div>
+                <div class="glass-card">
+                    <span class="card-icon">🚪</span>
+                    <h4>4. افتح الباب السري</h4>
+                    <p>والانتقال للمرحلة التالية!</p>
                 </div>
             </div>
-        
-            </div>
-        </section>
-    
+        </div>
+    </div>
+<div class="slide slide-21" data-title="فخ الاصطدام الشبحي" data-notes="بناء &#39;مرحلة الألغاز التفاعلية&#39; (Puzzle Level): النهاردة هنجمع كل التفاعلات دي في غرفة مغامرة واحدة: أرضية خضراء، وحش دورية، شوك بركاني، مفتاح ذهبي، باب مغلق، ومنصة نطاطة! كل التفاعلات دي بتشتغل معاً بانسجام وتناغم رائع!">
+        <div class="slide-header">
+            <span class="slide-tag">فخ المبرمجين</span>
+            <span class="slide-badge">Ghost Collisions</span>
+        </div>
+        <div class="slide-body">
+            <h2 class="slide-title">فخ الاصطدام الشبحي: الكائن المختفي ما زال حياً! 👻⚠️</h2>
+            <div class="comparison-grid two-cols mt-3">
+                <div class="glass-card danger-card">
+                    <h3>❌ المشكلة</h3>
+                    <p>عملة ذهبية جمعناها واختفت بـ <code>hide</code>، لكن البطل عند عودته لنفس المكان يسمع صوت الرنين وتزيد نقاطه لأن الكود ما زال يفحص التلامس!</p>
                 </div>
+                <div class="glass-card success-card">
+                    <h3>✅ الحل الذكي بالمتغيرات</h3>
+                    <code>if &lt;touching Hero?&gt; and &lt;(is_collected) == [False]&gt;</code>
+                    <p>بمجرد جمعها نجعل <code>is_collected = True</code> فلا تتفاعل أبداً وهي مختفية!</p>
+                </div>
+            </div>
+        </div>
+    </div>
+<div class="slide slide-22" data-title="تنظيم وتنسيق كود الاصطدام" data-notes="تمريننا العملي البرمجي: كتبنا كود ملامسة العملة مع الصوت وتحديث النتيجة، وكود الاصطدام بالوحش مع الارتداد وحماية القلوب في دقائق معدودة!">
+        <div class="slide-header">
+            <span class="slide-tag">نظافة الكود</span>
+            <span class="slide-badge">Broadcast System</span>
+        </div>
+        <div class="slide-body">
+            <h2 class="slide-title">سر تنظيم تفاعلات اللعبة: الرسائل (Broadcast) 📨✨</h2>
+            <p class="slide-desc">بدل حشو كل الأكواد في كائن واحد، نرسل رسائل سحرية لباقي الكائنات.</p>
+            <div class="info-card-grid three-cols mt-3">
+                <div class="glass-card text-center">
+                    <span class="card-icon">🪙</span>
+                    <h4>broadcast [CoinCollected]</h4>
+                    <p>يسمعها عداد النتيجة فيزيد 10 ويشغل الموسيقى.</p>
+                </div>
+                <div class="glass-card text-center">
+                    <span class="card-icon">💔</span>
+                    <h4>broadcast [PlayerDamaged]</h4>
+                    <p>تسمعها الشاشة فتهتز، ويومض البطل بالحصانة.</p>
+                </div>
+                <div class="glass-card text-center">
+                    <span class="card-icon">🚪</span>
+                    <h4>broadcast [LevelCleared]</h4>
+                    <p>يسمعها المسرح فيغير الخلفية ويطلق الألعاب النارية!</p>
+                </div>
+            </div>
+        </div>
+    </div>
+<div class="slide slide-23" data-title="تطبيق عملي: التفاعل الكامل" data-notes="تحدي بطل اليوم العبقري: افتح مشروع لعبتك في سكراتش، وضع 3 عملات ذهبية تختفي وتزيد النقاط عند جمعها، ووحشاً يتحرك، واجعل بطلك يرتد للخلف وتنقص طاقته إذا اصطدم به!">
+        <div class="slide-header">
+            <span class="slide-tag">تطبيق عملي</span>
+            <span class="slide-badge">السكربت المكتمل</span>
+        </div>
+        <div class="slide-body">
+            <h2 class="slide-title">التطبيق العملي: سكربت التفاعل المكتمل 📜⚡</h2>
+            <div class="code-preview-box mt-3">
+                <span class="code-lang">Scratch Complete Collision Script</span>
+                <code>// فحص العملات والأعداء داخل حلقة البطل:<br>forever {<br>&nbsp;&nbsp;&nbsp;&nbsp;if &lt;touching [Spikes v]?&gt; and &lt;(is_invincible) == (False)&gt; then {<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;broadcast [PlayerHurt v]<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;if &lt;touching [SpringPad v]?&gt; then {<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;set [y_velocity v] to (18) &nbsp;// قفزة الترامبولين 🦘<br>&nbsp;&nbsp;&nbsp;&nbsp;}<br>}</code>
+            </div>
+        </div>
+    </div>
+<div class="slide slide-24" data-title="تحدي البطل الصغير" data-notes="أحسنتم يا صانعي الألعاب المهرة! لعبتكم أصبحت الآن حية وتفاعلية ويشعر فيها البطل بكل ما يحيط به. في المحاضرة القادمة رقم 19، هنبني قلب اللعبة الحماسي: &#39;النقاط والمؤقت الزمني (Scores & Timers)&#39;: إزاي نعمل لوحة نتائج أنيقة ومؤقت ثواني تنازلي يحبس الأنفاس! استعدوا للإثارة!">
+        <div class="slide-header">
+            <span class="slide-tag">تحدي اليوم</span>
+            <span class="slide-badge">سيد التفاعل</span>
+        </div>
+        <div class="slide-body text-center">
+            <div class="hero-icon animated-pulse">🪙 👾 🚪</div>
+            <h2 class="slide-title">تحدي غرفة الكنز والمفتاح السري!</h2>
+            <p class="slide-desc">طبق مهارات الاصطدام والتفاعل في مشروع لعبتك بسكراتش:</p>
+            <div class="info-card-grid three-cols mt-3 text-right">
+                <div class="glass-card">
+                    <h4>1. عملات ذهبية</h4>
+                    <p>ضع 3 عملات ذهبية تصدر صوتاً وتختفي وتزيد النقاط فور لمسها.</p>
+                </div>
+                <div class="glass-card">
+                    <h4>2. وحش دورية حارس</h4>
+                    <p>برمج وحشاً يتحرك، وإذا لمسه البطل يرتد للخلف وتنقص طاقته قلباً.</p>
+                </div>
+                <div class="glass-card">
+                    <h4>3. مفتاح وباب سري</h4>
+                    <p>برمج الباب ليظل مغلقاً حتى يعثر البطل على المفتاح أولاً!</p>
+                </div>
+            </div>
+        </div>
+    </div>
+<div class="slide slide-25" data-title="الخاتمة والتشويق" data-notes="الروشتة الذهبية: فحص الاصطدام + رد فعل فوري + مؤثر صوتي وبصري = لعبة فيديو أسطورية لا تُنسى! إلى اللقاء يا مبدعين!">
+        <div class="slide-header">
+            <span class="slide-tag">الختام</span>
+            <span class="slide-badge">إلى اللقاء القادم</span>
+        </div>
+        <div class="slide-body text-center">
+            <div class="hero-icon animated-bounce">🏆 🔢 ⏱️</div>
+            <h2 class="slide-title">أحسنتم يا أسياد التفاعل البرمجي!</h2>
+            <p class="slide-desc">أصبحت لعبتكم الآن مليئة بالحياة والإثارة والشعور الحقيقي بكل العناصر.</p>
+            <div class="next-lecture-preview mt-4">
+                <span class="preview-badge">المحاضرة القادمة (19)</span>
+                <h3>النقاط والمؤقت الزمني: كيف تصمم لوحة نتائج احترافية، ومؤقت ثوانٍ يحبس الأنفاس، ومكافآت الفوز؟</h3>
+            </div>
+        </div>
+    </div>
+        </div>
 
                 <!-- Transparent Drawing Pen Canvas Overlay -->
                 <canvas id="slidePenCanvas" class="slide-pen-canvas"></canvas>

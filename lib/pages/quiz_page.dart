@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../theme/app_theme.dart';
 import '../services/site_data_service.dart';
 import '../services/auth_service.dart';
 import '../widgets/article_content_renderer.dart';
+import '../widgets/interactive_html_view/interactive_html_view.dart';
 import '../widgets/unified_app_bar.dart';
 
 class QuizPage extends StatefulWidget {
@@ -36,12 +38,48 @@ class _QuizPageState extends State<QuizPage> {
   @override
   void initState() {
     super.initState();
+    _checkUrlForQuizId();
     _dataService.addListener(_onDataChanged);
     AppThemeManager.themeModeNotifier.addListener(_onDataChanged);
   }
 
+  void _checkUrlForQuizId() {
+    try {
+      final uri = Uri.base;
+      final targetId = uri.queryParameters['id'] ?? uri.queryParameters['quiz'];
+      if (targetId != null && targetId.isNotEmpty) {
+        final matches = _dataService.interactiveQuizzes.where((q) => q['id'] == targetId).toList();
+        if (matches.isNotEmpty) {
+          _selectedInteractiveQuiz = matches.first;
+        }
+      }
+    } catch (_) {}
+  }
+
+  void _copyQuizLink(String quizId) {
+    final link = 'https://eslamatef-sepia.vercel.app/#/quiz?id=$quizId';
+    Clipboard.setData(ClipboardData(text: link));
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            "تم نسخ رابط الاختبار المباشر: $link",
+            style: GoogleFonts.cairo(fontWeight: FontWeight.bold),
+          ),
+          backgroundColor: const Color(0xFF059669),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    }
+  }
+
   void _onDataChanged() {
-    if (mounted) setState(() {});
+    if (mounted) {
+      if (_selectedInteractiveQuiz == null) {
+        _checkUrlForQuizId();
+      }
+      setState(() {});
+    }
   }
 
   @override
@@ -252,24 +290,39 @@ class _QuizPageState extends State<QuizPage> {
                           const SizedBox(height: 6),
                           Text("اختبار برمجي تفاعلي مع أسئلة وتقييم مباشر للنتيجة.", style: GoogleFonts.cairo(fontSize: 13, color: Colors.grey)),
                           const SizedBox(height: 20),
-                          SizedBox(
-                            width: double.infinity,
-                            child: ElevatedButton.icon(
-                              onPressed: () {
-                                setState(() {
-                                  _selectedInteractiveQuiz = q;
-                                  _htmlQuizSubmitted = false;
-                                });
-                              },
-                              icon: const Icon(Icons.play_arrow_rounded),
-                              label: Text("بدء الاختبار الآن ➔", style: GoogleFonts.cairo(fontWeight: FontWeight.bold)),
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: const Color(0xFF8B5CF6),
-                                foregroundColor: Colors.white,
-                                padding: const EdgeInsets.symmetric(vertical: 12),
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: ElevatedButton.icon(
+                                  onPressed: () {
+                                    setState(() {
+                                      _selectedInteractiveQuiz = q;
+                                      _htmlQuizSubmitted = false;
+                                    });
+                                  },
+                                  icon: const Icon(Icons.play_arrow_rounded),
+                                  label: Text("بدء الاختبار ➔", style: GoogleFonts.cairo(fontWeight: FontWeight.bold)),
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: const Color(0xFF8B5CF6),
+                                    foregroundColor: Colors.white,
+                                    padding: const EdgeInsets.symmetric(vertical: 12),
+                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                                  ),
+                                ),
                               ),
-                            ),
+                              const SizedBox(width: 8),
+                              Tooltip(
+                                message: "نسخ رابط الاختبار المباشر",
+                                child: IconButton.filledTonal(
+                                  onPressed: () => _copyQuizLink((q['id'] ?? '').toString()),
+                                  icon: const Icon(Icons.link_rounded, color: Color(0xFF8B5CF6)),
+                                  style: IconButton.styleFrom(
+                                    backgroundColor: const Color(0xFF8B5CF6).withOpacity(0.12),
+                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
                         ],
                       ),
@@ -287,6 +340,7 @@ class _QuizPageState extends State<QuizPage> {
   Widget _buildInteractiveHtmlQuizView(Map<String, dynamic> quiz, bool isMobile, bool isDark) {
     final title = quiz['title'] ?? 'اختبار تفاعلي HTML';
     final htmlCode = (quiz['htmlCode'] ?? '').toString();
+    final quizId = (quiz['id'] ?? '').toString();
 
     return Container(
       constraints: const BoxConstraints(maxWidth: 1000),
@@ -303,13 +357,29 @@ class _QuizPageState extends State<QuizPage> {
                 label: Text("العودة للاختبارات", style: GoogleFonts.cairo(fontWeight: FontWeight.bold)),
                 style: OutlinedButton.styleFrom(foregroundColor: const Color(0xFF8B5CF6)),
               ),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                decoration: BoxDecoration(
-                  color: const Color(0xFF8B5CF6).withValues(alpha: 0.15),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Text("اختبار تفاعلي HTML", style: GoogleFonts.cairo(fontSize: 12, fontWeight: FontWeight.bold, color: const Color(0xFF8B5CF6))),
+              Row(
+                children: [
+                  ElevatedButton.icon(
+                    onPressed: () => _copyQuizLink(quizId),
+                    icon: const Icon(Icons.copy_rounded, size: 15),
+                    label: Text("نسخ رابط الاختبار 📋", style: GoogleFonts.cairo(fontSize: 12, fontWeight: FontWeight.bold)),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF059669),
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF8B5CF6).withOpacity(0.15),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Text("اختبار تفاعلي HTML", style: GoogleFonts.cairo(fontSize: 12, fontWeight: FontWeight.bold, color: const Color(0xFF8B5CF6))),
+                  ),
+                ],
               ),
             ],
           ),
@@ -318,22 +388,26 @@ class _QuizPageState extends State<QuizPage> {
           Text(title, style: GoogleFonts.cairo(fontSize: 24, fontWeight: FontWeight.w900)),
           const SizedBox(height: 18),
 
-          // HTML Container rendered via ArticleContentRenderer
+          // Native Interactive HTML IFrame View
           Container(
-            padding: const EdgeInsets.all(24),
             decoration: BoxDecoration(
-              color: isDark ? const Color(0xFF0F172A) : Colors.white,
+              color: Colors.white,
               borderRadius: BorderRadius.circular(20),
               border: Border.all(color: isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0)),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.04),
+                  color: Colors.black.withOpacity(isDark ? 0.3 : 0.04),
                   blurRadius: 16,
                   offset: const Offset(0, 4),
                 ),
               ],
             ),
-            child: ArticleContentRenderer(content: htmlCode, isDark: isDark),
+            clipBehavior: Clip.antiAlias,
+            child: InteractiveHtmlView(
+              rawHtml: htmlCode,
+              id: quizId,
+              height: 850,
+            ),
           ),
           const SizedBox(height: 32),
 

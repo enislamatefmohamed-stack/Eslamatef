@@ -641,785 +641,503 @@
                 
                 <!-- Slides Container -->
                 <div class="slides-wrapper" id="slidesWrapper">
-                    
-        <!-- SLIDE 1 -->
-        <section class="slide active" id="slide-1" data-slide="1" data-notes="يا أهلاً بكل أبطال ومبرمجي المستقبل! منورين المحاضرة رقم 14 من كورس البرمجة والذكاء الاصطناعي للأطفال! النهاردة ميعادنا مع درس شيق جداً وعنوانه: تصحيح الأخطاء البرمجية (Debugging). فن صيد الحشرات والأخطاء البرمجية وإصلاح الكود بمهارة المحققين. جاهزون لمغامرة اليوم؟ يلا بينا ننطلق!">
-            <div class="slide-inner-body">
-                
-            <div class="hero-center">
-                <div class="hero-icons">🚀 💻 ⭐</div>
-                <h1 class="hero-title">تصحيح الأخطاء البرمجية (Debugging)</h1>
-                <p class="hero-subtitle">أهلاً بكم يا أبطال المستقبل في المحاضرة 14 من كورس البرمجة والذكاء الاصطناعي للأطفال!</p>
-                <div class="hero-tags"><span class="k-badge">✨ صيد الأخطاء</span><span class="k-badge">✨ Debugging</span><span class="k-badge">✨ تتبع المشكلات</span><span class="k-badge">✨ الكود النظيف</span></div>
-                <div class="hero-meta-box">
-                    <span>👨‍🏫 المدرب: م / إسلام عاطف</span>
-                    <span class="meta-dot">•</span>
-                    <span>🎓 المستوى 2: التفكير البرمجي والخوارزميات</span>
-                    <span class="meta-dot">•</span>
-                    <span>⏱️ مدة الجلسة: 25 شريحة تفاعلية</span>
-                </div>
-            </div>
-        
-            </div>
-        </section>
-    
-        <!-- SLIDE 2 -->
-        <section class="slide " id="slide-2" data-slide="2" data-notes="بصوا معايا يا أبطال على خريطة أهدافنا لمحاضرة النهاردة: أولاً: هنفهم المفهوم الأساسي لـ تصحيح الأخطاء البرمجية (Debugging) وإزاي بنطبقه. ثانياً: هنتعلم طريقة التفكير المنطقي والخطوات المتبعة. ثالثاً: هندخل في التطبيق العملي ونشوف النتيجة قدام عيوننا على الشاشة. ورابعاً: هنحل ألغاز وتحديات ممتعة تثبت المعلومة في دماغنا!">
-            <div class="slide-inner-body">
-                
-            <div class="slide-heading-row">
-                <span class="slide-category">خريطة التعلم اليومية 🗺️</span>
-                <h2 class="slide-main-title">الأهداف الذهبية للمحاضرة 14</h2>
-            </div>
-            <div class="grid-4-balance">
-                <div class="k-card-compact border-blue">
-                    <span class="card-emoji">🎯</span>
-                    <h3 class="card-h">1. الفهم الجوهري</h3>
-                    <p class="card-p">استيعاب مبدأ صيد الأخطاء ببساطة وبدون أي تعقيد.</p>
-                </div>
-                <div class="k-card-compact border-purple">
-                    <span class="card-emoji">💡</span>
-                    <h3 class="card-h">2. التفكير المنطقي</h3>
-                    <p class="card-p">تحليل المسائل كمهندسي البرمجيات خطوة بخطوة.</p>
-                </div>
-                <div class="k-card-compact border-teal">
-                    <span class="card-emoji">🛠️</span>
-                    <h3 class="card-h">3. التدريب العملي</h3>
-                    <p class="card-p">كتابة الأكواد وتجربة الحل حياً داخل بيئة العمل.</p>
-                </div>
-                <div class="k-card-compact border-orange">
-                    <span class="card-emoji">🏆</span>
-                    <h3 class="card-h">4. وسام الإتقان</h3>
-                    <p class="card-p">حل التحدي البرمجي وحصد أول 100 نقطة إنجاز.</p>
-                </div>
-            </div>
-        
-            </div>
-        </section>
-    
-        <!-- SLIDE 3 -->
-        <section class="slide " id="slide-3" data-slide="3" data-notes="شايفين يا أبطال النقطة اللي قدامنا في الشريحة 3؟ هنا بنركز على تتبع المشكلات. الفكرة الأساسية إننا بنفهم الكمبيوتر خطوة بخطوة إزاي يتعامل مع المشكلة. في البرمجة بنحب البساطة والدقة، ولما نكتب كود منظم وسهل، لعبتنا أو برنامجنا بيشتغل بسلاسة وسرعة فائقة بدون أي تعليق!">
-            <div class="slide-inner-body">
-                
-            <div class="slide-heading-row">
-                <span class="slide-category">محور الشرح 03 • تتبع المشكلات</span>
-                <h2 class="slide-main-title">تصحيح الأخطاء البرمجية (Debugging) - الجزء (3)</h2>
-            </div>
-            <div class="grid-3-balance">
-                <div class="k-card-compact border-blue">
-                    <div class="card-top-icon">⚙️</div>
-                    <h3 class="card-h">الأساس النظري والمنطقي</h3>
-                    <p class="card-p">كيف يترجم الكمبيوتر أمر <strong>تتبع المشكلات</strong> وينفذه بسرعة فائقة في المعالج والذاكرة.</p>
-                    <div class="card-tag-pill">منطق الحاسوب 🧠</div>
-                </div>
-                <div class="k-card-compact border-purple">
-                    <div class="card-top-icon">🎮</div>
-                    <h3 class="card-h">التطبيق العملي في المشاريع</h3>
-                    <p class="card-p">توظيف هذا المفهوم في التحكم بالأبطال، صناعة التحديات، وحساب النقاط بدقة.</p>
-                    <div class="card-tag-pill">صناعة الألعاب 🚀</div>
-                </div>
-                <div class="k-card-compact border-teal">
-                    <div class="card-top-icon">🛡️</div>
-                    <h3 class="card-h">أسرار المبرمجين المحترفين</h3>
-                    <p class="card-p">نصائح هندسية لكتابة كود نظيف وسريع وسهل القراءة وخالٍ من أي تعقيد.</p>
-                    <div class="card-tag-pill">الكود النظيف ✨</div>
-                </div>
-            </div>
-        
-            </div>
-        </section>
-    
-        <!-- SLIDE 4 -->
-        <section class="slide " id="slide-4" data-slide="4" data-notes="شايفين يا أبطال النقطة اللي قدامنا في الشريحة 4؟ هنا بنركز على صيد الأخطاء. الفكرة الأساسية إننا بنفهم الكمبيوتر خطوة بخطوة إزاي يتعامل مع المشكلة. في البرمجة بنحب البساطة والدقة، ولما نكتب كود منظم وسهل، لعبتنا أو برنامجنا بيشتغل بسلاسة وسرعة فائقة بدون أي تعليق!">
-            <div class="slide-inner-body">
-                
-            <div class="slide-heading-row">
-                <span class="slide-category">محور الشرح 04 • الكود النظيف</span>
-                <h2 class="slide-main-title">تصحيح الأخطاء البرمجية (Debugging) - الجزء (4)</h2>
-            </div>
-            <div class="grid-3-balance">
-                <div class="k-card-compact border-blue">
-                    <div class="card-top-icon">⚙️</div>
-                    <h3 class="card-h">الأساس النظري والمنطقي</h3>
-                    <p class="card-p">كيف يترجم الكمبيوتر أمر <strong>الكود النظيف</strong> وينفذه بسرعة فائقة في المعالج والذاكرة.</p>
-                    <div class="card-tag-pill">منطق الحاسوب 🧠</div>
-                </div>
-                <div class="k-card-compact border-purple">
-                    <div class="card-top-icon">🎮</div>
-                    <h3 class="card-h">التطبيق العملي في المشاريع</h3>
-                    <p class="card-p">توظيف هذا المفهوم في التحكم بالأبطال، صناعة التحديات، وحساب النقاط بدقة.</p>
-                    <div class="card-tag-pill">صناعة الألعاب 🚀</div>
-                </div>
-                <div class="k-card-compact border-teal">
-                    <div class="card-top-icon">🛡️</div>
-                    <h3 class="card-h">أسرار المبرمجين المحترفين</h3>
-                    <p class="card-p">نصائح هندسية لكتابة كود نظيف وسريع وسهل القراءة وخالٍ من أي تعقيد.</p>
-                    <div class="card-tag-pill">الكود النظيف ✨</div>
-                </div>
-            </div>
-        
-            </div>
-        </section>
-    
-        <!-- SLIDE 5 -->
-        <section class="slide " id="slide-5" data-slide="5" data-notes="شايفين يا أبطال النقطة اللي قدامنا في الشريحة 5؟ هنا بنركز على Debugging. الفكرة الأساسية إننا بنفهم الكمبيوتر خطوة بخطوة إزاي يتعامل مع المشكلة. في البرمجة بنحب البساطة والدقة، ولما نكتب كود منظم وسهل، لعبتنا أو برنامجنا بيشتغل بسلاسة وسرعة فائقة بدون أي تعليق!">
-            <div class="slide-inner-body">
-                
-            <div class="slide-heading-row">
-                <span class="slide-category">محور الشرح 05 • صيد الأخطاء</span>
-                <h2 class="slide-main-title">تصحيح الأخطاء البرمجية (Debugging) - الجزء (5)</h2>
-            </div>
-            <div class="grid-3-balance">
-                <div class="k-card-compact border-blue">
-                    <div class="card-top-icon">⚙️</div>
-                    <h3 class="card-h">الأساس النظري والمنطقي</h3>
-                    <p class="card-p">كيف يترجم الكمبيوتر أمر <strong>صيد الأخطاء</strong> وينفذه بسرعة فائقة في المعالج والذاكرة.</p>
-                    <div class="card-tag-pill">منطق الحاسوب 🧠</div>
-                </div>
-                <div class="k-card-compact border-purple">
-                    <div class="card-top-icon">🎮</div>
-                    <h3 class="card-h">التطبيق العملي في المشاريع</h3>
-                    <p class="card-p">توظيف هذا المفهوم في التحكم بالأبطال، صناعة التحديات، وحساب النقاط بدقة.</p>
-                    <div class="card-tag-pill">صناعة الألعاب 🚀</div>
-                </div>
-                <div class="k-card-compact border-teal">
-                    <div class="card-top-icon">🛡️</div>
-                    <h3 class="card-h">أسرار المبرمجين المحترفين</h3>
-                    <p class="card-p">نصائح هندسية لكتابة كود نظيف وسريع وسهل القراءة وخالٍ من أي تعقيد.</p>
-                    <div class="card-tag-pill">الكود النظيف ✨</div>
-                </div>
-            </div>
-        
-            </div>
-        </section>
-    
-        <!-- SLIDE 6 -->
-        <section class="slide " id="slide-6" data-slide="6" data-notes="شايفين يا أبطال النقطة اللي قدامنا في الشريحة 6؟ هنا بنركز على تتبع المشكلات. الفكرة الأساسية إننا بنفهم الكمبيوتر خطوة بخطوة إزاي يتعامل مع المشكلة. في البرمجة بنحب البساطة والدقة، ولما نكتب كود منظم وسهل، لعبتنا أو برنامجنا بيشتغل بسلاسة وسرعة فائقة بدون أي تعليق!">
-            <div class="slide-inner-body">
-                
-            <div class="slide-heading-row">
-                <span class="slide-category">محور الشرح 06 • Debugging</span>
-                <h2 class="slide-main-title">تصحيح الأخطاء البرمجية (Debugging) - الجزء (6)</h2>
-            </div>
-            <div class="grid-3-balance">
-                <div class="k-card-compact border-blue">
-                    <div class="card-top-icon">⚙️</div>
-                    <h3 class="card-h">الأساس النظري والمنطقي</h3>
-                    <p class="card-p">كيف يترجم الكمبيوتر أمر <strong>Debugging</strong> وينفذه بسرعة فائقة في المعالج والذاكرة.</p>
-                    <div class="card-tag-pill">منطق الحاسوب 🧠</div>
-                </div>
-                <div class="k-card-compact border-purple">
-                    <div class="card-top-icon">🎮</div>
-                    <h3 class="card-h">التطبيق العملي في المشاريع</h3>
-                    <p class="card-p">توظيف هذا المفهوم في التحكم بالأبطال، صناعة التحديات، وحساب النقاط بدقة.</p>
-                    <div class="card-tag-pill">صناعة الألعاب 🚀</div>
-                </div>
-                <div class="k-card-compact border-teal">
-                    <div class="card-top-icon">🛡️</div>
-                    <h3 class="card-h">أسرار المبرمجين المحترفين</h3>
-                    <p class="card-p">نصائح هندسية لكتابة كود نظيف وسريع وسهل القراءة وخالٍ من أي تعقيد.</p>
-                    <div class="card-tag-pill">الكود النظيف ✨</div>
-                </div>
-            </div>
-        
-            </div>
-        </section>
-    
-        <!-- SLIDE 7 -->
-        <section class="slide " id="slide-7" data-slide="7" data-notes="شايفين يا أبطال النقطة اللي قدامنا في الشريحة 7؟ هنا بنركز على صيد الأخطاء. الفكرة الأساسية إننا بنفهم الكمبيوتر خطوة بخطوة إزاي يتعامل مع المشكلة. في البرمجة بنحب البساطة والدقة، ولما نكتب كود منظم وسهل، لعبتنا أو برنامجنا بيشتغل بسلاسة وسرعة فائقة بدون أي تعليق!">
-            <div class="slide-inner-body">
-                
-            <div class="slide-heading-row">
-                <span class="slide-category">محور الشرح 07 • تتبع المشكلات</span>
-                <h2 class="slide-main-title">تصحيح الأخطاء البرمجية (Debugging) - الجزء (7)</h2>
-            </div>
-            <div class="grid-3-balance">
-                <div class="k-card-compact border-blue">
-                    <div class="card-top-icon">⚙️</div>
-                    <h3 class="card-h">الأساس النظري والمنطقي</h3>
-                    <p class="card-p">كيف يترجم الكمبيوتر أمر <strong>تتبع المشكلات</strong> وينفذه بسرعة فائقة في المعالج والذاكرة.</p>
-                    <div class="card-tag-pill">منطق الحاسوب 🧠</div>
-                </div>
-                <div class="k-card-compact border-purple">
-                    <div class="card-top-icon">🎮</div>
-                    <h3 class="card-h">التطبيق العملي في المشاريع</h3>
-                    <p class="card-p">توظيف هذا المفهوم في التحكم بالأبطال، صناعة التحديات، وحساب النقاط بدقة.</p>
-                    <div class="card-tag-pill">صناعة الألعاب 🚀</div>
-                </div>
-                <div class="k-card-compact border-teal">
-                    <div class="card-top-icon">🛡️</div>
-                    <h3 class="card-h">أسرار المبرمجين المحترفين</h3>
-                    <p class="card-p">نصائح هندسية لكتابة كود نظيف وسريع وسهل القراءة وخالٍ من أي تعقيد.</p>
-                    <div class="card-tag-pill">الكود النظيف ✨</div>
-                </div>
-            </div>
-        
-            </div>
-        </section>
-    
-        <!-- SLIDE 8 -->
-        <section class="slide " id="slide-8" data-slide="8" data-notes="شايفين يا أبطال النقطة اللي قدامنا في الشريحة 8؟ هنا بنركز على Debugging. الفكرة الأساسية إننا بنفهم الكمبيوتر خطوة بخطوة إزاي يتعامل مع المشكلة. في البرمجة بنحب البساطة والدقة، ولما نكتب كود منظم وسهل، لعبتنا أو برنامجنا بيشتغل بسلاسة وسرعة فائقة بدون أي تعليق!">
-            <div class="slide-inner-body">
-                
-            <div class="slide-heading-row">
-                <span class="slide-category badge-challenge">⚡ تحدي سرعة ذكاء المبرمج (1)</span>
-                <h2 class="slide-main-title">اختبر مهاراتك الفورية كمهندس المستقبل! 🕵️‍♂️</h2>
-            </div>
-            <div class="quiz-challenge-card">
-                <p class="quiz-question-txt">ما هو القرار الهندسي والبرمجي الأصح لتطبيق <strong>صيد الأخطاء</strong> بكفاءة وأمان؟</p>
-                <div class="quiz-options-list">
-                    <button class="quiz-opt-btn" onclick="checkSlideQuiz(this, true, 'أحسنت صنعاً يا بطل! التخطيط المسبق والكود النظيف هما أساس نجاح كل مبرمج محترف! 🌟')">
-                        <span class="opt-letter">أ</span>
-                        <span class="opt-txt">التخطيط المسبق والتسلسل المنطقي خطوة بخطوة واختبار كل أمر بدقة. ✅</span>
-                    </button>
-                    <button class="quiz-opt-btn" onclick="checkSlideQuiz(this, false, 'إجابة غير صحيحة! التسرع العشوائي ينتج عنه أخطاء برمجية يصعب حلها.')">
-                        <span class="opt-letter">ب</span>
-                        <span class="opt-txt">كتابة الأوامر عشوائياً وتخمين النتائج بدون تفكير أو تنظيم. ❌</span>
-                    </button>
-                    <button class="quiz-opt-btn" onclick="checkSlideQuiz(this, false, 'المبرمج البطل لا يستسلم أبداً! الخطأ فرصة للتعلم وحل المشكلات.')">
-                        <span class="opt-letter">ج</span>
-                        <span class="opt-txt">إغلاق البرنامج والاستسلام فور مواجهة أول عقبة. ❌</span>
-                    </button>
-                </div>
-                <div class="quiz-feedback-box" id="quiz-feedback-8"></div>
-            </div>
-        
-            </div>
-        </section>
-    
-        <!-- SLIDE 9 -->
-        <section class="slide " id="slide-9" data-slide="9" data-notes="شايفين يا أبطال النقطة اللي قدامنا في الشريحة 9؟ هنا بنركز على تتبع المشكلات. الفكرة الأساسية إننا بنفهم الكمبيوتر خطوة بخطوة إزاي يتعامل مع المشكلة. في البرمجة بنحب البساطة والدقة، ولما نكتب كود منظم وسهل، لعبتنا أو برنامجنا بيشتغل بسلاسة وسرعة فائقة بدون أي تعليق!">
-            <div class="slide-inner-body">
-                
-            <div class="slide-heading-row">
-                <span class="slide-category">محور الشرح 09 • صيد الأخطاء</span>
-                <h2 class="slide-main-title">تصحيح الأخطاء البرمجية (Debugging) - الجزء (9)</h2>
-            </div>
-            <div class="grid-3-balance">
-                <div class="k-card-compact border-blue">
-                    <div class="card-top-icon">⚙️</div>
-                    <h3 class="card-h">الأساس النظري والمنطقي</h3>
-                    <p class="card-p">كيف يترجم الكمبيوتر أمر <strong>صيد الأخطاء</strong> وينفذه بسرعة فائقة في المعالج والذاكرة.</p>
-                    <div class="card-tag-pill">منطق الحاسوب 🧠</div>
-                </div>
-                <div class="k-card-compact border-purple">
-                    <div class="card-top-icon">🎮</div>
-                    <h3 class="card-h">التطبيق العملي في المشاريع</h3>
-                    <p class="card-p">توظيف هذا المفهوم في التحكم بالأبطال، صناعة التحديات، وحساب النقاط بدقة.</p>
-                    <div class="card-tag-pill">صناعة الألعاب 🚀</div>
-                </div>
-                <div class="k-card-compact border-teal">
-                    <div class="card-top-icon">🛡️</div>
-                    <h3 class="card-h">أسرار المبرمجين المحترفين</h3>
-                    <p class="card-p">نصائح هندسية لكتابة كود نظيف وسريع وسهل القراءة وخالٍ من أي تعقيد.</p>
-                    <div class="card-tag-pill">الكود النظيف ✨</div>
-                </div>
-            </div>
-        
-            </div>
-        </section>
-    
-        <!-- SLIDE 10 -->
-        <section class="slide " id="slide-10" data-slide="10" data-notes="شايفين يا أبطال النقطة اللي قدامنا في الشريحة 10؟ هنا بنركز على صيد الأخطاء. الفكرة الأساسية إننا بنفهم الكمبيوتر خطوة بخطوة إزاي يتعامل مع المشكلة. في البرمجة بنحب البساطة والدقة، ولما نكتب كود منظم وسهل، لعبتنا أو برنامجنا بيشتغل بسلاسة وسرعة فائقة بدون أي تعليق!">
-            <div class="slide-inner-body">
-                
-            <div class="slide-heading-row">
-                <span class="slide-category">محور الشرح 10 • Debugging</span>
-                <h2 class="slide-main-title">تصحيح الأخطاء البرمجية (Debugging) - الجزء (10)</h2>
-            </div>
-            <div class="grid-3-balance">
-                <div class="k-card-compact border-blue">
-                    <div class="card-top-icon">⚙️</div>
-                    <h3 class="card-h">الأساس النظري والمنطقي</h3>
-                    <p class="card-p">كيف يترجم الكمبيوتر أمر <strong>Debugging</strong> وينفذه بسرعة فائقة في المعالج والذاكرة.</p>
-                    <div class="card-tag-pill">منطق الحاسوب 🧠</div>
-                </div>
-                <div class="k-card-compact border-purple">
-                    <div class="card-top-icon">🎮</div>
-                    <h3 class="card-h">التطبيق العملي في المشاريع</h3>
-                    <p class="card-p">توظيف هذا المفهوم في التحكم بالأبطال، صناعة التحديات، وحساب النقاط بدقة.</p>
-                    <div class="card-tag-pill">صناعة الألعاب 🚀</div>
-                </div>
-                <div class="k-card-compact border-teal">
-                    <div class="card-top-icon">🛡️</div>
-                    <h3 class="card-h">أسرار المبرمجين المحترفين</h3>
-                    <p class="card-p">نصائح هندسية لكتابة كود نظيف وسريع وسهل القراءة وخالٍ من أي تعقيد.</p>
-                    <div class="card-tag-pill">الكود النظيف ✨</div>
-                </div>
-            </div>
-        
-            </div>
-        </section>
-    
-        <!-- SLIDE 11 -->
-        <section class="slide " id="slide-11" data-slide="11" data-notes="شايفين يا أبطال النقطة اللي قدامنا في الشريحة 11؟ هنا بنركز على Debugging. الفكرة الأساسية إننا بنفهم الكمبيوتر خطوة بخطوة إزاي يتعامل مع المشكلة. في البرمجة بنحب البساطة والدقة، ولما نكتب كود منظم وسهل، لعبتنا أو برنامجنا بيشتغل بسلاسة وسرعة فائقة بدون أي تعليق!">
-            <div class="slide-inner-body">
-                
-            <div class="slide-heading-row">
-                <span class="slide-category">محور الشرح 11 • تتبع المشكلات</span>
-                <h2 class="slide-main-title">تصحيح الأخطاء البرمجية (Debugging) - الجزء (11)</h2>
-            </div>
-            <div class="grid-3-balance">
-                <div class="k-card-compact border-blue">
-                    <div class="card-top-icon">⚙️</div>
-                    <h3 class="card-h">الأساس النظري والمنطقي</h3>
-                    <p class="card-p">كيف يترجم الكمبيوتر أمر <strong>تتبع المشكلات</strong> وينفذه بسرعة فائقة في المعالج والذاكرة.</p>
-                    <div class="card-tag-pill">منطق الحاسوب 🧠</div>
-                </div>
-                <div class="k-card-compact border-purple">
-                    <div class="card-top-icon">🎮</div>
-                    <h3 class="card-h">التطبيق العملي في المشاريع</h3>
-                    <p class="card-p">توظيف هذا المفهوم في التحكم بالأبطال، صناعة التحديات، وحساب النقاط بدقة.</p>
-                    <div class="card-tag-pill">صناعة الألعاب 🚀</div>
-                </div>
-                <div class="k-card-compact border-teal">
-                    <div class="card-top-icon">🛡️</div>
-                    <h3 class="card-h">أسرار المبرمجين المحترفين</h3>
-                    <p class="card-p">نصائح هندسية لكتابة كود نظيف وسريع وسهل القراءة وخالٍ من أي تعقيد.</p>
-                    <div class="card-tag-pill">الكود النظيف ✨</div>
-                </div>
-            </div>
-        
-            </div>
-        </section>
-    
-        <!-- SLIDE 12 -->
-        <section class="slide " id="slide-12" data-slide="12" data-notes="تحدي الأذكياء السريع قدامنا على الشاشة: لما نيجي نطبق مفهوم صيد الأخطاء، يا ترى إيه هو التصرف الصحيح للمبرمج البطل؟ هل نكتب كود عشوائي؟ ولا نفكر ونرتب خطواتنا ونختبر كل خطوة؟ برافوووو عليكم! التفكير والتسلسل المنطقي هو سر نجاح أي مبرمج محترف!">
-            <div class="slide-inner-body">
-                
-            <div class="slide-heading-row">
-                <span class="slide-category">محور الشرح 12 • الكود النظيف</span>
-                <h2 class="slide-main-title">تصحيح الأخطاء البرمجية (Debugging) - الجزء (12)</h2>
-            </div>
-            <div class="grid-3-balance">
-                <div class="k-card-compact border-blue">
-                    <div class="card-top-icon">⚙️</div>
-                    <h3 class="card-h">الأساس النظري والمنطقي</h3>
-                    <p class="card-p">كيف يترجم الكمبيوتر أمر <strong>الكود النظيف</strong> وينفذه بسرعة فائقة في المعالج والذاكرة.</p>
-                    <div class="card-tag-pill">منطق الحاسوب 🧠</div>
-                </div>
-                <div class="k-card-compact border-purple">
-                    <div class="card-top-icon">🎮</div>
-                    <h3 class="card-h">التطبيق العملي في المشاريع</h3>
-                    <p class="card-p">توظيف هذا المفهوم في التحكم بالأبطال، صناعة التحديات، وحساب النقاط بدقة.</p>
-                    <div class="card-tag-pill">صناعة الألعاب 🚀</div>
-                </div>
-                <div class="k-card-compact border-teal">
-                    <div class="card-top-icon">🛡️</div>
-                    <h3 class="card-h">أسرار المبرمجين المحترفين</h3>
-                    <p class="card-p">نصائح هندسية لكتابة كود نظيف وسريع وسهل القراءة وخالٍ من أي تعقيد.</p>
-                    <div class="card-tag-pill">الكود النظيف ✨</div>
-                </div>
-            </div>
-        
-            </div>
-        </section>
-    
-        <!-- SLIDE 13 -->
-        <section class="slide " id="slide-13" data-slide="13" data-notes="شايفين يا أبطال النقطة اللي قدامنا في الشريحة 13؟ هنا بنركز على صيد الأخطاء. الفكرة الأساسية إننا بنفهم الكمبيوتر خطوة بخطوة إزاي يتعامل مع المشكلة. في البرمجة بنحب البساطة والدقة، ولما نكتب كود منظم وسهل، لعبتنا أو برنامجنا بيشتغل بسلاسة وسرعة فائقة بدون أي تعليق!">
-            <div class="slide-inner-body">
-                
-            <div class="slide-heading-row">
-                <span class="slide-category">محور الشرح 13 • صيد الأخطاء</span>
-                <h2 class="slide-main-title">تصحيح الأخطاء البرمجية (Debugging) - الجزء (13)</h2>
-            </div>
-            <div class="grid-3-balance">
-                <div class="k-card-compact border-blue">
-                    <div class="card-top-icon">⚙️</div>
-                    <h3 class="card-h">الأساس النظري والمنطقي</h3>
-                    <p class="card-p">كيف يترجم الكمبيوتر أمر <strong>صيد الأخطاء</strong> وينفذه بسرعة فائقة في المعالج والذاكرة.</p>
-                    <div class="card-tag-pill">منطق الحاسوب 🧠</div>
-                </div>
-                <div class="k-card-compact border-purple">
-                    <div class="card-top-icon">🎮</div>
-                    <h3 class="card-h">التطبيق العملي في المشاريع</h3>
-                    <p class="card-p">توظيف هذا المفهوم في التحكم بالأبطال، صناعة التحديات، وحساب النقاط بدقة.</p>
-                    <div class="card-tag-pill">صناعة الألعاب 🚀</div>
-                </div>
-                <div class="k-card-compact border-teal">
-                    <div class="card-top-icon">🛡️</div>
-                    <h3 class="card-h">أسرار المبرمجين المحترفين</h3>
-                    <p class="card-p">نصائح هندسية لكتابة كود نظيف وسريع وسهل القراءة وخالٍ من أي تعقيد.</p>
-                    <div class="card-tag-pill">الكود النظيف ✨</div>
-                </div>
-            </div>
-        
-            </div>
-        </section>
-    
-        <!-- SLIDE 14 -->
-        <section class="slide " id="slide-14" data-slide="14" data-notes="شايفين يا أبطال النقطة اللي قدامنا في الشريحة 14؟ هنا بنركز على Debugging. الفكرة الأساسية إننا بنفهم الكمبيوتر خطوة بخطوة إزاي يتعامل مع المشكلة. في البرمجة بنحب البساطة والدقة، ولما نكتب كود منظم وسهل، لعبتنا أو برنامجنا بيشتغل بسلاسة وسرعة فائقة بدون أي تعليق!">
-            <div class="slide-inner-body">
-                
-            <div class="slide-heading-row">
-                <span class="slide-category">محور الشرح 14 • Debugging</span>
-                <h2 class="slide-main-title">تصحيح الأخطاء البرمجية (Debugging) - الجزء (14)</h2>
-            </div>
-            <div class="grid-3-balance">
-                <div class="k-card-compact border-blue">
-                    <div class="card-top-icon">⚙️</div>
-                    <h3 class="card-h">الأساس النظري والمنطقي</h3>
-                    <p class="card-p">كيف يترجم الكمبيوتر أمر <strong>Debugging</strong> وينفذه بسرعة فائقة في المعالج والذاكرة.</p>
-                    <div class="card-tag-pill">منطق الحاسوب 🧠</div>
-                </div>
-                <div class="k-card-compact border-purple">
-                    <div class="card-top-icon">🎮</div>
-                    <h3 class="card-h">التطبيق العملي في المشاريع</h3>
-                    <p class="card-p">توظيف هذا المفهوم في التحكم بالأبطال، صناعة التحديات، وحساب النقاط بدقة.</p>
-                    <div class="card-tag-pill">صناعة الألعاب 🚀</div>
-                </div>
-                <div class="k-card-compact border-teal">
-                    <div class="card-top-icon">🛡️</div>
-                    <h3 class="card-h">أسرار المبرمجين المحترفين</h3>
-                    <p class="card-p">نصائح هندسية لكتابة كود نظيف وسريع وسهل القراءة وخالٍ من أي تعقيد.</p>
-                    <div class="card-tag-pill">الكود النظيف ✨</div>
-                </div>
-            </div>
-        
-            </div>
-        </section>
-    
-        <!-- SLIDE 15 -->
-        <section class="slide " id="slide-15" data-slide="15" data-notes="شايفين يا أبطال النقطة اللي قدامنا في الشريحة 15؟ هنا بنركز على تتبع المشكلات. الفكرة الأساسية إننا بنفهم الكمبيوتر خطوة بخطوة إزاي يتعامل مع المشكلة. في البرمجة بنحب البساطة والدقة، ولما نكتب كود منظم وسهل، لعبتنا أو برنامجنا بيشتغل بسلاسة وسرعة فائقة بدون أي تعليق!">
-            <div class="slide-inner-body">
-                
-            <div class="slide-heading-row">
-                <span class="slide-category">محور الشرح 15 • تتبع المشكلات</span>
-                <h2 class="slide-main-title">تصحيح الأخطاء البرمجية (Debugging) - الجزء (15)</h2>
-            </div>
-            <div class="grid-3-balance">
-                <div class="k-card-compact border-blue">
-                    <div class="card-top-icon">⚙️</div>
-                    <h3 class="card-h">الأساس النظري والمنطقي</h3>
-                    <p class="card-p">كيف يترجم الكمبيوتر أمر <strong>تتبع المشكلات</strong> وينفذه بسرعة فائقة في المعالج والذاكرة.</p>
-                    <div class="card-tag-pill">منطق الحاسوب 🧠</div>
-                </div>
-                <div class="k-card-compact border-purple">
-                    <div class="card-top-icon">🎮</div>
-                    <h3 class="card-h">التطبيق العملي في المشاريع</h3>
-                    <p class="card-p">توظيف هذا المفهوم في التحكم بالأبطال، صناعة التحديات، وحساب النقاط بدقة.</p>
-                    <div class="card-tag-pill">صناعة الألعاب 🚀</div>
-                </div>
-                <div class="k-card-compact border-teal">
-                    <div class="card-top-icon">🛡️</div>
-                    <h3 class="card-h">أسرار المبرمجين المحترفين</h3>
-                    <p class="card-p">نصائح هندسية لكتابة كود نظيف وسريع وسهل القراءة وخالٍ من أي تعقيد.</p>
-                    <div class="card-tag-pill">الكود النظيف ✨</div>
-                </div>
-            </div>
-        
-            </div>
-        </section>
-    
-        <!-- SLIDE 16 -->
-        <section class="slide " id="slide-16" data-slide="16" data-notes="شايفين يا أبطال النقطة اللي قدامنا في الشريحة 16؟ هنا بنركز على صيد الأخطاء. الفكرة الأساسية إننا بنفهم الكمبيوتر خطوة بخطوة إزاي يتعامل مع المشكلة. في البرمجة بنحب البساطة والدقة، ولما نكتب كود منظم وسهل، لعبتنا أو برنامجنا بيشتغل بسلاسة وسرعة فائقة بدون أي تعليق!">
-            <div class="slide-inner-body">
-                
-            <div class="slide-heading-row">
-                <span class="slide-category badge-challenge">⚡ تحدي سرعة ذكاء المبرمج (2)</span>
-                <h2 class="slide-main-title">اختبر مهاراتك الفورية كمهندس المستقبل! 🕵️‍♂️</h2>
-            </div>
-            <div class="quiz-challenge-card">
-                <p class="quiz-question-txt">ما هو القرار الهندسي والبرمجي الأصح لتطبيق <strong>صيد الأخطاء</strong> بكفاءة وأمان؟</p>
-                <div class="quiz-options-list">
-                    <button class="quiz-opt-btn" onclick="checkSlideQuiz(this, true, 'أحسنت صنعاً يا بطل! التخطيط المسبق والكود النظيف هما أساس نجاح كل مبرمج محترف! 🌟')">
-                        <span class="opt-letter">أ</span>
-                        <span class="opt-txt">التخطيط المسبق والتسلسل المنطقي خطوة بخطوة واختبار كل أمر بدقة. ✅</span>
-                    </button>
-                    <button class="quiz-opt-btn" onclick="checkSlideQuiz(this, false, 'إجابة غير صحيحة! التسرع العشوائي ينتج عنه أخطاء برمجية يصعب حلها.')">
-                        <span class="opt-letter">ب</span>
-                        <span class="opt-txt">كتابة الأوامر عشوائياً وتخمين النتائج بدون تفكير أو تنظيم. ❌</span>
-                    </button>
-                    <button class="quiz-opt-btn" onclick="checkSlideQuiz(this, false, 'المبرمج البطل لا يستسلم أبداً! الخطأ فرصة للتعلم وحل المشكلات.')">
-                        <span class="opt-letter">ج</span>
-                        <span class="opt-txt">إغلاق البرنامج والاستسلام فور مواجهة أول عقبة. ❌</span>
-                    </button>
-                </div>
-                <div class="quiz-feedback-box" id="quiz-feedback-16"></div>
-            </div>
-        
-            </div>
-        </section>
-    
-        <!-- SLIDE 17 -->
-        <section class="slide " id="slide-17" data-slide="17" data-notes="شايفين يا أبطال النقطة اللي قدامنا في الشريحة 17؟ هنا بنركز على Debugging. الفكرة الأساسية إننا بنفهم الكمبيوتر خطوة بخطوة إزاي يتعامل مع المشكلة. في البرمجة بنحب البساطة والدقة، ولما نكتب كود منظم وسهل، لعبتنا أو برنامجنا بيشتغل بسلاسة وسرعة فائقة بدون أي تعليق!">
-            <div class="slide-inner-body">
-                
-            <div class="slide-heading-row">
-                <span class="slide-category">محور الشرح 17 • صيد الأخطاء</span>
-                <h2 class="slide-main-title">تصحيح الأخطاء البرمجية (Debugging) - الجزء (17)</h2>
-            </div>
-            <div class="grid-3-balance">
-                <div class="k-card-compact border-blue">
-                    <div class="card-top-icon">⚙️</div>
-                    <h3 class="card-h">الأساس النظري والمنطقي</h3>
-                    <p class="card-p">كيف يترجم الكمبيوتر أمر <strong>صيد الأخطاء</strong> وينفذه بسرعة فائقة في المعالج والذاكرة.</p>
-                    <div class="card-tag-pill">منطق الحاسوب 🧠</div>
-                </div>
-                <div class="k-card-compact border-purple">
-                    <div class="card-top-icon">🎮</div>
-                    <h3 class="card-h">التطبيق العملي في المشاريع</h3>
-                    <p class="card-p">توظيف هذا المفهوم في التحكم بالأبطال، صناعة التحديات، وحساب النقاط بدقة.</p>
-                    <div class="card-tag-pill">صناعة الألعاب 🚀</div>
-                </div>
-                <div class="k-card-compact border-teal">
-                    <div class="card-top-icon">🛡️</div>
-                    <h3 class="card-h">أسرار المبرمجين المحترفين</h3>
-                    <p class="card-p">نصائح هندسية لكتابة كود نظيف وسريع وسهل القراءة وخالٍ من أي تعقيد.</p>
-                    <div class="card-tag-pill">الكود النظيف ✨</div>
-                </div>
-            </div>
-        
-            </div>
-        </section>
-    
-        <!-- SLIDE 18 -->
-        <section class="slide " id="slide-18" data-slide="18" data-notes="شايفين يا أبطال النقطة اللي قدامنا في الشريحة 18؟ هنا بنركز على تتبع المشكلات. الفكرة الأساسية إننا بنفهم الكمبيوتر خطوة بخطوة إزاي يتعامل مع المشكلة. في البرمجة بنحب البساطة والدقة، ولما نكتب كود منظم وسهل، لعبتنا أو برنامجنا بيشتغل بسلاسة وسرعة فائقة بدون أي تعليق!">
-            <div class="slide-inner-body">
-                
-            <div class="slide-heading-row">
-                <span class="slide-category">محور الشرح 18 • Debugging</span>
-                <h2 class="slide-main-title">تصحيح الأخطاء البرمجية (Debugging) - الجزء (18)</h2>
-            </div>
-            <div class="grid-3-balance">
-                <div class="k-card-compact border-blue">
-                    <div class="card-top-icon">⚙️</div>
-                    <h3 class="card-h">الأساس النظري والمنطقي</h3>
-                    <p class="card-p">كيف يترجم الكمبيوتر أمر <strong>Debugging</strong> وينفذه بسرعة فائقة في المعالج والذاكرة.</p>
-                    <div class="card-tag-pill">منطق الحاسوب 🧠</div>
-                </div>
-                <div class="k-card-compact border-purple">
-                    <div class="card-top-icon">🎮</div>
-                    <h3 class="card-h">التطبيق العملي في المشاريع</h3>
-                    <p class="card-p">توظيف هذا المفهوم في التحكم بالأبطال، صناعة التحديات، وحساب النقاط بدقة.</p>
-                    <div class="card-tag-pill">صناعة الألعاب 🚀</div>
-                </div>
-                <div class="k-card-compact border-teal">
-                    <div class="card-top-icon">🛡️</div>
-                    <h3 class="card-h">أسرار المبرمجين المحترفين</h3>
-                    <p class="card-p">نصائح هندسية لكتابة كود نظيف وسريع وسهل القراءة وخالٍ من أي تعقيد.</p>
-                    <div class="card-tag-pill">الكود النظيف ✨</div>
-                </div>
-            </div>
-        
-            </div>
-        </section>
-    
-        <!-- SLIDE 19 -->
-        <section class="slide " id="slide-19" data-slide="19" data-notes="شايفين يا أبطال النقطة اللي قدامنا في الشريحة 19؟ هنا بنركز على صيد الأخطاء. الفكرة الأساسية إننا بنفهم الكمبيوتر خطوة بخطوة إزاي يتعامل مع المشكلة. في البرمجة بنحب البساطة والدقة، ولما نكتب كود منظم وسهل، لعبتنا أو برنامجنا بيشتغل بسلاسة وسرعة فائقة بدون أي تعليق!">
-            <div class="slide-inner-body">
-                
-            <div class="slide-heading-row">
-                <span class="slide-category">محور الشرح 19 • تتبع المشكلات</span>
-                <h2 class="slide-main-title">تصحيح الأخطاء البرمجية (Debugging) - الجزء (19)</h2>
-            </div>
-            <div class="grid-3-balance">
-                <div class="k-card-compact border-blue">
-                    <div class="card-top-icon">⚙️</div>
-                    <h3 class="card-h">الأساس النظري والمنطقي</h3>
-                    <p class="card-p">كيف يترجم الكمبيوتر أمر <strong>تتبع المشكلات</strong> وينفذه بسرعة فائقة في المعالج والذاكرة.</p>
-                    <div class="card-tag-pill">منطق الحاسوب 🧠</div>
-                </div>
-                <div class="k-card-compact border-purple">
-                    <div class="card-top-icon">🎮</div>
-                    <h3 class="card-h">التطبيق العملي في المشاريع</h3>
-                    <p class="card-p">توظيف هذا المفهوم في التحكم بالأبطال، صناعة التحديات، وحساب النقاط بدقة.</p>
-                    <div class="card-tag-pill">صناعة الألعاب 🚀</div>
-                </div>
-                <div class="k-card-compact border-teal">
-                    <div class="card-top-icon">🛡️</div>
-                    <h3 class="card-h">أسرار المبرمجين المحترفين</h3>
-                    <p class="card-p">نصائح هندسية لكتابة كود نظيف وسريع وسهل القراءة وخالٍ من أي تعقيد.</p>
-                    <div class="card-tag-pill">الكود النظيف ✨</div>
-                </div>
-            </div>
-        
-            </div>
-        </section>
-    
-        <!-- SLIDE 20 -->
-        <section class="slide " id="slide-20" data-slide="20" data-notes="شايفين يا أبطال النقطة اللي قدامنا في الشريحة 20؟ هنا بنركز على Debugging. الفكرة الأساسية إننا بنفهم الكمبيوتر خطوة بخطوة إزاي يتعامل مع المشكلة. في البرمجة بنحب البساطة والدقة، ولما نكتب كود منظم وسهل، لعبتنا أو برنامجنا بيشتغل بسلاسة وسرعة فائقة بدون أي تعليق!">
-            <div class="slide-inner-body">
-                
-            <div class="slide-heading-row">
-                <span class="slide-category">محور الشرح 20 • الكود النظيف</span>
-                <h2 class="slide-main-title">تصحيح الأخطاء البرمجية (Debugging) - الجزء (20)</h2>
-            </div>
-            <div class="grid-3-balance">
-                <div class="k-card-compact border-blue">
-                    <div class="card-top-icon">⚙️</div>
-                    <h3 class="card-h">الأساس النظري والمنطقي</h3>
-                    <p class="card-p">كيف يترجم الكمبيوتر أمر <strong>الكود النظيف</strong> وينفذه بسرعة فائقة في المعالج والذاكرة.</p>
-                    <div class="card-tag-pill">منطق الحاسوب 🧠</div>
-                </div>
-                <div class="k-card-compact border-purple">
-                    <div class="card-top-icon">🎮</div>
-                    <h3 class="card-h">التطبيق العملي في المشاريع</h3>
-                    <p class="card-p">توظيف هذا المفهوم في التحكم بالأبطال، صناعة التحديات، وحساب النقاط بدقة.</p>
-                    <div class="card-tag-pill">صناعة الألعاب 🚀</div>
-                </div>
-                <div class="k-card-compact border-teal">
-                    <div class="card-top-icon">🛡️</div>
-                    <h3 class="card-h">أسرار المبرمجين المحترفين</h3>
-                    <p class="card-p">نصائح هندسية لكتابة كود نظيف وسريع وسهل القراءة وخالٍ من أي تعقيد.</p>
-                    <div class="card-tag-pill">الكود النظيف ✨</div>
-                </div>
-            </div>
-        
-            </div>
-        </section>
-    
-        <!-- SLIDE 21 -->
-        <section class="slide " id="slide-21" data-slide="21" data-notes="شايفين يا أبطال النقطة اللي قدامنا في الشريحة 21؟ هنا بنركز على تتبع المشكلات. الفكرة الأساسية إننا بنفهم الكمبيوتر خطوة بخطوة إزاي يتعامل مع المشكلة. في البرمجة بنحب البساطة والدقة، ولما نكتب كود منظم وسهل، لعبتنا أو برنامجنا بيشتغل بسلاسة وسرعة فائقة بدون أي تعليق!">
-            <div class="slide-inner-body">
-                
-            <div class="slide-heading-row">
-                <span class="slide-category">محور الشرح 21 • صيد الأخطاء</span>
-                <h2 class="slide-main-title">تصحيح الأخطاء البرمجية (Debugging) - الجزء (21)</h2>
-            </div>
-            <div class="grid-3-balance">
-                <div class="k-card-compact border-blue">
-                    <div class="card-top-icon">⚙️</div>
-                    <h3 class="card-h">الأساس النظري والمنطقي</h3>
-                    <p class="card-p">كيف يترجم الكمبيوتر أمر <strong>صيد الأخطاء</strong> وينفذه بسرعة فائقة في المعالج والذاكرة.</p>
-                    <div class="card-tag-pill">منطق الحاسوب 🧠</div>
-                </div>
-                <div class="k-card-compact border-purple">
-                    <div class="card-top-icon">🎮</div>
-                    <h3 class="card-h">التطبيق العملي في المشاريع</h3>
-                    <p class="card-p">توظيف هذا المفهوم في التحكم بالأبطال، صناعة التحديات، وحساب النقاط بدقة.</p>
-                    <div class="card-tag-pill">صناعة الألعاب 🚀</div>
-                </div>
-                <div class="k-card-compact border-teal">
-                    <div class="card-top-icon">🛡️</div>
-                    <h3 class="card-h">أسرار المبرمجين المحترفين</h3>
-                    <p class="card-p">نصائح هندسية لكتابة كود نظيف وسريع وسهل القراءة وخالٍ من أي تعقيد.</p>
-                    <div class="card-tag-pill">الكود النظيف ✨</div>
-                </div>
-            </div>
-        
-            </div>
-        </section>
-    
-        <!-- SLIDE 22 -->
-        <section class="slide " id="slide-22" data-slide="22" data-notes="شايفين يا أبطال النقطة اللي قدامنا في الشريحة 22؟ هنا بنركز على صيد الأخطاء. الفكرة الأساسية إننا بنفهم الكمبيوتر خطوة بخطوة إزاي يتعامل مع المشكلة. في البرمجة بنحب البساطة والدقة، ولما نكتب كود منظم وسهل، لعبتنا أو برنامجنا بيشتغل بسلاسة وسرعة فائقة بدون أي تعليق!">
-            <div class="slide-inner-body">
-                
-            <div class="slide-heading-row">
-                <span class="slide-category">محور الشرح 22 • Debugging</span>
-                <h2 class="slide-main-title">تصحيح الأخطاء البرمجية (Debugging) - الجزء (22)</h2>
-            </div>
-            <div class="grid-3-balance">
-                <div class="k-card-compact border-blue">
-                    <div class="card-top-icon">⚙️</div>
-                    <h3 class="card-h">الأساس النظري والمنطقي</h3>
-                    <p class="card-p">كيف يترجم الكمبيوتر أمر <strong>Debugging</strong> وينفذه بسرعة فائقة في المعالج والذاكرة.</p>
-                    <div class="card-tag-pill">منطق الحاسوب 🧠</div>
-                </div>
-                <div class="k-card-compact border-purple">
-                    <div class="card-top-icon">🎮</div>
-                    <h3 class="card-h">التطبيق العملي في المشاريع</h3>
-                    <p class="card-p">توظيف هذا المفهوم في التحكم بالأبطال، صناعة التحديات، وحساب النقاط بدقة.</p>
-                    <div class="card-tag-pill">صناعة الألعاب 🚀</div>
-                </div>
-                <div class="k-card-compact border-teal">
-                    <div class="card-top-icon">🛡️</div>
-                    <h3 class="card-h">أسرار المبرمجين المحترفين</h3>
-                    <p class="card-p">نصائح هندسية لكتابة كود نظيف وسريع وسهل القراءة وخالٍ من أي تعقيد.</p>
-                    <div class="card-tag-pill">الكود النظيف ✨</div>
-                </div>
-            </div>
-        
-            </div>
-        </section>
-    
-        <!-- SLIDE 23 -->
-        <section class="slide " id="slide-23" data-slide="23" data-notes="شايفين يا أبطال النقطة اللي قدامنا في الشريحة 23؟ هنا بنركز على Debugging. الفكرة الأساسية إننا بنفهم الكمبيوتر خطوة بخطوة إزاي يتعامل مع المشكلة. في البرمجة بنحب البساطة والدقة، ولما نكتب كود منظم وسهل، لعبتنا أو برنامجنا بيشتغل بسلاسة وسرعة فائقة بدون أي تعليق!">
-            <div class="slide-inner-body">
-                
-            <div class="slide-heading-row">
-                <span class="slide-category">محور الشرح 23 • تتبع المشكلات</span>
-                <h2 class="slide-main-title">تصحيح الأخطاء البرمجية (Debugging) - الجزء (23)</h2>
-            </div>
-            <div class="grid-3-balance">
-                <div class="k-card-compact border-blue">
-                    <div class="card-top-icon">⚙️</div>
-                    <h3 class="card-h">الأساس النظري والمنطقي</h3>
-                    <p class="card-p">كيف يترجم الكمبيوتر أمر <strong>تتبع المشكلات</strong> وينفذه بسرعة فائقة في المعالج والذاكرة.</p>
-                    <div class="card-tag-pill">منطق الحاسوب 🧠</div>
-                </div>
-                <div class="k-card-compact border-purple">
-                    <div class="card-top-icon">🎮</div>
-                    <h3 class="card-h">التطبيق العملي في المشاريع</h3>
-                    <p class="card-p">توظيف هذا المفهوم في التحكم بالأبطال، صناعة التحديات، وحساب النقاط بدقة.</p>
-                    <div class="card-tag-pill">صناعة الألعاب 🚀</div>
-                </div>
-                <div class="k-card-compact border-teal">
-                    <div class="card-top-icon">🛡️</div>
-                    <h3 class="card-h">أسرار المبرمجين المحترفين</h3>
-                    <p class="card-p">نصائح هندسية لكتابة كود نظيف وسريع وسهل القراءة وخالٍ من أي تعقيد.</p>
-                    <div class="card-tag-pill">الكود النظيف ✨</div>
-                </div>
-            </div>
-        
-            </div>
-        </section>
-    
-        <!-- SLIDE 24 -->
-        <section class="slide " id="slide-24" data-slide="24" data-notes="ألف مبروك يا أبطال المستقبل! النهاردة حققتم إنجاز رائع جداً وأتقنتم كل مهارات المحاضرة 14 في المستوى 2: التفكير البرمجي والخوارزميات! فخور جداً بتركيزكم وإبداعكم المستمر في كل خطوة بنمشيها سوا!">
-            <div class="slide-inner-body">
-                
-            <div class="slide-heading-row">
-                <span class="slide-category badge-mission">📝 مهمة البطل العملية</span>
-                <h2 class="slide-main-title">تحدي الواجب المنزلي: طبق ما تعلمته في عالمك! 🌟</h2>
-            </div>
-            <div class="grid-2-balance">
-                <div class="k-card-rich">
-                    <div class="rich-header">
-                        <span class="rich-icon">💻</span>
-                        <h3 class="rich-title">المهمة التطبيقية في المنزل</h3>
-                    </div>
-                    <ul class="rich-list">
-                        <li>راجع مشروع الدرس وطبق مفهوم <strong>صيد الأخطاء</strong> بنفسك.</li>
-                        <li>جرّب إضافة ميزة جديدة أو فكرة مبتكرة من خيالك الخاص.</li>
-                        <li>التقط لقطة شاشة لإنجازك وشاركه في مجتمع التليجرام والواتساب.</li>
-                    </ul>
-                </div>
-                <div class="k-card-rich highlight-bg">
-                    <div class="rich-header">
-                        <span class="rich-icon">⭐</span>
-                        <h3 class="rich-title">معايير تقييم وسام الإتقان</h3>
-                    </div>
-                    <ul class="rich-list">
-                        <li><strong>الدقة:</strong> تشغيل البرنامج دون أي أخطاء برمجية (50 نقطة).</li>
-                        <li><strong>الإبداع:</strong> لمستك الشخصية في التصميم أو الأفكار (30 نقطة).</li>
-                        <li><strong>الالتزام:</strong> تسليم الحل قبل بداية المحاضرة القادمة (20 نقطة).</li>
-                    </ul>
-                </div>
-            </div>
-        
-            </div>
-        </section>
-    
-        <!-- SLIDE 25 -->
-        <section class="slide " id="slide-25" data-slide="25" data-notes="واجبكم ومهمتكم البطولية لهذا الأسبوع: تفتحوا ملف الواجب المنزلي وتطبقوا التحدي العملي على أجهزتكم، وبعدها تفتحوا اختبار المحاضرة الإلكتروني وتحلوه وتجمعوا وسام التفوق بنسبة 100%! شكراً لكم يا أبطال، ومتحمس جداً أشوفكم في المحاضرة القادمة! سلام يا مبدعين!">
-            <div class="slide-inner-body">
-                
-            <div class="hero-center celebration-bg">
-                <div class="hero-icons">🎉 🏅 🏆</div>
-                <h1 class="hero-title text-success">ألف مبروك يا أبطال المستقبل!</h1>
-                <p class="hero-subtitle">أتممتم المحاضرة 14 بنجاح باهر وتألقتم في فهم وتطبيق تصحيح الأخطاء البرمجية (Debugging)!</p>
-                <div class="score-pill">+100 نقطة إنجاز أضيفت لرصيدك البرمجي 🎖️</div>
-                <div class="next-lecture-box">
-                    <span class="next-badge">المحطة القادمة 🚀</span>
-                    <p class="next-title">استعدوا للمحاضرة القادمة لمواصلة رحلتكم الشيقة في المستوى 2: التفكير البرمجي والخوارزميات!</p>
-                </div>
-            </div>
-        
-            </div>
-        </section>
-    
-                </div>
+<div class="slide slide-1 active" data-title="المقدمة والهدف" data-notes="أهلاً بكم يا محققي المستقبل الأذكياء في المحاضرة الرابعة عشرة، والمحاضرة الختامية للمستوى الثاني الرائع! تخيلوا لو كتبت كود لعبة ممتعة جداً، وجيت تشغلها وفجأة: الشاشة وقفت وظهرت رسالة خطأ باللون الأحمر! هل تحزن وتقفل اللاب توب وتقول البرمجة صعبة؟ إياك! المبرمج الحقيقي بيبتسم ويقول: يا سلام، بدأت المغامرة الحقيقية لصيد الحشرة البرمجية! والنهاردة هنتعلم فن &#39;تصحيح الأخطاء&#39; أو (Debugging)!">
+        <div class="slide-header">
+            <span class="slide-tag">المحاضرة 14 - ختام المستوى 2</span>
+            <span class="slide-badge">المحقق الرقمي</span>
+        </div>
+        <div class="slide-body text-center">
+            <div class="hero-icon animated-bounce">🐞 🔍 🛠️</div>
+            <h1 class="main-title">تصحيح الأخطاء البرمجية (Debugging)</h1>
+            <p class="subtitle">كيف تصطاد الحشرات البرمجية وتصلح الكود كالمحقق العبقري شارلوك هولمز؟</p>
+            <div class="info-card-grid two-cols mt-4">
+                <div class="glass-card"><span class="card-icon">🐛</span><h3>الحشرة (Bug)</h3><p>الخطأ البرمجي الذي يمنع البرنامج من العمل بشكل سليم</p></div>
+                <div class="glass-card"><span class="card-icon">🔬</span><h3>التصحيح (Debugging)</h3><p>مهارة البحث والتحري لإصلاح الأخطاء وجعل الكود مثالياً</p></div>
+            </div>
+        </div>
+    </div>
+<div class="slide slide-2" data-title="قصة أول حشرة في التاريخ" data-notes="عارفين ليه بنسمي الخطأ البرمجي &#39;باج&#39; (Bug) يعني حشرة؟ القصة حقيقية ومضحكة جداً! سنة 1947، العالمة العبقرية جريس هوبر وفريقها كانوا شغالين على كمبيوتر عملاق اسمه هارفارد مارك 2، وفجأة الجهاز عطل! لما فتحوا الدواليب الضخمة يدوروا على السبب، لقوا حشرة فراشة (Moth) حقيقية دخلت بين المفاتيح الكهربائية وعطلت الجهاز! مسكوها بالجفت ولزقوها في كشكول المعمل وكتبوا: &#39;تم العثور على أول حشرة برمجية&#39;! ومن يومها وأي خطأ بنسميه Bug!">
+        <div class="slide-header">
+            <span class="slide-tag">تاريخ التكنولوجيا</span>
+            <span class="slide-badge">عام 1947</span>
+        </div>
+        <div class="slide-body">
+            <h2 class="slide-title">حكاية الفراشة الحقيقية: أصل كلمة (Bug) 🦋</h2>
+            <p class="slide-desc">كيف تحولت حشرة حقيقية إلى أشهر مصطلح في عالم البرمجيات؟</p>
+            <div class="feature-box success-border mt-3">
+                <div class="box-icon">📜</div>
+                <div class="box-content">
+                    <h4>العالمة جريس هوبر وكمبيوتر Harvard Mark II:</h4>
+                    <p>توقف الحاسوب العملاق فجأة، وعند فحص الريليهات الكهروميكانيكية، عثر العلماء على فراشة ليلية (Moth) علقت داخل المفتاح وعطلت الدائرة! تم إخراجها ولصقها في سجل المختبر مع عبارة: <em>"First actual case of bug being found"</em> ومنذ ذلك اليوم سمي كل خطأ بـ Bug!</p>
+                </div>
+            </div>
+        </div>
+    </div>
+<div class="slide slide-3" data-title="مفهوم تصحيح الأخطاء" data-notes="وكلمة &#39;تصحيح الأخطاء&#39; أو (Debugging) معناها إزالة الحشرات دي وتنظيف الكود حتى يشتغل بنعومة وسرعة! الديباجينج مش مجرد تصليح، ده فن ومهارة ذكاء بتميز المبرمج المحترف عن المبتدئ!">
+        <div class="slide-header">
+            <span class="slide-tag">المفهوم الأساسي</span>
+            <span class="slide-badge">Debugging</span>
+        </div>
+        <div class="slide-body">
+            <h2 class="slide-title">ما هو تصحيح الأخطاء (Debugging)؟ 🛠️</h2>
+            <p class="slide-desc">عملية منهجية لاكتشاف سبب المشكلة البرمجية وعزلها وإصلاحها ليعمل التطبيق بدقة وسلاسة.</p>
+            <div class="steps-flow mt-3">
+                <div class="flow-step"><span class="num">1</span><span>ملاحظة العطل</span></div>
+                <div class="flow-arrow">➡️</div>
+                <div class="flow-step"><span class="num">2</span><span>تحديد السطر المصاب</span></div>
+                <div class="flow-arrow">➡️</div>
+                <div class="flow-step"><span class="num">3</span><span>تعديل الكود</span></div>
+                <div class="flow-arrow">➡️</div>
+                <div class="flow-step success-step"><span class="num">4</span><span>اختبار النجاح!</span></div>
+            </div>
+        </div>
+    </div>
+<div class="slide slide-4" data-title="عقلية المحقق الرقمي" data-notes="علشان تكون صياد أخطاء محترف، لازم تكتسب &#39;عقلية المحقق شارلوك هولمز&#39; (Sherlock Holmes Mindset): أولاً: الهدوء التام والابتسامة لأن الأخطاء جزء طبيعي من كتابة الكود. ثانياً: الفضول والبحث وراء الأدلة دون استعجال. ثالثاً: الثقة بأن كل خطأ في الدنيا وله حل أكيد!">
+        <div class="slide-header">
+            <span class="slide-tag">عقلية المبرمج</span>
+            <span class="slide-badge">شارلوك هولمز</span>
+        </div>
+        <div class="slide-body">
+            <h2 class="slide-title">عقلية المحقق الرقمي شارلوك هولمز 🕵️‍♂️</h2>
+            <div class="info-card-grid three-cols mt-3">
+                <div class="glass-card">
+                    <span class="card-icon">🧘</span>
+                    <h4>1. الهدوء التام</h4>
+                    <p>الخطأ أمر طبيعي 100% ويحدث لكبار المهندسين كل دقيقة. لا تغضب ولا تحزن!</p>
+                </div>
+                <div class="glass-card">
+                    <span class="card-icon">🔎</span>
+                    <h4>2. تتبع الأدلة</h4>
+                    <p>اقرأ الرسائل وافحص السطور كالمحقق الذي يبحث عن البصمات في مسرح الجريمة.</p>
+                </div>
+                <div class="glass-card">
+                    <span class="card-icon">💡</span>
+                    <h4>3. اليقين بالحل</h4>
+                    <p>لا يوجد خطأ برمجي مستحيل! كل لغز وله حل سحري ينتظر اكتشافك.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+<div class="slide slide-5" data-title="عائلات الأخطاء الثلاث" data-notes="في عالم البرمجة، الأخطاء بتتقسم لتلات عائلات كبرى، وكل عائلة ليها طريقتها في التخفي: أخطاء القواعد (Syntax Errors)، وأخطاء وقت التشغيل (Runtime Errors)، والأخطاء المنطقية (Logic Errors). تعالوا نتعرف على كل واحدة منهم!">
+        <div class="slide-header">
+            <span class="slide-tag">تصنيف الأخطاء</span>
+            <span class="slide-badge">أنواع الأخطاء</span>
+        </div>
+        <div class="slide-body">
+            <h2 class="slide-title">العائلات الثلاث الكبرى للأخطاء البرمجية 👾</h2>
+            <div class="info-card-grid three-cols mt-3">
+                <div class="glass-card danger-card text-center">
+                    <span class="card-icon">📝</span>
+                    <h4>1. أخطاء القواعد</h4>
+                    <p>Syntax Errors</p>
+                    <small>خطأ إملائي أو نسيان رمز</small>
+                </div>
+                <div class="glass-card warning-card text-center">
+                    <span class="card-icon">💥</span>
+                    <h4>2. أخطاء التشغيل</h4>
+                    <p>Runtime Errors</p>
+                    <small>انهيار البرنامج أثناء عمله</small>
+                </div>
+                <div class="glass-card primary-card text-center">
+                    <span class="card-icon">🎭</span>
+                    <h4>3. الأخطاء المنطقية</h4>
+                    <p>Logic Errors</p>
+                    <small>الكود يعمل بنتيجة خاطئة</small>
+                </div>
+            </div>
+        </div>
+    </div>
+<div class="slide slide-6" data-title="أخطاء القواعد Syntax Errors" data-notes="النوع الأول هو &#39;أخطاء القواعد والكتابة&#39; (Syntax Errors): ده بيحصل لما تغلط في إملاء كلمة، أو تنسى تقفل قوس ( )، أو تنسى علامات التنصيص للنص، أو تنسى النقطتين فوق بعض (:) في بايثون! الكمبيوتر هنا بيكون قاطع وصارم جداً!">
+        <div class="slide-header">
+            <span class="slide-tag">النوع الأول</span>
+            <span class="slide-badge">Syntax Errors</span>
+        </div>
+        <div class="slide-body">
+            <h2 class="slide-title">أخطاء القواعد والكتابة (Syntax Errors) 📝</h2>
+            <p class="slide-desc">مخالفة قواعد اللغة البرمجية، مثل نسيان الأقواس أو النقطتين أو علامات التنصيص.</p>
+            <div class="comparison-grid two-cols mt-3">
+                <div class="glass-card danger-card">
+                    <h3>❌ كود يحتوي خطأ قواعد</h3>
+                    <code>prnt("مرحبا") &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# خطأ إملائي<br>if score &gt; 10 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# نسينا النقطتين :<br>name = "سيف &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# نسينا إغلاق "</code>
+                </div>
+                <div class="glass-card success-card">
+                    <h3>✅ الكود بعد التصحيح</h3>
+                    <code>print("مرحبا") &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# إملاء صحيح<br>if score &gt; 10: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# نقطتان رأسيتان<br>name = "سيف" &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# إغلاق التنصيص</code>
+                </div>
+            </div>
+        </div>
+    </div>
+<div class="slide slide-7" data-title="كيف يتعامل المترجم مع Syntax" data-notes="المترجم (Compiler) في أخطاء الـ Syntax مبيشغلش الكود أصلاً! بيرفض يشغل البرنامج من أول ثانية، وبيطلعلك رسالة حمراء واضحة يقولك: &#39;يا بطل، أنت نسيت تقفل القوس في السطر رقم 5&#39;! تصليح النوع ده بيكون سهل وسريع جداً بمجرد مراجعة السطر.">
+        <div class="slide-header">
+            <span class="slide-tag">سلوك المترجم</span>
+            <span class="slide-badge">حارس البوابة</span>
+        </div>
+        <div class="slide-body">
+            <h2 class="slide-title">المترجم يرفض تشغيل الكود فوراً! 🛑</h2>
+            <p class="slide-desc">المترجم (Compiler / Interpreter) صارم جداً، لن يسمح للبرنامج بالبدء إذا كان هناك خطأ لغوي واحد!</p>
+            <div class="alert-card danger mt-3">
+                <span><strong>SyntaxError: invalid syntax (Line 4)</strong><br>المترجم يحدد لك رقم السطر ويشير بسهم صغير ^ إلى مكان الحرف المفقود!</span>
+            </div>
+            <div class="quote-box mt-3">
+                <p>"أخطاء القواعد أسهل الأخطاء حلاً.. لأن الكمبيوتر نفسه يخبرك بالضبط أين المشكلة وما هو رقم السطر!"</p>
+            </div>
+        </div>
+    </div>
+<div class="slide slide-8" data-title="أخطاء وقت التشغيل Runtime" data-notes="النوع التاني هو &#39;أخطاء وقت التشغيل&#39; (Runtime Errors): هنا الكود مكتوب بقواعد لغوية صحيحة 100% والمترجم وافق عليه وبدأ يشتغل، لكن فجأة في نص الطريق اصطدم بحادث مفاجئ خلاه ينهار ويقفل (Crash)!">
+        <div class="slide-header">
+            <span class="slide-tag">النوع الثاني</span>
+            <span class="slide-badge">Runtime Errors</span>
+        </div>
+        <div class="slide-body">
+            <h2 class="slide-title">أخطاء وقت التشغيل: الاصطدام المفاجئ! 💥</h2>
+            <p class="slide-desc">الكود سليم لغوياً ويبدأ العمل بالفعل، لكنه يواجه أمراً مستحيلاً أثناء تنفيذه فيتوقف (Crash).</p>
+            <div class="info-card-grid two-cols mt-3">
+                <div class="glass-card danger-card">
+                    <span class="card-icon">➗</span>
+                    <h3>القسمة على صفر</h3>
+                    <code>result = 100 / 0</code>
+                    <p>مستحيل رياضياً! يطلق بايثون استغاثة <code>ZeroDivisionError</code> ويتوقف البرنامج.</p>
+                </div>
+                <div class="glass-card danger-card">
+                    <span class="card-icon">📁</span>
+                    <h3>ملف غير موجود</h3>
+                    <code>load_image("hero.png")</code>
+                    <p>إذا كان الملف محذوفاً يطلق البرنامج <code>FileNotFoundError</code>.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+<div class="slide slide-9" data-title="أمثلة أخطاء التشغيل" data-notes="أشهر مثال لأخطاء الـ Runtime: القسمة على صفر! مفيش في الرياضيات حاجة اسمها تقسم 10 على صفر، فلما تطلب ده من الكمبيوتر بيتجمد ويطلعلك خطأ (ZeroDivisionError)! أو لما تطلب من البرنامج يفتح صورة كرتون اسمها قطة، ويكون ملف الصورة اتمسح من الكمبيوتر، فالبرنامج ميعرفش يلاقيها ويتوقف فوراً!">
+        <div class="slide-header">
+            <span class="slide-tag">حالات واقعية</span>
+            <span class="slide-badge">Crash Cases</span>
+        </div>
+        <div class="slide-body">
+            <h2 class="slide-title">كيف نحمي برامجنا من الانهيار؟ 🛡️</h2>
+            <div class="comparison-grid two-cols mt-3">
+                <div class="glass-card">
+                    <h3>استدعاء متغير مجهول</h3>
+                    <code>print(user_points)</code>
+                    <p>لو نسينا إنشاء الصندوق <code>user_points</code> أولاً، يعترض بايثون: <code>NameError: name is not defined</code>.</p>
+                </div>
+                <div class="glass-card">
+                    <h3>فحص صحة المدخلات</h3>
+                    <p>قبل القسمة، نضع شرطاً بسيطاً: <code>if divisor != 0:</code> لحماية الكود من الانهيار عند إدخال الصفر!</p>
+                </div>
+            </div>
+        </div>
+    </div>
+<div class="slide slide-10" data-title="الأخطاء المنطقية Logic Errors" data-notes="النوع التالت بقى هو أذكى وأخطر أنواع الأخطاء: &#39;الأخطاء المنطقية&#39; (Logic Errors)! ليه هي الأخطر؟ لأن الكمبيوتر مبيطلعش أي رسالة خطأ خالص، والكود بيشتغل عادي جداً، لكن النتيجة اللي بتطلع على الشاشة غلط تماماً ومختلفة عن اللي أنت عايزه!">
+        <div class="slide-header">
+            <span class="slide-tag">النوع الأخطر</span>
+            <span class="slide-badge">Logic Errors</span>
+        </div>
+        <div class="slide-body">
+            <h2 class="slide-title">الأخطاء المنطقية: الحشرة المتخفية الماكرة! 🎭</h2>
+            <p class="slide-desc">البرنامج يعمل بنجاح وبدون أي رسالة خطأ، لكن النتيجة تخرج خاطئة ومختلفة عن قصد المبرمج!</p>
+            <div class="concept-card highlight-card mt-3">
+                <div class="card-badge">لماذا هي الأخطر؟</div>
+                <h3>الكمبيوتر ينفذ ما كتبتَه أنت بحرفية.. لا ما قصدتَه في قلبك!</h3>
+                <p class="mt-2">إذا أردت جمع درجتين وكتبت بالخطأ إشارة الطرح [-]، سينفذ الكمبيوتر الطرح بسلام ولن يشكو، لكن درجات الطالب ستنقص بدلاً من أن تزيد!</p>
+            </div>
+        </div>
+    </div>
+<div class="slide slide-11" data-title="مثال باج منطقي في لعبة" data-notes="تخيل في كود لعبة: المفروض لما البطل ياكل التفاحة تزيد نقاطه 10، فالمبرمج غلط وكتب في الكود: `score = score - 10` بالناقص بدل الزائد! الكمبيوتر ميعرفش نيتك، هينفذ الطرح عادي، والطفل لما يلعب يلاقي نقاطه بتقل وهو بيجمع تفاح! هنا مفيش رسالة خطأ، والمحقق الذكي هو اللي هيكتشف اللغز!">
+        <div class="slide-header">
+            <span class="slide-tag">تطبيق عملي</span>
+            <span class="slide-badge">ألعاب الفيديو</span>
+        </div>
+        <div class="slide-body">
+            <h2 class="slide-title">لغز لعبة التفاح: أين الحشرة المنطقية؟ 🍎</h2>
+            <div class="comparison-grid two-cols mt-3">
+                <div class="glass-card danger-card">
+                    <h3>❌ كود به خطأ منطقي خفي</h3>
+                    <code>if player.touches(apple):<br>&nbsp;&nbsp;&nbsp;&nbsp;score = score - 10 # 🐛 كارثة!<br>&nbsp;&nbsp;&nbsp;&nbsp;apple.hide()</code>
+                    <p>النتيجة: تنقص نقاط اللاعب عند أكل الفاكهة!</p>
+                </div>
+                <div class="glass-card success-card">
+                    <h3>✅ الكود المنطقي السليم</h3>
+                    <code>if player.touches(apple):<br>&nbsp;&nbsp;&nbsp;&nbsp;score = score + 10 # 🌟 ممتاز<br>&nbsp;&nbsp;&nbsp;&nbsp;apple.hide()</code>
+                    <p>النتيجة: زيادة نقاط اللاعب واحتفاله بالفوز!</p>
+                </div>
+            </div>
+        </div>
+    </div>
+<div class="slide slide-12" data-title="استراتيجية 1: قراءة رسالة الخطأ" data-notes="تعالوا نتعلم أسلحة المحقق السحرية! السلاح الأول: &#39;قراءة رسالة الخطأ بذكاء&#39; (Read the Error Message). لما الشاشة الحمراء تظهر، متخافش منها! دي مش عقاب، دي خريطة كنز! رسالة الخطأ دايماً بتقولك معلومتين ذهبيتين: 1. رقم السطر اللي فيه المشكلة. 2. اسم ونوع الخطأ بالضبط!">
+        <div class="slide-header">
+            <span class="slide-tag">سلاح المحقق 1</span>
+            <span class="slide-badge">Error Message</span>
+        </div>
+        <div class="slide-body">
+            <h2 class="slide-title">خريطة الكنز: رسالة الخطأ ورقم السطر 🗺️</h2>
+            <p class="slide-desc">رسالة الخطأ ليست شتيمة، بل هي دليل المحقق الذي يرشده لمكان العطل!</p>
+            <div class="feature-box primary-border mt-3">
+                <div class="box-icon">📌</div>
+                <div class="box-content">
+                    <h4>عنصران ابحث عنهما دائماً في الرسالة:</h4>
+                    <p>1. <strong>رقم السطر (Line Number):</strong> يخبرك بالضبط أين توقف الكود (مثلاً: line 12).</p>
+                    <p>2. <strong>نوع الخطأ (Error Type):</strong> مثل NameError (اسم خطأ) أو SyntaxError (قوس مفقود).</p>
+                </div>
+            </div>
+        </div>
+    </div>
+<div class="slide slide-13" data-title="استراتيجية 2: جمل الطباعة" data-notes="السلاح التاني الخارق: &#39;جمل الطباعة التشخيصية&#39; (Print Debugging). لما الكود ميرضاش يشتغل ومش عارف هو وقف فين، حط في نص السطور أوامر طباعة زي: `print(&quot;الخطوة الأولى تمت&quot;)` و `print(&quot;الخطوة الثانية تمت&quot;)`. السطر اللي مش هيطبع رسالته هو اللي مستخبية جواه الحشرة!">
+        <div class="slide-header">
+            <span class="slide-tag">سلاح المحقق 2</span>
+            <span class="slide-badge">Print Debugging</span>
+        </div>
+        <div class="slide-body">
+            <h2 class="slide-title">جمل الطباعة التشخيصية: كاشف المسار 🔦</h2>
+            <p class="slide-desc">زرع جمل طباعة لمعرفة إلى أي محطة وصل الكود قبل أن يتوقف.</p>
+            <div class="code-preview-box mt-3">
+                <span class="code-lang">Python Detective Code</span>
+                <code>print("1. تم تحميل اللعبة بنجاح 🟢")<br>player.spawn()<br>print("2. ظهر البطل على الخريطة 🟢")<br>enemy.load_weapon() # لو توقف الكود هنا...<br>print("3. تسليح الوحش 🟢") # لن يُطبع هذا السطر أبداً!</code>
+            </div>
+            <div class="alert-card info mt-3">
+                <span>💡 الاستنتاج: المشكلة محصورة بين السطر الثاني والسطر الثالث!</span>
+            </div>
+        </div>
+    </div>
+<div class="slide slide-14" data-title="استراتيجية 3: البطة المطاطية" data-notes="السلاح التالت الممتع جداً بيعشقه مبرمجو العالم: &#39;طريقة البطة المطاطية&#39; (Rubber Duck Debugging)! جيب لعبة بطة صفراء أو أي دمية لطيفة وحطها جنب شاشتك، واقعد اشرح لها الكود سطر بسطر بصوت عالي: &#39;بصي يا بطوطة، هنا أنا عرفت المتغير، وهنا فحصت الشرط...&#39; وسبحان الله! وإنت بتشرح للبطة هتكتشف فجأة غلطتك وتقول: &#39;يا خبر! عرفت فين الغلطة!&#39; جربوها وشوفوا السحر!">
+        <div class="slide-header">
+            <span class="slide-tag">سلاح المحقق 3</span>
+            <span class="slide-badge">Rubber Duck</span>
+        </div>
+        <div class="slide-body">
+            <h2 class="slide-title">حيلة البطة المطاطية الصفراء (Rubber Duck)! 🦆💛</h2>
+            <p class="slide-desc">حيلة عبقرية يستخدمها كبار مهندسي العالم لحل أعقد المشاكل البرمجية.</p>
+            <div class="info-card-grid two-cols mt-3">
+                <div class="glass-card text-center">
+                    <div class="hero-icon">🦆</div>
+                    <h3>كيف تطبقها؟</h3>
+                    <p>ضع بطة مطاطية أو دمية صغيرة على مكتبك، وابدأ في شرح كودك لها سطر بسطر بصوت مسموع كأنك تشرح لطفل صغير!</p>
+                </div>
+                <div class="glass-card text-center">
+                    <div class="hero-icon">💡</div>
+                    <h3>لماذا تنجح دائماً؟</h3>
+                    <p>أثناء شرحك المنطقي بصوت عالي، ينشط عقلك التحليلي وتكتشف الفجوة المنطقية بنفسك وتصرخ: <em>"لقد وجدتها يا بطوطة!"</em></p>
+                </div>
+            </div>
+        </div>
+    </div>
+<div class="slide slide-15" data-title="استراتيجية 4: التعليقات" data-notes="السلاح الرابع: &#39;التعليقات كأداة جراحية&#39; (Commenting Out). لو عندك 20 سطر كود وشاكك إن فيه سطر منهم بيعطل البرنامج، حط علامة الشباك (#) في أول السطر عشان تعطه وتشوف هل باقي البرنامج هيشتغل بسلام ولا لأ.">
+        <div class="slide-header">
+            <span class="slide-tag">سلاح المحقق 4</span>
+            <span class="slide-badge">Commenting Out</span>
+        </div>
+        <div class="slide-body">
+            <h2 class="slide-title">التعليقات كأداة جراحية: عزل السطور المصابة 🩺</h2>
+            <p class="slide-desc">تعطيل الأسطر المشبوهة مؤقتاً برمز التعليق لمعرفة هل يختفي الخطأ.</p>
+            <div class="code-preview-box mt-3">
+                <span class="code-lang">Python</span>
+                <code>player.move()<br># play_super_music() &nbsp;&lt;-- عطلنا هذا السطر مؤقتاً بالفحص<br>player.jump()</code>
+            </div>
+            <div class="feature-box success-border mt-3">
+                <div class="box-icon">✅</div>
+                <div class="box-content">
+                    <h4>النتيجة:</h4>
+                    <p>إذا تحرك البطل وقفز بسلام دون تجمد، فقد تأكدنا 100% أن المشكلة في دالة تشغيل الموسيقى المعطلة!</p>
+                </div>
+            </div>
+        </div>
+    </div>
+<div class="slide slide-16" data-title="خطأ الفرق بواحد Off-by-one" data-notes="أشهر خطأ بيقع فيه المبتدئون في التكرار: &#39;خطأ الفرق بواحد&#39; (Off-by-one Error). لأن الكمبيوتر بيبدأ العد من 0 مش من 1، فلو عايز تكرر 10 مرات ممكن تلاقيه بيلف 9 بس أو 11! دايماً راجع بداية ونهاية العداد بتاعك بدقة!">
+        <div class="slide-header">
+            <span class="slide-tag">أشهر الأفخاخ 1</span>
+            <span class="slide-badge">Off-by-one</span>
+        </div>
+        <div class="slide-body">
+            <h2 class="slide-title">فخ المبتدئين: خطأ الفرق برقم واحد! 1️⃣</h2>
+            <p class="slide-desc">لأن الحواسيب تبدأ العد من 0 وليس من 1، يقع المبرمجون في خطأ الحسابات.</p>
+            <div class="comparison-grid two-cols mt-3">
+                <div class="glass-card danger-card">
+                    <h3>❌ كود يكرر 9 مرات فقط</h3>
+                    <code>for i in range(1, 10):<br>&nbsp;&nbsp;&nbsp;&nbsp;print(i) # يطبع من 1 إلى 9 ويتوقف!</code>
+                </div>
+                <div class="glass-card success-card">
+                    <h3>✅ كود يكرر 10 مرات كاملة</h3>
+                    <code>for i in range(1, 11):<br>&nbsp;&nbsp;&nbsp;&nbsp;print(i) # يطبع من 1 إلى 10 بنجاح!</code>
+                </div>
+            </div>
+            <div class="alert-card info mt-3">
+                <span>تذكر: في دالة <code>range(بداية, نهاية)</code>، الرقم الأخير لا يدخل في العد ويقف قبله بخطوة!</span>
+            </div>
+        </div>
+    </div>
+<div class="slide slide-17" data-title="خطأ حساسية الحروف" data-notes="خطأ تاني شهير: &#39;حساسية الحروف الكبيرة والصغيرة&#39; (Case Sensitivity). في بايثون ومعظم اللغات، المتغير `Score` اللي بيبدأ بحرف كابيتال هو صندوق مختلف تماماً عن `score` بحرف سمول! لو غيرت حرف واحد الكمبيوتر هيقولك: أنا معرفش الصندوق ده!">
+        <div class="slide-header">
+            <span class="slide-tag">أشهر الأفخاخ 2</span>
+            <span class="slide-badge">Case Sensitivity</span>
+        </div>
+        <div class="slide-body">
+            <h2 class="slide-title">فخ الحروف الكبيرة والصغيرة (Case Sensitivity) 🔡🔠</h2>
+            <div class="info-card-grid two-cols mt-3">
+                <div class="glass-card danger-card">
+                    <h3>❌ كود يسبب خطأ NameError</h3>
+                    <code>player_score = 100<br>print(Player_Score) # حرفان كبيران!</code>
+                    <p>بايثون لا يعرف من هو <code>Player_Score</code> ويعتبره صندوقاً مجهولاً!</p>
+                </div>
+                <div class="glass-card success-card">
+                    <h3>✅ كتابة متطابقة تماماً</h3>
+                    <code>player_score = 100<br>print(player_score) # كل الحروف صغيرة</code>
+                    <p>تطابق الاسم بنسبة 100% يضمن وصولك للقيمة المطلوبة.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+<div class="slide slide-18" data-title="أخطاء المسافات البادئة في بايثون" data-notes="وفي لغة بايثون بالتحديد: &#39;خطأ المسافات البادئة&#39; (IndentationError). بايثون لغة أنيقة ومنظمة، بتطلب منك تسيب مسافة 4 ضغطات مفتاح مسافة تحت جملة if وتحت جملة for. لو نسيت تسيب المسافة بايثون هتزعل وتطلب منك تظبط السطور تحت بعضها!">
+        <div class="slide-header">
+            <span class="slide-tag">أشهر الأفخاخ 3</span>
+            <span class="slide-badge">IndentationError</span>
+        </div>
+        <div class="slide-body">
+            <h2 class="slide-title">أخطاء المسافات البادئة في لغة بايثون 📐</h2>
+            <p class="slide-desc">بايثون تحدد بداية ونهاية البلوكات البرمجية بالمسافات البادئة (4 مسافات).</p>
+            <div class="comparison-grid two-cols mt-3">
+                <div class="glass-card danger-card">
+                    <h3>❌ خطأ مسافة (IndentationError)</h3>
+                    <code>if score &gt; 50:<br>print("فائز!") # سطر ملتصق بالبداية!</code>
+                </div>
+                <div class="glass-card success-card">
+                    <h3>✅ إزاحة صحيحة بمفتاح Tab</h3>
+                    <code>if score &gt; 50:<br>&nbsp;&nbsp;&nbsp;&nbsp;print("فائز!") # 4 مسافات لداخل الجملة</code>
+                </div>
+            </div>
+        </div>
+    </div>
+<div class="slide slide-19" data-title="تصحيح الأخطاء في سكراتش" data-notes="أما في برنامج سكراتش (Scratch)، الديباجينج سهل وممتع جداً: بتفك مكعبات الكود عن بعض، وتضغط على كل مكعب منفصل وتشوف الكائن بيعمل إيه على المسرح، كمان بتفعل علامة الصح جنب المتغيرات عشان تتابع أرقامها لحظة بلحظة!">
+        <div class="slide-header">
+            <span class="slide-tag">سكراتش للأطفال</span>
+            <span class="slide-badge">Scratch Debugging</span>
+        </div>
+        <div class="slide-body">
+            <h2 class="slide-title">مهارات المحقق في برنامج سكراتش 🧩</h2>
+            <div class="info-card-grid three-cols mt-3">
+                <div class="glass-card">
+                    <span class="card-icon">✂️</span>
+                    <h4>1. فصل المكعبات</h4>
+                    <p>افصل السلسلة الطويلة وجرب تشغيل كل جزء بمفرده بالضغط عليه مباشرة.</p>
+                </div>
+                <div class="glass-card">
+                    <span class="card-icon">👁️</span>
+                    <h4>2. مراقبة المتغيرات</h4>
+                    <p>ضع علامة صح أمام المتغير لترى قيمته وهي تزيد وتنقص أمامك على المسرح.</p>
+                </div>
+                <div class="glass-card">
+                    <span class="card-icon">🐢</span>
+                    <h4>3. بطء التنفيذ</h4>
+                    <p>ضع بلوك (انتظر 1 ثانية) بين الخطوات لترى حركة الكائن ببطء وتكتشف الخطأ.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+<div class="slide slide-20" data-title="الخطوات الخمس الذهبية" data-notes="الروشتة الذهبية لصياد الأخطاء في 5 خطوات: 1. راقب المشكلة بدقة. 2. اقرأ رسالة الخطأ ورقم السطر. 3. اعزل الجزء المصاب. 4. صلح الخطأ. 5. اختبر الكود مرتين للتأكد إنه شغال تمام!">
+        <div class="slide-header">
+            <span class="slide-tag">الروشتة الذهبية</span>
+            <span class="slide-badge">5 خطوات</span>
+        </div>
+        <div class="slide-body">
+            <h2 class="slide-title">خارطة الطريق لحل أي باج في العالم 🌟</h2>
+            <div class="steps-flow-vertical mt-3">
+                <div class="flow-card"><span class="step-badge input-bg">1. الملاحظة</span><span>ماذا حدث بالضبط؟ وما الذي كان متوقعاً حدوثه؟</span></div>
+                <div class="flow-card"><span class="step-badge process-bg">2. قراءة الرسالة</span><span>رقم السطر ونوع الخطأ هو دليلك الأساسي.</span></div>
+                <div class="flow-card"><span class="step-badge output-bg">3. عزل الكود</span><span>حدد الجزء المريب باستخدام التعليقات وجمل الطباعة.</span></div>
+                <div class="flow-card"><span class="step-badge process-bg">4. الإصلاح</span><span>صحح الرمز أو المنطق أو نوع البيانات.</span></div>
+                <div class="flow-card"><span class="step-badge input-bg">5. إعادة الاختبار</span><span>شغل البرنامج مرتين لتتأكد من اختفاء المشكلة للأبد!</span></div>
+            </div>
+        </div>
+    </div>
+<div class="slide slide-21" data-title="أشهر باجات في تاريخ البشرية" data-notes="عارفين إن الأخطاء البرمجية أحياناً كانت بتكلف العالم ملايين؟ سنة 1962، صاروخ الفضاء مارينر 1 انحرف عن مساره وانفجر بعد دقائق من إطلاقه بسبب فاصلة رياضية ناقصة في سطر كود! علشان كده مهنة صائد الأخطاء هي من أهم وأغلى المهن في العالم!">
+        <div class="slide-header">
+            <span class="slide-tag">تاريخ حقيقي</span>
+            <span class="slide-badge">باجات غيرت التاريخ</span>
+        </div>
+        <div class="slide-body">
+            <h2 class="slide-title">أخطاء برمجية كلفت العالم ملايين الدولارات! 🚀💥</h2>
+            <div class="info-card-grid two-cols mt-3">
+                <div class="glass-card danger-card">
+                    <span class="card-icon">🚀</span>
+                    <h3>صاروخ مارينر 1 (1962)</h3>
+                    <p>انحرف الصاروخ الفضائي المتجه لكوكب الزهرة وانفجر بعد دقائق بسبب نسيان شرطة واصلة (-) في معادلة توجيه الكود!</p>
+                </div>
+                <div class="glass-card danger-card">
+                    <span class="card-icon">👾</span>
+                    <h3>باج لعبة بوكيمون ريد (1996)</h3>
+                    <p>خطأ في قراءة ذاكرة اللعبة تسبب في ظهور الوحش الأسطوري الخيالي MissingNo الذي يضاعف الأدوات بشكل سحري!</p>
+                </div>
+            </div>
+        </div>
+    </div>
+<div class="slide slide-22" data-title="الأخطاء أوسمة شرف للمبرمج" data-notes="تذكروا دايماً يا أبطال: الخطأ ليس فشلاً، بل هو دليل على أنك تحاول وتبتكر! أكبر مهندسي جوجل ومايكروسوفت بيقضوا أكتر من 50% من وقت يومهم في صيد الأخطاء وتحسين الكود! كل باج بتصلحها بتخليك أذكى وأقوى في البرمجة!">
+        <div class="slide-header">
+            <span class="slide-tag">حكمة المبرمجين</span>
+            <span class="slide-badge">أوسمة الشرف</span>
+        </div>
+        <div class="slide-body text-center">
+            <div class="hero-icon animated-pulse">🌟 🎖️ 💖</div>
+            <h2 class="slide-title">الخطأ ليس فشلاً.. بل وسام شرف!</h2>
+            <p class="slide-desc">كل خطأ ترتكبه وتكتشف حله يجعلك أكثر ذكاءً وخبرة بعشرات المرات.</p>
+            <div class="feature-box success-border mt-3 text-right">
+                <div class="box-icon">🏆</div>
+                <div class="box-content">
+                    <h4>حقيقة واقعية:</h4>
+                    <p>كبار مهندسي ومطوري الشركات العالمية (Google / Apple / Microsoft) يقضون أكثر من 50% من يومهم في تصحيح الأخطاء وتحسين الكود! تصحيح الأخطاء هو ما يصنع المبرمج الحقيقي.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+<div class="slide slide-23" data-title="تمرين عملي: صيد الحشرات" data-notes="ودلوقتي تعالوا نشوف تمرين عملي: لو عندنا كود بيجمع درجتين: `x = &quot;10&quot;` و `y = &quot;20&quot;` وكاتبين `print(x + y)` وطلع الناتج 1020 بدل 30! إيه الغلطة؟ علامات التنصيص حولت الأرقام لنصوص! نشيل علامات التنصيص ونخليها أرقام حقيقية يتحل اللغز فوراً!">
+        <div class="slide-header">
+            <span class="slide-tag">تمرين فوري</span>
+            <span class="slide-badge">صيد مباشر</span>
+        </div>
+        <div class="slide-body">
+            <h2 class="slide-title">تمرين المحقق: أصلح كود الجمع الحسابي! 🧮</h2>
+            <div class="comparison-grid two-cols mt-3">
+                <div class="glass-card danger-card">
+                    <h3>❌ الكود المعطوب</h3>
+                    <code>num1 = "10"<br>num2 = "20"<br>total = num1 + num2<br>print(total) # طبع: 1020 !</code>
+                </div>
+                <div class="glass-card success-card">
+                    <h3>✅ الكود المصحح</h3>
+                    <code>num1 = 10<br>num2 = 20<br>total = num1 + num2<br>print(total) # طبع: 30 🎉</code>
+                </div>
+            </div>
+            <div class="alert-card success mt-3">
+                <span>🔍 التحليل: الحشرة كانت علامات التنصيص التي حولت الأرقام لنصوص! بحذفها جمع الكمبيوتر الأرقام بنجاح!</span>
+            </div>
+        </div>
+    </div>
+<div class="slide slide-24" data-title="تحدي البطل الصغير" data-notes="تحدي بطل اليوم العبقري: ورقة تحريات الأخطاء! في واجب اليوم فيه كود يحتوي على 3 حشرات متخفية: خطأ إملائي، وخطأ منطقي، وخطأ مسافة. طلع عدستك المكبرة واكتشفهم واكسب وسام المحقق الرقمي المعتمد!">
+        <div class="slide-header">
+            <span class="slide-tag">تحدي اليوم</span>
+            <span class="slide-badge">المحقق المعتمد</span>
+        </div>
+        <div class="slide-body text-center">
+            <div class="hero-icon animated-pulse">🕵️‍♂️ 📋 🔍</div>
+            <h2 class="slide-title">تحدي صيد الأخطاء الثلاثة!</h2>
+            <p class="slide-desc">افحص هذا الكود المليء بالحشرات واستخرج الأخطاء الثلاثة في كراستك:</p>
+            <div class="code-preview-box mt-3 text-right">
+                <code>Prnt("أهلاً بالبطل") &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# حشرة 1 إملائية 🐛<br>score = 100<br>if score &gt; 50 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# حشرة 2 رمزية 🐛<br>score = score - 10 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# حشرة 3 مسافة ومنطق 🐛</code>
+            </div>
+        </div>
+    </div>
+<div class="slide slide-25" data-title="احتفال ختام المستوى الثاني" data-notes="مبارك يا عباقرة! باجتياز المحاضرة الرابعة عشرة، تكونون قد أنهيتم رسمياً &#39;المستوى الثاني: التفكير الحسابي وأساسيات البرمجة&#39; كاملة بنجاح باهر! 🎓 وفي المستوى الثالث القادم، سننطلق في مغامرة أسطورية مع: &#39;برمجة وتصميم الألعاب ثنائية الأبعاد في سكراتش (Scratch Game Development)&#39;! إلى اللقاء في القمة!">
+        <div class="slide-header">
+            <span class="slide-tag">حفل التخرج</span>
+            <span class="slide-badge">إنجاز عظيم 🎓</span>
+        </div>
+        <div class="slide-body text-center">
+            <div class="hero-icon animated-bounce">🎓 🏆 🚀</div>
+            <h2 class="slide-title">مبارك تخرجكم من المستوى الثاني!</h2>
+            <p class="slide-desc">أصبحتم الآن رسمياً تمتلكون عقل المبرمج وأساسيات التفكير المنطقي والحسابي!</p>
+            <div class="next-lecture-preview mt-4">
+                <span class="preview-badge">المستوى الثالث القادم (المحاضرة 15 وما بعدها)</span>
+                <h3>مغامرة سكراتش لصناعة الألعاب ثنائية الأبعاد (Scratch 2D Game Development)!</h3>
+            </div>
+        </div>
+    </div>
+        </div>
 
                 <!-- Transparent Drawing Pen Canvas Overlay -->
                 <canvas id="slidePenCanvas" class="slide-pen-canvas"></canvas>
