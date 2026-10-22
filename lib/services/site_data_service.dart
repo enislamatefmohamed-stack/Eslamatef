@@ -263,6 +263,19 @@ class SiteDataService extends ChangeNotifier {
         }
       }, onError: (e) => debugPrint("Firestore quiz_submissions error: $e"));
 
+      // Challenge Submissions Collection (استماع حي لحلول تحدي الأسبوع)
+      _firestore.collection('challenge_submissions').snapshots().listen((snapshot) {
+        if (snapshot.docs.isNotEmpty) {
+          _challengeSubmissions = snapshot.docs.map((doc) {
+            final d = doc.data();
+            d['id'] = doc.id;
+            return d;
+          }).toList();
+          _saveChallengeSubmissions();
+          notifyListeners();
+        }
+      }, onError: (e) => debugPrint("Firestore challenge_submissions error: $e"));
+
       // Users / Members Collection
       _firestore.collection('users').snapshots().listen((snapshot) {
         if (snapshot.docs.isNotEmpty) {
@@ -1056,30 +1069,56 @@ class SiteDataService extends ChangeNotifier {
   }
 
   Map<String, dynamic>? getActiveChallenge() {
-    final explicitActive = _weeklyChallenges.where((c) => c['status'] == 'نشط').toList();
-    if (explicitActive.isNotEmpty) return explicitActive.first;
+    final list = _weeklyChallenges.isNotEmpty
+        ? _weeklyChallenges
+        : FiftyChallengesData.getAllChallenges();
 
-    final now = DateTime.now();
-    final anchor = DateTime(2026, 10, 3);
-    int diffWeeks = 0;
-    if (now.isAfter(anchor)) {
-      diffWeeks = now.difference(anchor).inDays ~/ 7;
+    if (list.isEmpty) return _weeklyChallenge;
+
+    // 1. التحقق إن كان هناك تحدٍ يدوي تم تحديده صراحة من لوحة الإدارة
+    if (_weeklyChallenge != null && (_weeklyChallenge!['isManualOverride'] == true || _weeklyChallenge!['status'] == 'نشط_يدوي')) {
+      return _weeklyChallenge;
     }
-    final currentWeekNum = (diffWeeks % 50) + 1;
-    final match = _weeklyChallenges.firstWhere(
+
+    // 2. التغيير الأوتوماتيكي للتحديات بناءً على أسابيع السنة (السبت بداية كل أسبوع)
+    final now = DateTime.now();
+    final anchor = DateTime(2026, 10, 3); // السبت 3 أكتوبر 2026 بداية الأسبوع الأول
+    int currentWeekNum = 1;
+    if (now.isAfter(anchor)) {
+      final daysDiff = now.difference(anchor).inDays;
+      final weeksDiff = daysDiff ~/ 7;
+      currentWeekNum = (weeksDiff % 50) + 1;
+    } else {
+      final dayOfYear = now.difference(DateTime(now.year, 1, 1)).inDays + 1;
+      currentWeekNum = ((dayOfYear / 7).ceil() % 50).clamp(1, 50);
+    }
+
+    final match = list.firstWhere(
       (c) => c['weekNumber'] == currentWeekNum,
-      orElse: () => _weeklyChallenges.isNotEmpty ? _weeklyChallenges.first : {},
+      orElse: () => list.firstWhere(
+        (c) => c['week'] == currentWeekNum || c['id'] == 'chall_w${currentWeekNum.toString().padLeft(2, '0')}',
+        orElse: () => list.first,
+      ),
     );
-    if (match.isNotEmpty) return match;
-    if (_weeklyChallenge != null) return _weeklyChallenge;
-    return null;
+
+    return Map<String, dynamic>.from(match);
   }
 
   Future<void> addChallengeSubmission(Map<String, dynamic> submission) async {
-    submission['id'] = DateTime.now().millisecondsSinceEpoch.toString();
+    final id = submission['id']?.toString() ?? DateTime.now().millisecondsSinceEpoch.toString();
+    submission['id'] = id;
     submission['status'] = submission['status'] ?? 'جديد';
+    _challengeSubmissions.removeWhere((s) => s['id'] == id);
     _challengeSubmissions.insert(0, submission);
     await _saveChallengeSubmissions();
+
+    if (isFirebaseReady) {
+      try {
+        await _firestore.collection('challenge_submissions').doc(id).set(submission, SetOptions(merge: true));
+      } catch (e) {
+        debugPrint("Firestore addChallengeSubmission error: $e");
+      }
+    }
 
     final email = submission['email']?.toString();
     if (email != null && email.isNotEmpty) {
@@ -1098,6 +1137,13 @@ class SiteDataService extends ChangeNotifier {
     if (idx != -1) {
       _challengeSubmissions[idx]['status'] = status;
       await _saveChallengeSubmissions();
+      if (isFirebaseReady) {
+        try {
+          await _firestore.collection('challenge_submissions').doc(id).set({'status': status}, SetOptions(merge: true));
+        } catch (e) {
+          debugPrint("Firestore updateChallengeSubmissionStatus error: $e");
+        }
+      }
       notifyListeners();
     }
   }
@@ -1105,6 +1151,13 @@ class SiteDataService extends ChangeNotifier {
   Future<void> deleteChallengeSubmission(String id) async {
     _challengeSubmissions.removeWhere((s) => s['id'] == id);
     await _saveChallengeSubmissions();
+    if (isFirebaseReady) {
+      try {
+        await _firestore.collection('challenge_submissions').doc(id).delete();
+      } catch (e) {
+        debugPrint("Firestore deleteChallengeSubmission error: $e");
+      }
+    }
     notifyListeners();
   }
 

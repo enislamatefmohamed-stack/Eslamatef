@@ -74,6 +74,9 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
   String _challengesFilter = 'الكل'; // الكل, نشط, مجدول, منتهٍ, مسودة
   int _challengeSubNav = 0; // 0: التحديات, 1: حلول الطلاب
 
+  int _submissionsSubNav = 0; // 0: حلول تحدي الأسبوع, 1: نتائج اختبر نفسك
+  String _submissionsSearch = '';
+
   String _membersSearch = '';
   int _membersCurrentPage = 0;
   final int _membersPageSize = 20;
@@ -328,6 +331,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                 _buildNavItem(5, "جلسات تصوير كورس الاطفال", Icons.slideshow_rounded, isDrawer, count: KidsCourseSessionsData.allSessions.length),
                 _buildNavItem(6, "جلسات التصوير", Icons.videocam_rounded, isDrawer, count: _dataService.recordingLessons.length),
                 _buildNavItem(7, "الأعضاء", Icons.group_rounded, isDrawer, count: _dataService.members.length),
+                _buildNavItem(8, "استقبال إجابات الطلاب", Icons.mark_email_unread_rounded, isDrawer, count: _dataService.challengeSubmissions.length + _dataService.quizSubmissions.length),
                 const Divider(color: Color(0xFFE2E8F0), height: 24),
                 _buildWebsiteLinkItem(isDrawer),
               ],
@@ -467,6 +471,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
       "جلسات تصوير كورس الاطفال (49 محاضرة)",
       "إدارة جلسات التصوير",
       "إدارة الأعضاء والطلاب",
+      "استقبال إجابات الطلاب (تحدي الأسبوع + اختبر نفسك)",
     ];
 
     final currentTitle = _selectedCourseForLectures != null
@@ -581,6 +586,8 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
         return _buildRecordingStudioSection();
       case 7:
         return _buildMembersSection();
+      case 8:
+        return _buildSubmissionsSection();
       default:
         return _buildHomeSection();
     }
@@ -9163,6 +9170,489 @@ function checkScore() {
               enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: const BorderSide(color: Color(0xFFE2E8F0))),
             ),
           ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildMetricCard({
+    required String title,
+    required String value,
+    required String subtitle,
+    required IconData icon,
+    required Color color,
+  }) {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0xFFE2E8F0)),
+        boxShadow: [
+          BoxShadow(color: color.withOpacity(0.06), blurRadius: 14, offset: const Offset(0, 4)),
+          BoxShadow(color: Colors.black.withOpacity(0.02), blurRadius: 4, offset: const Offset(0, 2)),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(title, style: GoogleFonts.cairo(fontSize: 14, color: const Color(0xFF64748B), fontWeight: FontWeight.w600)),
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(color: color.withOpacity(0.1), borderRadius: BorderRadius.circular(10)),
+                child: Icon(icon, color: color, size: 22),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Text(value, style: GoogleFonts.cairo(fontSize: 26, fontWeight: FontWeight.bold, color: const Color(0xFF0F172A))),
+          const SizedBox(height: 4),
+          Text(subtitle, style: GoogleFonts.cairo(fontSize: 12, color: const Color(0xFF94A3B8))),
+        ],
+      ),
+    );
+  }
+
+  // =========================================================================
+  // 9. استقبال إجابات الطلاب (حلول تحدي الأسبوع + نتائج اختبر نفسك)
+  // =========================================================================
+  Widget _buildSubmissionsSection() {
+    final challengeSubs = _dataService.challengeSubmissions;
+    final quizSubs = _dataService.quizSubmissions;
+
+    final filteredChallenges = challengeSubs.where((s) {
+      if (_submissionsSearch.trim().isEmpty) return true;
+      final q = _submissionsSearch.trim().toLowerCase();
+      final name = (s['studentName'] ?? '').toString().toLowerCase();
+      final email = (s['email'] ?? '').toString().toLowerCase();
+      final title = (s['challengeTitle'] ?? '').toString().toLowerCase();
+      final grade = (s['grade'] ?? '').toString().toLowerCase();
+      return name.contains(q) || email.contains(q) || title.contains(q) || grade.contains(q);
+    }).toList();
+
+    final filteredQuizzes = quizSubs.where((q) {
+      if (_submissionsSearch.trim().isEmpty) return true;
+      final query = _submissionsSearch.trim().toLowerCase();
+      final title = (q['quizTitle'] ?? '').toString().toLowerCase();
+      final user = (q['userEmail'] ?? q['studentName'] ?? q['uid'] ?? '').toString().toLowerCase();
+      return title.contains(query) || user.contains(query);
+    }).toList();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // 1. Stats Counter Cards
+        Row(
+          children: [
+            Expanded(
+              child: _buildMetricCard(
+                title: "حلول تحديات الأسبوع",
+                value: "${challengeSubs.length}",
+                subtitle: "${challengeSubs.where((s) => (s['status'] ?? 'جديد') == 'جديد').length} حلول جديدة بحاجة للمراجعة",
+                icon: Icons.emoji_events_rounded,
+                color: const Color(0xFF0284C7),
+              ),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: _buildMetricCard(
+                title: "إجابات اختبر نفسك",
+                value: "${quizSubs.length}",
+                subtitle: "إجمالي الاختبارات المكتملة من الطلاب",
+                icon: Icons.psychology_rounded,
+                color: const Color(0xFF8B5CF6),
+              ),
+            ),
+          ],
+        ),
+
+        const SizedBox(height: 24),
+
+        // 2. Tab Navigation & Search Bar
+        Row(
+          children: [
+            ChoiceChip(
+              label: Text("🏆 حلول تحدي الأسبوع (${challengeSubs.length})", style: GoogleFonts.cairo(fontWeight: FontWeight.bold)),
+              selected: _submissionsSubNav == 0,
+              onSelected: (_) => setState(() => _submissionsSubNav = 0),
+              selectedColor: const Color(0xFF0284C7),
+              labelStyle: TextStyle(color: _submissionsSubNav == 0 ? Colors.white : const Color(0xFF0F172A)),
+            ),
+            const SizedBox(width: 12),
+            ChoiceChip(
+              label: Text("🧠 نتائج اختبر نفسك (${quizSubs.length})", style: GoogleFonts.cairo(fontWeight: FontWeight.bold)),
+              selected: _submissionsSubNav == 1,
+              onSelected: (_) => setState(() => _submissionsSubNav = 1),
+              selectedColor: const Color(0xFF8B5CF6),
+              labelStyle: TextStyle(color: _submissionsSubNav == 1 ? Colors.white : const Color(0xFF0F172A)),
+            ),
+            const Spacer(),
+            SizedBox(
+              width: 260,
+              child: TextField(
+                onChanged: (val) => setState(() => _submissionsSearch = val),
+                decoration: InputDecoration(
+                  hintText: "بحث باسم الطالب أو العنوان...",
+                  hintStyle: GoogleFonts.cairo(fontSize: 12, color: Colors.grey),
+                  prefixIcon: const Icon(Icons.search, size: 18),
+                  filled: true,
+                  fillColor: const Color(0xFFF8FAFC),
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: const BorderSide(color: Color(0xFFE2E8F0))),
+                  enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: const BorderSide(color: Color(0xFFE2E8F0))),
+                ),
+                style: GoogleFonts.cairo(fontSize: 13),
+              ),
+            ),
+          ],
+        ),
+
+        const SizedBox(height: 20),
+
+        // 3. Tab Content
+        if (_submissionsSubNav == 0)
+          _buildChallengeSubmissionsTable(filteredChallenges)
+        else
+          _buildQuizSubmissionsTable(filteredQuizzes),
+      ],
+    );
+  }
+
+  Widget _buildChallengeSubmissionsTable(List<Map<String, dynamic>> submissions) {
+    if (submissions.isEmpty) {
+      return Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(40),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: const Color(0xFFE2E8F0)),
+        ),
+        child: Center(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(Icons.inbox_rounded, size: 48, color: Colors.grey),
+              const SizedBox(height: 12),
+              Text("لا توجد حلول مرسلة من الطلاب لتحدي الأسبوع حتى الآن.", style: GoogleFonts.cairo(color: Colors.grey, fontSize: 14, fontWeight: FontWeight.bold)),
+            ],
+          ),
+        ),
+      );
+    }
+
+    return Container(
+      width: double.infinity,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: const Color(0xFFE2E8F0)),
+      ),
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: DataTable(
+          headingRowColor: WidgetStateProperty.all(const Color(0xFFF8FAFC)),
+          columns: [
+            DataColumn(label: Text("اسم الطالب والصف", style: GoogleFonts.cairo(fontWeight: FontWeight.bold))),
+            DataColumn(label: Text("التحدي", style: GoogleFonts.cairo(fontWeight: FontWeight.bold))),
+            DataColumn(label: Text("البريد الإلكتروني", style: GoogleFonts.cairo(fontWeight: FontWeight.bold))),
+            DataColumn(label: Text("تاريخ الإرسال", style: GoogleFonts.cairo(fontWeight: FontWeight.bold))),
+            DataColumn(label: Text("المشروع / الملف", style: GoogleFonts.cairo(fontWeight: FontWeight.bold))),
+            DataColumn(label: Text("كود الحل والرسالة", style: GoogleFonts.cairo(fontWeight: FontWeight.bold))),
+            DataColumn(label: Text("الحالة والمراجعة", style: GoogleFonts.cairo(fontWeight: FontWeight.bold))),
+            DataColumn(label: Text("حذف", style: GoogleFonts.cairo(fontWeight: FontWeight.bold))),
+          ],
+          rows: submissions.map((sol) {
+            final status = sol['status'] ?? 'جديد';
+            final projectUrl = (sol['projectUrl'] ?? '').toString().trim();
+            final fileUrl = (sol['fileUrl'] ?? '').toString().trim();
+
+            return DataRow(cells: [
+              DataCell(
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(sol['studentName'] ?? 'طالب', style: GoogleFonts.cairo(fontWeight: FontWeight.bold, fontSize: 13)),
+                    if ((sol['grade'] ?? '').isNotEmpty)
+                      Text(sol['grade'] ?? '', style: GoogleFonts.cairo(fontSize: 11, color: const Color(0xFF64748B))),
+                  ],
+                ),
+              ),
+              DataCell(
+                Text(
+                  sol['challengeTitle'] ?? (sol['challengeNum'] != null ? "تحدي الأسبوع ${sol['challengeNum']}" : "تحدي"),
+                  style: GoogleFonts.cairo(fontSize: 12, fontWeight: FontWeight.bold, color: const Color(0xFF0284C7)),
+                ),
+              ),
+              DataCell(Text(sol['email'] ?? '', style: GoogleFonts.cairo(fontSize: 12), textDirection: TextDirection.ltr)),
+              DataCell(Text(sol['date'] ?? 'الآن', style: GoogleFonts.cairo(fontSize: 11, color: Colors.grey))),
+              DataCell(
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    if (projectUrl.isNotEmpty) ...[
+                      InkWell(
+                        onTap: () {
+                          try {
+                            launchUrl(Uri.parse(projectUrl.startsWith('http') ? projectUrl : 'https://$projectUrl'), mode: LaunchMode.externalApplication);
+                          } catch (_) {}
+                        },
+                        child: const Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 4),
+                          child: Row(
+                            children: [
+                              Icon(Icons.open_in_new_rounded, size: 14, color: Color(0xFF0284C7)),
+                              SizedBox(width: 2),
+                              Text("مشروع", style: TextStyle(fontSize: 11, color: Color(0xFF0284C7), decoration: TextDecoration.underline)),
+                            ],
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 6),
+                    ],
+                    if (fileUrl.isNotEmpty) ...[
+                      InkWell(
+                        onTap: () {
+                          Clipboard.setData(ClipboardData(text: fileUrl));
+                          _showSnackBar("تم نسخ رابط الملف 📋");
+                        },
+                        child: const Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 4),
+                          child: Row(
+                            children: [
+                              Icon(Icons.attach_file_rounded, size: 14, color: Color(0xFF10B981)),
+                              SizedBox(width: 2),
+                              Text("ملف", style: TextStyle(fontSize: 11, color: Color(0xFF10B981))),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                    if (projectUrl.isEmpty && fileUrl.isEmpty)
+                      const Text("—", style: TextStyle(color: Colors.grey)),
+                  ],
+                ),
+              ),
+              DataCell(
+                OutlinedButton.icon(
+                  onPressed: () => _showChallengeDetailsDialog(sol),
+                  icon: const Icon(Icons.code_rounded, size: 14),
+                  label: Text("عرض الحل 📝", style: GoogleFonts.cairo(fontSize: 11, fontWeight: FontWeight.bold)),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: const Color(0xFF8B5CF6),
+                    side: const BorderSide(color: Color(0xFF8B5CF6)),
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                  ),
+                ),
+              ),
+              DataCell(
+                DropdownButtonHideUnderline(
+                  child: DropdownButton<String>(
+                    value: ['جديد', 'قيد المراجعة', 'تمت المراجعة ومقبول ✅', 'متميز 🌟', 'بحاجة لتعديل ⚠️'].contains(status)
+                        ? status
+                        : 'جديد',
+                    items: const [
+                      DropdownMenuItem(value: 'جديد', child: Text("جديد 🆕")),
+                      DropdownMenuItem(value: 'قيد المراجعة', child: Text("قيد المراجعة ⏳")),
+                      DropdownMenuItem(value: 'تمت المراجعة ومقبول ✅', child: Text("مقبول ✅")),
+                      DropdownMenuItem(value: 'متميز 🌟', child: Text("متميز 🌟")),
+                      DropdownMenuItem(value: 'بحاجة لتعديل ⚠️', child: Text("بحاجة لتعديل ⚠️")),
+                    ],
+                    onChanged: (newStatus) async {
+                      if (newStatus != null) {
+                        await _dataService.updateChallengeSubmissionStatus(sol['id'], newStatus);
+                        _showSnackBar("تم تحديث حالة الحل إلى $newStatus");
+                      }
+                    },
+                    style: GoogleFonts.cairo(fontSize: 12, fontWeight: FontWeight.bold, color: const Color(0xFF0F172A)),
+                  ),
+                ),
+              ),
+              DataCell(
+                IconButton(
+                  icon: const Icon(Icons.delete_outline_rounded, size: 18, color: Color(0xFFEF4444)),
+                  tooltip: "حذف الحل",
+                  onPressed: () => _confirmDelete("حل الطالب ${sol['studentName'] ?? ''}", () async {
+                    await _dataService.deleteChallengeSubmission(sol['id']);
+                    _showSnackBar("تم حذف الحل بنجاح");
+                  }),
+                ),
+              ),
+            ]);
+          }).toList(),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildQuizSubmissionsTable(List<Map<String, dynamic>> submissions) {
+    if (submissions.isEmpty) {
+      return Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(40),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: const Color(0xFFE2E8F0)),
+        ),
+        child: Center(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(Icons.psychology_rounded, size: 48, color: Colors.grey),
+              const SizedBox(height: 12),
+              Text("لا توجد نتائج مسجلة لاختبارات اختبر نفسك حتى الآن.", style: GoogleFonts.cairo(color: Colors.grey, fontSize: 14, fontWeight: FontWeight.bold)),
+            ],
+          ),
+        ),
+      );
+    }
+
+    return Container(
+      width: double.infinity,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: const Color(0xFFE2E8F0)),
+      ),
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: DataTable(
+          headingRowColor: WidgetStateProperty.all(const Color(0xFFF8FAFC)),
+          columns: [
+            DataColumn(label: Text("اسم الاختبار", style: GoogleFonts.cairo(fontWeight: FontWeight.bold))),
+            DataColumn(label: Text("الطالب / المعرف", style: GoogleFonts.cairo(fontWeight: FontWeight.bold))),
+            DataColumn(label: Text("النتيجة", style: GoogleFonts.cairo(fontWeight: FontWeight.bold))),
+            DataColumn(label: Text("النسبة المئوية", style: GoogleFonts.cairo(fontWeight: FontWeight.bold))),
+            DataColumn(label: Text("تاريخ الإجراء", style: GoogleFonts.cairo(fontWeight: FontWeight.bold))),
+            DataColumn(label: Text("حذف", style: GoogleFonts.cairo(fontWeight: FontWeight.bold))),
+          ],
+          rows: submissions.map((q) {
+            final score = q['score'] ?? 0;
+            final total = q['totalQuestions'] ?? 10;
+            final percentage = (q['percentage'] ?? (total > 0 ? (score / total * 100).round() : 0)).toString();
+
+            return DataRow(cells: [
+              DataCell(
+                Text(q['quizTitle'] ?? 'اختبار تقييم المستوى', style: GoogleFonts.cairo(fontWeight: FontWeight.bold, fontSize: 13, color: const Color(0xFF8B5CF6))),
+              ),
+              DataCell(
+                Text((q['userEmail'] ?? q['studentName'] ?? q['uid'] ?? 'طالب').toString(), style: GoogleFonts.cairo(fontSize: 12), textDirection: TextDirection.ltr),
+              ),
+              DataCell(
+                Text("$score / $total", style: GoogleFonts.cairo(fontWeight: FontWeight.bold, fontSize: 13)),
+              ),
+              DataCell(
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF10B981).withValues(alpha: 0.12),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: const Color(0xFF10B981).withValues(alpha: 0.3)),
+                  ),
+                  child: Text("$percentage%", style: GoogleFonts.cairo(fontWeight: FontWeight.bold, fontSize: 12, color: const Color(0xFF10B981))),
+                ),
+              ),
+              DataCell(Text((q['date'] ?? q['createdAt'] ?? 'الآن').toString(), style: GoogleFonts.cairo(fontSize: 11, color: Colors.grey))),
+              DataCell(
+                IconButton(
+                  icon: const Icon(Icons.delete_outline_rounded, size: 18, color: Color(0xFFEF4444)),
+                  tooltip: "حذف النتيجة",
+                  onPressed: () => _confirmDelete("نتيجة الاختبار", () async {
+                    if (q['id'] != null) {
+                      await _dataService.deleteQuizSubmission(q['id'].toString());
+                      _showSnackBar("تم حذف النتيجة بنجاح");
+                    }
+                  }),
+                ),
+              ),
+            ]);
+          }).toList(),
+        ),
+      ),
+    );
+  }
+
+  void _showChallengeDetailsDialog(Map<String, dynamic> sol) {
+    final message = (sol['message'] ?? sol['notes'] ?? '').toString();
+    final projectUrl = (sol['projectUrl'] ?? '').toString();
+    final fileUrl = (sol['fileUrl'] ?? '').toString();
+
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: Row(
+          children: [
+            const Icon(Icons.code_rounded, color: Color(0xFF8B5CF6), size: 22),
+            const SizedBox(width: 8),
+            Text("تفاصيل حل: ${sol['studentName'] ?? 'طالب'}", style: GoogleFonts.cairo(fontWeight: FontWeight.bold, fontSize: 16)),
+          ],
+        ),
+        content: SizedBox(
+          width: 580,
+          child: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text("التحدي: ${sol['challengeTitle'] ?? ''}", style: GoogleFonts.cairo(fontWeight: FontWeight.bold, fontSize: 14, color: const Color(0xFF0284C7))),
+                Text("البريد: ${sol['email'] ?? '—'} | الصف: ${sol['grade'] ?? '—'} | التاريخ: ${sol['date'] ?? '—'}", style: GoogleFonts.cairo(fontSize: 12, color: Colors.grey)),
+                const SizedBox(height: 14),
+                if (projectUrl.isNotEmpty) ...[
+                  Row(
+                    children: [
+                      const Text("رابط المشروع: ", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
+                      Expanded(child: SelectableText(projectUrl, style: const TextStyle(color: Color(0xFF0284C7), fontSize: 12))),
+                    ],
+                  ),
+                  const SizedBox(height: 6),
+                ],
+                if (fileUrl.isNotEmpty) ...[
+                  Row(
+                    children: [
+                      const Text("الملف المرفق: ", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
+                      Expanded(child: SelectableText(fileUrl, style: const TextStyle(color: Color(0xFF10B981), fontSize: 12))),
+                    ],
+                  ),
+                  const SizedBox(height: 10),
+                ],
+                const Divider(),
+                const SizedBox(height: 8),
+                Text("كود الحل ورسالة الطالب:", style: GoogleFonts.cairo(fontWeight: FontWeight.bold, fontSize: 13)),
+                const SizedBox(height: 8),
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(14),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF0F172A),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: SelectableText(
+                    message.isNotEmpty ? message : "لا توجد رسالة أو كود إضافي مكتوب.",
+                    style: const TextStyle(color: Color(0xFFF1F5F9), fontFamily: 'monospace', fontSize: 13, height: 1.5),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+        actions: [
+          ElevatedButton.icon(
+            onPressed: () {
+              Clipboard.setData(ClipboardData(text: message));
+              _showSnackBar("تم نسخ كود الحل 📋");
+            },
+            icon: const Icon(Icons.copy_rounded, size: 16),
+            label: Text("نسخ الكود", style: GoogleFonts.cairo(fontSize: 12)),
+            style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF0284C7), foregroundColor: Colors.white),
+          ),
+          TextButton(onPressed: () => Navigator.pop(ctx), child: Text("إغلاق", style: GoogleFonts.cairo())),
         ],
       ),
     );

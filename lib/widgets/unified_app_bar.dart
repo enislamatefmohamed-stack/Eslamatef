@@ -46,10 +46,13 @@ class UnifiedAppHeader extends StatelessWidget implements PreferredSizeWidget {
     final isMobile = screenWidth < 900;
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    return Container(
-      height: 72,
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      decoration: BoxDecoration(
+    return SelectionContainer.disabled(
+      child: MouseRegion(
+        cursor: SystemMouseCursors.basic,
+        child: Container(
+          height: 72,
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          decoration: BoxDecoration(
         color: isDark ? AppColors.surfaceDark : Colors.white,
         border: Border(
           bottom: BorderSide(
@@ -321,14 +324,16 @@ class UnifiedAppHeader extends StatelessWidget implements PreferredSizeWidget {
           ),
         ),
       ),
-    );
+    ),
+  ),
+);
   }
 
   Widget _navItem(BuildContext context, String title, String route, bool isActive, bool isDark) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 8),
       child: MouseRegion(
-        cursor: SystemMouseCursors.click,
+        cursor: SystemMouseCursors.basic,
         child: GestureDetector(
           onTap: () {
             if (isActive) return;
@@ -505,8 +510,11 @@ class UnifiedAppFooter extends StatelessWidget {
     final isMobile = screenWidth < 850;
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    return Container(
-      decoration: BoxDecoration(
+    return SelectionContainer.disabled(
+      child: MouseRegion(
+        cursor: SystemMouseCursors.basic,
+        child: Container(
+          decoration: BoxDecoration(
         color: isDark ? const Color(0xFF070A12) : Colors.white,
         border: Border(top: BorderSide(color: isDark ? AppColors.borderDark : AppColors.borderLight)),
       ),
@@ -617,14 +625,16 @@ class UnifiedAppFooter extends StatelessWidget {
           ),
         ),
       ),
-    );
+    ),
+  ),
+);
   }
 
   Widget _footerLink(BuildContext context, String text, String route) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       child: MouseRegion(
-        cursor: SystemMouseCursors.click,
+        cursor: SystemMouseCursors.basic,
         child: GestureDetector(
           onTap: () => Navigator.of(context).pushNamed(route),
           child: Text(

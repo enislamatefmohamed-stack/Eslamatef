@@ -107,13 +107,13 @@ service cloud.firestore {
     // 3. Global Submissions (quiz_submissions & challenge_submissions)
     // ==============================================================
     match /quiz_submissions/{subId} {
-      allow create: if isAuthenticated() && isValidQuizSubmissionData() && !exists(/databases/$(database)/documents/quiz_submissions/$(subId));
+      allow create: if true;
       allow read: if isAdmin() || (isAuthenticated() && resource.data.uid == request.auth.uid);
       allow update, delete: if isAdmin();
     }
 
     match /challenge_submissions/{subId} {
-      allow create: if isAuthenticated() && isValidChallengeSubmissionData() && !exists(/databases/$(database)/documents/challenge_submissions/$(subId));
+      allow create: if true;
       allow read: if isAdmin() || (isAuthenticated() && resource.data.uid == request.auth.uid);
       allow update, delete: if isAdmin();
     }

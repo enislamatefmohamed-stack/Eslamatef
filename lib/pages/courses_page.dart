@@ -40,8 +40,16 @@ class _CoursesPageState extends State<CoursesPage> {
   void _checkUrlParameters() {
     try {
       final uri = Uri.base;
-      final courseId = uri.queryParameters['course'] ?? uri.queryParameters['courseId'] ?? uri.queryParameters['id'];
-      final lessonId = uri.queryParameters['lesson'] ?? uri.queryParameters['lessonId'];
+      final Map<String, String> params = Map.from(uri.queryParameters);
+      if (uri.hasFragment && uri.fragment.contains('?')) {
+        try {
+          final queryPart = uri.fragment.substring(uri.fragment.indexOf('?') + 1);
+          params.addAll(Uri.splitQueryString(queryPart));
+        } catch (_) {}
+      }
+
+      final courseId = params['course'] ?? params['courseId'] ?? params['id'] ?? params['c'];
+      final lessonId = params['lesson'] ?? params['lessonId'] ?? params['l'];
 
       if (courseId != null && courseId.isNotEmpty) {
         final matchedCourses = _dataService.courses.where((c) => c['id'].toString() == courseId).toList();
@@ -68,12 +76,12 @@ class _CoursesPageState extends State<CoursesPage> {
         final cid = (_activeCourse!['id'] ?? '').toString();
         if (_activeLesson != null) {
           final lid = (_activeLesson!['id'] ?? '').toString();
-          newUrl = '#/courses?course=$cid&lesson=$lid';
+          newUrl = '/courses?course=$cid&lesson=$lid';
         } else {
-          newUrl = '#/courses?course=$cid';
+          newUrl = '/courses?course=$cid';
         }
       } else {
-        newUrl = '#/courses';
+        newUrl = '/courses';
       }
       html.window.history.pushState(null, '', newUrl);
     } catch (_) {}
@@ -289,6 +297,7 @@ class _CoursesPageState extends State<CoursesPage> {
                 UnifiedAppHeader(
                   currentRoute: '/courses',
                   pageTitle: 'الكورسات والمسارات البرمجية',
+                  showBackButton: _activeLesson != null || _activeCourse != null,
                   onBack: _activeLesson != null
                       ? () {
                           setState(() => _activeLesson = null);
@@ -522,7 +531,7 @@ class _CoursesPageState extends State<CoursesPage> {
                   ),
                   OutlinedButton.icon(
                     onPressed: () => _copyLink(
-                      'https://eslamatef-sepia.vercel.app/#/courses?course=$courseId',
+                      'https://eslamatef-sepia.vercel.app/courses?course=$courseId',
                       "تم نسخ رابط الكورس المباشر 📋",
                     ),
                     icon: const Icon(Icons.link_rounded, size: 16),
@@ -554,7 +563,7 @@ class _CoursesPageState extends State<CoursesPage> {
                   const SizedBox(width: 12),
                   OutlinedButton.icon(
                     onPressed: () => _copyLink(
-                      'https://eslamatef-sepia.vercel.app/#/courses?course=$courseId',
+                      'https://eslamatef-sepia.vercel.app/courses?course=$courseId',
                       "تم نسخ رابط الكورس المباشر 📋",
                     ),
                     icon: const Icon(Icons.link_rounded, size: 16),
@@ -1163,6 +1172,18 @@ class _CoursesPageState extends State<CoursesPage> {
       );
     }
 
+    final isFullHtml = displayContent.contains('<!DOCTYPE') ||
+        displayContent.contains('<html') ||
+        displayContent.contains('class="article-header') ||
+        displayContent.contains('badge-course') ||
+        displayContent.contains('<header');
+
+    final bool showCustomTitle = !isFullHtml && title.trim() != 'درس جديد';
+    final bool showCustomDesc = !isFullHtml &&
+        desc.isNotEmpty &&
+        desc.trim() != 'درس جديد' &&
+        desc.trim() != title.trim();
+
     return Center(
       child: Container(
         constraints: const BoxConstraints(maxWidth: 1000),
@@ -1170,48 +1191,21 @@ class _CoursesPageState extends State<CoursesPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // Back button & Copy Lesson Link
-            Wrap(
-              spacing: 12,
-              runSpacing: 8,
-              alignment: WrapAlignment.spaceBetween,
-              crossAxisAlignment: WrapCrossAlignment.center,
-              children: [
-                OutlinedButton.icon(
-                  onPressed: () {
-                    setState(() => _activeLesson = null);
-                    _syncUrl();
-                  },
-                  icon: const Icon(Icons.arrow_forward_rounded, size: 16),
-                  label: Text("العودة لقائمة دروس الكورس", style: GoogleFonts.cairo(fontWeight: FontWeight.bold)),
-                  style: OutlinedButton.styleFrom(foregroundColor: const Color(0xFF00E5FF)),
+            // 1. عنوان الدرس (فقط للدروس العادية التي لا تحتوي على مقال HTML مستقل متكامل وليست "درس جديد")
+            if (showCustomTitle) ...[
+              Text(
+                title,
+                style: GoogleFonts.cairo(
+                  fontSize: isMobile ? 22 : 28,
+                  fontWeight: FontWeight.w900,
+                  height: 1.3,
                 ),
-                OutlinedButton.icon(
-                  onPressed: () => _copyLink(
-                    'https://eslamatef-sepia.vercel.app/#/courses?course=$courseId&lesson=$lessonId',
-                    "تم نسخ رابط هذه المحاضرة المباشر 📋",
-                  ),
-                  icon: const Icon(Icons.link_rounded, size: 16),
-                  label: Text("نسخ رابط المحاضرة 📋", style: GoogleFonts.cairo(fontWeight: FontWeight.bold)),
-                  style: OutlinedButton.styleFrom(foregroundColor: const Color(0xFF10B981)),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-
-            // 1. العنوان الأول (Lesson Title)
-            Text(
-              title,
-              style: GoogleFonts.cairo(
-                fontSize: isMobile ? 22 : 28,
-                fontWeight: FontWeight.w900,
-                height: 1.3,
               ),
-            ),
-            const SizedBox(height: 12),
+              const SizedBox(height: 12),
+            ],
 
-            // 2. الوصف (Lesson Description)
-            if (desc.isNotEmpty) ...[
+            // 2. وصف الدرس (فقط إذا لم يكن مكرراً أو "درس جديد")
+            if (showCustomDesc) ...[
               Text(
                 desc,
                 style: GoogleFonts.cairo(
@@ -1243,66 +1237,72 @@ class _CoursesPageState extends State<CoursesPage> {
               const SizedBox(height: 24),
             ],
 
-          // 5. شرح وتفاصيل الدرس (Lesson Explanation)
-          Container(
-            padding: EdgeInsets.all(isMobile ? 18 : 28),
-            decoration: BoxDecoration(
-              color: isDark ? const Color(0xFF0F172A) : Colors.white,
-              borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0)),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.05),
-                  blurRadius: 16,
-                  offset: const Offset(0, 4),
-                ),
-              ],
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Row(
-                  children: [
-                    const Icon(Icons.menu_book_rounded, color: Color(0xFF00E5FF), size: 24),
-                    const SizedBox(width: 10),
-                    Text(
-                      "شرح وتفاصيل الدرس",
-                      style: GoogleFonts.cairo(
-                        fontSize: 19,
-                        fontWeight: FontWeight.bold,
-                        color: const Color(0xFF00E5FF),
-                      ),
+            // 4. شرح وتفاصيل الدرس (Lesson Explanation)
+            // إذا كان الدرس مقالاً تفاعلياً متكاملاً (Full HTML)، يعرض مباشرة بسلاسة كجزء طبيعي من الصفحة دون حشره في مربع مستقل
+            if (isFullHtml)
+              InteractiveHtmlView(
+                id: 'course_lesson_content_${lessonId.isNotEmpty ? lessonId : 'view'}',
+                rawHtml: displayContent,
+                height: (displayContent.length * 0.12).clamp(800.0, 5000.0),
+              )
+            else
+              Container(
+                padding: EdgeInsets.all(isMobile ? 18 : 28),
+                decoration: BoxDecoration(
+                  color: isDark ? const Color(0xFF0F172A) : Colors.white,
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(color: isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0)),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.05),
+                      blurRadius: 16,
+                      offset: const Offset(0, 4),
                     ),
                   ],
                 ),
-                const SizedBox(height: 12),
-                const Divider(),
-                if (displayContent.isNotEmpty)
-                  (displayContent.contains('<script') ||
-                          displayContent.contains('<!DOCTYPE') ||
-                          displayContent.contains('<html') ||
-                          displayContent.contains('class="quiz') ||
-                          displayContent.contains("id='quiz") ||
-                          displayContent.contains('class="option-item"'))
-                      ? InteractiveHtmlView(
-                          id: 'course_lesson_content_${lessonId.isNotEmpty ? lessonId : 'view'}',
-                          rawHtml: displayContent,
-                          height: 700,
-                        )
-                      : ArticleContentRenderer(content: displayContent, isDark: isDark)
-                else
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 24),
-                    child: Center(
-                      child: Text(
-                        "لا يوجد محتوى نصي إضافي لهذا الدرس، يمكنك متابعة الشرح بالفيديو أعلاه.",
-                        style: GoogleFonts.cairo(color: Colors.grey, fontSize: 14),
-                      ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Row(
+                      children: [
+                        const Icon(Icons.menu_book_rounded, color: Color(0xFF00E5FF), size: 24),
+                        const SizedBox(width: 10),
+                        Text(
+                          "شرح وتفاصيل الدرس",
+                          style: GoogleFonts.cairo(
+                            fontSize: 19,
+                            fontWeight: FontWeight.bold,
+                            color: const Color(0xFF00E5FF),
+                          ),
+                        ),
+                      ],
                     ),
-                  ),
-              ],
-            ),
-          ),
+                    const SizedBox(height: 12),
+                    const Divider(),
+                    if (displayContent.isNotEmpty)
+                      (displayContent.contains('<script') ||
+                              displayContent.contains('class="quiz') ||
+                              displayContent.contains("id='quiz") ||
+                              displayContent.contains('class="option-item"'))
+                          ? InteractiveHtmlView(
+                              id: 'course_lesson_content_${lessonId.isNotEmpty ? lessonId : 'view'}',
+                              rawHtml: displayContent,
+                              height: 900,
+                            )
+                          : ArticleContentRenderer(content: displayContent, isDark: isDark)
+                    else
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 24),
+                        child: Center(
+                          child: Text(
+                            "لا يوجد محتوى نصي إضافي لهذا الدرس، يمكنك متابعة الشرح بالفيديو أعلاه.",
+                            style: GoogleFonts.cairo(color: Colors.grey, fontSize: 14),
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+              ),
 
           // 6. الاختبار إن وُجد (Quiz if present)
           if (hasQuiz) ...[

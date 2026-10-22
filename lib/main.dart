@@ -25,11 +25,13 @@ import 'services/user_service.dart';
 import 'widgets/live_text_ticker_bar.dart';
 import 'widgets/unified_app_bar.dart';
 import 'widgets/safe_network_image/safe_network_image.dart';
+import 'package:flutter_web_plugins/url_strategy.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  usePathUrlStrategy();
   try {
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
@@ -1705,7 +1707,8 @@ class _HomePageState extends State<HomePage> {
     bool isMobile,
     bool isDark,
   ) {
-    final imgPath = (course['image'] ?? '').toString();
+    final rawImg = (course['image'] ?? course['imageUrl'] ?? course['cover'] ?? course['thumbnail'] ?? '').toString();
+    final imgPath = sanitizeImageUrl(rawImg);
     final gradient =
         (course['gradient'] as List<Color>?) ??
         [const Color(0xFF0284C7), const Color(0xFF0369A1)];
@@ -1962,12 +1965,12 @@ class _HomePageState extends State<HomePage> {
 
   Widget _buildCourseCardImage(String imgPath, List<Color> gradient) {
     if (imgPath.startsWith('http')) {
-      return Image.network(
-        imgPath,
+      return SafeNetworkImage(
+        imageUrl: imgPath,
         fit: BoxFit.cover,
         width: double.infinity,
         height: double.infinity,
-        errorBuilder: (context, error, stackTrace) => _buildFallbackCardGradient(gradient),
+        errorWidget: _buildFallbackCardGradient(gradient),
       );
     }
     if (imgPath.isNotEmpty) {
