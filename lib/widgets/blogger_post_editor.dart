@@ -107,6 +107,20 @@ class _BloggerPostEditorState extends State<BloggerPostEditor> {
 
   void _onCodeChanged() {
     _updateLineCount();
+    // Auto-detect title from HTML <h1> or <title> if title is empty or 'درس جديد'
+    final curTitle = _titleCtrl.text.trim();
+    if (curTitle.isEmpty || curTitle == 'درس جديد') {
+      final code = _codeCtrl.text;
+      final h1Match = RegExp(r'<h1[^>]*>([^<]+)</h1>', caseSensitive: false).firstMatch(code);
+      if (h1Match != null && h1Match.group(1)!.trim().isNotEmpty) {
+        _titleCtrl.text = h1Match.group(1)!.trim();
+      } else {
+        final titleMatch = RegExp(r'<title[^>]*>([^<]+)</title>', caseSensitive: false).firstMatch(code);
+        if (titleMatch != null && titleMatch.group(1)!.trim().isNotEmpty) {
+          _titleCtrl.text = titleMatch.group(1)!.trim();
+        }
+      }
+    }
   }
 
   void _updateLineCount() {
@@ -418,10 +432,36 @@ class _BloggerPostEditorState extends State<BloggerPostEditor> {
       }
     }
 
+    // Validate and auto-extract title
+    String finalTitle = _titleCtrl.text.trim();
+    if (finalTitle.isEmpty || finalTitle == 'درس جديد') {
+      final h1Match = RegExp(r'<h1[^>]*>([^<]+)</h1>', caseSensitive: false).firstMatch(code);
+      if (h1Match != null && h1Match.group(1)!.trim().isNotEmpty) {
+        finalTitle = h1Match.group(1)!.trim();
+        _titleCtrl.text = finalTitle;
+      } else {
+        final titleMatch = RegExp(r'<title[^>]*>([^<]+)</title>', caseSensitive: false).firstMatch(code);
+        if (titleMatch != null && titleMatch.group(1)!.trim().isNotEmpty) {
+          finalTitle = titleMatch.group(1)!.trim();
+          _titleCtrl.text = finalTitle;
+        }
+      }
+    }
+
+    if (finalTitle.isEmpty || finalTitle == 'درس جديد') {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("يرجى كتابة عنوان الدرس أولاً بالأعلى حتى لا يكون اسمه 'درس جديد' ⚠️", style: GoogleFonts.cairo(fontWeight: FontWeight.bold)),
+          backgroundColor: const Color(0xFFDC2626),
+        ),
+      );
+      return;
+    }
+
     final finalImg = detectedImage.isNotEmpty ? detectedImage : 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=600';
 
     final result = {
-      'title': _titleCtrl.text.trim().isNotEmpty ? _titleCtrl.text.trim() : 'درس جديد',
+      'title': finalTitle,
       'htmlCode': code,
       'content': code,
       'editorType': _mode == 'html' ? 'html' : 'visual',

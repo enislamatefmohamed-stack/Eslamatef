@@ -764,6 +764,18 @@ class _CoursesPageState extends State<CoursesPage> {
               final hasYoutube = youtubeUrl.isNotEmpty;
               final hasQuiz = lesson['hasQuiz'] == true;
 
+              final lessonRawTitle = (lesson['title'] ?? '').toString().trim();
+              String lessonTitle = lessonRawTitle;
+              if (lessonTitle.isEmpty || lessonTitle == 'درس جديد') {
+                final code = (lesson['htmlCode'] ?? lesson['content'] ?? '').toString();
+                final h1Match = RegExp(r'<h1[^>]*>([^<]+)</h1>', caseSensitive: false).firstMatch(code);
+                if (h1Match != null && h1Match.group(1)!.trim().isNotEmpty) {
+                  lessonTitle = h1Match.group(1)!.trim();
+                } else {
+                  lessonTitle = 'المحاضرة ${(idx + 1).toString().padLeft(2, '0')}';
+                }
+              }
+
               return Container(
                 margin: const EdgeInsets.only(bottom: 16),
                 padding: const EdgeInsets.all(16),
@@ -822,7 +834,7 @@ class _CoursesPageState extends State<CoursesPage> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
-                                      lesson['title'] ?? '',
+                                      lessonTitle,
                                       style: GoogleFonts.cairo(fontSize: 14, fontWeight: FontWeight.bold),
                                       maxLines: 2,
                                       overflow: TextOverflow.ellipsis,
@@ -934,7 +946,7 @@ class _CoursesPageState extends State<CoursesPage> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(lesson['title'] ?? '', style: GoogleFonts.cairo(fontSize: 16, fontWeight: FontWeight.bold)),
+                                Text(lessonTitle, style: GoogleFonts.cairo(fontSize: 16, fontWeight: FontWeight.bold)),
                                 Row(
                                   children: [
                                     if (hasYoutube)
@@ -1142,7 +1154,16 @@ class _CoursesPageState extends State<CoursesPage> {
   // ==========================================
   Widget _buildLessonVideoPlayerView(BuildContext context, bool isMobile, bool isDark) {
     final lesson = _activeLesson!;
-    final title = lesson['title'] ?? 'درس جديد';
+    var title = (lesson['title'] ?? '').toString().trim();
+    if (title.isEmpty || title == 'درس جديد') {
+      final code = (lesson['htmlCode'] ?? lesson['content'] ?? '').toString();
+      final h1Match = RegExp(r'<h1[^>]*>([^<]+)</h1>', caseSensitive: false).firstMatch(code);
+      if (h1Match != null && h1Match.group(1)!.trim().isNotEmpty) {
+        title = h1Match.group(1)!.trim();
+      } else {
+        title = 'درس تعليمي';
+      }
+    }
     final desc = (lesson['description'] ?? lesson['desc'] ?? '').toString().trim();
     final youtubeUrl = (lesson['youtubeUrl'] ?? lesson['videoUrl'] ?? '').toString().trim();
     final content = (lesson['content'] ?? '').toString().trim();

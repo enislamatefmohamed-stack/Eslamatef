@@ -3863,19 +3863,33 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                 ),
                 ElevatedButton.icon(
                   onPressed: () async {
-                    final title = titleCtrl.text.trim();
-                    if (title.isEmpty) {
-                      _showSnackBar("يرجى كتابة عنوان المحتوى", isError: true);
+                    final content = contentCtrl.text.trim();
+                    final htmlCode = htmlCtrl.text.trim();
+                    final sourceBody = editorTab == 0 ? content : htmlCode;
+
+                    String title = titleCtrl.text.trim();
+                    if (title.isEmpty || title == 'درس جديد') {
+                      final h1Match = RegExp(r'<h1[^>]*>([^<]+)</h1>', caseSensitive: false).firstMatch(sourceBody);
+                      if (h1Match != null && h1Match.group(1)!.trim().isNotEmpty) {
+                        title = h1Match.group(1)!.trim();
+                        titleCtrl.text = title;
+                      } else {
+                        final titleMatch = RegExp(r'<title[^>]*>([^<]+)</title>', caseSensitive: false).firstMatch(sourceBody);
+                        if (titleMatch != null && titleMatch.group(1)!.trim().isNotEmpty) {
+                          title = titleMatch.group(1)!.trim();
+                          titleCtrl.text = title;
+                        }
+                      }
+                    }
+
+                    if (title.isEmpty || title == 'درس جديد') {
+                      _showSnackBar("يرجى كتابة عنوان المحتوى ولا يمكن تركه كـ 'درس جديد' ⚠️", isError: true);
                       return;
                     }
                     if (playlists.isEmpty || selectedPlaylistId.isEmpty) {
                       _showSnackBar("يرجى اختيار قائمة التشغيل", isError: true);
                       return;
                     }
-
-                    final content = contentCtrl.text.trim();
-                    final htmlCode = htmlCtrl.text.trim();
-                    final sourceBody = editorTab == 0 ? content : htmlCode;
 
                     // Automatically extract image cover and video if inserted inside the editor
                     String img = '';
