@@ -73,6 +73,38 @@ class _AutoResizingHtmlWidgetState extends State<AutoResizingHtmlWidget> {
       }
     } catch(e) {}
   }
+
+  // Forward mouse wheel scrolling over iframe text/content to parent Flutter page
+  window.addEventListener('wheel', function(e) {
+    try {
+      window.parent.postMessage({
+        type: 'flutter_html_wheel',
+        id: '${widget.id}',
+        deltaY: e.deltaY,
+        deltaX: e.deltaX
+      }, '*');
+    } catch(err) {}
+
+    try {
+      var pDoc = window.parent.document;
+      var target = pDoc.querySelector('flutter-view') || 
+                   pDoc.querySelector('flt-glass-pane') || 
+                   pDoc.body;
+      if (target) {
+        var evt = new WheelEvent('wheel', {
+          deltaX: e.deltaX,
+          deltaY: e.deltaY,
+          deltaMode: e.deltaMode,
+          clientX: e.clientX,
+          clientY: e.clientY,
+          bubbles: true,
+          cancelable: true
+        });
+        target.dispatchEvent(evt);
+      }
+    } catch(err) {}
+  }, { passive: true });
+
   if (document.readyState === 'complete' || document.readyState === 'interactive') {
     sendHeight();
   } else {
@@ -126,6 +158,16 @@ class _AutoResizingHtmlWidgetState extends State<AutoResizingHtmlWidget> {
               setState(() {
                 _currentHeight = h + 25; // padding
               });
+            }
+          }
+        } else if (data is Map && data['type'] == 'flutter_html_wheel' && data['id'] == widget.id) {
+          final dy = (data['deltaY'] as num?)?.toDouble() ?? 0.0;
+          if (dy != 0.0 && mounted) {
+            final scrollable = Scrollable.maybeOf(context);
+            if (scrollable != null) {
+              final pos = scrollable.position;
+              final target = (pos.pixels + dy).clamp(pos.minScrollExtent, pos.maxScrollExtent);
+              pos.jumpTo(target);
             }
           }
         }

@@ -6400,63 +6400,103 @@ function checkScore() {
                         DataColumn(label: Text("التحدي", style: GoogleFonts.cairo(fontWeight: FontWeight.bold))),
                         DataColumn(label: Text("البريد / واتساب", style: GoogleFonts.cairo(fontWeight: FontWeight.bold))),
                         DataColumn(label: Text("رابط الحل / المشروع", style: GoogleFonts.cairo(fontWeight: FontWeight.bold))),
-                        DataColumn(label: Text("ملاحظات الطالب", style: GoogleFonts.cairo(fontWeight: FontWeight.bold))),
+                        DataColumn(label: Text("ملاحظات / رسالة الطالب", style: GoogleFonts.cairo(fontWeight: FontWeight.bold))),
+                        DataColumn(label: Text("عرض الحل كاملاً", style: GoogleFonts.cairo(fontWeight: FontWeight.bold))),
                         DataColumn(label: Text("الحالة", style: GoogleFonts.cairo(fontWeight: FontWeight.bold))),
                         DataColumn(label: Text("إجراءات", style: GoogleFonts.cairo(fontWeight: FontWeight.bold))),
                       ],
                       rows: _dataService.challengeSubmissions.map((sol) {
                         final status = sol['status'] ?? 'جديد';
-                        return DataRow(cells: [
-                          DataCell(Text(sol['studentName'] ?? '', style: GoogleFonts.cairo(fontWeight: FontWeight.bold))),
-                          DataCell(Text(sol['challengeTitle'] ?? '', style: GoogleFonts.cairo(fontSize: 12))),
-                          DataCell(Text("${sol['email'] ?? ''}\n${sol['whatsapp'] ?? ''}", textDirection: TextDirection.ltr, style: GoogleFonts.cairo(fontSize: 11))),
-                          DataCell(
-                            InkWell(
-                              onTap: () {
-                                final url = sol['projectUrl']?.toString();
-                                if (url != null && url.isNotEmpty) {
-                                  launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
-                                }
-                              },
-                              child: Row(
-                                children: [
-                                  const Icon(Icons.link, size: 16, color: Color(0xFF0284C7)),
-                                  const SizedBox(width: 4),
-                                  Text("فتح الرابط", style: GoogleFonts.cairo(color: const Color(0xFF0284C7), decoration: TextDecoration.underline)),
-                                ],
+                        final noteText = (sol['message'] ?? sol['notes'] ?? sol['solutionCode'] ?? '').toString().trim();
+                        final projectUrl = (sol['projectUrl'] ?? '').toString().trim();
+
+                        return DataRow(
+                          onSelectChanged: (_) => _showChallengeDetailsDialog(sol),
+                          cells: [
+                            DataCell(
+                              InkWell(
+                                onTap: () => _showChallengeDetailsDialog(sol),
+                                child: Text(sol['studentName'] ?? 'طالب', style: GoogleFonts.cairo(fontWeight: FontWeight.bold, color: const Color(0xFF0F172A))),
                               ),
                             ),
-                          ),
-                          DataCell(Text(sol['notes'] ?? '', style: GoogleFonts.cairo(fontSize: 11), maxLines: 1)),
-                          DataCell(
-                            DropdownButtonHideUnderline(
-                              child: DropdownButton<String>(
-                                value: ['جديد', 'قيد المراجعة', 'تمت المراجعة'].contains(status) ? status : 'جديد',
-                                items: const [
-                                  DropdownMenuItem(value: 'جديد', child: Text("جديد 🆕")),
-                                  DropdownMenuItem(value: 'قيد المراجعة', child: Text("قيد المراجعة ⏳")),
-                                  DropdownMenuItem(value: 'تمت المراجعة', child: Text("تمت المراجعة ✅")),
-                                ],
-                                onChanged: (newStatus) async {
-                                  if (newStatus != null) {
-                                    await _dataService.updateChallengeSubmissionStatus(sol['id'], newStatus);
-                                    _showSnackBar("تم تحديث حالة الحل إلى $newStatus");
-                                  }
-                                },
-                                style: GoogleFonts.cairo(fontSize: 12, fontWeight: FontWeight.bold, color: const Color(0xFF0F172A)),
+                            DataCell(Text(sol['challengeTitle'] ?? '', style: GoogleFonts.cairo(fontSize: 12))),
+                            DataCell(Text("${sol['email'] ?? ''}\n${sol['whatsapp'] ?? ''}", textDirection: TextDirection.ltr, style: GoogleFonts.cairo(fontSize: 11))),
+                            DataCell(
+                              projectUrl.isEmpty
+                                  ? Text("—", style: GoogleFonts.cairo(color: Colors.grey))
+                                  : InkWell(
+                                      onTap: () {
+                                        final uri = Uri.parse(projectUrl.startsWith('http://') || projectUrl.startsWith('https://') ? projectUrl : 'https://$projectUrl');
+                                        launchUrl(uri, mode: LaunchMode.externalApplication);
+                                      },
+                                      child: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          const Icon(Icons.link, size: 16, color: Color(0xFF0284C7)),
+                                          const SizedBox(width: 4),
+                                          Text("فتح الرابط ↗", style: GoogleFonts.cairo(color: const Color(0xFF0284C7), fontWeight: FontWeight.bold, decoration: TextDecoration.underline)),
+                                        ],
+                                      ),
+                                    ),
+                            ),
+                            DataCell(
+                              InkWell(
+                                onTap: () => _showChallengeDetailsDialog(sol),
+                                child: ConstrainedBox(
+                                  constraints: const BoxConstraints(maxWidth: 160),
+                                  child: Text(
+                                    noteText.isNotEmpty ? (noteText.length > 35 ? "${noteText.substring(0, 35)}..." : noteText) : "—",
+                                    style: GoogleFonts.cairo(fontSize: 11, color: noteText.isNotEmpty ? const Color(0xFF0F172A) : Colors.grey),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
                               ),
                             ),
-                          ),
-                          DataCell(
-                            IconButton(
-                              icon: const Icon(Icons.delete_outline, size: 18, color: Color(0xFFEF4444)),
-                              onPressed: () async {
-                                await _dataService.deleteChallengeSubmission(sol['id']);
-                                _showSnackBar("تم حذف الحل");
-                              },
+                            DataCell(
+                              ElevatedButton.icon(
+                                onPressed: () => _showChallengeDetailsDialog(sol),
+                                icon: const Icon(Icons.visibility_rounded, size: 14),
+                                label: Text("فتح الإجابة 🔍", style: GoogleFonts.cairo(fontSize: 11, fontWeight: FontWeight.bold)),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: const Color(0xFF0284C7),
+                                  foregroundColor: Colors.white,
+                                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                                ),
+                              ),
                             ),
-                          ),
-                        ]);
+                            DataCell(
+                              DropdownButtonHideUnderline(
+                                child: DropdownButton<String>(
+                                  value: ['جديد', 'قيد المراجعة', 'تمت المراجعة'].contains(status) ? status : 'جديد',
+                                  items: const [
+                                    DropdownMenuItem(value: 'جديد', child: Text("جديد 🆕")),
+                                    DropdownMenuItem(value: 'قيد المراجعة', child: Text("قيد المراجعة ⏳")),
+                                    DropdownMenuItem(value: 'تمت المراجعة', child: Text("تمت المراجعة ✅")),
+                                  ],
+                                  onChanged: (newStatus) async {
+                                    if (newStatus != null) {
+                                      await _dataService.updateChallengeSubmissionStatus(sol['id'], newStatus);
+                                      _showSnackBar("تم تحديث حالة الحل إلى $newStatus");
+                                    }
+                                  },
+                                  style: GoogleFonts.cairo(fontSize: 12, fontWeight: FontWeight.bold, color: const Color(0xFF0F172A)),
+                                ),
+                              ),
+                            ),
+                            DataCell(
+                              IconButton(
+                                icon: const Icon(Icons.delete_outline, size: 18, color: Color(0xFFEF4444)),
+                                tooltip: "حذف الحل",
+                                onPressed: () => _confirmDelete("حل الطالب", () async {
+                                  await _dataService.deleteChallengeSubmission(sol['id']);
+                                  _showSnackBar("تم حذف الحل بنجاح");
+                                }),
+                              ),
+                            ),
+                          ],
+                        );
                       }).toList(),
                     ),
                   ),
@@ -9643,14 +9683,34 @@ function checkScore() {
           ),
         ),
         actions: [
+          if (projectUrl.isNotEmpty)
+            ElevatedButton.icon(
+              onPressed: () {
+                final raw = projectUrl.trim();
+                final uri = Uri.parse(raw.startsWith('http://') || raw.startsWith('https://') ? raw : 'https://$raw');
+                launchUrl(uri, mode: LaunchMode.externalApplication);
+              },
+              icon: const Icon(Icons.open_in_new_rounded, size: 16),
+              label: Text("فتح المشروع ↗", style: GoogleFonts.cairo(fontSize: 12, fontWeight: FontWeight.bold)),
+              style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF10B981), foregroundColor: Colors.white),
+            ),
           ElevatedButton.icon(
             onPressed: () {
               Clipboard.setData(ClipboardData(text: message));
-              _showSnackBar("تم نسخ كود الحل 📋");
+              _showSnackBar("تم نسخ كود ورسالة الحل 📋");
             },
             icon: const Icon(Icons.copy_rounded, size: 16),
             label: Text("نسخ الكود", style: GoogleFonts.cairo(fontSize: 12)),
             style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF0284C7), foregroundColor: Colors.white),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              Navigator.pop(ctx);
+              await _dataService.updateChallengeSubmissionStatus(sol['id'], 'تمت المراجعة');
+              _showSnackBar("تم تعيين الحالة إلى 'تمت المراجعة' ✅");
+            },
+            style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF10B981), foregroundColor: Colors.white),
+            child: Text("تمت المراجعة ✅", style: GoogleFonts.cairo(fontSize: 12)),
           ),
           TextButton(onPressed: () => Navigator.pop(ctx), child: Text("إغلاق", style: GoogleFonts.cairo())),
         ],

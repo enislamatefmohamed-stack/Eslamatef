@@ -1147,9 +1147,10 @@ class _CoursesPageState extends State<CoursesPage> {
     final youtubeUrl = (lesson['youtubeUrl'] ?? lesson['videoUrl'] ?? '').toString().trim();
     final content = (lesson['content'] ?? '').toString().trim();
     final htmlCode = (lesson['htmlCode'] ?? '').toString().trim();
-    final displayContent = htmlCode.isNotEmpty
+    final rawContent = htmlCode.isNotEmpty
         ? htmlCode
         : (content.isNotEmpty ? content : '');
+    final displayContent = _sanitizeArticleHtml(rawContent);
     final hasQuiz = lesson['hasQuiz'] == true;
     final quizTitle = lesson['quizTitle'] ?? 'اختبار فهم الدرس';
     final isPaid = lesson['isPaid'] == true || _activeCourse?['isPaid'] == true;
@@ -1620,4 +1621,20 @@ class _CoursesPageState extends State<CoursesPage> {
     );
   }
 
+  static String _sanitizeArticleHtml(String html) {
+    if (html.isEmpty) return html;
+    var cleaned = html;
+    // 1. Remove quick links box
+    cleaned = cleaned.replaceAll(RegExp(r'(?:<!--\s*Quick Links[^\n]*-->\s*)?<div[^>]*class="[^"]*quick-links-box[^"]*"[^>]*>[\s\S]*?</div>\s*</div>', caseSensitive: false), '');
+    cleaned = cleaned.replaceAll(RegExp(r'(?:<!--\s*Quick Links[^\n]*-->\s*)?<div[^>]*class="[^"]*quick-links-box[^"]*"[^>]*>[\s\S]*?</div>', caseSensitive: false), '');
+    // 2. Remove official links text blocks
+    cleaned = cleaned.replaceAll(RegExp(r'📌\s*روابط المحاضرة[^<]*<\/span>[\s\S]*?📢\s*التليجرام والواجبات<\/a>\s*<\/div>', caseSensitive: false), '');
+    // 3. Remove SEO tags box
+    cleaned = cleaned.replaceAll(RegExp(r'(?:<!--\s*SEO Tags[^\n]*-->\s*)?<footer[^>]*class="[^"]*seo-tags-box[^"]*"[^>]*>[\s\S]*?</footer>', caseSensitive: false), '');
+    // 4. Remove SEO metadata header
+    cleaned = cleaned.replaceAll(RegExp(r'<h2>📌\s*بيانات تحسين محركات البحث[^\n<]*<\/h2>\s*(?:<li>[\s\S]*?<\/li>\s*)+(?:<p>---<\/p>\s*)?', caseSensitive: false), '');
+    // 5. Remove any raw SEO keywords box
+    cleaned = cleaned.replaceAll(RegExp(r'🔑\s*الكلمات المفتاحية لمسؤولي محركات البحث[\s\S]*?<\/p>', caseSensitive: false), '');
+    return cleaned;
+  }
 }
