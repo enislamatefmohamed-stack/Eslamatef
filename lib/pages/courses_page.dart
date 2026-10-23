@@ -1,4 +1,5 @@
 // ignore_for_file: avoid_web_libraries_in_flutter, deprecated_member_use
+import 'dart:async';
 import 'dart:html' as html;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -28,6 +29,7 @@ class _CoursesPageState extends State<CoursesPage> {
   Map<String, dynamic>? _activeLesson; // Currently playing lesson/video
   final Set<String> _enrolledCourseIds = {};
   final Set<String> _watchedLessonIds = {};
+  StreamSubscription? _popStateSubscription;
 
   @override
   void initState() {
@@ -35,6 +37,15 @@ class _CoursesPageState extends State<CoursesPage> {
     _checkUrlParameters();
     _dataService.addListener(_onDataChanged);
     _checkEnrollment();
+
+    try {
+      _popStateSubscription = html.window.onPopState.listen((event) {
+        if (!mounted) return;
+        setState(() {
+          _checkUrlParameters();
+        });
+      });
+    } catch (_) {}
   }
 
   void _checkUrlParameters() {
@@ -62,14 +73,24 @@ class _CoursesPageState extends State<CoursesPage> {
             final matchedLessons = lessons.where((l) => (l['id'] ?? '').toString() == lessonId).toList();
             if (matchedLessons.isNotEmpty) {
               _activeLesson = matchedLessons.first;
+            } else {
+              _activeLesson = null;
             }
+          } else {
+            _activeLesson = null;
           }
+        } else {
+          _activeCourse = null;
+          _activeLesson = null;
         }
+      } else {
+        _activeCourse = null;
+        _activeLesson = null;
       }
     } catch (_) {}
   }
 
-  void _syncUrl() {
+  void _syncUrl({bool replace = false}) {
     try {
       String newUrl;
       if (_activeCourse != null) {
@@ -83,8 +104,33 @@ class _CoursesPageState extends State<CoursesPage> {
       } else {
         newUrl = '/courses';
       }
-      html.window.history.pushState(null, '', newUrl);
+
+      final currentUri = Uri.base;
+      final currentPathAndQuery = '${currentUri.path}${currentUri.hasQuery ? '?${currentUri.query}' : ''}';
+      if (currentPathAndQuery == newUrl) return;
+
+      if (replace) {
+        html.window.history.replaceState(null, '', newUrl);
+      } else {
+        html.window.history.pushState(null, '', newUrl);
+      }
     } catch (_) {}
+  }
+
+  void _handleBack() {
+    if (_activeLesson != null) {
+      setState(() => _activeLesson = null);
+      _syncUrl(replace: true);
+    } else if (_activeCourse != null) {
+      setState(() => _activeCourse = null);
+      _syncUrl(replace: true);
+    } else {
+      if (Navigator.of(context).canPop()) {
+        Navigator.of(context).pop();
+      } else {
+        Navigator.of(context).pushReplacementNamed('/');
+      }
+    }
   }
 
   void _copyLink(String url, String message) {
@@ -126,6 +172,7 @@ class _CoursesPageState extends State<CoursesPage> {
 
   @override
   void dispose() {
+    _popStateSubscription?.cancel();
     _dataService.removeListener(_onDataChanged);
     super.dispose();
   }
@@ -285,51 +332,50 @@ class _CoursesPageState extends State<CoursesPage> {
     final isMobile = screenWidth < 850;
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    return Directionality(
-      textDirection: TextDirection.rtl,
-      child: Scaffold(
-        endDrawer: isMobile ? const UnifiedAppDrawer(currentRoute: '/courses') : null,
-        backgroundColor: isDark ? AppColors.bgDark : AppColors.bgLight,
-        body: SelectionArea(
-          child: SafeArea(
-            child: Column(
-              children: [
-                UnifiedAppHeader(
-                  currentRoute: '/courses',
-                  pageTitle: 'الكورسات والمسارات البرمجية',
-                  showBackButton: _activeLesson != null || _activeCourse != null,
-                  onBack: _activeLesson != null
-                      ? () {
-                          setState(() => _activeLesson = null);
-                          _syncUrl();
-                        }
-                      : (_activeCourse != null
-                          ? () {
-                              setState(() => _activeCourse = null);
-                              _syncUrl();
-                            }
-                          : null),
-                ),
-                Expanded(
-                  child: SingleChildScrollView(
-                    child: Center(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          const SizedBox(height: 28),
-                          _activeLesson != null
-                              ? _buildLessonVideoPlayerView(context, isMobile, isDark)
-                              : _activeCourse != null
-                                  ? _buildCourseInsideView(context, isMobile, isDark)
-                                  : _buildCourseFoldersCatalog(context, isMobile, isDark),
-                          const SizedBox(height: 60),
-                          const UnifiedAppFooter(),
-                        ],
+    return PopScope(
+      canPop: _activeLesson == null && _activeCourse == null,
+      onPopInvokedWithResult: (didPop, result) {
+        if (didPop) return;
+        _handleBack();
+      },
+      child: Directionality(
+        textDirection: TextDirection.rtl,
+        child: Scaffold(
+          endDrawer: isMobile ? const UnifiedAppDrawer(currentRoute: '/courses') : null,
+          backgroundColor: isDark ? AppColors.bgDark : AppColors.bgLight,
+          body: SelectionArea(
+            child: SafeArea(
+              child: Column(
+                children: [
+                  UnifiedAppHeader(
+                    currentRoute: '/courses',
+                    pageTitle: 'الكورسات والمسارات البرمجية',
+                    showBackButton: _activeLesson != null || _activeCourse != null,
+                    onBack: (_activeLesson != null || _activeCourse != null)
+                        ? _handleBack
+                        : null,
+                  ),
+                  Expanded(
+                    child: SingleChildScrollView(
+                      child: Center(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            const SizedBox(height: 28),
+                            _activeLesson != null
+                                ? _buildLessonVideoPlayerView(context, isMobile, isDark)
+                                : _activeCourse != null
+                                    ? _buildCourseInsideView(context, isMobile, isDark)
+                                    : _buildCourseFoldersCatalog(context, isMobile, isDark),
+                            const SizedBox(height: 60),
+                            const UnifiedAppFooter(),
+                          ],
+                        ),
                       ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),
@@ -518,13 +564,7 @@ class _CoursesPageState extends State<CoursesPage> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   OutlinedButton.icon(
-                    onPressed: () {
-                      setState(() {
-                        _activeCourse = null;
-                        _activeLesson = null;
-                      });
-                      _syncUrl();
-                    },
+                    onPressed: _handleBack,
                     icon: const Icon(Icons.arrow_forward_rounded, size: 16),
                     label: Text("العودة للكورسات", style: GoogleFonts.cairo(fontWeight: FontWeight.bold, fontSize: 12)),
                     style: OutlinedButton.styleFrom(foregroundColor: const Color(0xFF00E5FF)),
@@ -549,13 +589,7 @@ class _CoursesPageState extends State<CoursesPage> {
               Row(
                 children: [
                   OutlinedButton.icon(
-                    onPressed: () {
-                      setState(() {
-                        _activeCourse = null;
-                        _activeLesson = null;
-                      });
-                      _syncUrl();
-                    },
+                    onPressed: _handleBack,
                     icon: const Icon(Icons.arrow_forward_rounded, size: 16),
                     label: Text("العودة لكافة الكورسات", style: GoogleFonts.cairo(fontWeight: FontWeight.bold)),
                     style: OutlinedButton.styleFrom(foregroundColor: const Color(0xFF00E5FF)),
@@ -1187,10 +1221,7 @@ class _CoursesPageState extends State<CoursesPage> {
         isDark: isDark,
         isPaid: isPaid,
         courseId: courseId,
-        onBack: () {
-          setState(() => _activeLesson = null);
-          _syncUrl();
-        },
+        onBack: _handleBack,
       );
     }
 

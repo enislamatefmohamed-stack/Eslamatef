@@ -183,22 +183,31 @@ class _LessonsPageState extends State<LessonsPage> {
     final isMobile = screenWidth < 850;
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    return Directionality(
-      textDirection: TextDirection.rtl,
-      child: Scaffold(
-        endDrawer: isMobile ? const UnifiedAppDrawer(currentRoute: '/lessons') : null,
-        backgroundColor: isDark ? AppColors.bgDark : AppColors.bgLight,
-        body: SelectionArea(
-          child: SafeArea(
-            child: Column(
-              children: [
-                UnifiedAppHeader(
-                  currentRoute: '/curricula',
-                  pageTitle: 'المناهج والشروحات التعليمية',
-                  onBack: _selectedLesson != null
-                      ? () => setState(() => _selectedLesson = null)
-                      : null,
-                ),
+    return PopScope(
+      canPop: _selectedLesson == null,
+      onPopInvokedWithResult: (didPop, result) {
+        if (didPop) return;
+        if (_selectedLesson != null) {
+          setState(() => _selectedLesson = null);
+        }
+      },
+      child: Directionality(
+        textDirection: TextDirection.rtl,
+        child: Scaffold(
+          endDrawer: isMobile ? const UnifiedAppDrawer(currentRoute: '/lessons') : null,
+          backgroundColor: isDark ? AppColors.bgDark : AppColors.bgLight,
+          body: SelectionArea(
+            child: SafeArea(
+              child: Column(
+                children: [
+                  UnifiedAppHeader(
+                    currentRoute: '/curricula',
+                    pageTitle: 'المناهج والشروحات التعليمية',
+                    showBackButton: _selectedLesson != null,
+                    onBack: _selectedLesson != null
+                        ? () => setState(() => _selectedLesson = null)
+                        : null,
+                  ),
                 Expanded(
                   child: SingleChildScrollView(
                     child: Center(
@@ -221,8 +230,9 @@ class _LessonsPageState extends State<LessonsPage> {
           ),
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 
 
   // ==========================================
@@ -574,7 +584,7 @@ class _LessonsPageState extends State<LessonsPage> {
                                     : const Color(0xFFE2E8F0)),
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.black.withOpacity(isDark ? 0.3 : 0.04),
+                                color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.04),
                                 blurRadius: 16,
                                 offset: const Offset(0, 4),
                               ),

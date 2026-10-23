@@ -9,11 +9,13 @@ module.exports = (req, res) => {
 User-agent: *
 Allow: /
 Allow: /courses
-Allow: /courses/*
-Allow: /lessons/*
-Allow: /blog
-Allow: /blog/*
+Allow: /courses?*
+Allow: /curricula
+Allow: /challenge
+Allow: /quiz
 Allow: /about
+Allow: /contact
+Allow: /privacy
 
 # Block admin panel, internal sessions, and API endpoints
 Disallow: /admin
