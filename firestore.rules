@@ -181,6 +181,16 @@ service cloud.firestore {
       allow write: if isAdmin();
     }
 
+    match /articles/{articleId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /article_categories/{catId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
     // ==============================================================
     // ==============================================================
     // 6. Contact Messages (Phase 8: Contact Form Security & Anti-Spam)

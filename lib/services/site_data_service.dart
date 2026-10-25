@@ -22,6 +22,10 @@ class SiteDataService extends ChangeNotifier {
   List<String> _courseCategories = [];
   List<String> _lessonCategories = [];
 
+  // Articles (المقالات)
+  List<Map<String, dynamic>> _articles = [];
+  List<String> _articleCategories = [];
+
   // Modules for comprehensive Admin & Student systems
   List<Map<String, dynamic>> _interactiveQuizzes = [];
   List<Map<String, dynamic>> _quizSubmissions = [];
@@ -43,6 +47,8 @@ class SiteDataService extends ChangeNotifier {
   List<Map<String, dynamic>> get recordingLessons => _recordingLessons;
   List<String> get courseCategories => _courseCategories;
   List<String> get lessonCategories => _lessonCategories;
+  List<Map<String, dynamic>> get articles => _articles;
+  List<String> get articleCategories => _articleCategories;
   List<Map<String, dynamic>> get interactiveQuizzes => _interactiveQuizzes;
   List<Map<String, dynamic>> get quizSubmissions => _quizSubmissions;
   List<Map<String, dynamic>> get weeklyChallenges => _weeklyChallenges;
@@ -133,6 +139,18 @@ class SiteDataService extends ChangeNotifier {
       if (recStr != null) {
         _recordingLessons.clear();
         _recordingLessons.addAll(List<Map<String, dynamic>>.from(jsonDecode(recStr)));
+      }
+
+      final artStr = prefs.getString('site_articles');
+      if (artStr != null) {
+        _articles = List<Map<String, dynamic>>.from(jsonDecode(artStr));
+      }
+
+      final aCatStr = prefs.getString('site_article_categories');
+      if (aCatStr != null) {
+        _articleCategories = List<String>.from(jsonDecode(aCatStr));
+      } else {
+        _articleCategories = ['علوم الحاسب والبرمجة', 'الذكاء الاصطناعي', 'تطوير الويب', 'نصائح ومفاهيم برمجية'];
       }
 
       _isInitialized = true;
@@ -316,6 +334,28 @@ class SiteDataService extends ChangeNotifier {
           notifyListeners();
         }
       }, onError: (e) => debugPrint("Firestore recording_lessons error: $e"));
+
+      // Articles Collection (المقالات)
+      _firestore.collection('articles').snapshots().listen((snapshot) {
+        if (snapshot.docs.isNotEmpty) {
+          _articles = snapshot.docs.map((doc) {
+            final d = doc.data();
+            d['id'] = doc.id;
+            return d;
+          }).toList();
+          _saveArticles();
+          notifyListeners();
+        }
+      }, onError: (e) => debugPrint("Firestore articles error: $e"));
+
+      // Article Categories Collection (تصنيفات المقالات)
+      _firestore.collection('article_categories').snapshots().listen((snapshot) {
+        if (snapshot.docs.isNotEmpty) {
+          _articleCategories = snapshot.docs.map((doc) => (doc.data()['name'] ?? doc.id).toString()).toList();
+          _saveArticleCategories();
+          notifyListeners();
+        }
+      }, onError: (e) => debugPrint("Firestore article_categories error: $e"));
 
     } catch (e) {
       debugPrint("Error binding Firestore listeners: $e");
@@ -818,6 +858,137 @@ class SiteDataService extends ChangeNotifier {
   Future<void> _saveLessonPlaylists() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('site_lesson_playlists', jsonEncode(_lessonPlaylists));
+  }
+
+  // =========================================================================
+  // ARTICLES CRUD (المقالات)
+  // =========================================================================
+  Future<void> addArticle(Map<String, dynamic> article) async {
+    final id = (article['id'] != null && article['id'].toString().isNotEmpty)
+        ? article['id'].toString()
+        : 'art_${DateTime.now().millisecondsSinceEpoch}';
+    article['id'] = id;
+    article['createdAt'] ??= DateTime.now().toIso8601String();
+    article['isPublished'] ??= true;
+    _articles.insert(0, article);
+    await _saveArticles();
+    notifyListeners();
+
+    if (isFirebaseReady) {
+      try {
+        await _firestore.collection('articles').doc(id).set(article, SetOptions(merge: true));
+      } catch (e) {
+        debugPrint("Firestore addArticle error: $e");
+      }
+    }
+  }
+
+  Future<void> updateArticle(String id, Map<String, dynamic> updated) async {
+    final idx = _articles.indexWhere((a) => a['id'] == id);
+    if (idx != -1) {
+      updated['id'] = id;
+      updated['updatedAt'] = DateTime.now().toIso8601String();
+      _articles[idx] = updated;
+      await _saveArticles();
+      notifyListeners();
+
+      if (isFirebaseReady) {
+        try {
+          await _firestore.collection('articles').doc(id).set(updated, SetOptions(merge: true));
+        } catch (e) {
+          debugPrint("Firestore updateArticle error: $e");
+        }
+      }
+    }
+  }
+
+  Future<void> deleteArticle(String id) async {
+    _articles.removeWhere((a) => a['id'] == id);
+    await _saveArticles();
+    notifyListeners();
+
+    if (isFirebaseReady) {
+      try {
+        await _firestore.collection('articles').doc(id).delete();
+      } catch (e) {
+        debugPrint("Firestore deleteArticle error: $e");
+      }
+    }
+  }
+
+  Future<void> _saveArticles() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('site_articles', jsonEncode(_articles));
+  }
+
+  // =========================================================================
+  // ARTICLE CATEGORIES CRUD (تصنيفات المقالات)
+  // =========================================================================
+  Future<void> addArticleCategory(String category) async {
+    final cat = category.trim();
+    if (cat.isNotEmpty && !_articleCategories.contains(cat)) {
+      _articleCategories.add(cat);
+      await _saveArticleCategories();
+      notifyListeners();
+
+      if (isFirebaseReady) {
+        try {
+          final id = 'acat_${cat.hashCode.abs()}';
+          await _firestore.collection('article_categories').doc(id).set({
+            'name': cat,
+            'createdAt': FieldValue.serverTimestamp(),
+          });
+        } catch (e) {
+          debugPrint("Firestore addArticleCategory error: $e");
+        }
+      }
+    }
+  }
+
+  Future<void> updateArticleCategory(String oldCat, String newCat) async {
+    final idx = _articleCategories.indexOf(oldCat);
+    if (idx != -1 && newCat.trim().isNotEmpty) {
+      _articleCategories[idx] = newCat.trim();
+      for (final a in _articles) {
+        if (a['category'] == oldCat) {
+          a['category'] = newCat.trim();
+        }
+      }
+      await _saveArticles();
+      await _saveArticleCategories();
+      notifyListeners();
+
+      if (isFirebaseReady) {
+        try {
+          final oldId = 'acat_${oldCat.hashCode.abs()}';
+          final newId = 'acat_${newCat.trim().hashCode.abs()}';
+          await _firestore.collection('article_categories').doc(oldId).delete();
+          await _firestore.collection('article_categories').doc(newId).set({'name': newCat.trim()});
+        } catch (e) {
+          debugPrint("Firestore updateArticleCategory error: $e");
+        }
+      }
+    }
+  }
+
+  Future<void> deleteArticleCategory(String category) async {
+    _articleCategories.remove(category);
+    await _saveArticleCategories();
+    notifyListeners();
+
+    if (isFirebaseReady) {
+      try {
+        final id = 'acat_${category.hashCode.abs()}';
+        await _firestore.collection('article_categories').doc(id).delete();
+      } catch (e) {
+        debugPrint("Firestore deleteArticleCategory error: $e");
+      }
+    }
+  }
+
+  Future<void> _saveArticleCategories() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('site_article_categories', jsonEncode(_articleCategories));
   }
 
   // =========================================================================

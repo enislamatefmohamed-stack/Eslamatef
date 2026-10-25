@@ -125,6 +125,7 @@ class UnifiedAppHeader extends StatelessWidget implements PreferredSizeWidget {
                   children: [
                     _navItem(context, "الكورسات", '/courses', currentRoute == '/courses', isDark),
                     _navItem(context, "المناهج", '/curricula', currentRoute == '/lessons' || currentRoute == '/curricula', isDark),
+                    _navItem(context, "المقالات", '/blog', currentRoute == '/blog' || currentRoute == '/articles', isDark),
                     _navItem(context, "تواصل معنا", '/contact', currentRoute == '/contact', isDark),
                   ],
                 ),
@@ -429,6 +430,7 @@ class UnifiedAppDrawer extends StatelessWidget {
                   _drawerItem(context, "الرئيسية", Icons.home_rounded, '/', currentRoute == '/'),
                   _drawerItem(context, "الكورسات والمسارات", Icons.school_rounded, '/courses', currentRoute == '/courses'),
                   _drawerItem(context, "المناهج الدراسية", Icons.menu_book_rounded, '/lessons', currentRoute == '/lessons' || currentRoute == '/curricula'),
+                  _drawerItem(context, "المقالات والتدوينات", Icons.article_rounded, '/blog', currentRoute == '/blog' || currentRoute == '/articles'),
                   _drawerItem(context, "تحدي الأسبوع", Icons.emoji_events_rounded, '/challenge', currentRoute == '/challenge'),
                   _drawerItem(context, "اختبر نفسك", Icons.quiz_rounded, '/quiz', currentRoute == '/quiz'),
                   ListTile(

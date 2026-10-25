@@ -12,6 +12,7 @@ import 'pages/contact_page.dart';
 import 'pages/recording_page.dart';
 import 'pages/courses_page.dart';
 import 'pages/lessons_page.dart';
+import 'pages/articles_page.dart';
 import 'pages/admin_dashboard_page.dart';
 import 'pages/challenge_page.dart';
 import 'pages/quiz_page.dart';
@@ -121,6 +122,14 @@ class EslamAtefApp extends StatelessWidget {
             '/curricula': (context) => const Directionality(
               textDirection: TextDirection.rtl,
               child: LessonsPage(),
+            ),
+            '/blog': (context) => const Directionality(
+              textDirection: TextDirection.rtl,
+              child: ArticlesPage(),
+            ),
+            '/articles': (context) => const Directionality(
+              textDirection: TextDirection.rtl,
+              child: ArticlesPage(),
             ),
           },
         );

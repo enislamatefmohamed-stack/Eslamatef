@@ -11,6 +11,8 @@ Allow: /
 Allow: /courses
 Allow: /courses?*
 Allow: /curricula
+Allow: /blog
+Allow: /blog?*
 Allow: /challenge
 Allow: /quiz
 Allow: /about

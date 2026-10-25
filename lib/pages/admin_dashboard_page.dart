@@ -12,6 +12,7 @@ import '../widgets/youtube_embedded_player.dart';
 import '../widgets/safe_network_image/safe_network_image.dart';
 import '../widgets/blogger_post_editor.dart';
 import '../widgets/recording_launcher/recording_launcher.dart';
+import '../widgets/interactive_html_view/interactive_html_view.dart';
 import '../data/kids_course_sessions_data.dart';
 
 class _SubTabItem {
@@ -128,6 +129,17 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
   String _selectedCourseLevel = 'جميع المستويات';
   String _selectedCourseStatus = 'منشور';
 
+  // Articles & Categories State
+  int _articlesSubTab = 0; // 0: إضافة مقال, 1: التصنيفات
+  Map<String, dynamic>? _editingArticle;
+  final _articleTitleCtrl = TextEditingController();
+  final _articleHtmlCtrl = TextEditingController();
+  String _selectedArticleCategory = '';
+  bool _isArticlePreviewMode = false;
+  final _newArticleCategoryCtrl = TextEditingController();
+  String? _editingCategoryName;
+  String _articlesSearch = '';
+
   @override
   void initState() {
     super.initState();
@@ -181,6 +193,9 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
     _courseCatCtrl.dispose();
     _courseHtmlCtrl.dispose();
     _quizHtmlEditorCtrl.dispose();
+    _articleTitleCtrl.dispose();
+    _articleHtmlCtrl.dispose();
+    _newArticleCategoryCtrl.dispose();
     super.dispose();
   }
 
@@ -330,8 +345,8 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                 _buildNavItem(4, "تحدي الأسبوع", Icons.emoji_events_rounded, isDrawer, count: _dataService.weeklyChallenges.length),
                 _buildNavItem(5, "جلسات تصوير كورس الاطفال", Icons.slideshow_rounded, isDrawer, count: KidsCourseSessionsData.allSessions.length),
                 _buildNavItem(6, "جلسات التصوير", Icons.videocam_rounded, isDrawer, count: _dataService.recordingLessons.length),
-                _buildNavItem(7, "الأعضاء", Icons.group_rounded, isDrawer, count: _dataService.members.length),
                 _buildNavItem(8, "استقبال إجابات الطلاب", Icons.mark_email_unread_rounded, isDrawer, count: _dataService.challengeSubmissions.length + _dataService.quizSubmissions.length),
+                _buildNavItem(9, "المقالات", Icons.article_rounded, isDrawer, count: _dataService.articles.length),
                 const Divider(color: Color(0xFFE2E8F0), height: 24),
                 _buildWebsiteLinkItem(isDrawer),
               ],
@@ -469,9 +484,9 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
       "إدارة اختبارات اختبر نفسك",
       "إدارة تحدي الأسبوع والحلول",
       "جلسات تصوير كورس الاطفال (49 محاضرة)",
-      "إدارة جلسات التصوير",
       "إدارة الأعضاء والطلاب",
       "استقبال إجابات الطلاب (تحدي الأسبوع + اختبر نفسك)",
+      "إدارة قسم المقالات والتصنيفات",
     ];
 
     final currentTitle = _selectedCourseForLectures != null
@@ -588,6 +603,8 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
         return _buildMembersSection();
       case 8:
         return _buildSubmissionsSection();
+      case 9:
+        return _buildArticlesSection();
       default:
         return _buildHomeSection();
     }
@@ -9731,4 +9748,909 @@ function checkScore() {
       ),
     );
   }
+
+  // ==========================================
+  // 10. قسم المقالات (ARTICLES & CATEGORIES)
+  // ==========================================
+  Widget _buildArticlesSection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        // شريط التبويبات الفرعية (إضافة مقال | التصنيفات)
+        Container(
+          padding: const EdgeInsets.all(6),
+          decoration: BoxDecoration(
+            color: const Color(0xFFF1F5F9),
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: const Color(0xFFE2E8F0)),
+          ),
+          child: Row(
+            children: [
+              Expanded(
+                child: _buildArticlesSubTabButton(
+                  title: "إضافة مقال",
+                  icon: Icons.post_add_rounded,
+                  index: 0,
+                  count: _dataService.articles.length,
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: _buildArticlesSubTabButton(
+                  title: "التصنيفات",
+                  icon: Icons.category_rounded,
+                  index: 1,
+                  count: _dataService.articleCategories.length,
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 24),
+
+        if (_articlesSubTab == 0)
+          _buildArticleEditorTab()
+        else
+          _buildArticleCategoriesTab(),
+      ],
+    );
+  }
+
+  Widget _buildArticlesSubTabButton({
+    required String title,
+    required IconData icon,
+    required int index,
+    required int count,
+  }) {
+    final isSelected = _articlesSubTab == index;
+
+    return InkWell(
+      onTap: () {
+        setState(() {
+          _articlesSubTab = index;
+        });
+      },
+      borderRadius: BorderRadius.circular(8),
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
+        decoration: BoxDecoration(
+          color: isSelected ? Colors.white : Colors.transparent,
+          borderRadius: BorderRadius.circular(8),
+          boxShadow: isSelected
+              ? [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.04),
+                    blurRadius: 4,
+                    offset: const Offset(0, 2),
+                  ),
+                ]
+              : null,
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              icon,
+              size: 18,
+              color: isSelected ? const Color(0xFF0284C7) : const Color(0xFF64748B),
+            ),
+            const SizedBox(width: 8),
+            Text(
+              title,
+              style: GoogleFonts.cairo(
+                fontSize: 14,
+                fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
+                color: isSelected ? const Color(0xFF0F172A) : const Color(0xFF64748B),
+              ),
+            ),
+            const SizedBox(width: 8),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+              decoration: BoxDecoration(
+                color: isSelected ? const Color(0xFFE0F2FE) : const Color(0xFFE2E8F0),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Text(
+                "$count",
+                style: GoogleFonts.cairo(
+                  fontSize: 11,
+                  fontWeight: FontWeight.bold,
+                  color: isSelected ? const Color(0xFF0284C7) : const Color(0xFF64748B),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // ==========================================
+  // تبويب: إضافة مقال
+  // الخانة 1: اختيار التصنيف من ضمن التصنيفات المتاحة
+  // الخانة 2: عنوان المقال
+  // الخانة 3: المقال بس كود html
+  // ==========================================
+  Widget _buildArticleEditorTab() {
+    final categories = _dataService.articleCategories;
+    final isEditing = _editingArticle != null;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        // نموذج إضافة وتعديل المقال
+        Container(
+          padding: const EdgeInsets.all(24),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: const Color(0xFFE2E8F0)),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.03),
+                blurRadius: 10,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF0284C7).withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: const Icon(Icons.post_add_rounded, color: Color(0xFF0284C7), size: 22),
+                      ),
+                      const SizedBox(width: 12),
+                      Text(
+                        isEditing ? "تعديل المقال" : "إضافة مقال جديد",
+                        style: GoogleFonts.cairo(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: const Color(0xFF0F172A),
+                        ),
+                      ),
+                    ],
+                  ),
+                  if (isEditing)
+                    TextButton.icon(
+                      onPressed: () {
+                        setState(() {
+                          _editingArticle = null;
+                          _articleTitleCtrl.clear();
+                          _articleHtmlCtrl.clear();
+                          _selectedArticleCategory = '';
+                          _isArticlePreviewMode = false;
+                        });
+                      },
+                      icon: const Icon(Icons.close_rounded, size: 16),
+                      label: Text("إلغاء التعديل", style: GoogleFonts.cairo(fontWeight: FontWeight.bold)),
+                      style: TextButton.styleFrom(foregroundColor: const Color(0xFFEF4444)),
+                    ),
+                ],
+              ),
+              const SizedBox(height: 20),
+              const Divider(color: Color(0xFFF1F5F9)),
+              const SizedBox(height: 16),
+
+              // الخانة 1: اختيار التصنيف من ضمن التصنيفات المتاحة
+              Text(
+                "الخانة 1: اختيار التصنيف من ضمن التصنيفات المتاحة *",
+                style: GoogleFonts.cairo(
+                  fontSize: 14,
+                  fontWeight: FontWeight.bold,
+                  color: const Color(0xFF1E293B),
+                ),
+              ),
+              const SizedBox(height: 8),
+              if (categories.isEmpty)
+                Container(
+                  padding: const EdgeInsets.all(14),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFFFFBEB),
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(color: const Color(0xFFFDE68A)),
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.warning_amber_rounded, color: Color(0xFFD97706), size: 20),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Text(
+                          "لا توجد تصنيفات مضافة حالياً. يرجى التبديل لتبويب 'التصنيفات' بالأعلى لإضافة تصنيف أولاً.",
+                          style: GoogleFonts.cairo(fontSize: 13, color: const Color(0xFF92400E)),
+                        ),
+                      ),
+                      TextButton(
+                        onPressed: () => setState(() => _articlesSubTab = 1),
+                        child: Text("إضافة تصنيف ➔", style: GoogleFonts.cairo(fontWeight: FontWeight.bold, color: const Color(0xFFD97706))),
+                      ),
+                    ],
+                  ),
+                )
+              else
+                DropdownButtonFormField<String>(
+                  value: _selectedArticleCategory.isNotEmpty && categories.contains(_selectedArticleCategory)
+                      ? _selectedArticleCategory
+                      : (categories.isNotEmpty ? categories.first : null),
+                  decoration: InputDecoration(
+                    hintText: "اختر التصنيف...",
+                    prefixIcon: const Icon(Icons.category_rounded, color: Color(0xFF0284C7), size: 20),
+                    filled: true,
+                    fillColor: const Color(0xFFF8FAFC),
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: const BorderSide(color: Color(0xFFCBD5E1))),
+                    enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: const BorderSide(color: Color(0xFFCBD5E1))),
+                  ),
+                  items: categories.map((catName) {
+                    return DropdownMenuItem<String>(
+                      value: catName,
+                      child: Text(catName, style: GoogleFonts.cairo(fontSize: 14, fontWeight: FontWeight.w600)),
+                    );
+                  }).toList(),
+                  onChanged: (val) {
+                    setState(() => _selectedArticleCategory = val ?? '');
+                  },
+                ),
+              const SizedBox(height: 20),
+
+              // الخانة 2: عنوان المقال
+              Text(
+                "الخانة 2: عنوان المقال *",
+                style: GoogleFonts.cairo(
+                  fontSize: 14,
+                  fontWeight: FontWeight.bold,
+                  color: const Color(0xFF1E293B),
+                ),
+              ),
+              const SizedBox(height: 8),
+              TextField(
+                controller: _articleTitleCtrl,
+                decoration: InputDecoration(
+                  hintText: "اكتب عنوان المقال هنا...",
+                  prefixIcon: const Icon(Icons.title_rounded, color: Color(0xFF0284C7), size: 20),
+                  filled: true,
+                  fillColor: const Color(0xFFF8FAFC),
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: const BorderSide(color: Color(0xFFCBD5E1))),
+                  enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: const BorderSide(color: Color(0xFFCBD5E1))),
+                ),
+                style: GoogleFonts.cairo(fontSize: 15, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 20),
+
+              // الخانة 3: المقال بس كود html
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    "الخانة 3: المقال بس كود html *",
+                    style: GoogleFonts.cairo(
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                      color: const Color(0xFF1E293B),
+                    ),
+                  ),
+                  Row(
+                    children: [
+                      OutlinedButton.icon(
+                        onPressed: () {
+                          setState(() => _isArticlePreviewMode = !_isArticlePreviewMode);
+                        },
+                        icon: Icon(_isArticlePreviewMode ? Icons.code_rounded : Icons.visibility_rounded, size: 16),
+                        label: Text(
+                          _isArticlePreviewMode ? "وضع الكود 💻" : "معاينة مباشرة 👁️",
+                          style: GoogleFonts.cairo(fontSize: 12, fontWeight: FontWeight.bold),
+                        ),
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: const Color(0xFF0284C7),
+                          side: const BorderSide(color: Color(0xFFBAE6FD)),
+                          backgroundColor: const Color(0xFFF0F9FF),
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+
+              if (_isArticlePreviewMode)
+                Container(
+                  constraints: const BoxConstraints(minHeight: 400),
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(color: const Color(0xFF0284C7), width: 1.5),
+                  ),
+                  child: InteractiveHtmlView(
+                    rawHtml: _articleHtmlCtrl.text.trim().isNotEmpty
+                        ? _articleHtmlCtrl.text
+                        : '<div style="padding:20px;text-align:center;color:#64748B;">لا يوجد كود HTML لمعاينته حالياً</div>',
+                    id: 'article_editor_preview',
+                    height: 600,
+                  ),
+                )
+              else
+                Directionality(
+                  textDirection: TextDirection.ltr,
+                  child: TextField(
+                    controller: _articleHtmlCtrl,
+                    maxLines: 16,
+                    minLines: 10,
+                    style: const TextStyle(
+                      fontFamily: 'monospace',
+                      fontSize: 13,
+                      color: Color(0xFF0F172A),
+                      height: 1.5,
+                    ),
+                    decoration: InputDecoration(
+                      hintText: '<!DOCTYPE html>\n<html lang="ar" dir="rtl">\n  <head>\n    <title>عنوان المقال</title>\n  </head>\n  <body>\n    <h1>محتوى المقال</h1>\n  </body>\n</html>',
+                      hintStyle: const TextStyle(fontFamily: 'monospace', color: Color(0xFF94A3B8)),
+                      filled: true,
+                      fillColor: const Color(0xFF0F172A).withOpacity(0.03),
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: const BorderSide(color: Color(0xFFCBD5E1))),
+                      enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: const BorderSide(color: Color(0xFFCBD5E1))),
+                      focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: const BorderSide(color: Color(0xFF0284C7), width: 2)),
+                    ),
+                  ),
+                ),
+              const SizedBox(height: 24),
+
+              // زر الحفظ / النشر
+              SizedBox(
+                height: 48,
+                child: ElevatedButton.icon(
+                  onPressed: _saveArticle,
+                  icon: Icon(isEditing ? Icons.check_circle_rounded : Icons.rocket_launch_rounded, size: 20),
+                  label: Text(
+                    isEditing ? "حفظ تعديلات المقال ✅" : "نشر المقال الآن 🚀",
+                    style: GoogleFonts.cairo(fontSize: 15, fontWeight: FontWeight.bold),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF0284C7),
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                    elevation: 2,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 32),
+
+        // قائمة المقالات المنشورة
+        _buildArticlesListCard(),
+      ],
+    );
+  }
+
+  // ==========================================
+  // قائمة المقالات المنشورة في الموقع
+  // ==========================================
+  Widget _buildArticlesListCard() {
+    final allArticles = _dataService.articles;
+    final filtered = allArticles.where((a) {
+      if (_articlesSearch.isEmpty) return true;
+      final q = _articlesSearch.toLowerCase();
+      final title = (a['title'] ?? '').toString().toLowerCase();
+      final cat = (a['category'] ?? '').toString().toLowerCase();
+      return title.contains(q) || cat.contains(q);
+    }).toList();
+
+    return Container(
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0xFFE2E8F0)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.03),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Row(
+                children: [
+                  const Icon(Icons.library_books_rounded, color: Color(0xFF0284C7), size: 20),
+                  const SizedBox(width: 8),
+                  Text(
+                    "المقالات المنشورة في الموقع (${allArticles.length})",
+                    style: GoogleFonts.cairo(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: const Color(0xFF0F172A),
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(
+                width: 240,
+                child: TextField(
+                  onChanged: (val) => setState(() => _articlesSearch = val),
+                  decoration: InputDecoration(
+                    hintText: "بحث في المقالات...",
+                    prefixIcon: const Icon(Icons.search_rounded, size: 18),
+                    isDense: true,
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: const BorderSide(color: Color(0xFFCBD5E1))),
+                  ),
+                  style: GoogleFonts.cairo(fontSize: 13),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          if (filtered.isEmpty)
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 36),
+              child: Center(
+                child: Column(
+                  children: [
+                    const Icon(Icons.article_outlined, size: 48, color: Color(0xFFCBD5E1)),
+                    const SizedBox(height: 12),
+                    Text(
+                      _articlesSearch.isNotEmpty ? "لا توجد نتائج مطابقة لبحثك" : "لا توجد مقالات منشورة بعد، ابدأ بإضافة مقال جديد أعلاه.",
+                      style: GoogleFonts.cairo(color: const Color(0xFF94A3B8), fontSize: 14),
+                    ),
+                  ],
+                ),
+              ),
+            )
+          else
+            ListView.separated(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: filtered.length,
+              separatorBuilder: (context, index) => const Divider(color: Color(0xFFF1F5F9)),
+              itemBuilder: (context, index) {
+                final article = filtered[index];
+                final articleId = (article['id'] ?? '').toString();
+                final title = (article['title'] ?? 'بدون عنوان').toString();
+                final category = (article['category'] ?? 'عام').toString();
+                final htmlCode = (article['htmlCode'] ?? '').toString();
+
+                return ListTile(
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  leading: Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF0284C7).withOpacity(0.08),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: const Icon(Icons.article_rounded, color: Color(0xFF0284C7), size: 22),
+                  ),
+                  title: Text(
+                    title,
+                    style: GoogleFonts.cairo(fontWeight: FontWeight.bold, fontSize: 15, color: const Color(0xFF0F172A)),
+                  ),
+                  subtitle: Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFF1F5F9),
+                          borderRadius: BorderRadius.circular(6),
+                          border: Border.all(color: const Color(0xFFE2E8F0)),
+                        ),
+                        child: Text(
+                          category,
+                          style: GoogleFonts.cairo(fontSize: 11, color: const Color(0xFF64748B), fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Text(
+                        "${(htmlCode.length / 1024).toStringAsFixed(1)} KB كود",
+                        style: GoogleFonts.cairo(fontSize: 12, color: const Color(0xFF94A3B8)),
+                      ),
+                    ],
+                  ),
+                  trailing: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.open_in_new_rounded, size: 18, color: Color(0xFF0284C7)),
+                        tooltip: "معاينة في الموقع",
+                        onPressed: () {
+                          final uri = Uri.parse("https://eslamatef-sepia.vercel.app/blog?id=$articleId");
+                          launchUrl(uri, mode: LaunchMode.externalApplication);
+                        },
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.edit_rounded, size: 18, color: Color(0xFF0284C7)),
+                        tooltip: "تعديل المقال",
+                        onPressed: () {
+                          setState(() {
+                            _editingArticle = article;
+                            _articleTitleCtrl.text = title;
+                            _selectedArticleCategory = category;
+                            _articleHtmlCtrl.text = htmlCode;
+                            _isArticlePreviewMode = false;
+                            _articlesSubTab = 0;
+                          });
+                        },
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.delete_outline_rounded, size: 18, color: Color(0xFFEF4444)),
+                        tooltip: "حذف المقال",
+                        onPressed: () => _confirmDeleteArticle(articleId, title),
+                      ),
+                    ],
+                  ),
+                );
+              },
+            ),
+        ],
+      ),
+    );
+  }
+
+  // ==========================================
+  // تبويب: التصنيفات
+  // ==========================================
+  Widget _buildArticleCategoriesTab() {
+    final categories = _dataService.articleCategories;
+    final isEditingCat = _editingCategoryName != null;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        // إضافة أو تعديل تصنيف
+        Container(
+          padding: const EdgeInsets.all(24),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: const Color(0xFFE2E8F0)),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.03),
+                blurRadius: 10,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF10B981).withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: const Icon(Icons.category_rounded, color: Color(0xFF10B981), size: 22),
+                  ),
+                  const SizedBox(width: 12),
+                  Text(
+                    isEditingCat ? "تعديل التصنيف" : "إضافة تصنيف جديد للمقالات",
+                    style: GoogleFonts.cairo(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: const Color(0xFF0F172A),
+                    ),
+                  ),
+                  const Spacer(),
+                  if (isEditingCat)
+                    TextButton.icon(
+                      onPressed: () {
+                        setState(() {
+                          _editingCategoryName = null;
+                          _newArticleCategoryCtrl.clear();
+                        });
+                      },
+                      icon: const Icon(Icons.close_rounded, size: 16),
+                      label: Text("إلغاء التعديل", style: GoogleFonts.cairo(fontWeight: FontWeight.bold)),
+                      style: TextButton.styleFrom(foregroundColor: const Color(0xFFEF4444)),
+                    ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              Row(
+                children: [
+                  Expanded(
+                    child: TextField(
+                      controller: _newArticleCategoryCtrl,
+                      decoration: InputDecoration(
+                        hintText: "اسم التصنيف (مثال: الذكاء الاصطناعي، نصائح تقنية، بايثون...)",
+                        prefixIcon: const Icon(Icons.label_rounded, color: Color(0xFF10B981), size: 20),
+                        filled: true,
+                        fillColor: const Color(0xFFF8FAFC),
+                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: const BorderSide(color: Color(0xFFCBD5E1))),
+                        enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: const BorderSide(color: Color(0xFFCBD5E1))),
+                      ),
+                      style: GoogleFonts.cairo(fontSize: 14, fontWeight: FontWeight.bold),
+                      onSubmitted: (_) => _saveArticleCategory(),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  ElevatedButton.icon(
+                    onPressed: _saveArticleCategory,
+                    icon: Icon(isEditingCat ? Icons.check_rounded : Icons.add_rounded, size: 20),
+                    label: Text(
+                      isEditingCat ? "حفظ التعديل" : "إضافة التصنيف ➕",
+                      style: GoogleFonts.cairo(fontSize: 14, fontWeight: FontWeight.bold),
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF10B981),
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 24),
+
+        // قائمة التصنيفات الحالية
+        Container(
+          padding: const EdgeInsets.all(24),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: const Color(0xFFE2E8F0)),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.03),
+                blurRadius: 10,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Text(
+                "التصنيفات المتاحة (${categories.length})",
+                style: GoogleFonts.cairo(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: const Color(0xFF0F172A),
+                ),
+              ),
+              const SizedBox(height: 16),
+              if (categories.isEmpty)
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 32),
+                  child: Center(
+                    child: Text(
+                      "لا توجد تصنيفات بعد، أضف تصنيفاً جديداً أعلاه.",
+                      style: GoogleFonts.cairo(color: const Color(0xFF94A3B8)),
+                    ),
+                  ),
+                )
+              else
+                Wrap(
+                  spacing: 12,
+                  runSpacing: 12,
+                  children: categories.map((catName) {
+                    final articlesCount = _dataService.articles
+                        .where((a) => (a['category'] ?? '').toString().trim() == catName.trim())
+                        .length;
+
+                    return Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFF8FAFC),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: const Color(0xFFE2E8F0)),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(Icons.folder_rounded, size: 18, color: Color(0xFF0284C7)),
+                          const SizedBox(width: 8),
+                          Text(
+                            catName,
+                            style: GoogleFonts.cairo(
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                              color: const Color(0xFF1E293B),
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFE2E8F0),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Text(
+                              "$articlesCount مقال",
+                              style: GoogleFonts.cairo(fontSize: 11, color: const Color(0xFF64748B), fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          IconButton(
+                            icon: const Icon(Icons.edit_rounded, size: 16, color: Color(0xFF0284C7)),
+                            tooltip: "تعديل التصنيف",
+                            onPressed: () {
+                              setState(() {
+                                _editingCategoryName = catName;
+                                _newArticleCategoryCtrl.text = catName;
+                              });
+                            },
+                          ),
+                          IconButton(
+                            icon: const Icon(Icons.delete_outline_rounded, size: 16, color: Color(0xFFEF4444)),
+                            tooltip: "حذف التصنيف",
+                            onPressed: () => _confirmDeleteArticleCategory(catName),
+                          ),
+                        ],
+                      ),
+                    );
+                  }).toList(),
+                ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  // ==========================================
+  // عمليات حفظ وحذف المقالات والتصنيفات
+  // ==========================================
+  Future<void> _saveArticle() async {
+    final title = _articleTitleCtrl.text.trim();
+    final htmlCode = _articleHtmlCtrl.text.trim();
+    var category = _selectedArticleCategory.trim();
+
+    if (category.isEmpty) {
+      if (_dataService.articleCategories.isNotEmpty) {
+        category = _dataService.articleCategories.first;
+      } else {
+        category = 'عام';
+      }
+    }
+
+    if (title.isEmpty) {
+      _showSnackBar("يرجى كتابة عنوان المقال", isError: true);
+      return;
+    }
+    if (htmlCode.isEmpty) {
+      _showSnackBar("يرجى إدخال كود HTML للمقال", isError: true);
+      return;
+    }
+
+    try {
+      if (_editingArticle != null) {
+        final articleId = _editingArticle!['id'].toString();
+        await _dataService.updateArticle(articleId, {
+          'title': title,
+          'category': category,
+          'htmlCode': htmlCode,
+        });
+        _showSnackBar("تم حفظ تعديلات المقال بنجاح ✅");
+      } else {
+        await _dataService.addArticle({
+          'title': title,
+          'category': category,
+          'htmlCode': htmlCode,
+        });
+        _showSnackBar("تم نشر المقال الجديد بنجاح 🚀");
+      }
+
+      setState(() {
+        _editingArticle = null;
+        _articleTitleCtrl.clear();
+        _articleHtmlCtrl.clear();
+        _selectedArticleCategory = '';
+        _isArticlePreviewMode = false;
+      });
+    } catch (e) {
+      _showSnackBar("حدث خطأ أثناء حفظ المقال: $e", isError: true);
+    }
+  }
+
+  Future<void> _saveArticleCategory() async {
+    final name = _newArticleCategoryCtrl.text.trim();
+    if (name.isEmpty) {
+      _showSnackBar("يرجى إدخال اسم التصنيف", isError: true);
+      return;
+    }
+
+    try {
+      if (_editingCategoryName != null) {
+        await _dataService.updateArticleCategory(_editingCategoryName!, name);
+        _showSnackBar("تم تعديل التصنيف بنجاح ✅");
+      } else {
+        await _dataService.addArticleCategory(name);
+        _showSnackBar("تمت إضافة التصنيف بنجاح ➕");
+      }
+
+      setState(() {
+        _editingCategoryName = null;
+        _newArticleCategoryCtrl.clear();
+      });
+    } catch (e) {
+      _showSnackBar("حدث خطأ أثناء حفظ التصنيف: $e", isError: true);
+    }
+  }
+
+  void _confirmDeleteArticle(String articleId, String title) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text("حذف المقال", style: GoogleFonts.cairo(fontWeight: FontWeight.bold)),
+        content: Text("هل أنت متأكد من رغبتك في حذف المقال '$title' نهائياً؟", style: GoogleFonts.cairo()),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: Text("إلغاء", style: GoogleFonts.cairo()),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              Navigator.pop(ctx);
+              await _dataService.deleteArticle(articleId);
+              _showSnackBar("تم حذف المقال بنجاح 🗑️");
+              if (_editingArticle != null && _editingArticle!['id'] == articleId) {
+                setState(() {
+                  _editingArticle = null;
+                  _articleTitleCtrl.clear();
+                  _articleHtmlCtrl.clear();
+                  _selectedArticleCategory = '';
+                });
+              }
+            },
+            style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFEF4444), foregroundColor: Colors.white),
+            child: Text("تأكيد الحذف", style: GoogleFonts.cairo(fontWeight: FontWeight.bold)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _confirmDeleteArticleCategory(String categoryName) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text("حذف التصنيف", style: GoogleFonts.cairo(fontWeight: FontWeight.bold)),
+        content: Text("هل أنت متأكد من حذف تصنيف '$categoryName'؟ لن يتم حذف المقالات المرتبطة به ولكنها ستفقد هذا التصنيف.", style: GoogleFonts.cairo()),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: Text("إلغاء", style: GoogleFonts.cairo()),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              Navigator.pop(ctx);
+              await _dataService.deleteArticleCategory(categoryName);
+              _showSnackBar("تم حذف التصنيف بنجاح 🗑️");
+              if (_editingCategoryName == categoryName) {
+                setState(() {
+                  _editingCategoryName = null;
+                  _newArticleCategoryCtrl.clear();
+                });
+              }
+            },
+            style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFEF4444), foregroundColor: Colors.white),
+            child: Text("تأكيد الحذف", style: GoogleFonts.cairo(fontWeight: FontWeight.bold)),
+          ),
+        ],
+      ),
+    );
+  }
 }
+
