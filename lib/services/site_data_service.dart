@@ -1042,6 +1042,23 @@ class SiteDataService extends ChangeNotifier {
     }
   }
 
+  Future<int> syncArticlesToFirestore() async {
+    if (!isFirebaseReady) return 0;
+    int syncedCount = 0;
+    for (final a in _articles) {
+      final id = a['id']?.toString() ?? '';
+      if (id.isNotEmpty) {
+        try {
+          await _firestore.collection('articles').doc(id).set(a, SetOptions(merge: true));
+          syncedCount++;
+        } catch (e) {
+          debugPrint("Error syncing article $id to Firestore: $e");
+        }
+      }
+    }
+    return syncedCount;
+  }
+
   Future<void> _saveArticles() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('site_articles', jsonEncode(_articles));

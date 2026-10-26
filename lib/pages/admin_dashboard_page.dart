@@ -10366,19 +10366,41 @@ function checkScore() {
                   ),
                 ],
               ),
-              SizedBox(
-                width: 240,
-                child: TextField(
-                  onChanged: (val) => setState(() => _articlesSearch = val),
-                  decoration: InputDecoration(
-                    hintText: "بحث في المقالات...",
-                    prefixIcon: const Icon(Icons.search_rounded, size: 18),
-                    isDense: true,
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: const BorderSide(color: Color(0xFFCBD5E1))),
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  OutlinedButton.icon(
+                    onPressed: () async {
+                      final count = await _dataService.syncArticlesToFirestore();
+                      _showSnackBar("تمت مزامنة $count مقال بنجاح مع السيرفر السحابي (Firestore) ☁️");
+                    },
+                    icon: const Icon(Icons.cloud_upload_rounded, size: 16, color: Color(0xFF0284C7)),
+                    label: Text(
+                      "مزامنة سحابية ☁️",
+                      style: GoogleFonts.cairo(fontSize: 12, fontWeight: FontWeight.bold, color: const Color(0xFF0284C7)),
+                    ),
+                    style: OutlinedButton.styleFrom(
+                      side: const BorderSide(color: Color(0xFF0284C7)),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                    ),
                   ),
-                  style: GoogleFonts.cairo(fontSize: 13),
-                ),
+                  const SizedBox(width: 10),
+                  SizedBox(
+                    width: 200,
+                    child: TextField(
+                      onChanged: (val) => setState(() => _articlesSearch = val),
+                      decoration: InputDecoration(
+                        hintText: "بحث في المقالات...",
+                        prefixIcon: const Icon(Icons.search_rounded, size: 18),
+                        isDense: true,
+                        contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: const BorderSide(color: Color(0xFFCBD5E1))),
+                      ),
+                      style: GoogleFonts.cairo(fontSize: 13),
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
