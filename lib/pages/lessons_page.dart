@@ -75,11 +75,9 @@ class _LessonsPageState extends State<LessonsPage> {
   }
 
   bool _isItemPublished(Map<String, dynamic> item) {
-    final user = FirebaseAuth.instance.currentUser;
-    if (_isAdmin(user)) return true;
-
-    if (item['isPublished'] == false || item['status'] == 'مسودة') {
-      return false;
+    if (item['status'] == 'مسودة') {
+      final user = FirebaseAuth.instance.currentUser;
+      return _isAdmin(user);
     }
 
     if (item['status'] == 'مجدول') {
@@ -88,7 +86,8 @@ class _LessonsPageState extends State<LessonsPage> {
         try {
           final schedDate = DateTime.parse(schedStr).toLocal();
           if (schedDate.isAfter(DateTime.now())) {
-            return false;
+            final user = FirebaseAuth.instance.currentUser;
+            return _isAdmin(user);
           }
         } catch (_) {}
       }

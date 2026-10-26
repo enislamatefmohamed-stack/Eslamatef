@@ -4,6 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../data/fifty_challenges_data.dart';
+import '../data/default_articles_data.dart';
 import 'gamification_service.dart';
 
 class SiteDataService extends ChangeNotifier {
@@ -142,8 +143,13 @@ class SiteDataService extends ChangeNotifier {
       }
 
       final artStr = prefs.getString('site_articles');
-      if (artStr != null) {
-        _articles = List<Map<String, dynamic>>.from(jsonDecode(artStr));
+      if (artStr != null && artStr.isNotEmpty) {
+        try {
+          _articles = List<Map<String, dynamic>>.from(jsonDecode(artStr));
+        } catch (_) {}
+      }
+      if (_articles.isEmpty) {
+        _articles = List<Map<String, dynamic>>.from(DefaultArticlesData.defaultArticles);
       }
 
       final aCatStr = prefs.getString('site_article_categories');
@@ -338,15 +344,30 @@ class SiteDataService extends ChangeNotifier {
       // Articles Collection (المقالات)
       _firestore.collection('articles').snapshots().listen((snapshot) {
         if (snapshot.docs.isNotEmpty) {
-          _articles = snapshot.docs.map((doc) {
+          final cloudArticles = snapshot.docs.map((doc) {
             final d = doc.data();
             d['id'] = doc.id;
             return d;
           }).toList();
+
+          final Set<String> existingIds = cloudArticles.map((a) => a['id'].toString()).toSet();
+          for (final def in DefaultArticlesData.defaultArticles) {
+            if (!existingIds.contains(def['id'].toString())) {
+              cloudArticles.add(def);
+            }
+          }
+
+          _articles = cloudArticles;
           _saveArticles();
           notifyListeners();
         }
-      }, onError: (e) => debugPrint("Firestore articles error: $e"));
+      }, onError: (e) {
+        debugPrint("Firestore articles error: $e");
+        if (_articles.isEmpty) {
+          _articles = List<Map<String, dynamic>>.from(DefaultArticlesData.defaultArticles);
+          notifyListeners();
+        }
+      });
 
       // Article Categories Collection (تصنيفات المقالات)
       _firestore.collection('article_categories').snapshots().listen((snapshot) {

@@ -30,13 +30,10 @@ class _ArticlesPageState extends State<ArticlesPage> {
   bool _isSubmittingComment = false;
 
   bool _isItemPublished(Map<String, dynamic> item) {
-    final auth = AuthService.instance;
-    final userEmail = auth.currentUser?.email?.toLowerCase() ?? '';
-    final isAdmin = auth.isAdmin || userEmail == 'islamatef01016834012@gmail.com';
-    if (isAdmin) return true;
-
-    if (item['isPublished'] == false || item['status'] == 'مسودة') {
-      return false;
+    if (item['status'] == 'مسودة') {
+      final auth = AuthService.instance;
+      final userEmail = auth.currentUser?.email?.toLowerCase() ?? '';
+      return auth.isAdmin || userEmail == 'islamatef01016834012@gmail.com';
     }
 
     if (item['status'] == 'مجدول') {
@@ -45,7 +42,9 @@ class _ArticlesPageState extends State<ArticlesPage> {
         try {
           final schedDate = DateTime.parse(schedStr).toLocal();
           if (schedDate.isAfter(DateTime.now())) {
-            return false;
+            final auth = AuthService.instance;
+            final userEmail = auth.currentUser?.email?.toLowerCase() ?? '';
+            return auth.isAdmin || userEmail == 'islamatef01016834012@gmail.com';
           }
         } catch (_) {}
       }
@@ -57,7 +56,6 @@ class _ArticlesPageState extends State<ArticlesPage> {
   @override
   void initState() {
     super.initState();
-    _checkUrlParameters();
     _dataService.addListener(_onDataChanged);
 
     try {
@@ -70,6 +68,12 @@ class _ArticlesPageState extends State<ArticlesPage> {
     } catch (_) {}
   }
 
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _checkUrlParameters();
+  }
+
   void _checkUrlParameters() {
     try {
       final uri = Uri.base;
@@ -79,6 +83,20 @@ class _ArticlesPageState extends State<ArticlesPage> {
           final queryPart = uri.fragment.substring(uri.fragment.indexOf('?') + 1);
           params.addAll(Uri.splitQueryString(queryPart));
         } catch (_) {}
+      }
+
+      final routeSettings = ModalRoute.of(context)?.settings;
+      if (routeSettings != null) {
+        if (routeSettings.arguments is Map) {
+          final args = routeSettings.arguments as Map;
+          if (args['id'] != null) params['id'] = args['id'].toString();
+          if (args['articleId'] != null) params['id'] = args['articleId'].toString();
+        }
+        final routeName = routeSettings.name ?? '';
+        final routeUri = Uri.tryParse(routeName);
+        if (routeUri != null && routeUri.hasQuery) {
+          params.addAll(routeUri.queryParameters);
+        }
       }
 
       final articleId = params['id'] ?? params['article'] ?? params['articleId'];

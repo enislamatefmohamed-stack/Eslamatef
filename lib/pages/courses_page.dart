@@ -58,13 +58,10 @@ class _CoursesPageState extends State<CoursesPage> {
   }
 
   bool _isItemPublished(Map<String, dynamic> item) {
-    final user = FirebaseAuth.instance.currentUser;
-    final userEmail = user?.email?.toLowerCase() ?? '';
-    final isAdmin = userEmail == 'islamatef01016834012@gmail.com' || AuthService.instance.isAdmin;
-    if (isAdmin) return true;
-
-    if (item['isPublished'] == false || item['status'] == 'مسودة') {
-      return false;
+    if (item['status'] == 'مسودة') {
+      final user = FirebaseAuth.instance.currentUser;
+      final userEmail = user?.email?.toLowerCase() ?? '';
+      return userEmail == 'islamatef01016834012@gmail.com' || AuthService.instance.isAdmin;
     }
 
     if (item['status'] == 'مجدول') {
@@ -73,7 +70,9 @@ class _CoursesPageState extends State<CoursesPage> {
         try {
           final schedDate = DateTime.parse(schedStr).toLocal();
           if (schedDate.isAfter(DateTime.now())) {
-            return false;
+            final user = FirebaseAuth.instance.currentUser;
+            final userEmail = user?.email?.toLowerCase() ?? '';
+            return userEmail == 'islamatef01016834012@gmail.com' || AuthService.instance.isAdmin;
           }
         } catch (_) {}
       }

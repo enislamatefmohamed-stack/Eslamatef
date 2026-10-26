@@ -70,6 +70,65 @@ class EslamAtefApp extends StatelessWidget {
               ],
             );
           },
+          onGenerateRoute: (settings) {
+            final rawName = settings.name ?? '';
+            final uri = Uri.tryParse(rawName) ?? Uri();
+            final path = uri.path;
+
+            Widget page;
+            switch (path) {
+              case '/courses':
+                page = const CoursesPage();
+                break;
+              case '/lessons':
+              case '/curricula':
+                page = const LessonsPage();
+                break;
+              case '/blog':
+              case '/articles':
+                page = const ArticlesPage();
+                break;
+              case '/challenge':
+                page = const WeeklyChallengePage();
+                break;
+              case '/quiz':
+                page = const QuizPage();
+                break;
+              case '/about':
+                page = const AboutPage();
+                break;
+              case '/privacy':
+                page = const PrivacyPage();
+                break;
+              case '/contact':
+                page = const ContactPage();
+                break;
+              case '/recording':
+                page = const RecordingStudioPage();
+                break;
+              case '/admin':
+                page = const AdminDashboardPage();
+                break;
+              case '/profile':
+                page = const StudentProfilePage();
+                break;
+              case '/checkout':
+                page = const CheckoutPage();
+                break;
+              case '/':
+              default:
+                page = const HomePage();
+                break;
+            }
+
+            return MaterialPageRoute(
+              settings: settings,
+              builder: (context) => Directionality(
+                textDirection: TextDirection.rtl,
+                child: page,
+              ),
+            );
+          },
           routes: {
             '/': (context) => const Directionality(
               textDirection: TextDirection.rtl,
@@ -173,17 +232,45 @@ class _HomePageState extends State<HomePage> {
   }
 
   bool _isItemPublished(Map<String, dynamic> item) {
-    if (item['isPublished'] == false || item['status'] == 'مسودة') return false;
+    if (item['status'] == 'مسودة') {
+      final auth = AuthService.instance;
+      final userEmail = auth.currentUser?.email?.toLowerCase() ?? '';
+      return auth.isAdmin || userEmail == 'islamatef01016834012@gmail.com';
+    }
     if (item['status'] == 'مجدول') {
       final schedStr = (item['scheduledPublishDate'] ?? item['scheduledDate'])?.toString();
       if (schedStr != null && schedStr.isNotEmpty) {
         try {
           final schedDate = DateTime.parse(schedStr).toLocal();
-          if (schedDate.isAfter(DateTime.now())) return false;
+          if (schedDate.isAfter(DateTime.now())) {
+            final auth = AuthService.instance;
+            final userEmail = auth.currentUser?.email?.toLowerCase() ?? '';
+            return auth.isAdmin || userEmail == 'islamatef01016834012@gmail.com';
+          }
         } catch (_) {}
       }
     }
     return true;
+  }
+
+  String _extractArticleImage(Map<String, dynamic> article) {
+    final explicit = (article['imageUrl'] ?? article['image'] ?? article['thumbnail'] ?? article['cover'] ?? '').toString();
+    if (explicit.isNotEmpty && !explicit.contains('placeholder')) {
+      return sanitizeImageUrl(explicit);
+    }
+
+    final code = (article['htmlCode'] ?? article['content'] ?? '').toString();
+    final imgMatch = RegExp(r'''<img[^>]*\bsrc\s*=\s*["']?([^"'>\s]+)["']?''', caseSensitive: false).firstMatch(code);
+    if (imgMatch != null && imgMatch.group(1) != null) {
+      return sanitizeImageUrl(imgMatch.group(1)!);
+    }
+
+    final mdMatch = RegExp(r'!\[.*?\]\((https?://[^\s\)]+)\)').firstMatch(code);
+    if (mdMatch != null && mdMatch.group(1) != null) {
+      return sanitizeImageUrl(mdMatch.group(1)!);
+    }
+
+    return '';
   }
 
   List<Map<String, dynamic>> _getCombinedLatestItems() {
@@ -244,7 +331,7 @@ class _HomePageState extends State<HomePage> {
     // 4. All published articles (المقالات والتدوينات التقنية)
     for (final a in SiteDataService.instance.articles) {
       if (!_isItemPublished(a)) continue;
-      final artImg = (a['imageUrl'] ?? a['image'] ?? '').toString();
+      final artImg = _extractArticleImage(a);
       final cat = (a['category'] ?? 'مقال تقني').toString();
       final aid = (a['id'] ?? '').toString();
       items.add({
@@ -1615,7 +1702,7 @@ class _HomePageState extends State<HomePage> {
     // 2. All published articles (المقالات والتدوينات التقنية)
     for (final a in SiteDataService.instance.articles) {
       if (!_isItemPublished(a)) continue;
-      final img = (a['imageUrl'] ?? a['image'] ?? '').toString();
+      final img = _extractArticleImage(a);
       list.add({
         'type': 'article',
         'id': a['id'] ?? '',
@@ -1628,6 +1715,7 @@ class _HomePageState extends State<HomePage> {
         'rating': '5.0',
         'students': '',
         'image': img,
+        'imageUrl': img,
         'icon': Icons.article_rounded,
         'gradient': [const Color(0xFF0284C7), const Color(0xFF0369A1)],
         'rawArticle': a,
@@ -1775,7 +1863,13 @@ class _HomePageState extends State<HomePage> {
     bool isMobile,
     bool isDark,
   ) {
-    final rawImg = (course['image'] ?? course['imageUrl'] ?? course['cover'] ?? course['thumbnail'] ?? '').toString();
+    String rawImg = '';
+    if (course['type'] == 'article') {
+      final rawArt = (course['rawArticle'] as Map<String, dynamic>?) ?? course;
+      rawImg = _extractArticleImage(rawArt);
+    } else {
+      rawImg = (course['image'] ?? course['imageUrl'] ?? course['cover'] ?? course['thumbnail'] ?? '').toString();
+    }
     final imgPath = sanitizeImageUrl(rawImg);
     final gradient =
         (course['gradient'] as List<Color>?) ??
@@ -1784,12 +1878,14 @@ class _HomePageState extends State<HomePage> {
     return MouseRegion(
       cursor: SystemMouseCursors.click,
       child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
         onTap: () {
           if (course['type'] == 'article') {
             final aid = (course['id'] ?? '').toString();
-            Navigator.of(context).pushNamed(aid.isNotEmpty ? '/blog?id=$aid' : '/blog');
-          } else if (course['id'] == 'kids_coding_49') {
-            Navigator.of(context).pushNamed('/courses');
+            Navigator.of(context).pushNamed(
+              aid.isNotEmpty ? '/blog?id=$aid' : '/blog',
+              arguments: aid.isNotEmpty ? {'id': aid} : null,
+            );
           } else {
             Navigator.of(context).pushNamed('/courses');
           }
@@ -1815,8 +1911,10 @@ class _HomePageState extends State<HomePage> {
             child: Stack(
               fit: StackFit.expand,
               children: [
-                // 1. Course Image (Fills the entire card)
-                _buildCourseCardImage(imgPath, gradient),
+                // 1. Course Image (Fills the entire card) - Wrapped with IgnorePointer so clicks pass through!
+                IgnorePointer(
+                  child: _buildCourseCardImage(imgPath, gradient),
+                ),
 
                 // 2. Cinematic Gradient Overlay (Ensures text is crystal clear)
                 Container(

@@ -48,6 +48,28 @@ class _LiveTextTickerBarState extends State<LiveTextTickerBar> {
     super.dispose();
   }
 
+  void _handleItemClick(BuildContext context, Map<String, dynamic> item) {
+    final type = item['type']?.toString() ?? '';
+    final route = item['route']?.toString() ?? '';
+    final id = (item['id'] ?? '').toString();
+
+    if (type == 'article') {
+      Navigator.pushNamed(
+        context,
+        id.isNotEmpty ? '/blog?id=$id' : '/blog',
+        arguments: id.isNotEmpty ? {'id': id} : null,
+      );
+    } else if (type == 'course') {
+      Navigator.pushNamed(context, '/courses');
+    } else if (type == 'lesson') {
+      Navigator.pushNamed(context, route.isNotEmpty ? route : '/lessons');
+    } else if (route.isNotEmpty) {
+      Navigator.pushNamed(context, route);
+    } else {
+      Navigator.pushNamed(context, '/courses');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final isDark = widget.isDark;
@@ -129,50 +151,55 @@ class _LiveTextTickerBarState extends State<LiveTextTickerBar> {
                       final item = widget.items[index % widget.items.length];
                       final title = item['title'] ?? '';
                       final badge = item['badge'] ?? 'جديد';
-                      final route = item['route'] ?? '/courses';
 
-                      return InkWell(
-                        onTap: () => Navigator.pushNamed(context, route),
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 16),
-                          alignment: Alignment.center,
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                                decoration: BoxDecoration(
-                                  color: const Color(0xFF0284C7).withValues(alpha: 0.12),
-                                  borderRadius: BorderRadius.circular(6),
-                                  border: Border.all(color: const Color(0xFF0284C7).withValues(alpha: 0.3)),
-                                ),
-                                child: Text(
-                                  badge,
-                                  style: GoogleFonts.cairo(
-                                    fontSize: 10.5,
-                                    fontWeight: FontWeight.bold,
-                                    color: const Color(0xFF0284C7),
+                      return MouseRegion(
+                        cursor: SystemMouseCursors.click,
+                        child: GestureDetector(
+                          behavior: HitTestBehavior.opaque,
+                          onTapDown: (_) => _isPaused = true,
+                          onTapCancel: () => _isPaused = false,
+                          onTap: () => _handleItemClick(context, item),
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 16),
+                            alignment: Alignment.center,
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFF0284C7).withValues(alpha: 0.12),
+                                    borderRadius: BorderRadius.circular(6),
+                                    border: Border.all(color: const Color(0xFF0284C7).withValues(alpha: 0.3)),
+                                  ),
+                                  child: Text(
+                                    badge,
+                                    style: GoogleFonts.cairo(
+                                      fontSize: 10.5,
+                                      fontWeight: FontWeight.bold,
+                                      color: const Color(0xFF0284C7),
+                                    ),
                                   ),
                                 ),
-                              ),
-                              const SizedBox(width: 8),
-                              Text(
-                                title,
-                                style: GoogleFonts.cairo(
-                                  fontSize: 12.5,
-                                  fontWeight: FontWeight.w600,
-                                  color: isDark ? const Color(0xFFF1F5F9) : const Color(0xFF1E293B),
+                                const SizedBox(width: 8),
+                                Text(
+                                  title,
+                                  style: GoogleFonts.cairo(
+                                    fontSize: 12.5,
+                                    fontWeight: FontWeight.w600,
+                                    color: isDark ? const Color(0xFFF1F5F9) : const Color(0xFF1E293B),
+                                  ),
                                 ),
-                              ),
-                              const SizedBox(width: 18),
-                              Text(
-                                "•",
-                                style: TextStyle(
-                                  color: isDark ? Colors.white24 : Colors.black26,
-                                  fontSize: 16,
+                                const SizedBox(width: 18),
+                                Text(
+                                  "•",
+                                  style: TextStyle(
+                                    color: isDark ? Colors.white24 : Colors.black26,
+                                    fontSize: 16,
+                                  ),
                                 ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
                         ),
                       );
