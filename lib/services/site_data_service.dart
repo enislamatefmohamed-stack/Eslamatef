@@ -870,6 +870,18 @@ class SiteDataService extends ChangeNotifier {
     article['id'] = id;
     article['createdAt'] ??= DateTime.now().toIso8601String();
     article['isPublished'] ??= true;
+
+    // Auto extract image thumbnail if missing
+    if ((article['imageUrl'] == null || article['imageUrl'].toString().isEmpty) &&
+        (article['image'] == null || article['image'].toString().isEmpty)) {
+      final code = (article['htmlCode'] ?? article['content'] ?? '').toString();
+      final imgMatch = RegExp(r'''<img[^>]*\bsrc\s*=\s*["']?([^"'>\s]+)["']?''', caseSensitive: false).firstMatch(code);
+      if (imgMatch != null && imgMatch.group(1) != null) {
+        article['imageUrl'] = imgMatch.group(1)!;
+        article['image'] = imgMatch.group(1)!;
+      }
+    }
+
     _articles.insert(0, article);
     await _saveArticles();
     notifyListeners();
@@ -888,6 +900,18 @@ class SiteDataService extends ChangeNotifier {
     if (idx != -1) {
       updated['id'] = id;
       updated['updatedAt'] = DateTime.now().toIso8601String();
+
+      // Auto extract image thumbnail if missing
+      if ((updated['imageUrl'] == null || updated['imageUrl'].toString().isEmpty) &&
+          (updated['image'] == null || updated['image'].toString().isEmpty)) {
+        final code = (updated['htmlCode'] ?? updated['content'] ?? '').toString();
+        final imgMatch = RegExp(r'''<img[^>]*\bsrc\s*=\s*["']?([^"'>\s]+)["']?''', caseSensitive: false).firstMatch(code);
+        if (imgMatch != null && imgMatch.group(1) != null) {
+          updated['imageUrl'] = imgMatch.group(1)!;
+          updated['image'] = imgMatch.group(1)!;
+        }
+      }
+
       _articles[idx] = updated;
       await _saveArticles();
       notifyListeners();
@@ -912,6 +936,87 @@ class SiteDataService extends ChangeNotifier {
         await _firestore.collection('articles').doc(id).delete();
       } catch (e) {
         debugPrint("Firestore deleteArticle error: $e");
+      }
+    }
+  }
+
+  // =========================================================================
+  // ARTICLE COMMENTS (التعليقات على المقالات للمسجلين فقط)
+  // =========================================================================
+  Future<void> addArticleComment({
+    required String articleId,
+    required String text,
+    required String userName,
+    required String userEmail,
+    String? userPhoto,
+    String? userId,
+  }) async {
+    final comment = {
+      'id': 'cmt_${DateTime.now().millisecondsSinceEpoch}',
+      'text': text.trim(),
+      'userName': userName.trim().isNotEmpty ? userName.trim() : 'مستخدم المنصة',
+      'userEmail': userEmail.trim(),
+      'userPhoto': userPhoto ?? '',
+      'userId': userId ?? '',
+      'createdAt': DateTime.now().toIso8601String(),
+    };
+
+    final idx = _articles.indexWhere((a) => a['id'].toString() == articleId);
+    if (idx != -1) {
+      final article = Map<String, dynamic>.from(_articles[idx]);
+      final comments = List<Map<String, dynamic>>.from(article['comments'] ?? []);
+      comments.insert(0, comment);
+      article['comments'] = comments;
+      _articles[idx] = article;
+      await _saveArticles();
+      notifyListeners();
+
+      if (isFirebaseReady) {
+        try {
+          await _firestore
+              .collection('articles')
+              .doc(articleId)
+              .collection('comments')
+              .doc(comment['id'])
+              .set(comment);
+          await _firestore.collection('articles').doc(articleId).set({
+            'comments': comments,
+          }, SetOptions(merge: true));
+        } catch (e) {
+          debugPrint("Firestore addArticleComment error: $e");
+        }
+      }
+    }
+  }
+
+  Future<void> deleteArticleComment({
+    required String articleId,
+    required String commentId,
+  }) async {
+    final idx = _articles.indexWhere((a) => a['id'].toString() == articleId);
+    if (idx != -1) {
+      final article = Map<String, dynamic>.from(_articles[idx]);
+      final comments = List<Map<String, dynamic>>.from(article['comments'] ?? []);
+      comments.removeWhere((c) => c['id'].toString() == commentId);
+      article['comments'] = comments;
+      _articles[idx] = article;
+      await _saveArticles();
+      notifyListeners();
+
+      if (isFirebaseReady) {
+        try {
+          await _firestore
+              .collection('articles')
+              .doc(articleId)
+              .collection('comments')
+              .doc(commentId)
+              .delete();
+          await _firestore.collection('articles').doc(articleId).set({
+            'comments': comments,
+          }, SetOptions(merge: true));
+        } catch (e) {
+          debugPrint("Firestore deleteArticleComment error: $e");
+        }
       }
     }
   }

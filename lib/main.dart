@@ -172,6 +172,20 @@ class _HomePageState extends State<HomePage> {
     if (mounted) setState(() {});
   }
 
+  bool _isItemPublished(Map<String, dynamic> item) {
+    if (item['isPublished'] == false || item['status'] == 'مسودة') return false;
+    if (item['status'] == 'مجدول') {
+      final schedStr = (item['scheduledPublishDate'] ?? item['scheduledDate'])?.toString();
+      if (schedStr != null && schedStr.isNotEmpty) {
+        try {
+          final schedDate = DateTime.parse(schedStr).toLocal();
+          if (schedDate.isAfter(DateTime.now())) return false;
+        } catch (_) {}
+      }
+    }
+    return true;
+  }
+
   List<Map<String, dynamic>> _getCombinedLatestItems() {
     final List<Map<String, dynamic>> items = [];
 
@@ -180,6 +194,7 @@ class _HomePageState extends State<HomePage> {
 
     // 2. All courses added in dashboard
     for (final c in SiteDataService.instance.courses) {
+      if (!_isItemPublished(c)) continue;
       final courseImg = (c['image'] ?? c['imageUrl'] ?? '').toString();
       items.add({
         'type': 'course',
@@ -194,6 +209,7 @@ class _HomePageState extends State<HomePage> {
       // Lessons inside this course folder
       final courseLessons = List<Map<String, dynamic>>.from(c['lessons'] ?? []);
       for (final l in courseLessons) {
+        if (!_isItemPublished(l)) continue;
         final lessonImg = (l['image'] ?? l['imageUrl'] ?? '').toString();
         items.add({
           'type': 'lesson',
@@ -211,6 +227,7 @@ class _HomePageState extends State<HomePage> {
 
     // 3. All standalone lessons added in dashboard
     for (final l in SiteDataService.instance.lessons) {
+      if (!_isItemPublished(l)) continue;
       final lessonImg = (l['image'] ?? l['imageUrl'] ?? '').toString();
       final cat = (l['category'] ?? l['subject'] ?? 'درس').toString();
       items.add({
@@ -221,6 +238,24 @@ class _HomePageState extends State<HomePage> {
         'duration': l['duration'] ?? '15 دقيقة',
         'image': lessonImg.isNotEmpty ? lessonImg : 'assets/images/slide2.png',
         'route': '/lessons',
+      });
+    }
+
+    // 4. All published articles (المقالات والتدوينات التقنية)
+    for (final a in SiteDataService.instance.articles) {
+      if (!_isItemPublished(a)) continue;
+      final artImg = (a['imageUrl'] ?? a['image'] ?? '').toString();
+      final cat = (a['category'] ?? 'مقال تقني').toString();
+      final aid = (a['id'] ?? '').toString();
+      items.add({
+        'type': 'article',
+        'title': a['title'] ?? 'مقال جديد',
+        'category': cat,
+        'badge': 'مقال جديد 📝',
+        'duration': 'قراءة 5 دقائق',
+        'image': artImg.isNotEmpty ? artImg : 'assets/images/slide1.png',
+        'route': aid.isNotEmpty ? '/blog?id=$aid' : '/blog',
+        'id': aid,
       });
     }
 
@@ -1554,11 +1589,13 @@ class _HomePageState extends State<HomePage> {
   List<Map<String, dynamic>> _getPublishedCourses() {
     final List<Map<String, dynamic>> list = [];
 
-    // Only actual published courses from courses section (SiteDataService)
+    // 1. Only actual published courses from courses section (SiteDataService)
     for (final c in SiteDataService.instance.courses) {
+      if (!_isItemPublished(c)) continue;
       final lessons = (c['lessons'] as List?) ?? [];
       final img = (c['image'] ?? c['imageUrl'] ?? '').toString();
       list.add({
+        'type': 'course',
         'id': c['id'] ?? '',
         'title': c['title'] ?? 'كورس جديد',
         'subtitle': c['description'] ?? '',
@@ -1572,6 +1609,28 @@ class _HomePageState extends State<HomePage> {
         'icon': Icons.code_rounded,
         'gradient': [const Color(0xFF0284C7), const Color(0xFF0369A1)],
         'rawCourse': c,
+      });
+    }
+
+    // 2. All published articles (المقالات والتدوينات التقنية)
+    for (final a in SiteDataService.instance.articles) {
+      if (!_isItemPublished(a)) continue;
+      final img = (a['imageUrl'] ?? a['image'] ?? '').toString();
+      list.add({
+        'type': 'article',
+        'id': a['id'] ?? '',
+        'title': a['title'] ?? 'مقال جديد',
+        'subtitle': (a['category'] ?? 'مقال تقني').toString(),
+        'category': a['category'] ?? 'مقال تقني',
+        'badge': '📝 مقال جديد',
+        'level': 'قراءة 5 دقائق',
+        'lecturesCount': 'مقال تقني',
+        'rating': '5.0',
+        'students': '',
+        'image': img,
+        'icon': Icons.article_rounded,
+        'gradient': [const Color(0xFF0284C7), const Color(0xFF0369A1)],
+        'rawArticle': a,
       });
     }
 
@@ -1600,7 +1659,7 @@ class _HomePageState extends State<HomePage> {
               children: [
                 Expanded(
                   child: Text(
-                    "🔥 كورسات جديدة ومتميزة",
+                    "🔥 جديد الكورسات والمقالات التعليمية",
                     style: GoogleFonts.cairo(
                       fontSize: isMobile ? 22 : 28,
                       fontWeight: FontWeight.w900,
@@ -1726,8 +1785,10 @@ class _HomePageState extends State<HomePage> {
       cursor: SystemMouseCursors.click,
       child: GestureDetector(
         onTap: () {
-          // Clicking directly on the card opens the course
-          if (course['id'] == 'kids_coding_49') {
+          if (course['type'] == 'article') {
+            final aid = (course['id'] ?? '').toString();
+            Navigator.of(context).pushNamed(aid.isNotEmpty ? '/blog?id=$aid' : '/blog');
+          } else if (course['id'] == 'kids_coding_49') {
             Navigator.of(context).pushNamed('/courses');
           } else {
             Navigator.of(context).pushNamed('/courses');

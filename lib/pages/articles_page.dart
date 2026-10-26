@@ -10,6 +10,8 @@ import '../services/auth_service.dart';
 import '../widgets/article_content_renderer.dart';
 import '../widgets/interactive_html_view/interactive_html_view.dart';
 import '../widgets/unified_app_bar.dart';
+import '../widgets/safe_network_image/safe_network_image.dart';
+import '../widgets/auth_modal.dart';
 
 class ArticlesPage extends StatefulWidget {
   const ArticlesPage({super.key});
@@ -24,6 +26,8 @@ class _ArticlesPageState extends State<ArticlesPage> {
   String _selectedCategory = 'الكل';
   String _searchQuery = '';
   StreamSubscription? _popStateSubscription;
+  final TextEditingController _commentCtrl = TextEditingController();
+  bool _isSubmittingComment = false;
 
   bool _isItemPublished(Map<String, dynamic> item) {
     final auth = AuthService.instance;
@@ -35,14 +39,16 @@ class _ArticlesPageState extends State<ArticlesPage> {
       return false;
     }
 
-    final schedStr = (item['scheduledPublishDate'] ?? item['scheduledDate'])?.toString();
-    if (schedStr != null && schedStr.isNotEmpty) {
-      try {
-        final schedDate = DateTime.parse(schedStr);
-        if (schedDate.isAfter(DateTime.now())) {
-          return false;
-        }
-      } catch (_) {}
+    if (item['status'] == 'مجدول') {
+      final schedStr = (item['scheduledPublishDate'] ?? item['scheduledDate'])?.toString();
+      if (schedStr != null && schedStr.isNotEmpty) {
+        try {
+          final schedDate = DateTime.parse(schedStr).toLocal();
+          if (schedDate.isAfter(DateTime.now())) {
+            return false;
+          }
+        } catch (_) {}
+      }
     }
 
     return true;
@@ -113,7 +119,13 @@ class _ArticlesPageState extends State<ArticlesPage> {
 
   void _onDataChanged() {
     if (mounted) {
-      if (_activeArticle == null) {
+      if (_activeArticle != null) {
+        final aid = _activeArticle!['id']?.toString();
+        final updated = _dataService.articles.where((a) => a['id'].toString() == aid).toList();
+        if (updated.isNotEmpty) {
+          _activeArticle = updated.first;
+        }
+      } else {
         _checkUrlParameters();
       }
       setState(() {});
@@ -123,6 +135,7 @@ class _ArticlesPageState extends State<ArticlesPage> {
   @override
   void dispose() {
     _popStateSubscription?.cancel();
+    _commentCtrl.dispose();
     _dataService.removeListener(_onDataChanged);
     super.dispose();
   }
@@ -154,14 +167,20 @@ class _ArticlesPageState extends State<ArticlesPage> {
   }
 
   String _extractThumbnail(Map<String, dynamic> article) {
-    final explicit = (article['image'] ?? article['imageUrl'] ?? '').toString();
-    if (explicit.isNotEmpty && !explicit.contains('placeholder')) return explicit;
+    final explicit = (article['imageUrl'] ?? article['image'] ?? article['thumbnail'] ?? article['cover'] ?? '').toString();
+    if (explicit.isNotEmpty && !explicit.contains('placeholder')) {
+      return sanitizeImageUrl(explicit);
+    }
 
     final code = (article['htmlCode'] ?? article['content'] ?? '').toString();
-    final imgMatch = RegExp(r'<img[^>]+src="([^">]+)"', caseSensitive: false).firstMatch(code) ??
-        RegExp(r"<img[^>]+src='([^'>]+)'", caseSensitive: false).firstMatch(code);
+    final imgMatch = RegExp(r'''<img[^>]*\bsrc\s*=\s*["']?([^"'>\s]+)["']?''', caseSensitive: false).firstMatch(code);
     if (imgMatch != null && imgMatch.group(1) != null) {
-      return imgMatch.group(1)!;
+      return sanitizeImageUrl(imgMatch.group(1)!);
+    }
+
+    final mdMatch = RegExp(r'!\[.*?\]\((https?://[^\s\)]+)\)').firstMatch(code);
+    if (mdMatch != null && mdMatch.group(1) != null) {
+      return sanitizeImageUrl(mdMatch.group(1)!);
     }
 
     return '';
@@ -511,10 +530,10 @@ class _ArticlesPageState extends State<ArticlesPage> {
             if (thumb.isNotEmpty)
               AspectRatio(
                 aspectRatio: 16 / 9,
-                child: Image.network(
-                  thumb,
+                child: SafeNetworkImage(
+                  imageUrl: thumb,
                   fit: BoxFit.cover,
-                  errorBuilder: (ctx, err, stack) => _buildPlaceholderImage(category, isDark),
+                  errorWidget: _buildPlaceholderImage(category, isDark),
                 ),
               )
             else
@@ -740,7 +759,12 @@ class _ArticlesPageState extends State<ArticlesPage> {
                     : ArticleContentRenderer(content: htmlCode, isDark: isDark),
               ),
 
-            const SizedBox(height: 28),
+            const SizedBox(height: 36),
+
+            // Comments Section (التعليقات للمسجلين فقط)
+            _buildCommentsSection(context, article, isMobile, isDark),
+
+            const SizedBox(height: 32),
 
             // Bottom Return Button
             Center(
@@ -758,6 +782,476 @@ class _ArticlesPageState extends State<ArticlesPage> {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  // ==========================================
+  // VIEW 3: Comments Section (التعليقات للمسجلين فقط)
+  // ==========================================
+  Widget _buildCommentsSection(BuildContext context, Map<String, dynamic> article, bool isMobile, bool isDark) {
+    final articleId = (article['id'] ?? '').toString();
+    final rawComments = List<Map<String, dynamic>>.from(article['comments'] ?? []);
+    // Sort comments descending by createdAt
+    rawComments.sort((a, b) {
+      final aDate = (a['createdAt'] ?? '').toString();
+      final bDate = (b['createdAt'] ?? '').toString();
+      return bDate.compareTo(aDate);
+    });
+
+    return Container(
+      padding: EdgeInsets.all(isMobile ? 18 : 28),
+      decoration: BoxDecoration(
+        color: isDark ? const Color(0xFF0F172A) : Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: isDark ? 0.25 : 0.03),
+            blurRadius: 14,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          // 1. Header Row
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF0284C7).withValues(alpha: 0.12),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: const Icon(Icons.chat_bubble_outline_rounded, color: Color(0xFF0284C7), size: 22),
+                  ),
+                  const SizedBox(width: 12),
+                  Text(
+                    "التعليقات والمناقشات",
+                    style: GoogleFonts.cairo(
+                      fontSize: isMobile ? 18 : 22,
+                      fontWeight: FontWeight.w900,
+                      color: isDark ? Colors.white : const Color(0xFF0F172A),
+                    ),
+                  ),
+                ],
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                decoration: BoxDecoration(
+                  color: isDark ? const Color(0xFF1E293B) : const Color(0xFFF1F5F9),
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(color: isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0)),
+                ),
+                child: Text(
+                  "${rawComments.length} تعليق",
+                  style: GoogleFonts.cairo(
+                    fontSize: 12.5,
+                    fontWeight: FontWeight.bold,
+                    color: const Color(0xFF0284C7),
+                  ),
+                ),
+              ),
+            ],
+          ),
+
+          const SizedBox(height: 24),
+
+          // 2. Add Comment Box (Logged-in Only vs Guest Prompt)
+          ListenableBuilder(
+            listenable: AuthService.instance,
+            builder: (ctx, _) {
+              final auth = AuthService.instance;
+              final user = auth.currentUser;
+
+              if (user != null) {
+                // Logged-in User: Can write comment
+                final userName = user.displayName?.trim().isNotEmpty == true
+                    ? user.displayName!
+                    : (user.email?.split('@').first ?? 'مستخدم');
+                final userPhoto = user.photoURL ?? '';
+
+                return Container(
+                  padding: const EdgeInsets.all(18),
+                  decoration: BoxDecoration(
+                    color: isDark ? const Color(0xFF131D33) : const Color(0xFFF8FAFC),
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0)),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Row(
+                        children: [
+                          CircleAvatar(
+                            radius: 18,
+                            backgroundColor: const Color(0xFF0284C7),
+                            backgroundImage: userPhoto.isNotEmpty ? NetworkImage(userPhoto) : null,
+                            child: userPhoto.isEmpty
+                                ? Text(
+                                    userName.isNotEmpty ? userName[0].toUpperCase() : 'U',
+                                    style: GoogleFonts.cairo(fontWeight: FontWeight.bold, color: Colors.white),
+                                  )
+                                : null,
+                          ),
+                          const SizedBox(width: 10),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                userName,
+                                style: GoogleFonts.cairo(fontSize: 14, fontWeight: FontWeight.bold),
+                              ),
+                              Text(
+                                "عضو مسجل بالموقع",
+                                style: GoogleFonts.cairo(fontSize: 11, color: const Color(0xFF0284C7), fontWeight: FontWeight.w600),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 14),
+                      TextField(
+                        controller: _commentCtrl,
+                        maxLines: 3,
+                        minLines: 2,
+                        decoration: InputDecoration(
+                          hintText: "شاركنا برأيك أو سؤالك حول المقال...",
+                          hintStyle: GoogleFonts.cairo(fontSize: 13.5, color: Colors.grey),
+                          filled: true,
+                          fillColor: isDark ? const Color(0xFF0F172A) : Colors.white,
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: BorderSide(color: isDark ? const Color(0xFF334155) : const Color(0xFFCBD5E1)),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: BorderSide(color: isDark ? const Color(0xFF334155) : const Color(0xFFCBD5E1)),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: const BorderSide(color: Color(0xFF0284C7), width: 1.8),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      Align(
+                        alignment: Alignment.centerLeft,
+                        child: ElevatedButton.icon(
+                          onPressed: _isSubmittingComment
+                              ? null
+                              : () async {
+                                  final text = _commentCtrl.text.trim();
+                                  if (text.isEmpty) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text("يرجى كتابة نص التعليق أولاً ✍️", style: GoogleFonts.cairo(fontWeight: FontWeight.bold)),
+                                        backgroundColor: const Color(0xFFEF4444),
+                                        behavior: SnackBarBehavior.floating,
+                                      ),
+                                    );
+                                    return;
+                                  }
+
+                                  setState(() => _isSubmittingComment = true);
+                                  final messenger = ScaffoldMessenger.of(context);
+                                  try {
+                                    await _dataService.addArticleComment(
+                                      articleId: articleId,
+                                      text: text,
+                                      userName: userName,
+                                      userEmail: user.email ?? '',
+                                      userPhoto: userPhoto,
+                                      userId: user.uid,
+                                    );
+
+                                    _commentCtrl.clear();
+                                    if (mounted) {
+                                      messenger.showSnackBar(
+                                        SnackBar(
+                                          content: Text("تم نشر تعليقك بنجاح ✅ شكراً لمشاركتك!", style: GoogleFonts.cairo(fontWeight: FontWeight.bold)),
+                                          backgroundColor: const Color(0xFF059669),
+                                          behavior: SnackBarBehavior.floating,
+                                        ),
+                                      );
+                                    }
+                                  } catch (e) {
+                                    if (mounted) {
+                                      messenger.showSnackBar(
+                                        SnackBar(
+                                          content: Text("حدث خطأ أثناء إرسال التعليق: $e", style: GoogleFonts.cairo(fontWeight: FontWeight.bold)),
+                                          backgroundColor: const Color(0xFFEF4444),
+                                          behavior: SnackBarBehavior.floating,
+                                        ),
+                                      );
+                                    }
+                                  } finally {
+                                    if (mounted) setState(() => _isSubmittingComment = false);
+                                  }
+                                },
+                          icon: _isSubmittingComment
+                              ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                              : const Icon(Icons.send_rounded, size: 16),
+                          label: Text(
+                            _isSubmittingComment ? "جارٍ الإرسال..." : "إرسال التعليق",
+                            style: GoogleFonts.cairo(fontSize: 13, fontWeight: FontWeight.bold),
+                          ),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF0284C7),
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              } else {
+                // Not Logged-in: Prompt Card to Log In
+                return Container(
+                  padding: const EdgeInsets.all(22),
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: isDark
+                          ? [const Color(0xFF1E293B), const Color(0xFF0F172A)]
+                          : [const Color(0xFFEFF6FF), const Color(0xFFF8FAFC)],
+                    ),
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: const Color(0xFF0284C7).withValues(alpha: 0.3), width: 1.5),
+                  ),
+                  child: Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF0284C7).withValues(alpha: 0.15),
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(Icons.lock_rounded, color: Color(0xFF0284C7), size: 26),
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              "التعليقات متاحة فقط للأعضاء المسجلين",
+                              style: GoogleFonts.cairo(fontSize: 15, fontWeight: FontWeight.bold),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              "سجّل دخولك الآن بضغطة واحدة للمشاركة برأيك، وطرح أسئلتك على المقال، والتفاعل مع مجتمع المنصة!",
+                              style: GoogleFonts.cairo(fontSize: 13, color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B)),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(width: 14),
+                      ElevatedButton.icon(
+                        onPressed: () => AuthModal.show(context),
+                        icon: const Icon(Icons.login_rounded, size: 16),
+                        label: Text("تسجيل الدخول", style: GoogleFonts.cairo(fontSize: 13, fontWeight: FontWeight.bold)),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF0284C7),
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              }
+            },
+          ),
+
+          const SizedBox(height: 28),
+
+          // 3. Comments List
+          if (rawComments.isEmpty)
+            Container(
+              padding: const EdgeInsets.all(28),
+              decoration: BoxDecoration(
+                color: isDark ? const Color(0xFF131D33).withValues(alpha: 0.5) : const Color(0xFFF8FAFC),
+                borderRadius: BorderRadius.circular(14),
+                border: Border.all(color: isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0)),
+              ),
+              child: Column(
+                children: [
+                  const Icon(Icons.chat_bubble_outline_rounded, size: 38, color: Colors.grey),
+                  const SizedBox(height: 8),
+                  Text(
+                    "لا توجد تعليقات بعد",
+                    style: GoogleFonts.cairo(fontSize: 15, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    "كن أول من يشارك برأيه ويترك تعليقاً على هذا المقال! ✍️",
+                    style: GoogleFonts.cairo(fontSize: 13, color: Colors.grey),
+                  ),
+                ],
+              ),
+            )
+          else
+            ListView.separated(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: rawComments.length,
+              separatorBuilder: (ctx, i) => const SizedBox(height: 14),
+              itemBuilder: (ctx, i) {
+                final comment = rawComments[i];
+                final cId = (comment['id'] ?? '').toString();
+                final cText = (comment['text'] ?? '').toString();
+                final cUser = (comment['userName'] ?? 'مستخدم').toString();
+                final cEmail = (comment['userEmail'] ?? '').toString();
+                final cPhoto = (comment['userPhoto'] ?? '').toString();
+                final cUserId = (comment['userId'] ?? '').toString();
+                final cDate = (comment['createdAt'] ?? '').toString();
+
+                final auth = AuthService.instance;
+                final curUser = auth.currentUser;
+                final isOwner = curUser != null && (curUser.uid == cUserId || curUser.email == cEmail);
+                final canDelete = auth.isAdmin || isOwner;
+                final isAuthor = cEmail.toLowerCase() == 'islamatef01016834012@gmail.com';
+
+                String displayDate = '';
+                if (cDate.isNotEmpty) {
+                  try {
+                    final dt = DateTime.parse(cDate).toLocal();
+                    displayDate = '${dt.year}/${dt.month}/${dt.day} - ${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}';
+                  } catch (_) {
+                    displayDate = cDate;
+                  }
+                }
+
+                return Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: isDark ? const Color(0xFF131D33) : const Color(0xFFF8FAFC),
+                    borderRadius: BorderRadius.circular(14),
+                    border: Border.all(
+                      color: isAuthor
+                          ? const Color(0xFF0284C7).withValues(alpha: 0.4)
+                          : (isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0)),
+                      width: isAuthor ? 1.5 : 1,
+                    ),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Row(
+                            children: [
+                              CircleAvatar(
+                                radius: 16,
+                                backgroundColor: isAuthor ? const Color(0xFF0284C7) : const Color(0xFF64748B),
+                                backgroundImage: cPhoto.isNotEmpty ? NetworkImage(cPhoto) : null,
+                                child: cPhoto.isEmpty
+                                    ? Text(
+                                        cUser.isNotEmpty ? cUser[0].toUpperCase() : 'U',
+                                        style: GoogleFonts.cairo(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.white),
+                                      )
+                                    : null,
+                              ),
+                              const SizedBox(width: 10),
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    children: [
+                                      Text(
+                                        cUser,
+                                        style: GoogleFonts.cairo(fontSize: 13.5, fontWeight: FontWeight.bold),
+                                      ),
+                                      if (isAuthor) ...[
+                                        const SizedBox(width: 6),
+                                        Container(
+                                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1.5),
+                                          decoration: BoxDecoration(
+                                            color: const Color(0xFF0284C7).withValues(alpha: 0.15),
+                                            borderRadius: BorderRadius.circular(6),
+                                          ),
+                                          child: Text(
+                                            "الكاتب ✍️",
+                                            style: GoogleFonts.cairo(fontSize: 10.5, fontWeight: FontWeight.bold, color: const Color(0xFF0284C7)),
+                                          ),
+                                        ),
+                                      ],
+                                    ],
+                                  ),
+                                  if (displayDate.isNotEmpty)
+                                    Text(
+                                      displayDate,
+                                      style: GoogleFonts.cairo(fontSize: 11, color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF94A3B8)),
+                                    ),
+                                ],
+                              ),
+                            ],
+                          ),
+                          if (canDelete)
+                            IconButton(
+                              icon: const Icon(Icons.delete_outline_rounded, size: 18, color: Color(0xFFEF4444)),
+                              tooltip: "حذف التعليق",
+                              onPressed: () async {
+                                final messenger = ScaffoldMessenger.of(context);
+                                final confirm = await showDialog<bool>(
+                                  context: context,
+                                  builder: (dctx) => AlertDialog(
+                                    title: Text("حذف التعليق", style: GoogleFonts.cairo(fontWeight: FontWeight.bold)),
+                                    content: Text("هل أنت متأكد من رغبتك في حذف هذا التعليق؟", style: GoogleFonts.cairo()),
+                                    actions: [
+                                      TextButton(
+                                        onPressed: () => Navigator.pop(dctx, false),
+                                        child: Text("إلغاء", style: GoogleFonts.cairo()),
+                                      ),
+                                      ElevatedButton(
+                                        onPressed: () => Navigator.pop(dctx, true),
+                                        style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFEF4444)),
+                                        child: Text("حذف", style: GoogleFonts.cairo(color: Colors.white)),
+                                      ),
+                                    ],
+                                  ),
+                                );
+
+                                if (confirm == true) {
+                                  await _dataService.deleteArticleComment(articleId: articleId, commentId: cId);
+                                  if (mounted) {
+                                    messenger.showSnackBar(
+                                      SnackBar(
+                                        content: Text("تم حذف التعليق بنجاح", style: GoogleFonts.cairo()),
+                                        backgroundColor: const Color(0xFF059669),
+                                        behavior: SnackBarBehavior.floating,
+                                      ),
+                                    );
+                                  }
+                                }
+                              },
+                            ),
+                        ],
+                      ),
+                      const SizedBox(height: 10),
+                      SelectableText(
+                        cText,
+                        style: GoogleFonts.cairo(
+                          fontSize: 14,
+                          height: 1.6,
+                          color: isDark ? const Color(0xFFF1F5F9) : const Color(0xFF1E293B),
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              },
+            ),
+        ],
       ),
     );
   }

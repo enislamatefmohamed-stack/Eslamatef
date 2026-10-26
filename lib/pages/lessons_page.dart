@@ -82,14 +82,16 @@ class _LessonsPageState extends State<LessonsPage> {
       return false;
     }
 
-    final schedStr = (item['scheduledPublishDate'] ?? item['scheduledDate'])?.toString();
-    if (schedStr != null && schedStr.isNotEmpty) {
-      try {
-        final schedDate = DateTime.parse(schedStr);
-        if (schedDate.isAfter(DateTime.now())) {
-          return false;
-        }
-      } catch (_) {}
+    if (item['status'] == 'مجدول') {
+      final schedStr = (item['scheduledPublishDate'] ?? item['scheduledDate'])?.toString();
+      if (schedStr != null && schedStr.isNotEmpty) {
+        try {
+          final schedDate = DateTime.parse(schedStr).toLocal();
+          if (schedDate.isAfter(DateTime.now())) {
+            return false;
+          }
+        } catch (_) {}
+      }
     }
 
     return true;

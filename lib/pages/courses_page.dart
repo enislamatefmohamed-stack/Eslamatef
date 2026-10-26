@@ -8,6 +8,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../theme/app_theme.dart';
 import '../services/site_data_service.dart';
+import '../services/auth_service.dart';
 import '../widgets/article_content_renderer.dart';
 import '../widgets/interactive_html_view/interactive_html_view.dart';
 import '../widgets/youtube_embedded_player.dart';
@@ -59,21 +60,23 @@ class _CoursesPageState extends State<CoursesPage> {
   bool _isItemPublished(Map<String, dynamic> item) {
     final user = FirebaseAuth.instance.currentUser;
     final userEmail = user?.email?.toLowerCase() ?? '';
-    final isAdmin = userEmail == 'islamatef01016834012@gmail.com';
+    final isAdmin = userEmail == 'islamatef01016834012@gmail.com' || AuthService.instance.isAdmin;
     if (isAdmin) return true;
 
     if (item['isPublished'] == false || item['status'] == 'مسودة') {
       return false;
     }
 
-    final schedStr = (item['scheduledPublishDate'] ?? item['scheduledDate'])?.toString();
-    if (schedStr != null && schedStr.isNotEmpty) {
-      try {
-        final schedDate = DateTime.parse(schedStr);
-        if (schedDate.isAfter(DateTime.now())) {
-          return false;
-        }
-      } catch (_) {}
+    if (item['status'] == 'مجدول') {
+      final schedStr = (item['scheduledPublishDate'] ?? item['scheduledDate'])?.toString();
+      if (schedStr != null && schedStr.isNotEmpty) {
+        try {
+          final schedDate = DateTime.parse(schedStr).toLocal();
+          if (schedDate.isAfter(DateTime.now())) {
+            return false;
+          }
+        } catch (_) {}
+      }
     }
 
     return true;

@@ -10775,6 +10775,12 @@ function checkScore() {
     }
 
     try {
+      String detectedImage = '';
+      final imgMatch = RegExp(r'''<img[^>]*\bsrc\s*=\s*["']?([^"'>\s]+)["']?''', caseSensitive: false).firstMatch(htmlCode);
+      if (imgMatch != null && imgMatch.group(1) != null) {
+        detectedImage = imgMatch.group(1)!;
+      }
+
       final articlePayload = {
         'title': title,
         'category': category,
@@ -10782,6 +10788,8 @@ function checkScore() {
         'status': _selectedArticleStatus,
         'isPublished': _selectedArticleStatus != 'مسودة',
         'scheduledPublishDate': _selectedArticleStatus == 'مجدول' ? _scheduledArticleDate?.toIso8601String() : null,
+        'imageUrl': detectedImage,
+        'image': detectedImage,
       };
 
       if (_editingArticle != null) {
