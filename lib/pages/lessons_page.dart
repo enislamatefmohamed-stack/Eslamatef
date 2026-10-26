@@ -74,6 +74,27 @@ class _LessonsPageState extends State<LessonsPage> {
     return cached['role'] == 'admin';
   }
 
+  bool _isItemPublished(Map<String, dynamic> item) {
+    final user = FirebaseAuth.instance.currentUser;
+    if (_isAdmin(user)) return true;
+
+    if (item['isPublished'] == false || item['status'] == 'مسودة') {
+      return false;
+    }
+
+    final schedStr = (item['scheduledPublishDate'] ?? item['scheduledDate'])?.toString();
+    if (schedStr != null && schedStr.isNotEmpty) {
+      try {
+        final schedDate = DateTime.parse(schedStr);
+        if (schedDate.isAfter(DateTime.now())) {
+          return false;
+        }
+      } catch (_) {}
+    }
+
+    return true;
+  }
+
   bool _canAccess({String? courseId, String? lessonId, required bool isPaid}) {
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) return false;
@@ -265,7 +286,7 @@ class _LessonsPageState extends State<LessonsPage> {
   // ==========================================
   Widget _buildAllLessonsCatalog(BuildContext context, bool isMobile, bool isDark) {
     // Standalone lessons and curricula only (Course lessons stay strictly inside their courses)
-    final List<Map<String, dynamic>> allLessons = List<Map<String, dynamic>>.from(_dataService.lessons);
+    final List<Map<String, dynamic>> allLessons = List<Map<String, dynamic>>.from(_dataService.lessons).where(_isItemPublished).toList();
 
     return Center(
       child: Container(

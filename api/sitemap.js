@@ -63,6 +63,12 @@ module.exports = async function handler(req, res) {
       const isPublished = fields.isPublished ? fields.isPublished.booleanValue !== false : true;
       if (!isPublished) continue;
 
+      const courseStatus = fields.status && fields.status.stringValue ? fields.status.stringValue : 'منشور';
+      if (courseStatus === 'مسودة') continue;
+
+      const courseScheduled = fields.scheduledPublishDate && fields.scheduledPublishDate.stringValue ? fields.scheduledPublishDate.stringValue : null;
+      if (courseScheduled && new Date(courseScheduled) > new Date()) continue;
+
       const updatedTime = doc.updateTime || nowIso;
 
       // Add Course URL
@@ -88,6 +94,12 @@ module.exports = async function handler(req, res) {
         const isLessonPublished = lFields.isPublished ? lFields.isPublished.booleanValue !== false : true;
         if (!isLessonPublished) continue;
 
+        const lStatus = lFields.status && lFields.status.stringValue ? lFields.status.stringValue : 'منشور';
+        if (lStatus === 'مسودة') continue;
+
+        const lScheduled = lFields.scheduledPublishDate && lFields.scheduledPublishDate.stringValue ? lFields.scheduledPublishDate.stringValue : null;
+        if (lScheduled && new Date(lScheduled) > new Date()) continue;
+
         urlEntries.push({
           loc: `${baseUrl}/courses?course=${encodeURIComponent(courseId)}&lesson=${encodeURIComponent(lessonId)}`,
           lastmod: updatedTime,
@@ -112,6 +124,12 @@ module.exports = async function handler(req, res) {
       const isPublished = fields.isPublished ? fields.isPublished.booleanValue !== false : true;
       if (!isPublished) continue;
 
+      const articleStatus = fields.status && fields.status.stringValue ? fields.status.stringValue : 'منشور';
+      if (articleStatus === 'مسودة') continue;
+
+      const artScheduled = fields.scheduledPublishDate && fields.scheduledPublishDate.stringValue ? fields.scheduledPublishDate.stringValue : null;
+      if (artScheduled && new Date(artScheduled) > new Date()) continue;
+
       const updatedTime = doc.updateTime || nowIso;
 
       urlEntries.push({
@@ -123,6 +141,37 @@ module.exports = async function handler(req, res) {
     }
   } catch (e) {
     console.error('Error generating dynamic articles in sitemap:', e.message);
+  }
+
+  // 3.5 Fetch Live Standalone Lessons (الدروس والمناهج) directly from Firestore
+  try {
+    const lessonsDocs = await fetchFirestoreCollection('lessons');
+
+    for (const doc of lessonsDocs) {
+      const lessonId = doc.name ? doc.name.split('/').pop() : null;
+      if (!lessonId) continue;
+
+      const fields = doc.fields || {};
+      const isPublished = fields.isPublished ? fields.isPublished.booleanValue !== false : true;
+      if (!isPublished) continue;
+
+      const lessonStatus = fields.status && fields.status.stringValue ? fields.status.stringValue : 'منشور';
+      if (lessonStatus === 'مسودة') continue;
+
+      const lessonScheduled = fields.scheduledPublishDate && fields.scheduledPublishDate.stringValue ? fields.scheduledPublishDate.stringValue : null;
+      if (lessonScheduled && new Date(lessonScheduled) > new Date()) continue;
+
+      const updatedTime = doc.updateTime || nowIso;
+
+      urlEntries.push({
+        loc: `${baseUrl}/curricula?id=${encodeURIComponent(lessonId)}`,
+        lastmod: updatedTime,
+        changefreq: 'weekly',
+        priority: '0.85',
+      });
+    }
+  } catch (e) {
+    console.error('Error generating dynamic lessons in sitemap:', e.message);
   }
 
   // 4. Build XML Sitemap

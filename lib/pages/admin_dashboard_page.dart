@@ -128,6 +128,8 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
   String _selectedCourseCategory = '';
   String _selectedCourseLevel = 'جميع المستويات';
   String _selectedCourseStatus = 'منشور';
+  DateTime? _scheduledCourseDate;
+  DateTime? _scheduledPlaylistDate;
 
   // Articles & Categories State
   int _articlesSubTab = 0; // 0: إضافة مقال, 1: التصنيفات
@@ -135,6 +137,8 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
   final _articleTitleCtrl = TextEditingController();
   final _articleHtmlCtrl = TextEditingController();
   String _selectedArticleCategory = '';
+  String _selectedArticleStatus = 'منشور';
+  DateTime? _scheduledArticleDate;
   bool _isArticlePreviewMode = false;
   final _newArticleCategoryCtrl = TextEditingController();
   String? _editingCategoryName;
@@ -1791,7 +1795,78 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
     _courseHtmlCtrl.text = existing?['htmlCode'] ?? '';
     _selectedCourseLevel = existing?['level'] ?? 'جميع المستويات';
     _selectedCourseStatus = existing?['status'] ?? 'منشور';
+    if (existing?['scheduledPublishDate'] != null) {
+      _scheduledCourseDate = DateTime.tryParse(existing!['scheduledPublishDate'].toString());
+    } else {
+      _scheduledCourseDate = null;
+    }
     setState(() {});
+  }
+
+  Widget _buildScheduleDateTimePicker({
+    required String label,
+    required DateTime? selectedDateTime,
+    required Function(DateTime) onDateTimeChanged,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const SizedBox(height: 10),
+        Text(label, style: GoogleFonts.cairo(fontSize: 13, fontWeight: FontWeight.bold, color: const Color(0xFF0284C7))),
+        const SizedBox(height: 6),
+        InkWell(
+          onTap: () async {
+            final now = DateTime.now();
+            final pickedDate = await showDatePicker(
+              context: context,
+              initialDate: selectedDateTime ?? now.add(const Duration(hours: 1)),
+              firstDate: now.subtract(const Duration(days: 1)),
+              lastDate: DateTime(2035),
+            );
+            if (pickedDate != null && mounted) {
+              final pickedTime = await showTimePicker(
+                context: context,
+                initialTime: selectedDateTime != null
+                    ? TimeOfDay.fromDateTime(selectedDateTime)
+                    : const TimeOfDay(hour: 12, minute: 0),
+              );
+              if (pickedTime != null) {
+                onDateTimeChanged(DateTime(
+                  pickedDate.year,
+                  pickedDate.month,
+                  pickedDate.day,
+                  pickedTime.hour,
+                  pickedTime.minute,
+                ));
+              }
+            }
+          },
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+            decoration: BoxDecoration(
+              border: Border.all(color: const Color(0xFF0284C7)),
+              borderRadius: BorderRadius.circular(10),
+              color: const Color(0xFFF0F9FF),
+            ),
+            child: Row(
+              children: [
+                const Icon(Icons.schedule_rounded, color: Color(0xFF0284C7), size: 20),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    selectedDateTime != null
+                        ? "موعد وتاريخ النشر المجدول: ${selectedDateTime.year}-${selectedDateTime.month.toString().padLeft(2, '0')}-${selectedDateTime.day.toString().padLeft(2, '0')} ${selectedDateTime.hour.toString().padLeft(2, '0')}:${selectedDateTime.minute.toString().padLeft(2, '0')}"
+                        : "اضغط لاختيار موعد وتاريخ النشر المجدول ⏰",
+                    style: GoogleFonts.cairo(fontSize: 13, fontWeight: FontWeight.bold, color: const Color(0xFF0369A1)),
+                  ),
+                ),
+                const Icon(Icons.edit_calendar_rounded, color: Color(0xFF0284C7), size: 18),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
   }
 
   Widget _buildCourseFullPageEditor() {
@@ -2103,10 +2178,24 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                   decoration: _inputDecoration("اختر الحالة"),
                   items: const [
                     DropdownMenuItem(value: 'منشور', child: Text("منشور (متاح للجميع)")),
+                    DropdownMenuItem(value: 'مجدول', child: Text("مجدول لموعد محدد ⏰")),
                     DropdownMenuItem(value: 'مسودة', child: Text("مسودة (غير ظاهر)")),
                   ],
-                  onChanged: (v) => setState(() => _selectedCourseStatus = v ?? 'منشور'),
+                  onChanged: (v) {
+                    setState(() {
+                      _selectedCourseStatus = v ?? 'منشور';
+                      if (_selectedCourseStatus == 'مجدول' && _scheduledCourseDate == null) {
+                        _scheduledCourseDate = DateTime.now().add(const Duration(hours: 1));
+                      }
+                    });
+                  },
                 ),
+                if (_selectedCourseStatus == 'مجدول')
+                  _buildScheduleDateTimePicker(
+                    label: "موعد النشر المجدول للكورس:",
+                    selectedDateTime: _scheduledCourseDate,
+                    onDateTimeChanged: (dt) => setState(() => _scheduledCourseDate = dt),
+                  ),
               ],
             ),
           ] else ...[
@@ -2144,15 +2233,29 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                         decoration: _inputDecoration("اختر الحالة"),
                         items: const [
                           DropdownMenuItem(value: 'منشور', child: Text("منشور (متاح للجميع)")),
+                          DropdownMenuItem(value: 'مجدول', child: Text("مجدول لموعد محدد ⏰")),
                           DropdownMenuItem(value: 'مسودة', child: Text("مسودة (غير ظاهر)")),
                         ],
-                        onChanged: (v) => setState(() => _selectedCourseStatus = v ?? 'منشور'),
+                        onChanged: (v) {
+                          setState(() {
+                            _selectedCourseStatus = v ?? 'منشور';
+                            if (_selectedCourseStatus == 'مجدول' && _scheduledCourseDate == null) {
+                              _scheduledCourseDate = DateTime.now().add(const Duration(hours: 1));
+                            }
+                          });
+                        },
                       ),
                     ],
                   ),
                 ),
               ],
             ),
+            if (_selectedCourseStatus == 'مجدول')
+              _buildScheduleDateTimePicker(
+                label: "موعد النشر المجدول للكورس:",
+                selectedDateTime: _scheduledCourseDate,
+                onDateTimeChanged: (dt) => setState(() => _scheduledCourseDate = dt),
+              ),
           ],
           const SizedBox(height: 16),
 
@@ -2330,6 +2433,10 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
       _showSnackBar("يرجى إدخال عنوان الكورس", isError: true);
       return;
     }
+    if (_selectedCourseStatus == 'مجدول' && _scheduledCourseDate == null) {
+      _showSnackBar("يرجى تحديد موعد وتاريخ النشر المجدول للكورس أولاً ⏰", isError: true);
+      return;
+    }
     final cats = _dataService.courseCategories;
     final cat = _selectedCourseCategory.isNotEmpty
         ? _selectedCourseCategory
@@ -2347,6 +2454,8 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
       'category': cat,
       'level': _selectedCourseLevel,
       'status': _selectedCourseStatus,
+      'isPublished': _selectedCourseStatus != 'مسودة',
+      'scheduledPublishDate': _selectedCourseStatus == 'مجدول' ? _scheduledCourseDate?.toIso8601String() : null,
       'isPaid': _isCoursePaid,
       'price': _isCoursePaid ? (double.tryParse(_coursePriceCtrl.text.trim()) ?? _coursePriceCtrl.text.trim()) : 0,
       'editorType': _isCourseHtmlMode ? 'html' : 'visual',
@@ -2376,6 +2485,11 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
     _playlistTitleCtrl.text = existing?['title'] ?? '';
     _playlistDescCtrl.text = existing?['description'] ?? '';
     _selectedPlaylistStatus = existing?['status'] ?? 'منشور';
+    if (existing?['scheduledPublishDate'] != null) {
+      _scheduledPlaylistDate = DateTime.tryParse(existing!['scheduledPublishDate'].toString());
+    } else {
+      _scheduledPlaylistDate = null;
+    }
     setState(() {});
   }
 
@@ -2444,10 +2558,24 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                 decoration: _inputDecoration("اختر الحالة"),
                 items: const [
                   DropdownMenuItem(value: 'منشور', child: Text("منشور (نشط)")),
+                  DropdownMenuItem(value: 'مجدول', child: Text("مجدول لموعد محدد ⏰")),
                   DropdownMenuItem(value: 'مسودة', child: Text("مسودة")),
                 ],
-                onChanged: (v) => setState(() => _selectedPlaylistStatus = v ?? 'منشور'),
+                onChanged: (v) {
+                  setState(() {
+                    _selectedPlaylistStatus = v ?? 'منشور';
+                    if (_selectedPlaylistStatus == 'مجدول' && _scheduledPlaylistDate == null) {
+                      _scheduledPlaylistDate = DateTime.now().add(const Duration(hours: 1));
+                    }
+                  });
+                },
               ),
+              if (_selectedPlaylistStatus == 'مجدول')
+                _buildScheduleDateTimePicker(
+                  label: "موعد النشر المجدول للقائمة:",
+                  selectedDateTime: _scheduledPlaylistDate,
+                  onDateTimeChanged: (dt) => setState(() => _scheduledPlaylistDate = dt),
+                ),
             ],
           ),
         ],
@@ -2460,10 +2588,16 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
       _showSnackBar("يرجى إدخال عنوان القائمة", isError: true);
       return;
     }
+    if (_selectedPlaylistStatus == 'مجدول' && _scheduledPlaylistDate == null) {
+      _showSnackBar("يرجى تحديد موعد وتاريخ النشر المجدول للقائمة أولاً ⏰", isError: true);
+      return;
+    }
     final playlistData = {
       'title': _playlistTitleCtrl.text.trim(),
       'description': _playlistDescCtrl.text.trim(),
       'status': _selectedPlaylistStatus,
+      'isPublished': _selectedPlaylistStatus != 'مسودة',
+      'scheduledPublishDate': _selectedPlaylistStatus == 'مجدول' ? _scheduledPlaylistDate?.toIso8601String() : null,
     };
     if (_editingPlaylist == null) {
       await _dataService.addLessonPlaylist(playlistData);
@@ -2522,6 +2656,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
             : (_editingLesson?['category'] ?? 'عام'),
         initialStatus: _selectedLessonStatus,
         initialHasQuiz: _editingLesson?['hasQuiz'] == true,
+        initialScheduledPublishDate: _editingLesson?['scheduledPublishDate'],
         availableCategories: _dataService.lessonCategories,
         availablePlaylists: _dataService.lessonPlaylists,
         initialPlaylistId: _selectedLessonPlaylistId,
@@ -8641,6 +8776,7 @@ function checkScore() {
             initialCategory: existing?['category'] ?? 'عام',
             initialStatus: existing?['status'] ?? 'منشور',
             initialHasQuiz: existing?['hasQuiz'] == true,
+            initialScheduledPublishDate: existing?['scheduledPublishDate'],
             availableCategories: _dataService.lessonCategories,
             availablePlaylists: _dataService.lessonPlaylists,
             onCancel: () => Navigator.pop(ctx),
@@ -9928,6 +10064,8 @@ function checkScore() {
                           _articleTitleCtrl.clear();
                           _articleHtmlCtrl.clear();
                           _selectedArticleCategory = '';
+                          _selectedArticleStatus = 'منشور';
+                          _scheduledArticleDate = null;
                           _isArticlePreviewMode = false;
                         });
                       },
@@ -10102,6 +10240,47 @@ function checkScore() {
                     ),
                   ),
                 ),
+              const SizedBox(height: 20),
+
+              // حالة النشر وموعد النشر المجدول
+              Text(
+                "حالة النشر والجدولة الزمنيّة *",
+                style: GoogleFonts.cairo(
+                  fontSize: 14,
+                  fontWeight: FontWeight.bold,
+                  color: const Color(0xFF1E293B),
+                ),
+              ),
+              const SizedBox(height: 8),
+              DropdownButtonFormField<String>(
+                value: _selectedArticleStatus,
+                decoration: InputDecoration(
+                  prefixIcon: const Icon(Icons.public_rounded, color: Color(0xFF0284C7), size: 20),
+                  filled: true,
+                  fillColor: const Color(0xFFF8FAFC),
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: const BorderSide(color: Color(0xFFCBD5E1))),
+                  enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: const BorderSide(color: Color(0xFFCBD5E1))),
+                ),
+                items: const [
+                  DropdownMenuItem(value: 'منشور', child: Text("نشر فوري (متاح للجميع الآن)")),
+                  DropdownMenuItem(value: 'مجدول', child: Text("جدولة النشر لموعد محدد ⏰")),
+                  DropdownMenuItem(value: 'مسودة', child: Text("مسودة (غير ظاهر في الموقع)")),
+                ],
+                onChanged: (val) {
+                  setState(() {
+                    _selectedArticleStatus = val ?? 'منشور';
+                    if (_selectedArticleStatus == 'مجدول' && _scheduledArticleDate == null) {
+                      _scheduledArticleDate = DateTime.now().add(const Duration(hours: 1));
+                    }
+                  });
+                },
+              ),
+              if (_selectedArticleStatus == 'مجدول')
+                _buildScheduleDateTimePicker(
+                  label: "موعد وتاريخ نشر المقال المجدول:",
+                  selectedDateTime: _scheduledArticleDate,
+                  onDateTimeChanged: (dt) => setState(() => _scheduledArticleDate = dt),
+                ),
               const SizedBox(height: 24),
 
               // زر الحفظ / النشر
@@ -10109,13 +10288,20 @@ function checkScore() {
                 height: 48,
                 child: ElevatedButton.icon(
                   onPressed: _saveArticle,
-                  icon: Icon(isEditing ? Icons.check_circle_rounded : Icons.rocket_launch_rounded, size: 20),
+                  icon: Icon(
+                    isEditing
+                        ? Icons.check_circle_rounded
+                        : (_selectedArticleStatus == 'مجدول' ? Icons.schedule_rounded : Icons.rocket_launch_rounded),
+                    size: 20,
+                  ),
                   label: Text(
-                    isEditing ? "حفظ تعديلات المقال ✅" : "نشر المقال الآن 🚀",
+                    isEditing
+                        ? "حفظ تعديلات المقال ✅"
+                        : (_selectedArticleStatus == 'مجدول' ? "جدولة نشر المقال ⏰" : "نشر المقال الآن 🚀"),
                     style: GoogleFonts.cairo(fontSize: 15, fontWeight: FontWeight.bold),
                   ),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF0284C7),
+                    backgroundColor: _selectedArticleStatus == 'مجدول' ? const Color(0xFF0284C7) : const Color(0xFF0284C7),
                     foregroundColor: Colors.white,
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                     elevation: 2,
@@ -10225,6 +10411,10 @@ function checkScore() {
                 final title = (article['title'] ?? 'بدون عنوان').toString();
                 final category = (article['category'] ?? 'عام').toString();
                 final htmlCode = (article['htmlCode'] ?? '').toString();
+                final schedStr = article['scheduledPublishDate']?.toString();
+                final schedDate = schedStr != null ? DateTime.tryParse(schedStr) : null;
+                final isScheduled = article['status'] == 'مجدول' || (schedDate != null && schedDate.isAfter(DateTime.now()));
+                final isDraft = article['status'] == 'مسودة' || article['isPublished'] == false;
 
                 return ListTile(
                   contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -10240,7 +10430,10 @@ function checkScore() {
                     title,
                     style: GoogleFonts.cairo(fontWeight: FontWeight.bold, fontSize: 15, color: const Color(0xFF0F172A)),
                   ),
-                  subtitle: Row(
+                  subtitle: Wrap(
+                    spacing: 8,
+                    runSpacing: 4,
+                    crossAxisAlignment: WrapCrossAlignment.center,
                     children: [
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
@@ -10254,7 +10447,48 @@ function checkScore() {
                           style: GoogleFonts.cairo(fontSize: 11, color: const Color(0xFF64748B), fontWeight: FontWeight.bold),
                         ),
                       ),
-                      const SizedBox(width: 12),
+                      if (isScheduled)
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFFEF3C7),
+                            borderRadius: BorderRadius.circular(6),
+                            border: Border.all(color: const Color(0xFFFDE68A)),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Icon(Icons.schedule_rounded, size: 12, color: Color(0xFFD97706)),
+                              const SizedBox(width: 4),
+                              Text(
+                                schedDate != null
+                                    ? "مجدول: ${schedDate.year}-${schedDate.month.toString().padLeft(2, '0')}-${schedDate.day.toString().padLeft(2, '0')} ${schedDate.hour.toString().padLeft(2, '0')}:${schedDate.minute.toString().padLeft(2, '0')}"
+                                    : "مجدول للنشر",
+                                style: GoogleFonts.cairo(fontSize: 11, color: const Color(0xFFB45309), fontWeight: FontWeight.bold),
+                              ),
+                            ],
+                          ),
+                        )
+                      else if (isDraft)
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFFEE2E2),
+                            borderRadius: BorderRadius.circular(6),
+                            border: Border.all(color: const Color(0xFFFECACA)),
+                          ),
+                          child: Text("مسودة", style: GoogleFonts.cairo(fontSize: 11, color: const Color(0xFFDC2626), fontWeight: FontWeight.bold)),
+                        )
+                      else
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFDCFCE7),
+                            borderRadius: BorderRadius.circular(6),
+                            border: Border.all(color: const Color(0xFFBBF7D0)),
+                          ),
+                          child: Text("منشور علناً ✅", style: GoogleFonts.cairo(fontSize: 11, color: const Color(0xFF15803D), fontWeight: FontWeight.bold)),
+                        ),
                       Text(
                         "${(htmlCode.length / 1024).toStringAsFixed(1)} KB كود",
                         style: GoogleFonts.cairo(fontSize: 12, color: const Color(0xFF94A3B8)),
@@ -10281,6 +10515,8 @@ function checkScore() {
                             _articleTitleCtrl.text = title;
                             _selectedArticleCategory = category;
                             _articleHtmlCtrl.text = htmlCode;
+                            _selectedArticleStatus = (article['status'] ?? 'منشور').toString();
+                            _scheduledArticleDate = schedDate;
                             _isArticlePreviewMode = false;
                             _articlesSubTab = 0;
                           });
@@ -10533,23 +10769,28 @@ function checkScore() {
       _showSnackBar("يرجى إدخال كود HTML للمقال", isError: true);
       return;
     }
+    if (_selectedArticleStatus == 'مجدول' && _scheduledArticleDate == null) {
+      _showSnackBar("يرجى تحديد موعد وتاريخ النشر المجدول للمقال أولاً ⏰", isError: true);
+      return;
+    }
 
     try {
+      final articlePayload = {
+        'title': title,
+        'category': category,
+        'htmlCode': htmlCode,
+        'status': _selectedArticleStatus,
+        'isPublished': _selectedArticleStatus != 'مسودة',
+        'scheduledPublishDate': _selectedArticleStatus == 'مجدول' ? _scheduledArticleDate?.toIso8601String() : null,
+      };
+
       if (_editingArticle != null) {
         final articleId = _editingArticle!['id'].toString();
-        await _dataService.updateArticle(articleId, {
-          'title': title,
-          'category': category,
-          'htmlCode': htmlCode,
-        });
+        await _dataService.updateArticle(articleId, articlePayload);
         _showSnackBar("تم حفظ تعديلات المقال بنجاح ✅");
       } else {
-        await _dataService.addArticle({
-          'title': title,
-          'category': category,
-          'htmlCode': htmlCode,
-        });
-        _showSnackBar("تم نشر المقال الجديد بنجاح 🚀");
+        await _dataService.addArticle(articlePayload);
+        _showSnackBar(_selectedArticleStatus == 'مجدول' ? "تمت جدولة نشر المقال بنجاح ⏰" : "تم نشر المقال الجديد بنجاح 🚀");
       }
 
       setState(() {
@@ -10557,6 +10798,8 @@ function checkScore() {
         _articleTitleCtrl.clear();
         _articleHtmlCtrl.clear();
         _selectedArticleCategory = '';
+        _selectedArticleStatus = 'منشور';
+        _scheduledArticleDate = null;
         _isArticlePreviewMode = false;
       });
     } catch (e) {

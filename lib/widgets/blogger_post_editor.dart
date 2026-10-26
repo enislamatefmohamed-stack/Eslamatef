@@ -23,6 +23,7 @@ class BloggerPostEditor extends StatefulWidget {
   final List<String> availableCategories;
   final List<Map<String, dynamic>> availablePlaylists;
   final String? initialPlaylistId;
+  final String? initialScheduledPublishDate;
   final VoidCallback onCancel;
   final Function(Map<String, dynamic> result) onSave;
 
@@ -37,6 +38,7 @@ class BloggerPostEditor extends StatefulWidget {
     this.availableCategories = const [],
     this.availablePlaylists = const [],
     this.initialPlaylistId,
+    this.initialScheduledPublishDate,
     required this.onCancel,
     required this.onSave,
   });
@@ -60,6 +62,7 @@ class _BloggerPostEditorState extends State<BloggerPostEditor> {
   late String _status;
   late String? _playlistId;
   late bool _hasQuiz;
+  DateTime? _scheduledPublishDate;
 
   int _lineCount = 1;
 
@@ -100,6 +103,9 @@ class _BloggerPostEditorState extends State<BloggerPostEditor> {
     _status = widget.initialStatus;
     _playlistId = widget.initialPlaylistId;
     _hasQuiz = widget.initialHasQuiz;
+    if (widget.initialScheduledPublishDate != null && widget.initialScheduledPublishDate!.trim().isNotEmpty) {
+      _scheduledPublishDate = DateTime.tryParse(widget.initialScheduledPublishDate!);
+    }
 
     _updateLineCount();
     _codeCtrl.addListener(_onCodeChanged);
@@ -458,6 +464,16 @@ class _BloggerPostEditorState extends State<BloggerPostEditor> {
       return;
     }
 
+    if (_status == 'مجدول' && _scheduledPublishDate == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("يرجى تحديد موعد وتاريخ النشر المجدول أولاً من إعدادات المشاركة ⏰", style: GoogleFonts.cairo(fontWeight: FontWeight.bold)),
+          backgroundColor: const Color(0xFFDC2626),
+        ),
+      );
+      return;
+    }
+
     final finalImg = detectedImage.isNotEmpty ? detectedImage : 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=600';
 
     final result = {
@@ -472,6 +488,8 @@ class _BloggerPostEditorState extends State<BloggerPostEditor> {
       'status': _status,
       'playlistId': _playlistId,
       'hasQuiz': _hasQuiz,
+      'isPublished': _status != 'مسودة',
+      'scheduledPublishDate': _status == 'مجدول' ? _scheduledPublishDate?.toIso8601String() : null,
     };
 
     widget.onSave(result);
@@ -1013,10 +1031,78 @@ class _BloggerPostEditorState extends State<BloggerPostEditor> {
               ),
               items: const [
                 DropdownMenuItem(value: 'منشور', child: Text("منشور علناً")),
+                DropdownMenuItem(value: 'مجدول', child: Text("مجدول لموعد محدد ⏰")),
                 DropdownMenuItem(value: 'مسودة', child: Text("مسودة")),
               ],
-              onChanged: (v) => setState(() => _status = v ?? 'منشور'),
+              onChanged: (v) {
+                setState(() {
+                  _status = v ?? 'منشور';
+                  if (_status == 'مجدول' && _scheduledPublishDate == null) {
+                    _scheduledPublishDate = DateTime.now().add(const Duration(hours: 1));
+                  }
+                });
+              },
             ),
+            if (_status == 'مجدول') ...[
+              const SizedBox(height: 10),
+              Text(
+                "موعد النشر المجدول:",
+                style: GoogleFonts.cairo(fontSize: 12, fontWeight: FontWeight.bold, color: const Color(0xFF0284C7)),
+              ),
+              const SizedBox(height: 6),
+              InkWell(
+                onTap: () async {
+                  final now = DateTime.now();
+                  final pickedDate = await showDatePicker(
+                    context: context,
+                    initialDate: _scheduledPublishDate ?? now.add(const Duration(hours: 1)),
+                    firstDate: now.subtract(const Duration(days: 1)),
+                    lastDate: DateTime(2035),
+                  );
+                  if (pickedDate != null && mounted) {
+                    final pickedTime = await showTimePicker(
+                      context: context,
+                      initialTime: _scheduledPublishDate != null
+                          ? TimeOfDay.fromDateTime(_scheduledPublishDate!)
+                          : const TimeOfDay(hour: 12, minute: 0),
+                    );
+                    if (pickedTime != null && mounted) {
+                      setState(() {
+                        _scheduledPublishDate = DateTime(
+                          pickedDate.year,
+                          pickedDate.month,
+                          pickedDate.day,
+                          pickedTime.hour,
+                          pickedTime.minute,
+                        );
+                      });
+                    }
+                  }
+                },
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                  decoration: BoxDecoration(
+                    border: Border.all(color: const Color(0xFF0284C7)),
+                    borderRadius: BorderRadius.circular(8),
+                    color: const Color(0xFFF0F9FF),
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.schedule_rounded, size: 16, color: Color(0xFF0284C7)),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          _scheduledPublishDate != null
+                              ? "${_scheduledPublishDate!.year}-${_scheduledPublishDate!.month.toString().padLeft(2, '0')}-${_scheduledPublishDate!.day.toString().padLeft(2, '0')} ${_scheduledPublishDate!.hour.toString().padLeft(2, '0')}:${_scheduledPublishDate!.minute.toString().padLeft(2, '0')}"
+                              : "اضغط لتحديد الموعد",
+                          style: GoogleFonts.cairo(fontSize: 11, fontWeight: FontWeight.bold, color: const Color(0xFF0369A1)),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
             const SizedBox(height: 16),
 
             // Quiz option

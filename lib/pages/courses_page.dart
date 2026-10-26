@@ -56,6 +56,29 @@ class _CoursesPageState extends State<CoursesPage> {
     return '';
   }
 
+  bool _isItemPublished(Map<String, dynamic> item) {
+    final user = FirebaseAuth.instance.currentUser;
+    final userEmail = user?.email?.toLowerCase() ?? '';
+    final isAdmin = userEmail == 'islamatef01016834012@gmail.com';
+    if (isAdmin) return true;
+
+    if (item['isPublished'] == false || item['status'] == 'مسودة') {
+      return false;
+    }
+
+    final schedStr = (item['scheduledPublishDate'] ?? item['scheduledDate'])?.toString();
+    if (schedStr != null && schedStr.isNotEmpty) {
+      try {
+        final schedDate = DateTime.parse(schedStr);
+        if (schedDate.isAfter(DateTime.now())) {
+          return false;
+        }
+      } catch (_) {}
+    }
+
+    return true;
+  }
+
   @override
   void initState() {
     super.initState();
@@ -88,13 +111,13 @@ class _CoursesPageState extends State<CoursesPage> {
       final lessonId = params['lesson'] ?? params['lessonId'] ?? params['l'];
 
       if (courseId != null && courseId.isNotEmpty) {
-        final matchedCourses = _dataService.courses.where((c) => c['id'].toString() == courseId).toList();
+        final matchedCourses = _dataService.courses.where((c) => c['id'].toString() == courseId && _isItemPublished(c)).toList();
         if (matchedCourses.isNotEmpty) {
           _activeCourse = matchedCourses.first;
           _checkEnrollment();
 
           if (lessonId != null && lessonId.isNotEmpty) {
-            final lessons = List<Map<String, dynamic>>.from(_activeCourse!['lessons'] ?? []);
+            final lessons = List<Map<String, dynamic>>.from(_activeCourse!['lessons'] ?? []).where(_isItemPublished).toList();
             final matchedLessons = lessons.where((l) => (l['id'] ?? '').toString() == lessonId).toList();
             if (matchedLessons.isNotEmpty) {
               _activeLesson = matchedLessons.first;
@@ -413,7 +436,7 @@ class _CoursesPageState extends State<CoursesPage> {
   // VIEW 1: Course Folders Catalog
   // ==========================================
   Widget _buildCourseFoldersCatalog(BuildContext context, bool isMobile, bool isDark) {
-    final courses = _dataService.courses;
+    final courses = _dataService.courses.where(_isItemPublished).toList();
 
     return Center(
       child: Container(
@@ -470,7 +493,9 @@ class _CoursesPageState extends State<CoursesPage> {
                   spacing: 20,
                   runSpacing: 22,
                   children: courses.map((course) {
-                    final lessons = (course['lessons'] as List?) ?? [];
+                    final lessons = ((course['lessons'] as List?) ?? [])
+                        .where((l) => _isItemPublished(Map<String, dynamic>.from(l as Map)))
+                        .toList();
                     final rawCourseImg = (course['image'] ?? course['imageUrl'] ?? '').toString().trim();
                     final image = rawCourseImg;
 
@@ -571,7 +596,7 @@ class _CoursesPageState extends State<CoursesPage> {
   Widget _buildCourseInsideView(BuildContext context, bool isMobile, bool isDark) {
     final course = _activeCourse!;
     final courseId = course['id']?.toString() ?? '';
-    final lessons = List<Map<String, dynamic>>.from(course['lessons'] ?? []);
+    final lessons = List<Map<String, dynamic>>.from(course['lessons'] ?? []).where(_isItemPublished).toList();
     final isPaid = course['isPaid'] == true;
     final price = course['price'] ?? 250;
     final user = FirebaseAuth.instance.currentUser;

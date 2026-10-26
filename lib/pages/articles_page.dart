@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../theme/app_theme.dart';
 import '../services/site_data_service.dart';
+import '../services/auth_service.dart';
 import '../widgets/article_content_renderer.dart';
 import '../widgets/interactive_html_view/interactive_html_view.dart';
 import '../widgets/unified_app_bar.dart';
@@ -23,6 +24,29 @@ class _ArticlesPageState extends State<ArticlesPage> {
   String _selectedCategory = 'الكل';
   String _searchQuery = '';
   StreamSubscription? _popStateSubscription;
+
+  bool _isItemPublished(Map<String, dynamic> item) {
+    final auth = AuthService.instance;
+    final userEmail = auth.currentUser?.email?.toLowerCase() ?? '';
+    final isAdmin = auth.isAdmin || userEmail == 'islamatef01016834012@gmail.com';
+    if (isAdmin) return true;
+
+    if (item['isPublished'] == false || item['status'] == 'مسودة') {
+      return false;
+    }
+
+    final schedStr = (item['scheduledPublishDate'] ?? item['scheduledDate'])?.toString();
+    if (schedStr != null && schedStr.isNotEmpty) {
+      try {
+        final schedDate = DateTime.parse(schedStr);
+        if (schedDate.isAfter(DateTime.now())) {
+          return false;
+        }
+      } catch (_) {}
+    }
+
+    return true;
+  }
 
   @override
   void initState() {
@@ -54,7 +78,7 @@ class _ArticlesPageState extends State<ArticlesPage> {
       final articleId = params['id'] ?? params['article'] ?? params['articleId'];
       if (articleId != null && articleId.isNotEmpty) {
         final matched = _dataService.articles.where((a) => a['id'].toString() == articleId).toList();
-        if (matched.isNotEmpty) {
+        if (matched.isNotEmpty && _isItemPublished(matched.first)) {
           _activeArticle = matched.first;
         } else {
           _activeArticle = null;
@@ -218,7 +242,7 @@ class _ArticlesPageState extends State<ArticlesPage> {
   // VIEW 1: Articles Catalog
   // ==========================================
   Widget _buildArticlesCatalog(BuildContext context, bool isMobile, bool isDark) {
-    final allArticles = _dataService.articles.where((a) => a['isPublished'] != false).toList();
+    final allArticles = _dataService.articles.where(_isItemPublished).toList();
     final categories = ['الكل', ..._dataService.articleCategories];
 
     final filtered = allArticles.where((a) {
