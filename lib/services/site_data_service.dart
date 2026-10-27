@@ -57,6 +57,11 @@ class SiteDataService extends ChangeNotifier {
   List<Map<String, dynamic>> get members => _members;
   bool get isInitialized => _isInitialized;
 
+  // Kids Course Sessions Custom Code (تعديل كود الجلسات)
+  final Map<int, String> _kidsSessionCustomCodes = {};
+  Map<int, String> get kidsSessionCustomCodes => _kidsSessionCustomCodes;
+  String? getKidsSessionCustomCode(int lectureNumber) => _kidsSessionCustomCodes[lectureNumber];
+
   Future<void> init() async {
     if (_isInitialized) return;
     try {
@@ -157,6 +162,14 @@ class SiteDataService extends ChangeNotifier {
         _articleCategories = List<String>.from(jsonDecode(aCatStr));
       } else {
         _articleCategories = ['علوم الحاسب والبرمجة', 'الذكاء الاصطناعي', 'تطوير الويب', 'نصائح ومفاهيم برمجية'];
+      }
+
+      // Load custom session codes from local storage
+      for (int i = 1; i <= 49; i++) {
+        final savedCode = prefs.getString('kids_session_code_$i');
+        if (savedCode != null && savedCode.isNotEmpty) {
+          _kidsSessionCustomCodes[i] = savedCode;
+        }
       }
 
       _isInitialized = true;
@@ -378,8 +391,63 @@ class SiteDataService extends ChangeNotifier {
         }
       }, onError: (e) => debugPrint("Firestore article_categories error: $e"));
 
+      // Kids Sessions Custom Code Collection (جلسات تصوير كورس الاطفال المخصصة)
+      _firestore.collection('kids_sessions_code').snapshots().listen((snapshot) {
+        for (var doc in snapshot.docs) {
+          final d = doc.data();
+          final num = d['lectureNumber'] as int?;
+          final code = d['htmlCode'] as String?;
+          if (num != null && code != null) {
+            _kidsSessionCustomCodes[num] = code;
+          }
+        }
+        notifyListeners();
+      }, onError: (e) => debugPrint("Firestore kids_sessions_code error: $e"));
+
     } catch (e) {
       debugPrint("Error binding Firestore listeners: $e");
+    }
+  }
+
+  // Save Kids Session Custom Code (حفظ كود الجلسة في فايرستور ومحلياً)
+  Future<void> saveKidsSessionCustomCode(int lectureNumber, String htmlCode) async {
+    _kidsSessionCustomCodes[lectureNumber] = htmlCode;
+    notifyListeners();
+
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('kids_session_code_$lectureNumber', htmlCode);
+    } catch (_) {}
+
+    if (isFirebaseReady) {
+      try {
+        await _firestore.collection('kids_sessions_code').doc('lecture_$lectureNumber').set({
+          'lectureNumber': lectureNumber,
+          'htmlCode': htmlCode,
+          'updatedAt': FieldValue.serverTimestamp(),
+        });
+      } catch (e) {
+        debugPrint("Error saving session code to Firestore: $e");
+      }
+    }
+  }
+
+  // Delete Kids Session Custom Code (استعادة الكود الأصلي للجلسة)
+  Future<void> deleteKidsSessionCustomCode(int lectureNumber) async {
+    _kidsSessionCustomCodes.remove(lectureNumber);
+    notifyListeners();
+
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.remove('kids_session_code_$lectureNumber');
+    } catch (_) {}
+
+    if (isFirebaseReady) {
+      try {
+        await _firestore.collection('kids_sessions_code').doc('lecture_$lectureNumber').delete();
+      } catch (e) {
+        debugPrint("Error deleting session code from Firestore: $e");
+      }
     }
   }
 

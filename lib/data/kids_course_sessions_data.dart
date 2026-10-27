@@ -1,5 +1,7 @@
 // ignore_for_file: avoid_web_libraries_in_flutter, deprecated_member_use
 import 'dart:html' as html;
+import '../services/site_data_service.dart';
+import '../widgets/recording_launcher/recording_launcher.dart';
 
 class KidsSessionItem {
   final int number;
@@ -29,6 +31,11 @@ class KidsSessionItem {
   String get formattedNumber => number < 10 ? '0$number' : '$number';
 
   void launchSession() {
+    final customCode = SiteDataService.instance.getKidsSessionCustomCode(number);
+    if (customCode != null && customCode.trim().isNotEmpty) {
+      openRecordingPresentation(customCode, title: title);
+      return;
+    }
     if (webUrl != null && webUrl!.isNotEmpty) {
       html.window.open(webUrl!, '_blank');
     }

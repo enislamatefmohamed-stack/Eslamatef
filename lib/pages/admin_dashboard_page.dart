@@ -14,6 +14,7 @@ import '../widgets/blogger_post_editor.dart';
 import '../widgets/recording_launcher/recording_launcher.dart';
 import '../widgets/interactive_html_view/interactive_html_view.dart';
 import '../data/kids_course_sessions_data.dart';
+import '../widgets/kids_session_code_editor_dialog.dart';
 
 class _SubTabItem {
   final String title;
@@ -7010,18 +7011,36 @@ function checkScore() {
                 color: const Color(0xFF475569),
               ),
             ),
-            if (_kidsSessionsSearch.isNotEmpty || _kidsSessionsSelectedLevel != 0)
-              TextButton.icon(
-                onPressed: () => setState(() {
-                  _kidsSessionsSearch = '';
-                  _kidsSessionsSelectedLevel = 0;
-                }),
-                icon: const Icon(Icons.refresh_rounded, size: 14, color: Color(0xFF0284C7)),
-                label: Text(
-                  "إعادة تعيين الفلاتر",
-                  style: GoogleFonts.cairo(fontSize: 12, color: const Color(0xFF0284C7)),
+            Row(
+              children: [
+                ElevatedButton.icon(
+                  onPressed: _showSelectSessionToEditDialog,
+                  icon: const Icon(Icons.code_rounded, size: 15),
+                  label: Text("تعديل كود أي جلسة 💻", style: GoogleFonts.cairo(fontSize: 12, fontWeight: FontWeight.bold)),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF0284C7),
+                    foregroundColor: Colors.white,
+                    elevation: 0,
+                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                  ),
                 ),
-              ),
+                if (_kidsSessionsSearch.isNotEmpty || _kidsSessionsSelectedLevel != 0) ...[
+                  const SizedBox(width: 8),
+                  TextButton.icon(
+                    onPressed: () => setState(() {
+                      _kidsSessionsSearch = '';
+                      _kidsSessionsSelectedLevel = 0;
+                    }),
+                    icon: const Icon(Icons.refresh_rounded, size: 14, color: Color(0xFF0284C7)),
+                    label: Text(
+                      "إعادة تعيين الفلاتر",
+                      style: GoogleFonts.cairo(fontSize: 12, color: const Color(0xFF0284C7)),
+                    ),
+                  ),
+                ],
+              ],
+            ),
           ],
         ),
 
@@ -7103,19 +7122,26 @@ function checkScore() {
   }
 
   Widget _buildKidsSessionCard(KidsSessionItem session) {
+    final hasCustomCode = _dataService.getKidsSessionCustomCode(session.number) != null &&
+        _dataService.getKidsSessionCustomCode(session.number)!.trim().isNotEmpty;
+
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: session.isReady ? const Color(0xFFBAE6FD) : const Color(0xFFE2E8F0),
-          width: session.isReady ? 1.5 : 1,
+          color: hasCustomCode
+              ? const Color(0xFF8B5CF6)
+              : (session.isReady ? const Color(0xFFBAE6FD) : const Color(0xFFE2E8F0)),
+          width: hasCustomCode ? 2 : (session.isReady ? 1.5 : 1),
         ),
         boxShadow: [
           BoxShadow(
-            color: session.isReady
-                ? const Color(0xFF0284C7).withOpacity(0.08)
-                : Colors.black.withOpacity(0.03),
+            color: hasCustomCode
+                ? const Color(0xFF8B5CF6).withOpacity(0.12)
+                : (session.isReady
+                    ? const Color(0xFF0284C7).withOpacity(0.08)
+                    : Colors.black.withOpacity(0.03)),
             blurRadius: 12,
             offset: const Offset(0, 4),
           ),
@@ -7128,14 +7154,18 @@ function checkScore() {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
             decoration: BoxDecoration(
-              color: session.isReady ? const Color(0xFFF0F9FF) : const Color(0xFFF8FAFC),
+              color: hasCustomCode
+                  ? const Color(0xFFFAF5FF)
+                  : (session.isReady ? const Color(0xFFF0F9FF) : const Color(0xFFF8FAFC)),
               borderRadius: const BorderRadius.only(
                 topLeft: Radius.circular(16),
                 topRight: Radius.circular(16),
               ),
               border: Border(
                 bottom: BorderSide(
-                  color: session.isReady ? const Color(0xFFE0F2FE) : const Color(0xFFF1F5F9),
+                  color: hasCustomCode
+                      ? const Color(0xFFDDD6FE)
+                      : (session.isReady ? const Color(0xFFE0F2FE) : const Color(0xFFF1F5F9)),
                 ),
               ),
             ),
@@ -7145,7 +7175,7 @@ function checkScore() {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                   decoration: BoxDecoration(
-                    color: const Color(0xFF0284C7),
+                    color: hasCustomCode ? const Color(0xFF7C3AED) : const Color(0xFF0284C7),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(
@@ -7178,7 +7208,26 @@ function checkScore() {
                     ),
                   ),
                 ),
-                const SizedBox(width: 8),
+                const SizedBox(width: 6),
+                if (hasCustomCode) ...[
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF8B5CF6).withOpacity(0.12),
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(color: const Color(0xFF8B5CF6).withOpacity(0.3)),
+                    ),
+                    child: Text(
+                      "✨ كود مخصص",
+                      style: GoogleFonts.cairo(
+                        color: const Color(0xFF7C3AED),
+                        fontSize: 10,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 6),
+                ],
                 // Status Pill
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
@@ -7331,14 +7380,18 @@ function checkScore() {
                     },
                     icon: const Icon(Icons.play_circle_fill_rounded, size: 16),
                     label: Text(
-                      session.isReady ? "تشغيل الجلسة 🎬" : "عرض الجلسة 🎬",
+                      hasCustomCode
+                          ? "تشغيل (كود مخصص) 🎬"
+                          : (session.isReady ? "تشغيل الجلسة 🎬" : "عرض الجلسة 🎬"),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                       style: GoogleFonts.cairo(
-                        fontSize: 12,
+                        fontSize: 11.5,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF0284C7),
+                      backgroundColor: hasCustomCode ? const Color(0xFF7C3AED) : const Color(0xFF0284C7),
                       foregroundColor: Colors.white,
                       elevation: 0,
                       padding: const EdgeInsets.symmetric(vertical: 8),
@@ -7346,7 +7399,25 @@ function checkScore() {
                     ),
                   ),
                 ),
-                const SizedBox(width: 8),
+                const SizedBox(width: 6),
+                // Edit Code Button (تعديل كود الجلسة)
+                IconButton(
+                  onPressed: () => _showEditKidsSessionCodeDialog(session),
+                  icon: Icon(
+                    hasCustomCode ? Icons.edit_note_rounded : Icons.code_rounded,
+                    size: 19,
+                    color: hasCustomCode ? const Color(0xFF7C3AED) : const Color(0xFF0284C7),
+                  ),
+                  tooltip: "تعديل ولصق كود الجلسة 💻",
+                  style: IconButton.styleFrom(
+                    backgroundColor: hasCustomCode
+                        ? const Color(0xFFEDE9FE)
+                        : const Color(0xFFE0F2FE),
+                    padding: const EdgeInsets.all(8),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                  ),
+                ),
+                const SizedBox(width: 6),
                 // Launch Quiz Button
                 Expanded(
                   flex: 2,
@@ -7377,6 +7448,94 @@ function checkScore() {
           ),
         ],
       ),
+    );
+  }
+
+  // =========================================================================
+  // MODAL DIALOG: تعديل كود جلسة تصوير كورس الأطفال
+  // =========================================================================
+  void _showEditKidsSessionCodeDialog(KidsSessionItem session) {
+    KidsSessionCodeEditorDialog.show(
+      context,
+      session,
+      onSaved: () => setState(() {}),
+    );
+  }
+
+  // Dialog to select any session from 1 to 49 to edit
+  void _showSelectSessionToEditDialog() {
+    final allSessions = KidsCourseSessionsData.allSessions;
+    showDialog(
+      context: context,
+      builder: (ctx) {
+        return Dialog(
+          backgroundColor: Colors.white,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+          child: Container(
+            width: 600,
+            height: 600,
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      "اختر المحاضرة لتعديل كود الجلسة 💻",
+                      style: GoogleFonts.cairo(fontSize: 16, fontWeight: FontWeight.bold, color: const Color(0xFF0F172A)),
+                    ),
+                    IconButton(icon: const Icon(Icons.close_rounded), onPressed: () => Navigator.pop(ctx)),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                Expanded(
+                  child: ListView.separated(
+                    itemCount: allSessions.length,
+                    separatorBuilder: (_, _) => const Divider(height: 1, color: Color(0xFFF1F5F9)),
+                    itemBuilder: (c, idx) {
+                      final s = allSessions[idx];
+                      final hasCustom = _dataService.getKidsSessionCustomCode(s.number) != null;
+                      return ListTile(
+                        leading: CircleAvatar(
+                          backgroundColor: hasCustom ? const Color(0xFF8B5CF6) : const Color(0xFF0284C7),
+                          radius: 16,
+                          child: Text(
+                            s.formattedNumber,
+                            style: GoogleFonts.cairo(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                        title: Text(
+                          s.title,
+                          style: GoogleFonts.cairo(fontSize: 13, fontWeight: FontWeight.w700),
+                        ),
+                        subtitle: Text(
+                          s.levelName,
+                          style: GoogleFonts.cairo(fontSize: 11, color: const Color(0xFF64748B)),
+                        ),
+                        trailing: hasCustom
+                            ? Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFFEDE9FE),
+                                  borderRadius: BorderRadius.circular(6),
+                                ),
+                                child: Text("مخصص ✨", style: GoogleFonts.cairo(color: const Color(0xFF7C3AED), fontSize: 10, fontWeight: FontWeight.bold)),
+                              )
+                            : const Icon(Icons.edit_note_rounded, color: Color(0xFF0284C7), size: 20),
+                        onTap: () {
+                          Navigator.pop(ctx);
+                          _showEditKidsSessionCodeDialog(s);
+                        },
+                      );
+                    },
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 
