@@ -348,10 +348,9 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                 _buildNavItem(2, "الدروس", Icons.school_rounded, isDrawer, count: _dataService.lessons.length),
                 _buildNavItem(3, "اختبر نفسك", Icons.psychology_rounded, isDrawer, count: _dataService.interactiveQuizzes.length),
                 _buildNavItem(4, "تحدي الأسبوع", Icons.emoji_events_rounded, isDrawer, count: _dataService.weeklyChallenges.length),
-                _buildNavItem(5, "جلسات تصوير كورس الاطفال", Icons.slideshow_rounded, isDrawer, count: KidsCourseSessionsData.allSessions.length),
-                _buildNavItem(6, "جلسات التصوير", Icons.videocam_rounded, isDrawer, count: _dataService.recordingLessons.length),
-                _buildNavItem(8, "استقبال إجابات الطلاب", Icons.mark_email_unread_rounded, isDrawer, count: _dataService.challengeSubmissions.length + _dataService.quizSubmissions.length),
-                _buildNavItem(9, "المقالات", Icons.article_rounded, isDrawer, count: _dataService.articles.length),
+                _buildNavItem(5, "إدارة الأعضاء والطلاب", Icons.people_alt_rounded, isDrawer, count: _dataService.members.length),
+                _buildNavItem(6, "استقبال إجابات الطلاب", Icons.mark_email_unread_rounded, isDrawer, count: _dataService.challengeSubmissions.length + _dataService.quizSubmissions.length),
+                _buildNavItem(7, "المقالات", Icons.article_rounded, isDrawer, count: _dataService.articles.length),
                 const Divider(color: Color(0xFFE2E8F0), height: 24),
                 _buildWebsiteLinkItem(isDrawer),
               ],
@@ -488,7 +487,6 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
       "إدارة الدروس المستقلة",
       "إدارة اختبارات اختبر نفسك",
       "إدارة تحدي الأسبوع والحلول",
-      "جلسات تصوير كورس الاطفال (49 محاضرة)",
       "إدارة الأعضاء والطلاب",
       "استقبال إجابات الطلاب (تحدي الأسبوع + اختبر نفسك)",
       "إدارة قسم المقالات والتصنيفات",
@@ -601,14 +599,10 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
       case 4:
         return _buildChallengesSection();
       case 5:
-        return _buildKidsCourseSessionsSection();
-      case 6:
-        return _buildRecordingStudioSection();
-      case 7:
         return _buildMembersSection();
-      case 8:
+      case 6:
         return _buildSubmissionsSection();
-      case 9:
+      case 7:
         return _buildArticlesSection();
       default:
         return _buildHomeSection();
