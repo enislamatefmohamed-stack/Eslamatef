@@ -65,6 +65,10 @@ flutter:
   assets:
     - assets/images/
     - assets/images/courses/
+    - assets/images/articles/2026/12/04/
+    - assets/images/articles/2026/12/11/
+    - assets/images/articles/2026/12/18/
+    - assets/images/articles/2026/12/25/
     - assets/images/slide1.png
     - assets/images/slide2.png
     - assets/images/slide3.png
