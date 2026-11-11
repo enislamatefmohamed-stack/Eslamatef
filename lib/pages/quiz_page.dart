@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 import '../theme/app_theme.dart';
 import '../services/site_data_service.dart';
@@ -115,10 +116,11 @@ class _QuizPageState extends State<QuizPage> {
         _isFinished = true;
       });
       final endTime = DateTime.now();
+      final studentName = _studentNameCtrl.text.trim().isNotEmpty ? _studentNameCtrl.text.trim() : 'طالب زائر';
       _dataService.addQuizSubmission({
         'quizId': 'quiz_general',
         'quizTitle': 'اختبار قياس المستوى البرمجي',
-        'studentName': _studentNameCtrl.text.trim().isNotEmpty ? _studentNameCtrl.text.trim() : 'طالب زائر',
+        'studentName': studentName,
         'phone': _studentPhoneCtrl.text.trim(),
         'whatsapp': _studentWhatsappCtrl.text.trim(),
         'country': _studentCountry,
@@ -128,18 +130,20 @@ class _QuizPageState extends State<QuizPage> {
         'endTime': "${endTime.hour.toString().padLeft(2, '0')}:${endTime.minute.toString().padLeft(2, '0')}",
         'date': "${DateTime.now().year}-${DateTime.now().month.toString().padLeft(2, '0')}-${DateTime.now().day.toString().padLeft(2, '0')}",
       });
-    }
-  }
 
-  void _restartQuiz() {
-    setState(() {
-      _currentIndex = 0;
-      _selectedOption = null;
-      _answered = false;
-      _score = 0;
-      _isFinished = false;
-      _startTime = DateTime.now();
-    });
+      final user = FirebaseAuth.instance.currentUser;
+      if (user != null) {
+        _dataService.submitQuizResult(
+          quizId: 'quiz_general',
+          quizTitle: 'اختبار قياس المستوى البرمجي',
+          courseId: 'general',
+          userId: user.uid,
+          userName: studentName,
+          score: _score,
+          totalQuestions: totalQuestions,
+        );
+      }
+    }
   }
 
   @override
@@ -539,9 +543,29 @@ class _QuizPageState extends State<QuizPage> {
                             'totalQuestions': 10,
                             'date': "${DateTime.now().year}-${DateTime.now().month.toString().padLeft(2, '0')}-${DateTime.now().day.toString().padLeft(2, '0')}",
                           });
+                          final user = FirebaseAuth.instance.currentUser;
+                          if (user != null) {
+                            await _dataService.submitQuizResult(
+                              quizId: (quiz['id'] ?? 'quiz_html').toString(),
+                              quizTitle: title,
+                              courseId: 'interactive',
+                              userId: user.uid,
+                              userName: name,
+                              score: scoreVal,
+                              totalQuestions: 10,
+                            );
+                          }
                           setState(() {
                             _htmlQuizSubmitted = true;
                           });
+                          if (context.mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text("تم حفظ النتيجة وتوثيقها في صفحة إنجازاتي بالفايربيز بنجاح 🎯"),
+                                backgroundColor: Color(0xFF10B981),
+                              ),
+                            );
+                          }
                         },
                         icon: const Icon(Icons.send_rounded),
                         label: Text("تسجيل النتيجة 🚀", style: GoogleFonts.cairo(fontWeight: FontWeight.bold)),
@@ -841,18 +865,39 @@ class _QuizPageState extends State<QuizPage> {
             ),
             const SizedBox(height: 32),
 
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+              decoration: BoxDecoration(
+                color: const Color(0xFF10B981).withOpacity(0.12),
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(color: const Color(0xFF10B981).withOpacity(0.3)),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(Icons.verified_rounded, color: Color(0xFF10B981), size: 18),
+                  const SizedBox(width: 8),
+                  Text(
+                    "تم توثيق نتيجتك رسمياً في إنجازاتي بالفايربيز • الاختبار متاح مرة واحدة فقط",
+                    style: GoogleFonts.cairo(fontSize: 12.5, fontWeight: FontWeight.bold, color: const Color(0xFF10B981)),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 24),
+
             Wrap(
               spacing: 16,
               runSpacing: 12,
               alignment: WrapAlignment.center,
               children: [
                 ElevatedButton.icon(
-                  onPressed: _restartQuiz,
-                  icon: const Icon(Icons.refresh_rounded, size: 20),
-                  label: Text("إعادة الاختبار", style: GoogleFonts.cairo(fontWeight: FontWeight.bold, fontSize: 15)),
+                  onPressed: () => Navigator.of(context).pushNamed('/profile'),
+                  icon: const Icon(Icons.workspace_premium_rounded, size: 20),
+                  label: Text("عرض نتيجتي في إنجازاتي 🏆", style: GoogleFonts.cairo(fontWeight: FontWeight.bold, fontSize: 15)),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF10B981),
-                    foregroundColor: Colors.white,
+                    backgroundColor: const Color(0xFF00E5FF),
+                    foregroundColor: const Color(0xFF0F172A),
                     padding: const EdgeInsets.symmetric(horizontal: 26, vertical: 14),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                   ),

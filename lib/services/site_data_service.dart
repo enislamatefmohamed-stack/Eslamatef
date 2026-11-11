@@ -11,6 +11,124 @@ class SiteDataService extends ChangeNotifier {
   static final SiteDataService instance = SiteDataService._internal();
   SiteDataService._internal();
 
+  // =========================================================================
+  // 8 OFFICIAL COURSES OF ESLAM ATEF PLATFORM
+  // =========================================================================
+  static const List<Map<String, dynamic>> officialPlatformCourses = [
+    {
+      "id": "01_cs_fundamentals",
+      "number": "01",
+      "title": "البرمجة والذكاء الاصطناعي للأطفال | من الصفر للاحتراف",
+      "titleEn": "Programming & AI for Kids | Zero to Hero",
+      "category": "الكورس التأسيسي الشامل",
+      "badge": "متاح الآن بالكامل 🔥",
+      "duration": "14 محاضرة تفاعلية كاملة",
+      "desc": "المدخل الشامل لفهم ما بداخل الكمبيوتر، كيفية عمل الإنترنت والشبكات، الأمان الرقمي، ومدخل الخوارزميات والبرمجة مع 14 محاضرة وواجبات تفاعلية.",
+      "image": "assets/images/courses/course_01.png",
+      "isPublished": true,
+      "isPaid": false,
+      "lessons": [],
+    },
+    {
+      "id": "02_algorithms",
+      "number": "02",
+      "title": "كورس الخوارزميات والتفكير المنطقي",
+      "titleEn": "Algorithms & Computational Thinking",
+      "category": "تفكير حسابي ومنطقي",
+      "badge": "قريباً ⏳",
+      "duration": "12 محاضرة تطبيقية",
+      "desc": "تطوير العقلية المنطقية والتفكير الحسابي، تفكيك المسائل المعقدة، خوارزميات البحث والترتيب، والتحضير لمسابقات البرمجة العالمية.",
+      "image": "assets/images/courses/course_02.png",
+      "isPublished": true,
+      "isPaid": false,
+      "lessons": [],
+    },
+    {
+      "id": "03_scratch",
+      "number": "03",
+      "title": "كورس سكراتش وصناعة الألعاب",
+      "titleEn": "Scratch Programming & Game Design",
+      "category": "برمجة مرئية بالبلوكات",
+      "badge": "قريباً ⏳",
+      "duration": "12 محاضرة إبداعية",
+      "desc": "مدخل البرمجة المرئية بالبلوكات، صناعة الرسوم المتحركة، القصص التفاعلية، وبرمجة ألعاب 2D ممتعة تبني التفكير المنطقي بلا تعقيد.",
+      "image": "assets/images/courses/course_03.png",
+      "isPublished": true,
+      "isPaid": false,
+      "lessons": [],
+    },
+    {
+      "id": "04_python",
+      "number": "04",
+      "title": "كورس لغة بايثون للأطفال واليافعين",
+      "titleEn": "Python Programming",
+      "category": "لغات العصر البرمجية",
+      "badge": "قريباً ⏳",
+      "duration": "16 محاضرة تطبيقية",
+      "desc": "الانتقال لكتابة الكود النصي الحقيقي، المتغيرات، الشروط، الحلقات، وبناء برامج وألعاب تفاعلية بمكتبات بايثون الشهيرة خطوة بخطوة.",
+      "image": "assets/images/courses/course_04.png",
+      "isPublished": true,
+      "isPaid": false,
+      "lessons": [],
+    },
+    {
+      "id": "05_ai_tools",
+      "number": "05",
+      "title": "كورس أدوات وهندسة أوامر الذكاء الاصطناعي",
+      "titleEn": "AI Tools & Prompt Engineering",
+      "category": "تقنيات المستقبل",
+      "badge": "قريباً ⏳",
+      "duration": "10 محاضرات عملية",
+      "desc": "احتراف استخدام نماذج الذكاء الاصطناعي التوليدي، كتابة الأوامر الفائقة (Prompt Engineering)، وتوظيف الـ AI في الدراسة والتصميم والابتكار.",
+      "image": "assets/images/courses/course_05.png",
+      "isPublished": true,
+      "isPaid": false,
+      "lessons": [],
+    },
+    {
+      "id": "06_ai_agents",
+      "number": "06",
+      "title": "كورس وكلاء الذكاء الاصطناعي المستقلة",
+      "titleEn": "AI Autonomous Agents",
+      "category": "ذكاء اصطناعي متقدم",
+      "badge": "قريباً ⏳",
+      "duration": "12 محاضرة متقدمة",
+      "desc": "فهم وبناء الأنظمة الذكية المستقلة التي تخطط وتنفذ المشاريع المعقدة بنفسها وكيفية توجيه الوكلاء الأذكياء لحل المشكلات.",
+      "image": "assets/images/courses/course_06.png",
+      "isPublished": true,
+      "isPaid": false,
+      "lessons": [],
+    },
+    {
+      "id": "07_cybersecurity",
+      "number": "07",
+      "title": "كورس الأمان السيبراني والدفاع الرقمي",
+      "titleEn": "Cybersecurity & Digital Defense",
+      "category": "أمان وحماية الأنظمة",
+      "badge": "قريباً ⏳",
+      "duration": "10 محاضرات حية",
+      "desc": "أسرار حماية البيانات، تشفير المعلومات، كشف محاولات الاختراق والتصيد الاحتيالي، وبناء درع أمني رقمي للجيل القادم.",
+      "image": "assets/images/courses/course_07.png",
+      "isPublished": true,
+      "isPaid": false,
+      "lessons": [],
+    },
+    {
+      "id": "08_roblox_lua",
+      "number": "08",
+      "title": "كورس برمجة ألعاب روبلوكس بلغة Lua",
+      "titleEn": "Roblox Coding with Lua",
+      "category": "صناعة ألعاب 3D",
+      "badge": "قريباً ⏳",
+      "duration": "14 محاضرة ممتعة",
+      "desc": "تعلم لغة البرمجة الحقيقية Lua داخل محرك Roblox Studio، بناء عوالم ثلاثية الأبعاد تفاعلية، برمجة آليات اللعب ونشر الألعاب عالمياً.",
+      "image": "assets/images/courses/course_08.png",
+      "isPublished": true,
+      "isPaid": false,
+      "lessons": [],
+    },
+  ];
+
   List<Map<String, dynamic>> _courses = [];
   List<Map<String, dynamic>> _lessons = [];
   List<Map<String, dynamic>> _lessonPlaylists = [];
@@ -73,6 +191,26 @@ class SiteDataService extends ChangeNotifier {
       final coursesStr = prefs.getString('site_courses');
       if (coursesStr != null) {
         _courses = List<Map<String, dynamic>>.from(jsonDecode(coursesStr));
+      }
+      // Ensure all 8 official courses exist with their full metadata
+      final Set<String> existingCids = _courses.map((c) => (c['id'] ?? '').toString()).toSet();
+      for (final off in officialPlatformCourses) {
+        final cid = off['id'].toString();
+        if (!existingCids.contains(cid)) {
+          _courses.add(Map<String, dynamic>.from(off));
+        } else {
+          final idx = _courses.indexWhere((c) => c['id'] == cid);
+          if (idx != -1) {
+            _courses[idx]['title'] = off['title'];
+            _courses[idx]['titleEn'] = off['titleEn'];
+            _courses[idx]['image'] = off['image'];
+            _courses[idx]['category'] = off['category'];
+            _courses[idx]['desc'] = off['desc'];
+            _courses[idx]['badge'] = off['badge'];
+            _courses[idx]['number'] = off['number'];
+            _courses[idx]['isPublished'] ??= true;
+          }
+        }
       }
       for (final c in _courses) {
         final clist = (c['lessons'] as List?) ?? [];
@@ -253,35 +391,6 @@ class SiteDataService extends ChangeNotifier {
           notifyListeners();
         }
       }, onError: (e) => debugPrint("Firestore lessons listener error: $e"));
-
-      // Course Categories Collection
-      _firestore.collection('course_categories').snapshots().listen((snapshot) {
-        if (snapshot.docs.isNotEmpty) {
-          _courseCategories = snapshot.docs.map((doc) => (doc.data()['name'] ?? doc.id).toString()).toList();
-          _saveCourseCategories();
-          notifyListeners();
-        }
-      }, onError: (e) => debugPrint("Firestore course_categories error: $e"));
-
-      // Lesson Categories Collection
-      _firestore.collection('lesson_categories').snapshots().listen((snapshot) {
-        if (snapshot.docs.isNotEmpty) {
-          _lessonCategories = snapshot.docs.map((doc) => (doc.data()['name'] ?? doc.id).toString()).toList();
-          _saveLessonCategories();
-          notifyListeners();
-        }
-      }, onError: (e) => debugPrint("Firestore lesson_categories error: $e"));
-
-      // Lesson Playlists Collection (Curricula / مناهج)
-      _firestore.collection('lesson_playlists').snapshots().listen((snapshot) {
-        _lessonPlaylists = snapshot.docs.map((doc) {
-          final d = doc.data();
-          d['id'] = doc.id;
-          return d;
-        }).toList();
-        _saveLessonPlaylists();
-        notifyListeners();
-      }, onError: (e) => debugPrint("Firestore lesson_playlists error: $e"));
 
       // Interactive Quizzes Collection
       _firestore.collection('interactive_quizzes').snapshots().listen((snapshot) {
@@ -1821,6 +1930,8 @@ class SiteDataService extends ChangeNotifier {
     required String courseId,
     required String lessonId,
     required String userId,
+    String? lessonTitle,
+    String? courseTitle,
   }) async {
     if (userId.isEmpty || courseId.isEmpty || lessonId.isEmpty) return;
     final prefs = await SharedPreferences.getInstance();
@@ -1844,9 +1955,12 @@ class SiteDataService extends ChangeNotifier {
             .collection('enrollments')
             .doc(courseId)
             .set({
+          'courseId': courseId,
+          if (courseTitle != null && courseTitle.isNotEmpty) 'courseTitle': courseTitle,
           'watchedLessons': FieldValue.arrayUnion([lessonId]),
           'lastWatchedAt': DateTime.now().toIso8601String(),
           'lastLessonId': lessonId,
+          if (lessonTitle != null && lessonTitle.isNotEmpty) 'lastLessonTitle': lessonTitle,
         }, SetOptions(merge: true));
 
         await _firestore
@@ -1857,6 +1971,8 @@ class SiteDataService extends ChangeNotifier {
             .set({
           'courseId': courseId,
           'lessonId': lessonId,
+          if (courseTitle != null && courseTitle.isNotEmpty) 'courseTitle': courseTitle,
+          if (lessonTitle != null && lessonTitle.isNotEmpty) 'lessonTitle': lessonTitle,
           'watchedAt': DateTime.now().toIso8601String(),
         }, SetOptions(merge: true));
       } catch (e) {
@@ -1921,4 +2037,161 @@ class SiteDataService extends ChangeNotifier {
       }
     }
   }
+
+  // =========================================================================
+  // OFFICIAL COURSES SYNC WITH FIRESTORE
+  // =========================================================================
+  Future<void> syncOfficialCoursesToFirestore() async {
+    if (!isFirebaseReady) return;
+    try {
+      for (final off in officialPlatformCourses) {
+        final cid = off['id'].toString();
+        final existing = _courses.firstWhere((c) => c['id'] == cid, orElse: () => <String, dynamic>{});
+        final lessons = List<Map<String, dynamic>>.from(existing['lessons'] ?? []);
+
+        final data = Map<String, dynamic>.from(off);
+        data['lessons'] = lessons;
+        data['updatedAt'] = DateTime.now().toIso8601String();
+
+        await _firestore.collection('courses').doc(cid).set(data, SetOptions(merge: true));
+
+        // Sync individual lessons to subcollection
+        for (final l in lessons) {
+          final lid = (l['id'] ?? '').toString();
+          if (lid.isNotEmpty) {
+            await _firestore
+                .collection('courses')
+                .doc(cid)
+                .collection('lessons')
+                .doc(lid)
+                .set(l, SetOptions(merge: true));
+          }
+        }
+      }
+      debugPrint("Successfully synced 8 official courses to Firestore!");
+    } catch (e) {
+      debugPrint("Error syncing official courses to Firestore: $e");
+    }
+  }
+
+  /// Clean up legacy/unused collections from Firestore as requested by user
+  Future<int> cleanupLegacyCollections() async {
+    if (!isFirebaseReady) return 0;
+    int deleted = 0;
+    final legacyCollections = ['course_categories', 'lesson_categories', 'lesson_playlists', 'kids_sessions_code', 'recording_lessons'];
+    for (final coll in legacyCollections) {
+      try {
+        final snap = await _firestore.collection(coll).get();
+        for (final doc in snap.docs) {
+          await doc.reference.delete();
+          deleted++;
+        }
+      } catch (e) {
+        debugPrint("Error cleaning collection $coll: $e");
+      }
+    }
+    return deleted;
+  }
+
+  // =========================================================================
+  // ONE-TIME QUIZ SUBMISSION PER USER & ACHIEVEMENTS SYNC
+  // =========================================================================
+  Future<bool> hasUserSubmittedQuiz({required String quizId, required String userId}) async {
+    if (userId.isEmpty || quizId.isEmpty) return false;
+    final prefs = await SharedPreferences.getInstance();
+    if (prefs.getBool('quiz_done_${userId}_$quizId') == true) return true;
+
+    if (isFirebaseReady) {
+      try {
+        final doc = await _firestore.collection('users').doc(userId).collection('quizzes').doc(quizId).get();
+        if (doc.exists) {
+          await prefs.setBool('quiz_done_${userId}_$quizId', true);
+          return true;
+        }
+      } catch (e) {
+        debugPrint("Check quiz submitted error: $e");
+      }
+    }
+    return false;
+  }
+
+  Future<Map<String, dynamic>?> getUserQuizResult({required String quizId, required String userId}) async {
+    if (userId.isEmpty || quizId.isEmpty) return null;
+    if (isFirebaseReady) {
+      try {
+        final doc = await _firestore.collection('users').doc(userId).collection('quizzes').doc(quizId).get();
+        if (doc.exists && doc.data() != null) {
+          return doc.data();
+        }
+      } catch (_) {}
+    }
+    return null;
+  }
+
+  Future<void> submitQuizResult({
+    required String quizId,
+    required String quizTitle,
+    required String courseId,
+    required String userId,
+    required String userName,
+    required int score,
+    required int totalQuestions,
+  }) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('quiz_done_${userId}_$quizId', true);
+
+    final percentage = totalQuestions > 0 ? (score / totalQuestions) * 100 : 0.0;
+    final dateStr = "${DateTime.now().year}-${DateTime.now().month.toString().padLeft(2, '0')}-${DateTime.now().day.toString().padLeft(2, '0')}";
+    final nowIso = DateTime.now().toIso8601String();
+
+    final quizData = {
+      'quizId': quizId,
+      'quizTitle': quizTitle,
+      'courseId': courseId,
+      'score': score,
+      'totalQuestions': totalQuestions,
+      'percentage': percentage,
+      'date': dateStr,
+      'createdAt': nowIso,
+    };
+
+    if (isFirebaseReady) {
+      try {
+        // 1. Save to user's quizzes subcollection (for "إنجازاتي")
+        await _firestore
+            .collection('users')
+            .doc(userId)
+            .collection('quizzes')
+            .doc(quizId)
+            .set(quizData, SetOptions(merge: true));
+
+        // 2. Increment user quizzes count & update last active
+        await _firestore.collection('users').doc(userId).set({
+          'quizzesCount': FieldValue.increment(1),
+          'lastActive': nowIso,
+        }, SetOptions(merge: true));
+
+        // 3. Global submissions for admin dashboard
+        final subId = '${userId}_$quizId';
+        await _firestore.collection('quiz_submissions').doc(subId).set({
+          ...quizData,
+          'uid': userId,
+          'studentName': userName,
+        }, SetOptions(merge: true));
+      } catch (e) {
+        debugPrint("Firestore submitQuizResult error: $e");
+      }
+    }
+
+    _quizSubmissions.removeWhere((s) => s['id'] == '${userId}_$quizId');
+    _quizSubmissions.insert(0, {
+      ...quizData,
+      'id': '${userId}_$quizId',
+      'uid': userId,
+      'studentName': userName,
+    });
+    await _saveQuizSubmissions();
+    notifyListeners();
+  }
+
 }

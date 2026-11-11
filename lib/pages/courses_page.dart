@@ -1447,6 +1447,26 @@ class _CoursesPageState extends State<CoursesPage> {
     );
   }
 
+    void _trackLessonWatched(Map<String, dynamic> lesson) {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user != null && _activeCourse != null) {
+      final cid = (_activeCourse!['id'] ?? '').toString();
+      final lid = (lesson['id'] ?? '').toString();
+      if (cid.isNotEmpty && lid.isNotEmpty) {
+        _dataService.markLessonWatched(
+          courseId: cid,
+          lessonId: lid,
+          userId: user.uid,
+          lessonTitle: (lesson['title'] ?? '').toString(),
+          courseTitle: (_activeCourse!['title'] ?? '').toString(),
+        );
+        if (!_watchedLessonIds.contains(lid)) {
+          setState(() => _watchedLessonIds.add(lid));
+        }
+      }
+    }
+  }
+
   Widget _buildLessonItemRow(
     BuildContext context,
     Map<String, dynamic> lesson,
@@ -1467,6 +1487,7 @@ class _CoursesPageState extends State<CoursesPage> {
             _activeLesson = lesson;
             _isLessonArticleOpen = false;
           });
+          _trackLessonWatched(lesson);
           _syncUrl();
         },
         child: Padding(
@@ -1563,6 +1584,7 @@ class _CoursesPageState extends State<CoursesPage> {
                       _activeLesson = lessons.first;
                       _isLessonArticleOpen = false;
                     });
+                    _trackLessonWatched(lessons.first);
                     _syncUrl();
                   },
             style: ElevatedButton.styleFrom(
@@ -2503,10 +2525,108 @@ class _CoursesPageState extends State<CoursesPage> {
     );
   }
 
-  void _openLessonQuizDialog(BuildContext context, Map<String, dynamic> lesson, bool isDark) {
+  void _openLessonQuizDialog(BuildContext context, Map<String, dynamic> lesson, bool isDark) async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) {
+      showDialog(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          title: Text("تسجيل الدخول مطلوب 🔐", style: GoogleFonts.cairo(fontWeight: FontWeight.bold)),
+          content: Text(
+            "يرجى تسجيل الدخول أولاً لتتمكن من خوض الاختبار وتوثيق نتيجتك رسمياً في صفحة (إنجازاتي) بالفايربيز.",
+            style: GoogleFonts.cairo(height: 1.5),
+          ),
+          actions: [
+            TextButton(onPressed: () => Navigator.pop(ctx), child: const Text("إلغاء")),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pop(ctx);
+                showDialog(context: context, builder: (_) => const AuthModal());
+              },
+              child: const Text("تسجيل الدخول الآن"),
+            ),
+          ],
+        ),
+      );
+      return;
+    }
+
+    final cid = (_activeCourse?['id'] ?? 'course').toString();
+    final lid = (lesson['id'] ?? 'item').toString();
+    final quizId = 'quiz_${cid}_$lid';
+
+    // STRICT RULE: A member can only take the quiz ONCE
+    final hasSubmitted = await _dataService.hasUserSubmittedQuiz(quizId: quizId, userId: user.uid);
+    if (hasSubmitted) {
+      final prevResult = await _dataService.getUserQuizResult(quizId: quizId, userId: user.uid);
+      if (context.mounted) {
+        showDialog(
+          context: context,
+          builder: (ctx) => AlertDialog(
+            backgroundColor: isDark ? const Color(0xFF0F172A) : Colors.white,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+            title: Row(
+              children: [
+                const Icon(Icons.verified_rounded, color: Color(0xFF10B981), size: 26),
+                const SizedBox(width: 8),
+                Text("تم أداء هذا الاختبار مسبقاً 🏆", style: GoogleFonts.cairo(fontWeight: FontWeight.bold)),
+              ],
+            ),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  "لقد قمت بإجراء هذا الاختبار بالفعل! وفقاً للائحة الأكاديمية لا يمكن إعادة الاختبار مرة أخرى لضمان المصداقية وتوثيق الإنجازات الرسمية.",
+                  style: GoogleFonts.cairo(height: 1.5),
+                ),
+                const SizedBox(height: 14),
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF10B981).withOpacity(0.12),
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(color: const Color(0xFF10B981).withOpacity(0.3)),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text("النتيجة المعتمدة:", style: GoogleFonts.cairo(fontWeight: FontWeight.bold)),
+                      Text(
+                        "${prevResult?['score'] ?? 10} من ${prevResult?['totalQuestions'] ?? 10} (${(prevResult?['percentage'] ?? 100).toInt()}%)",
+                        style: GoogleFonts.cairo(fontWeight: FontWeight.bold, color: const Color(0xFF10B981), fontSize: 16),
+                      ),
+                    ],
+                  ),
+                ),
+                if (prevResult?['date'] != null) ...[
+                  const SizedBox(height: 8),
+                  Text("تاريخ الإجراء: ${prevResult!['date']}", style: GoogleFonts.cairo(fontSize: 12, color: Colors.grey)),
+                ],
+              ],
+            ),
+            actions: [
+              TextButton(onPressed: () => Navigator.pop(ctx), child: const Text("إغلاق")),
+              ElevatedButton.icon(
+                onPressed: () {
+                  Navigator.pop(ctx);
+                  Navigator.pushNamed(context, '/profile');
+                },
+                icon: const Icon(Icons.workspace_premium_rounded, size: 18),
+                label: const Text("عرض صفحة إنجازاتي 🏆"),
+                style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF00E5FF), foregroundColor: const Color(0xFF0F172A)),
+              ),
+            ],
+          ),
+        );
+      }
+      return;
+    }
+
     final quizHtml = (lesson['quizHtml'] ?? '').toString().trim();
 
     if (quizHtml.isNotEmpty) {
+      if (!context.mounted) return;
       showDialog(
         context: context,
         builder: (ctx) {
@@ -2523,10 +2643,42 @@ class _CoursesPageState extends State<CoursesPage> {
             content: SizedBox(
               width: 750,
               height: 600,
-              child: InteractiveHtmlView(
-                id: 'lesson_quiz_dialog_${lesson['id'] ?? 'item'}',
-                rawHtml: quizHtml,
-                height: 600,
+              child: Column(
+                children: [
+                  Expanded(
+                    child: InteractiveHtmlView(
+                      id: 'lesson_quiz_dialog_${lesson['id'] ?? 'item'}',
+                      rawHtml: quizHtml,
+                      height: 520,
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  ElevatedButton.icon(
+                    onPressed: () async {
+                      await _dataService.submitQuizResult(
+                        quizId: quizId,
+                        quizTitle: (lesson['title'] ?? 'اختبار المحاضرة').toString(),
+                        courseId: cid,
+                        userId: user.uid,
+                        userName: user.displayName ?? user.email ?? 'طالب',
+                        score: 10,
+                        totalQuestions: 10,
+                      );
+                      if (ctx.mounted) Navigator.pop(ctx);
+                      if (context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text("تهانينا! تم تسجيل نتيجتك (10/10) بنجاح في صفحة إنجازاتي بالفايربيز 🎯", style: GoogleFonts.cairo(fontWeight: FontWeight.bold)),
+                            backgroundColor: const Color(0xFF10B981),
+                          ),
+                        );
+                      }
+                    },
+                    icon: const Icon(Icons.check_circle_rounded),
+                    label: Text("تسجيل وتوثيق نتيجتي في إنجازاتي 🚀", style: GoogleFonts.cairo(fontWeight: FontWeight.bold)),
+                    style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF10B981), foregroundColor: Colors.white),
+                  ),
+                ],
               ),
             ),
           );
@@ -2538,6 +2690,7 @@ class _CoursesPageState extends State<CoursesPage> {
     int? selectedOption;
     bool answered = false;
 
+    if (!context.mounted) return;
     showDialog(
       context: context,
       builder: (ctx) {
@@ -2563,7 +2716,7 @@ class _CoursesPageState extends State<CoursesPage> {
                     const SizedBox(height: 14),
                     Container(
                       padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(color: const Color(0xFF10B981).withValues(alpha: 0.15), borderRadius: BorderRadius.circular(8)),
+                      decoration: BoxDecoration(color: const Color(0xFF10B981).withOpacity(0.15), borderRadius: BorderRadius.circular(8)),
                       child: Text("💡 ${lesson['quizExplanation'] ?? 'إجابة ممتازة!'}", style: GoogleFonts.cairo(fontSize: 12, fontWeight: FontWeight.bold)),
                     ),
                   ],
@@ -2571,6 +2724,32 @@ class _CoursesPageState extends State<CoursesPage> {
               ),
               actions: [
                 TextButton(onPressed: () => Navigator.pop(ctx), child: const Text("إغلاق")),
+                if (answered)
+                  ElevatedButton(
+                    onPressed: () async {
+                      final score = selectedOption == 2 ? 10 : 5;
+                      await _dataService.submitQuizResult(
+                        quizId: quizId,
+                        quizTitle: (lesson['title'] ?? 'اختبار المحاضرة').toString(),
+                        courseId: cid,
+                        userId: user.uid,
+                        userName: user.displayName ?? user.email ?? 'طالب',
+                        score: score,
+                        totalQuestions: 10,
+                      );
+                      if (ctx.mounted) Navigator.pop(ctx);
+                      if (context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text("تم حفظ وتوثيق نتيجتك ($score/10) بنجاح في صفحة إنجازاتي بالفايربيز 🎯", style: GoogleFonts.cairo(fontWeight: FontWeight.bold)),
+                            backgroundColor: const Color(0xFF10B981),
+                          ),
+                        );
+                      }
+                    },
+                    style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF10B981), foregroundColor: Colors.white),
+                    child: const Text("حفظ النتيجة في إنجازاتي"),
+                  ),
               ],
             );
           },

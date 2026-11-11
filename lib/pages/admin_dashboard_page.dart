@@ -811,9 +811,12 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        // Header
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        // Header with Firebase Sync & Cleanup actions
+        Wrap(
+          alignment: WrapAlignment.spaceBetween,
+          crossAxisAlignment: WrapCrossAlignment.center,
+          spacing: 16,
+          runSpacing: 12,
           children: [
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -826,6 +829,39 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                 Text(
                   "اختر أي كورس لإضافة وإدارة محاضراته وروابط اليوتيوب والاختبارات التفاعلية.",
                   style: GoogleFonts.cairo(fontSize: 13, color: Colors.grey),
+                ),
+              ],
+            ),
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                OutlinedButton.icon(
+                  onPressed: () async {
+                    final deleted = await _dataService.cleanupLegacyCollections();
+                    _showSnackBar("تم تنظيف الفايربيز وحذف $deleted وثيقة قديمة وإبقاء الكورسات والأعضاء والمقالات فقط 🧹");
+                  },
+                  icon: const Icon(Icons.cleaning_services_rounded, size: 16),
+                  label: Text("تنظيف الكولكشنات القديمة 🧹", style: GoogleFonts.cairo(fontWeight: FontWeight.bold, fontSize: 12.5)),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: const Color(0xFFF59E0B),
+                    side: const BorderSide(color: Color(0xFFF59E0B)),
+                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                  ),
+                ),
+                const SizedBox(width: 10),
+                ElevatedButton.icon(
+                  onPressed: () async {
+                    await _dataService.syncOfficialCoursesToFirestore();
+                    _showSnackBar("تمت تهيئة ومزامنة الكورسات الـ 8 بنجاح في الفايربيز 🚀");
+                  },
+                  icon: const Icon(Icons.cloud_sync_rounded, size: 18),
+                  label: Text("مزامنة الكورسات الـ 8 مع الفايربيز 🚀", style: GoogleFonts.cairo(fontWeight: FontWeight.bold, fontSize: 13)),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF00E5FF),
+                    foregroundColor: const Color(0xFF0F172A),
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                  ),
                 ),
               ],
             ),
