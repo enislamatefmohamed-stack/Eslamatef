@@ -404,21 +404,8 @@ class UnifiedAppHeader extends StatelessWidget implements PreferredSizeWidget {
                       listenable: SiteDataService.instance,
                       builder: (ctx, _) {
                         final user = AuthService.instance.currentUser;
-                        final notifs = SiteDataService.instance.notifications.where((n) {
-                          final target = (n['target'] ?? 'all').toString().trim().toLowerCase();
-                          if (target == 'all' || target.isEmpty) return true;
-                          if (user != null) {
-                            final uid = user.uid.trim();
-                            final email = (user.email ?? '').trim().toLowerCase();
-                            final tUid = (n['targetUid'] ?? '').toString().trim();
-                            final tEmail = (n['targetEmail'] ?? '').toString().trim().toLowerCase();
-                            if (target == uid || tUid == uid) return true;
-                            if (email.isNotEmpty && (target == email || tEmail == email)) return true;
-                          }
-                          return false;
-                        }).toList();
-
-                        final hasNotifs = notifs.isNotEmpty;
+                        final notifs = SiteDataService.instance.getNotificationsForUser(user);
+                        final hasUnread = SiteDataService.instance.hasUnreadNotificationsFor(user);
 
                         return MouseRegion(
                           cursor: SystemMouseCursors.click,
@@ -427,14 +414,17 @@ class UnifiedAppHeader extends StatelessWidget implements PreferredSizeWidget {
                             children: [
                               IconButton(
                                 icon: Icon(
-                                  hasNotifs ? Icons.notifications_active_rounded : Icons.notifications_outlined,
-                                  color: hasNotifs ? const Color(0xFFFF7A00) : (isDark ? Colors.white70 : const Color(0xFF1E293B)),
+                                  hasUnread ? Icons.notifications_active_rounded : Icons.notifications_outlined,
+                                  color: hasUnread ? const Color(0xFFFF7A00) : (isDark ? Colors.white70 : const Color(0xFF1E293B)),
                                   size: 23,
                                 ),
                                 tooltip: "الإشعارات والتنبيهات (${notifs.length})",
-                                onPressed: () => _showNotificationsDialog(context, notifs, isDark),
+                                onPressed: () {
+                                  SiteDataService.instance.markNotificationsAsRead(user);
+                                  _showNotificationsDialog(context, notifs, isDark);
+                                },
                               ),
-                              if (hasNotifs)
+                              if (hasUnread)
                                 Positioned(
                                   top: 6,
                                   right: 6,

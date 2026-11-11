@@ -834,39 +834,6 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                 ),
               ],
             ),
-            Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                OutlinedButton.icon(
-                  onPressed: () async {
-                    final deleted = await _dataService.cleanupLegacyCollections();
-                    _showSnackBar("تم تنظيف الفايربيز وحذف $deleted وثيقة قديمة وإبقاء الكورسات والأعضاء والمقالات فقط 🧹");
-                  },
-                  icon: const Icon(Icons.cleaning_services_rounded, size: 16),
-                  label: Text("تنظيف الكولكشنات القديمة 🧹", style: GoogleFonts.cairo(fontWeight: FontWeight.bold, fontSize: 12.5)),
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: const Color(0xFFF59E0B),
-                    side: const BorderSide(color: Color(0xFFF59E0B)),
-                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                  ),
-                ),
-                const SizedBox(width: 10),
-                ElevatedButton.icon(
-                  onPressed: () async {
-                    await _dataService.syncOfficialCoursesToFirestore();
-                    _showSnackBar("تمت تهيئة ومزامنة الكورسات الـ 8 بنجاح في الفايربيز 🚀");
-                  },
-                  icon: const Icon(Icons.cloud_sync_rounded, size: 18),
-                  label: Text("مزامنة الكورسات الـ 8 مع الفايربيز 🚀", style: GoogleFonts.cairo(fontWeight: FontWeight.bold, fontSize: 13)),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF00E5FF),
-                    foregroundColor: const Color(0xFF0F172A),
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                  ),
-                ),
-              ],
-            ),
           ],
         ),
         const SizedBox(height: 24),
@@ -1469,15 +1436,32 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                 ),
               ],
             ),
-            ElevatedButton.icon(
-              onPressed: _showBroadcastNotificationDialog,
-              icon: const Icon(Icons.send_rounded, size: 16),
-              label: Text("إرسال إشعار عام للكل 📢", style: GoogleFonts.cairo(fontWeight: FontWeight.bold)),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF00E5FF),
-                foregroundColor: const Color(0xFF0F172A),
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-              ),
+            Wrap(
+              spacing: 10,
+              runSpacing: 8,
+              children: [
+                OutlinedButton.icon(
+                  onPressed: _showNotificationsArchiveDialog,
+                  icon: const Icon(Icons.mark_email_read_rounded, size: 16),
+                  label: Text("أرشيف الإشعارات 📬", style: GoogleFonts.cairo(fontWeight: FontWeight.bold)),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: const Color(0xFF10B981),
+                    side: const BorderSide(color: Color(0xFF10B981)),
+                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                  ),
+                ),
+                ElevatedButton.icon(
+                  onPressed: _showBroadcastNotificationDialog,
+                  icon: const Icon(Icons.send_rounded, size: 16),
+                  label: Text("إرسال إشعار عام للكل 📢", style: GoogleFonts.cairo(fontWeight: FontWeight.bold)),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF00E5FF),
+                    foregroundColor: const Color(0xFF0F172A),
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                  ),
+                ),
+              ],
             ),
           ],
         ),
@@ -2088,6 +2072,164 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
             style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF0284C7), foregroundColor: Colors.white),
           ),
         ],
+      ),
+    );
+  }
+
+  void _showNotificationsArchiveDialog() {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    showDialog(
+      context: context,
+      builder: (ctx) => StatefulBuilder(
+        builder: (context, setDialogState) {
+          final notifs = _dataService.notifications;
+          return Directionality(
+            textDirection: TextDirection.rtl,
+            child: AlertDialog(
+              backgroundColor: isDark ? const Color(0xFF0F172A) : Colors.white,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+              title: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Row(
+                    children: [
+                      const Icon(Icons.mark_email_read_rounded, color: Color(0xFF10B981), size: 24),
+                      const SizedBox(width: 8),
+                      Text("أرشيف وسجل الإشعارات المرسلة (${notifs.length})",
+                          style: GoogleFonts.cairo(fontWeight: FontWeight.bold, fontSize: 17)),
+                    ],
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.close_rounded, size: 20),
+                    onPressed: () => Navigator.of(ctx).pop(),
+                  ),
+                ],
+              ),
+              content: SizedBox(
+                width: 600,
+                height: 500,
+                child: notifs.isEmpty
+                    ? Center(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(Icons.inbox_rounded, size: 50, color: Colors.grey.shade400),
+                            const SizedBox(height: 10),
+                            Text("لا توجد إشعارات مرسلة في السجل",
+                                style: GoogleFonts.cairo(color: Colors.grey, fontWeight: FontWeight.bold)),
+                          ],
+                        ),
+                      )
+                    : ListView.separated(
+                        itemCount: notifs.length,
+                        separatorBuilder: (_, __) => const SizedBox(height: 10),
+                        itemBuilder: (c, idx) {
+                          final n = notifs[idx];
+                          final id = (n['id'] ?? '').toString();
+                          final title = (n['title'] ?? 'إشعار').toString();
+                          final body = (n['body'] ?? '').toString();
+                          final isPublic = (n['target'] ?? 'all') == 'all';
+                          final targetName = (n['targetName'] ?? n['targetEmail'] ?? n['target'] ?? '').toString();
+                          final time = (n['createdAt'] ?? '').toString();
+                          String timeStr = '';
+                          if (time.isNotEmpty) {
+                            try {
+                              final dt = DateTime.parse(time);
+                              timeStr = "${dt.day}/${dt.month} ${dt.hour}:${dt.minute.toString().padLeft(2, '0')}";
+                            } catch (_) {}
+                          }
+
+                          return Container(
+                            padding: const EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              color: isDark ? const Color(0xFF1E293B) : const Color(0xFFF8FAFC),
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(
+                                color: (isPublic ? const Color(0xFF00E5FF) : const Color(0xFFF59E0B)).withOpacity(0.3),
+                              ),
+                            ),
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Row(
+                                        children: [
+                                          Container(
+                                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                                            decoration: BoxDecoration(
+                                              color: (isPublic ? const Color(0xFF00E5FF) : const Color(0xFFF59E0B)).withOpacity(0.15),
+                                              borderRadius: BorderRadius.circular(6),
+                                            ),
+                                            child: Text(
+                                              isPublic ? "إعلان عام للجميع 📢" : "خاص: $targetName 👤",
+                                              style: GoogleFonts.cairo(
+                                                fontSize: 11,
+                                                fontWeight: FontWeight.bold,
+                                                color: isPublic ? const Color(0xFF00E5FF) : const Color(0xFFF59E0B),
+                                              ),
+                                            ),
+                                          ),
+                                          const SizedBox(width: 8),
+                                          if (timeStr.isNotEmpty)
+                                            Text(timeStr, style: GoogleFonts.cairo(fontSize: 10, color: Colors.grey)),
+                                        ],
+                                      ),
+                                      const SizedBox(height: 6),
+                                      Text(title, style: GoogleFonts.cairo(fontWeight: FontWeight.bold, fontSize: 13.5)),
+                                      const SizedBox(height: 4),
+                                      Text(
+                                        body,
+                                        maxLines: 2,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: GoogleFonts.cairo(fontSize: 12, color: isDark ? Colors.grey.shade400 : Colors.grey.shade700),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                IconButton(
+                                  icon: const Icon(Icons.delete_forever_rounded, color: Color(0xFFEF4444), size: 22),
+                                  tooltip: "حذف الإشعار من الفايربيز والموقع",
+                                  onPressed: () async {
+                                    final confirm = await showDialog<bool>(
+                                      context: context,
+                                      builder: (delCtx) => AlertDialog(
+                                        title: Text("تأكيد الحذف ⚠️", style: GoogleFonts.cairo(fontWeight: FontWeight.bold)),
+                                        content: Text("هل أنت متأكد من حذف هذا الإشعار نهائياً من الفايربيز والموقع؟", style: GoogleFonts.cairo()),
+                                        actions: [
+                                          TextButton(onPressed: () => Navigator.of(delCtx).pop(false), child: Text("إلغاء", style: GoogleFonts.cairo())),
+                                          ElevatedButton(
+                                            onPressed: () => Navigator.of(delCtx).pop(true),
+                                            style: ElevatedButton.styleFrom(backgroundColor: Colors.red, foregroundColor: Colors.white),
+                                            child: Text("حذف", style: GoogleFonts.cairo()),
+                                          ),
+                                        ],
+                                      ),
+                                    );
+                                    if (confirm == true) {
+                                      await _dataService.deleteNotification(id);
+                                      setDialogState(() {});
+                                      _showSnackBar("تم حذف الإشعار نهائياً بنجاح 🗑️");
+                                    }
+                                  },
+                                ),
+                              ],
+                            ),
+                          );
+                        },
+                      ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.of(ctx).pop(),
+                  child: Text("إغلاق", style: GoogleFonts.cairo(color: Colors.grey)),
+                ),
+              ],
+            ),
+          );
+        },
       ),
     );
   }

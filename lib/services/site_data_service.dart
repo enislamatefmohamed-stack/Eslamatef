@@ -3,8 +3,9 @@ import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'auth_service.dart';
 import '../data/fifty_challenges_data.dart';
-import '../data/default_articles_data.dart';
 import 'gamification_service.dart';
 
 class SiteDataService extends ChangeNotifier {
@@ -300,15 +301,20 @@ class SiteDataService extends ChangeNotifier {
           _articles = List<Map<String, dynamic>>.from(jsonDecode(artStr));
         } catch (_) {}
       }
-      if (_articles.isEmpty) {
-        _articles = List<Map<String, dynamic>>.from(DefaultArticlesData.defaultArticles);
-      }
 
       final aCatStr = prefs.getString('site_article_categories');
       if (aCatStr != null) {
         _articleCategories = List<String>.from(jsonDecode(aCatStr));
       } else {
         _articleCategories = ['علوم الحاسب والبرمجة', 'الذكاء الاصطناعي', 'تطوير الويب', 'نصائح ومفاهيم برمجية'];
+      }
+
+      final currentUid = AuthService.instance.currentUser?.uid ?? 'guest';
+      final readStr = prefs.getString('notifs_last_read_$currentUid');
+      if (readStr != null && readStr.isNotEmpty) {
+        try {
+          _lastNotificationsReadAt = DateTime.parse(readStr);
+        } catch (_) {}
       }
 
       // Load custom session codes from local storage
@@ -486,30 +492,15 @@ class SiteDataService extends ChangeNotifier {
 
       // Articles Collection (المقالات)
       _firestore.collection('articles').snapshots().listen((snapshot) {
-        if (snapshot.docs.isNotEmpty) {
-          final cloudArticles = snapshot.docs.map((doc) {
-            final d = doc.data();
-            d['id'] = doc.id;
-            return d;
-          }).toList();
-
-          final Set<String> existingIds = cloudArticles.map((a) => a['id'].toString()).toSet();
-          for (final def in DefaultArticlesData.defaultArticles) {
-            if (!existingIds.contains(def['id'].toString())) {
-              cloudArticles.add(def);
-            }
-          }
-
-          _articles = cloudArticles;
-          _saveArticles();
-          notifyListeners();
-        }
+        _articles = snapshot.docs.map((doc) {
+          final d = doc.data();
+          d['id'] = doc.id;
+          return d;
+        }).toList();
+        _saveArticles();
+        notifyListeners();
       }, onError: (e) {
         debugPrint("Firestore articles error: $e");
-        if (_articles.isEmpty) {
-          _articles = List<Map<String, dynamic>>.from(DefaultArticlesData.defaultArticles);
-          notifyListeners();
-        }
       });
 
       // Article Categories Collection (تصنيفات المقالات)
@@ -1579,13 +1570,70 @@ class SiteDataService extends ChangeNotifier {
     }
   }
 
+  DateTime? _lastNotificationsReadAt;
+  DateTime? get lastNotificationsReadAt => _lastNotificationsReadAt;
+
+  List<Map<String, dynamic>> getNotificationsForUser(User? user) {
+    return _notifications.where((n) {
+      final target = (n['target'] ?? 'all').toString().trim().toLowerCase();
+      if (target == 'all' || target.isEmpty) return true;
+      if (user != null) {
+        final uid = user.uid.trim();
+        final email = (user.email ?? '').trim().toLowerCase();
+        final tUid = (n['targetUid'] ?? '').toString().trim();
+        final tEmail = (n['targetEmail'] ?? '').toString().trim().toLowerCase();
+        if (target == uid || tUid == uid) return true;
+        if (email.isNotEmpty && (target == email || tEmail == email)) return true;
+      }
+      return false;
+    }).toList();
+  }
+
+  bool hasUnreadNotificationsFor(User? user) {
+    final userNotifs = getNotificationsForUser(user);
+    if (userNotifs.isEmpty) return false;
+    if (_lastNotificationsReadAt == null) return true;
+    for (final n in userNotifs) {
+      final timeStr = (n['createdAt'] ?? '').toString();
+      if (timeStr.isNotEmpty) {
+        try {
+          final dt = DateTime.parse(timeStr);
+          if (dt.isAfter(_lastNotificationsReadAt!)) return true;
+        } catch (_) {}
+      }
+    }
+    return false;
+  }
+
+  Future<void> markNotificationsAsRead(User? user) async {
+    _lastNotificationsReadAt = DateTime.now();
+    notifyListeners();
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final key = 'notifs_last_read_${user?.uid ?? 'guest'}';
+      await prefs.setString(key, _lastNotificationsReadAt!.toIso8601String());
+    } catch (_) {}
+  }
+
   Future<void> deleteNotification(String id) async {
+    final targetNotif = _notifications.firstWhere((n) => n['id'] == id, orElse: () => {});
+    final targetUid = (targetNotif['targetUid'] ?? '').toString();
+
     _notifications.removeWhere((n) => n['id'] == id);
     await _saveNotifications();
     notifyListeners();
+
     if (isFirebaseReady) {
       try {
         await _firestore.collection('notifications').doc(id).delete();
+        if (targetUid.isNotEmpty) {
+          await _firestore
+              .collection('users')
+              .doc(targetUid)
+              .collection('notifications')
+              .doc(id)
+              .delete();
+        }
       } catch (e) {
         debugPrint("Firestore deleteNotification error: $e");
       }
