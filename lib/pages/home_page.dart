@@ -480,6 +480,7 @@ class _HomePageState extends State<HomePage> {
       'subtitle': 'الكورس التأسيسي الشامل لعلوم الحاسب وبناء الخوارزميات',
       'route': '/courses?course=01_cs_fundamentals',
       'icon': Icons.school_rounded,
+      'image': 'assets/images/courses/course_01.png',
     });
     items.add({
       'type': 'course',
@@ -489,6 +490,7 @@ class _HomePageState extends State<HomePage> {
       'subtitle': 'تطوير العقلية المنطقية والتحضير لمسابقات البرمجة العالمية',
       'route': '/courses',
       'icon': Icons.psychology_rounded,
+      'image': 'assets/images/courses/course_02.png',
     });
 
     // 2. Published Lectures from Courses
@@ -497,14 +499,16 @@ class _HomePageState extends State<HomePage> {
       for (final l in lessons.take(3)) {
         final title = (l['title'] ?? '').toString();
         if (title.isNotEmpty) {
+          final lecImg = (l['imageUrl'] ?? l['image'] ?? c['image'] ?? c['imageUrl'] ?? 'assets/images/courses/course_01.png').toString();
           items.add({
             'type': 'lecture',
             'typeLabel': 'محاضرة جديدة 🎬',
             'typeColor': const Color(0xFFFF7A00),
             'title': title,
-            'subtitle': 'ضمن مسار ' + (c['title'] ?? 'الكورس'),
-            'route': '/courses?course=' + c['id'].toString(),
+            'subtitle': 'ضمن مسار ${c['title'] ?? 'الكورس'}',
+            'route': '/courses?course=${c['id']}&lesson=${l['id'] ?? ''}',
             'icon': Icons.play_circle_fill_rounded,
+            'image': lecImg,
           });
         }
       }
@@ -512,14 +516,27 @@ class _HomePageState extends State<HomePage> {
 
     // 3. Published Articles
     for (final a in _dataService.articles.take(5)) {
+      String articleImg = (a['image'] ?? a['imageUrl'] ?? a['cover'] ?? '').toString();
+      if (articleImg.isEmpty) {
+        final code = (a['htmlCode'] ?? a['content'] ?? '').toString();
+        final imgMatch = RegExp(r'<img[^>]+src=["\']([^"\']+)["\']', caseSensitive: false).firstMatch(code);
+        if (imgMatch != null) {
+          articleImg = imgMatch.group(1) ?? '';
+        }
+      }
+      if (articleImg.isEmpty) {
+        articleImg = 'assets/images/courses/course_01.png';
+      }
+
       items.add({
         'type': 'article',
         'typeLabel': 'مقال تقني 📝',
         'typeColor': const Color(0xFF10B981),
         'title': a['title'] ?? 'مقال جديد',
         'subtitle': a['category'] ?? 'مدونة علوم الحاسب',
-        'route': '/blog?article=' + a['id'].toString(),
+        'route': '/blog?article=${a['id']}',
         'icon': Icons.article_rounded,
+        'image': articleImg,
       });
     }
 
@@ -574,34 +591,34 @@ class _HomePageState extends State<HomePage> {
             ),
             const SizedBox(height: 8),
 
-            // The Smooth Moving Slider
+            // The Smooth Moving Slider with Rich Visual Cards
             MouseRegion(
               onEnter: (_) => _whatsNewAutoScrollTimer?.cancel(),
               onExit: (_) => _startWhatsNewAutoScroll(),
               child: SizedBox(
-                height: 190,
+                height: 310,
                 child: ListView.separated(
                   controller: _whatsNewScrollCtrl,
                   scrollDirection: Axis.horizontal,
                   physics: const BouncingScrollPhysics(),
                   itemCount: sliderItems.length,
-                  separatorBuilder: (_, __) => const SizedBox(width: 16),
+                  separatorBuilder: (_, __) => const SizedBox(width: 18),
                   itemBuilder: (context, idx) {
                     final it = sliderItems[idx];
                     final color = it['typeColor'] as Color;
+                    final imgPath = (it['image'] ?? '').toString();
 
                     return InkWell(
                       onTap: () {
                         final r = it['route'] as String;
                         Navigator.of(context).pushNamed(r);
                       },
-                      borderRadius: BorderRadius.circular(16),
+                      borderRadius: BorderRadius.circular(18),
                       child: Container(
-                        width: isMobile ? 280 : 320,
-                        padding: const EdgeInsets.all(18),
+                        width: isMobile ? 280 : 310,
                         decoration: BoxDecoration(
                           color: isDark ? const Color(0xFF0F172A) : Colors.white,
-                          borderRadius: BorderRadius.circular(16),
+                          borderRadius: BorderRadius.circular(18),
                           border: Border.all(
                             color: color.withOpacity(isDark ? 0.35 : 0.25),
                             width: 1.2,
@@ -609,72 +626,127 @@ class _HomePageState extends State<HomePage> {
                           boxShadow: [
                             BoxShadow(
                               color: color.withOpacity(isDark ? 0.12 : 0.06),
-                              blurRadius: 12,
-                              offset: const Offset(0, 4),
+                              blurRadius: 14,
+                              offset: const Offset(0, 5),
                             ),
                           ],
                         ),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                                  decoration: BoxDecoration(
-                                    color: color.withOpacity(0.14),
-                                    borderRadius: BorderRadius.circular(20),
-                                    border: Border.all(color: color.withOpacity(0.4)),
-                                  ),
-                                  child: Text(
-                                    it['typeLabel'],
-                                    style: GoogleFonts.cairo(
-                                      fontSize: 11,
-                                      fontWeight: FontWeight.bold,
-                                      color: color,
+                            // 1. Cover Image with Badge Overlay
+                            SizedBox(
+                              height: 145,
+                              width: double.infinity,
+                              child: Stack(
+                                children: [
+                                  Positioned.fill(
+                                    child: ClipRRect(
+                                      borderRadius: const BorderRadius.vertical(top: Radius.circular(17)),
+                                      child: _buildSliderImageWidget(imgPath, color),
                                     ),
                                   ),
-                                ),
-                                Icon(it['icon'] as IconData, color: color, size: 22),
-                              ],
-                            ),
-                            const SizedBox(height: 10),
-                            Text(
-                              it['title'],
-                              style: GoogleFonts.cairo(
-                                fontSize: 14,
-                                fontWeight: FontWeight.bold,
-                                height: 1.35,
-                                color: isDark ? Colors.white : const Color(0xFF0F172A),
-                              ),
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              it['subtitle'],
-                              style: GoogleFonts.cairo(
-                                fontSize: 11.5,
-                                color: isDark ? Colors.grey.shade400 : Colors.grey.shade600,
-                              ),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                            const SizedBox(height: 10),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.end,
-                              children: [
-                                Text(
-                                  'استكشف الآن ➔',
-                                  style: GoogleFonts.cairo(
-                                    fontSize: 11.5,
-                                    fontWeight: FontWeight.bold,
-                                    color: color,
+                                  // Gradient Overlay
+                                  Positioned.fill(
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                        borderRadius: const BorderRadius.vertical(top: Radius.circular(17)),
+                                        gradient: LinearGradient(
+                                          colors: [
+                                            Colors.black.withOpacity(0.65),
+                                            Colors.transparent,
+                                          ],
+                                          begin: Alignment.bottomCenter,
+                                          end: Alignment.topCenter,
+                                        ),
+                                      ),
+                                    ),
                                   ),
+                                  // Badge
+                                  Positioned(
+                                    top: 10,
+                                    right: 10,
+                                    child: Container(
+                                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                                      decoration: BoxDecoration(
+                                        color: Colors.black.withOpacity(0.75),
+                                        borderRadius: BorderRadius.circular(20),
+                                        border: Border.all(color: color.withOpacity(0.8), width: 1),
+                                      ),
+                                      child: Text(
+                                        it['typeLabel'],
+                                        style: GoogleFonts.cairo(
+                                          fontSize: 11,
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  // Icon Badge
+                                  Positioned(
+                                    bottom: 10,
+                                    left: 10,
+                                    child: CircleAvatar(
+                                      radius: 15,
+                                      backgroundColor: color,
+                                      child: Icon(it['icon'] as IconData, color: Colors.white, size: 16),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+
+                            // 2. Card Content
+                            Expanded(
+                              child: Padding(
+                                padding: const EdgeInsets.all(14),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          it['title'],
+                                          style: GoogleFonts.cairo(
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.bold,
+                                            height: 1.35,
+                                            color: isDark ? Colors.white : const Color(0xFF0F172A),
+                                          ),
+                                          maxLines: 2,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                        const SizedBox(height: 4),
+                                        Text(
+                                          it['subtitle'],
+                                          style: GoogleFonts.cairo(
+                                            fontSize: 11.5,
+                                            color: isDark ? Colors.grey.shade400 : Colors.grey.shade600,
+                                          ),
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                      ],
+                                    ),
+                                    Row(
+                                      mainAxisAlignment: MainAxisAlignment.end,
+                                      children: [
+                                        Text(
+                                          'عرض المحتوى ➔',
+                                          style: GoogleFonts.cairo(
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.bold,
+                                            color: color,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
                                 ),
-                              ],
+                              ),
                             ),
                           ],
                         ),
@@ -686,6 +758,38 @@ class _HomePageState extends State<HomePage> {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildSliderImageWidget(String imgUrl, Color fallbackColor) {
+    if (imgUrl.startsWith('http://') || imgUrl.startsWith('https://')) {
+      return Image.network(
+        imgUrl,
+        fit: BoxFit.cover,
+        errorBuilder: (_, __, ___) => _buildSliderPlaceholder(fallbackColor),
+      );
+    } else if (imgUrl.isNotEmpty) {
+      return Image.asset(
+        imgUrl,
+        fit: BoxFit.cover,
+        errorBuilder: (_, __, ___) => _buildSliderPlaceholder(fallbackColor),
+      );
+    }
+    return _buildSliderPlaceholder(fallbackColor);
+  }
+
+  Widget _buildSliderPlaceholder(Color color) {
+    return Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [color.withOpacity(0.35), const Color(0xFF0F172A)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+      ),
+      child: Center(
+        child: Icon(Icons.auto_stories_rounded, size: 44, color: color),
       ),
     );
   }

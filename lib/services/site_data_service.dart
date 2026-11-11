@@ -602,6 +602,12 @@ class SiteDataService extends ChangeNotifier {
     if (lesson['subject'] != null && (lesson['category'] == null || lesson['category'].toString().isEmpty)) {
       lesson['category'] = lesson['subject'];
     }
+    if (lesson['bookUrl'] != null && (lesson['bookLink'] == null || lesson['bookLink'].toString().isEmpty)) {
+      lesson['bookLink'] = lesson['bookUrl'];
+    }
+    if (lesson['bookLink'] != null && (lesson['bookUrl'] == null || lesson['bookUrl'].toString().isEmpty)) {
+      lesson['bookUrl'] = lesson['bookLink'];
+    }
 
     // Bidirectional HTML content normalization
     final htmlCode = (lesson['htmlCode'] ?? '').toString().trim();

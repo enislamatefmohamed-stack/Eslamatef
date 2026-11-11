@@ -226,6 +226,30 @@ class _CoursesPageState extends State<CoursesPage> {
           _checkUrlParameters();
         });
       });
+
+      html.window.onMessage.listen((event) {
+        try {
+          final data = event.data;
+          if (data is Map && data['type'] == 'QUIZ_SUBMITTED') {
+            final user = FirebaseAuth.instance.currentUser;
+            if (user != null && _activeLesson != null) {
+              final cid = (_activeCourse?['id'] ?? '').toString();
+              final lid = (_activeLesson?['id'] ?? '').toString();
+              final score = int.tryParse(data['score'].toString()) ?? 10;
+              final total = int.tryParse(data['total'].toString()) ?? 10;
+              _dataService.submitQuizResult(
+                quizId: lid,
+                quizTitle: (_activeLesson?['title'] ?? 'اختبار المحاضرة').toString(),
+                courseId: cid,
+                userId: user.uid,
+                userName: user.displayName ?? user.email?.split('@').first ?? 'طالب الأكاديمية',
+                score: score,
+                totalQuestions: total,
+              );
+            }
+          }
+        } catch (_) {}
+      });
     } catch (_) {}
   }
 
@@ -2217,173 +2241,140 @@ class _CoursesPageState extends State<CoursesPage> {
               const SizedBox(height: 20),
             ],
 
-            // 4. زر "افتح الدرس" تحت الفيديو لفتح المقال والشرح كاملاً
-            Center(
-              child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 850),
-                child: Container(
-                  width: double.infinity,
-                  margin: const EdgeInsets.only(bottom: 24),
-                  child: ElevatedButton.icon(
-                    onPressed: () {
-                      setState(() {
-                        _isLessonArticleOpen = !_isLessonArticleOpen;
-                      });
-                    },
-                    icon: Icon(
-                      _isLessonArticleOpen ? Icons.keyboard_arrow_up_rounded : Icons.menu_book_rounded,
-                      size: 22,
-                    ),
-                    label: Text(
-                      _isLessonArticleOpen ? "إخفاء محتوى الدرس 🔼" : "افتح الدرس 📖",
-                      style: GoogleFonts.cairo(
-                        fontSize: 17,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: _isLessonArticleOpen
-                          ? (isDark ? const Color(0xFF1E293B) : const Color(0xFFF1F5F9))
-                          : const Color(0xFF00E5FF),
-                      foregroundColor: _isLessonArticleOpen
-                          ? (isDark ? Colors.white70 : const Color(0xFF0F172A))
-                          : Colors.black,
-                      padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
-                        side: BorderSide(
-                          color: _isLessonArticleOpen
-                              ? (isDark ? const Color(0xFF334155) : const Color(0xFFCBD5E1))
-                              : Colors.transparent,
+            // 4. كتاب / كتيب المحاضرة إن وُجد (Book / Worksheet Link)
+            final String bookUrl = (lesson['bookUrl'] ?? lesson['bookLink'] ?? '').toString().trim();
+            if (bookUrl.isNotEmpty) ...[
+              Center(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 850),
+                  child: Container(
+                    width: double.infinity,
+                    margin: const EdgeInsets.only(bottom: 20),
+                    child: ElevatedButton.icon(
+                      onPressed: () {
+                        html.window.open(bookUrl, '_blank');
+                      },
+                      icon: const Icon(Icons.menu_book_rounded, color: Colors.white, size: 22),
+                      label: Text(
+                        "تحميل وتصفح كتيب الدرس (PDF) 📚",
+                        style: GoogleFonts.cairo(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
                         ),
                       ),
-                      elevation: _isLessonArticleOpen ? 0 : 4,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF8B5CF6),
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 24),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                        elevation: 4,
+                      ),
                     ),
                   ),
                 ),
               ),
-            ),
+            ],
 
-            // 5. محتوى وشرح وتفاصيل الدرس (Lesson Explanation)
-            if (_isLessonArticleOpen) ...[
-              if (isFullHtml)
-                InteractiveHtmlView(
-                  id: 'course_lesson_content_${lessonId.isNotEmpty ? lessonId : 'view'}',
-                  rawHtml: displayContent,
-                  height: (displayContent.length * 0.12).clamp(800.0, 5000.0),
-                )
-              else
-                Container(
-                  padding: EdgeInsets.all(isMobile ? 18 : 28),
-                  decoration: BoxDecoration(
-                    color: isDark ? const Color(0xFF0F172A) : Colors.white,
-                    borderRadius: BorderRadius.circular(20),
-                    border: Border.all(color: isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0)),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.05),
-                        blurRadius: 16,
-                        offset: const Offset(0, 4),
-                      ),
-                    ],
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      Row(
-                        children: [
-                          const Icon(Icons.menu_book_rounded, color: Color(0xFF00E5FF), size: 24),
-                          const SizedBox(width: 10),
-                          Text(
-                            "شرح وتفاصيل الدرس",
-                            style: GoogleFonts.cairo(
-                              fontSize: 19,
-                              fontWeight: FontWeight.bold,
-                              color: const Color(0xFF00E5FF),
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 12),
-                      const Divider(),
-                      if (displayContent.isNotEmpty)
-                        (displayContent.contains('<script') ||
-                                displayContent.contains('class="quiz') ||
-                                displayContent.contains("id='quiz") ||
-                                displayContent.contains('class="option-item"'))
-                            ? InteractiveHtmlView(
-                                id: 'course_lesson_content_${lessonId.isNotEmpty ? lessonId : 'view'}',
-                                rawHtml: displayContent,
-                                height: 900,
-                              )
-                            : ArticleContentRenderer(content: displayContent, isDark: isDark)
-                      else
-                        Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 24),
-                          child: Center(
-                            child: Text(
-                              "لا يوجد محتوى نصي إضافي لهذا الدرس، يمكنك متابعة الشرح بالفيديو أعلاه.",
-                              style: GoogleFonts.cairo(color: Colors.grey, fontSize: 14),
-                            ),
-                          ),
-                        ),
-                    ],
+            // 5. الملخص والاختبار التفاعلي المباشر تحت الفيديو مباشرة دون الحاجة لأزرار إضافية
+            final String quizHtml = (lesson['quizHtml'] ?? '').toString().trim();
+            final String finalHtmlToDisplay = quizHtml.isNotEmpty
+                ? quizHtml
+                : (rawContent.isNotEmpty ? rawContent : '');
+
+            if (finalHtmlToDisplay.isNotEmpty) ...[
+              Center(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 900),
+                  child: InteractiveHtmlView(
+                    id: 'course_lesson_content_${lessonId.isNotEmpty ? lessonId : 'view'}',
+                    rawHtml: finalHtmlToDisplay,
+                    height: (finalHtmlToDisplay.length * 0.12).clamp(750.0, 5000.0),
                   ),
                 ),
-
-              // 6. الاختبار إن وُجد (Quiz if present)
-              if (hasQuiz) ...[
-                const SizedBox(height: 28),
-                Container(
-                  padding: const EdgeInsets.all(24),
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: isDark
-                          ? [const Color(0xFF064E3B).withValues(alpha: 0.4), const Color(0xFF0F172A)]
-                          : [const Color(0xFFECFDF5), Colors.white],
-                      begin: Alignment.topRight,
-                      end: Alignment.bottomLeft,
+              ),
+              const SizedBox(height: 30),
+            ] else if (content.isNotEmpty) ...[
+              Center(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 850),
+                  child: Container(
+                    padding: EdgeInsets.all(isMobile ? 18 : 28),
+                    decoration: BoxDecoration(
+                      color: isDark ? const Color(0xFF0F172A) : Colors.white,
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(color: isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0)),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.05),
+                          blurRadius: 16,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
                     ),
-                    borderRadius: BorderRadius.circular(20),
-                    border: Border.all(color: const Color(0xFF10B981).withValues(alpha: 0.4)),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Text(
-                        "اختبار فهم الدرس 📝",
-                        style: GoogleFonts.cairo(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          color: const Color(0xFF10B981),
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        "اختبر معلوماتك وفهمك لما تعلمته في هذا الدرس عبر خوض هذا الاختبار.",
-                        textAlign: TextAlign.center,
-                        style: GoogleFonts.cairo(
-                          fontSize: 14,
-                          color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF475569),
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      ElevatedButton.icon(
-                        onPressed: () => _openLessonQuizDialog(context, lesson, isDark),
-                        icon: const Icon(Icons.quiz_rounded, size: 22),
-                        label: Text("ابدأ $quizTitle", style: GoogleFonts.cairo(fontSize: 16, fontWeight: FontWeight.bold)),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF10B981),
-                          foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 14),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                          elevation: 2,
-                        ),
-                      ),
-                    ],
+                    child: ArticleContentRenderer(content: displayContent, isDark: isDark),
                   ),
                 ),
-              ],
+              ),
+              const SizedBox(height: 30),
+            ],
+
+            // 6. في حالة وجود اختبار مخصص منفصل (أسئلة متعددة) ولا يوجد كود HTML تفاعلي
+            if (hasQuiz && quizHtml.isEmpty) ...[
+              Center(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 850),
+                  child: Container(
+                    padding: const EdgeInsets.all(24),
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: isDark
+                            ? [const Color(0xFF064E3B).withValues(alpha: 0.4), const Color(0xFF0F172A)]
+                            : [const Color(0xFFECFDF5), Colors.white],
+                        begin: Alignment.topRight,
+                        end: Alignment.bottomLeft,
+                      ),
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(color: const Color(0xFF10B981).withValues(alpha: 0.4)),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Text(
+                          "اختبار فهم الدرس 📝",
+                          style: GoogleFonts.cairo(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: const Color(0xFF10B981),
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          "اختبر معلوماتك وفهمك لما تعلمته في هذا الدرس عبر خوض هذا الاختبار.",
+                          textAlign: TextAlign.center,
+                          style: GoogleFonts.cairo(
+                            fontSize: 14,
+                            color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF475569),
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        ElevatedButton.icon(
+                          onPressed: () => _openLessonQuizDialog(context, lesson, isDark),
+                          icon: const Icon(Icons.quiz_rounded, size: 22),
+                          label: Text("ابدأ $quizTitle", style: GoogleFonts.cairo(fontSize: 16, fontWeight: FontWeight.bold)),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF10B981),
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 14),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                            elevation: 2,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
             ],
           const SizedBox(height: 36),
         ],

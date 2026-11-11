@@ -26,6 +26,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
   final _lecTitleCtrl = TextEditingController();
   final _lecYoutubeCtrl = TextEditingController();
   final _lecQuizHtmlCtrl = TextEditingController();
+  final _lecBookUrlCtrl = TextEditingController();
   Map<String, dynamic>? _editingLecture;
 
   // The 8 Official Academy Courses
@@ -129,6 +130,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
     _lecTitleCtrl.dispose();
     _lecYoutubeCtrl.dispose();
     _lecQuizHtmlCtrl.dispose();
+    _lecBookUrlCtrl.dispose();
     _newCategoryCtrl.dispose();
     super.dispose();
   }
@@ -1203,7 +1205,8 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
       _lecNumberCtrl.text = (existingLecture['number'] ?? '').toString();
       _lecTitleCtrl.text = (existingLecture['title'] ?? '').toString();
       _lecYoutubeCtrl.text = (existingLecture['youtubeUrl'] ?? existingLecture['videoUrl'] ?? '').toString();
-      _lecQuizHtmlCtrl.text = (existingLecture['quizHtml'] ?? '').toString();
+      _lecBookUrlCtrl.text = (existingLecture['bookUrl'] ?? existingLecture['bookLink'] ?? '').toString();
+      _lecQuizHtmlCtrl.text = (existingLecture['quizHtml'] ?? existingLecture['htmlCode'] ?? '').toString();
     } else {
       _editingLecture = null;
       final fromService = _dataService.courses.firstWhere(
@@ -1214,6 +1217,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
       _lecNumberCtrl.text = "${lessons.length + 1}";
       _lecTitleCtrl.clear();
       _lecYoutubeCtrl.clear();
+      _lecBookUrlCtrl.clear();
       _lecQuizHtmlCtrl.clear();
     }
 
@@ -1296,15 +1300,29 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                     ),
                     const SizedBox(height: 16),
 
-                    // Field 4: كود الاختبار html تفاعلي
-                    Text("4. كود الاختبار html تفاعلي:", style: GoogleFonts.cairo(fontWeight: FontWeight.bold)),
+                    // Field 4: لينك الكتاب / كتيب المحاضرة
+                    Text("4. لينك كتاب / كتيب الدرس (PDF أو رابط خارجي):", style: GoogleFonts.cairo(fontWeight: FontWeight.bold)),
+                    const SizedBox(height: 6),
+                    TextField(
+                      controller: _lecBookUrlCtrl,
+                      decoration: InputDecoration(
+                        hintText: "https://... رابط تحميل أو تصفح كتاب الدرس (PDF / Drive)",
+                        filled: true,
+                        fillColor: isDark ? const Color(0xFF1E293B) : const Color(0xFFF8FAFC),
+                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+
+                    // Field 5: كود الاختبار والملخص html تفاعلي
+                    Text("5. كود الاختبار والملخص html تفاعلي:", style: GoogleFonts.cairo(fontWeight: FontWeight.bold)),
                     const SizedBox(height: 6),
                     TextField(
                       controller: _lecQuizHtmlCtrl,
                       maxLines: 8,
                       style: GoogleFonts.firaCode(fontSize: 12),
                       decoration: InputDecoration(
-                        hintText: "<div class='quiz-container'>\n  <h3>سؤال المحاضرة</h3>\n  ...\n</div>",
+                        hintText: "الصق كود الـ HTML الكامل للمحاضرة هنا (الملخص والاختبار التفاعلي)...",
                         filled: true,
                         fillColor: isDark ? const Color(0xFF1E293B) : const Color(0xFFF8FAFC),
                         border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
@@ -1329,6 +1347,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
 
                   final num = int.tryParse(_lecNumberCtrl.text.trim()) ?? 1;
                   final yt = _lecYoutubeCtrl.text.trim();
+                  final book = _lecBookUrlCtrl.text.trim();
                   final quiz = _lecQuizHtmlCtrl.text.trim();
 
                   final lectureData = {
@@ -1336,7 +1355,10 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                     'title': title,
                     'youtubeUrl': yt,
                     'videoUrl': yt,
+                    'bookUrl': book,
+                    'bookLink': book,
                     'quizHtml': quiz,
+                    'htmlCode': quiz,
                     'hasQuiz': quiz.isNotEmpty,
                     'isPublished': true,
                     'duration': '00:45:00',
