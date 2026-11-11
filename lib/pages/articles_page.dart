@@ -696,10 +696,13 @@ class _ArticlesPageState extends State<ArticlesPage> {
                   ),
                 ),
                 OutlinedButton.icon(
-                  onPressed: () => _copyLink(
-                    'https://eslamatef-sepia.vercel.app/blog?id=$articleId',
-                    "تم نسخ رابط المقال المباشر 📋",
-                  ),
+                  onPressed: () {
+                    final origin = html.window.location.origin;
+                    _copyLink(
+                      '$origin/articles?id=$articleId',
+                      "تم نسخ رابط المقال المباشر 📋",
+                    );
+                  },
                   icon: const Icon(Icons.link_rounded, size: 16),
                   label: Text("مشاركة المقال", style: GoogleFonts.cairo(fontWeight: FontWeight.bold, fontSize: 13)),
                   style: OutlinedButton.styleFrom(

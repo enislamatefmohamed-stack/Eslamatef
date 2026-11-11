@@ -1,13 +1,8 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:file_picker/file_picker.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:http/http.dart' as http;
 import 'package:url_launcher/url_launcher.dart';
-
 import '../theme/app_theme.dart';
-import '../data/arabic_data.dart';
 import '../widgets/unified_app_bar.dart';
 
 class ContactPage extends StatefulWidget {
@@ -20,278 +15,120 @@ class ContactPage extends StatefulWidget {
 class _ContactPageState extends State<ContactPage> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _nameController = TextEditingController();
-  final TextEditingController _emailController = TextEditingController();
   final TextEditingController _phoneController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
   final TextEditingController _messageController = TextEditingController();
 
-  String _selectedInquiryType = "استفسار عن الكورسات والتدريب";
+  String _selectedInquiryType = "استفسار عن كورس البرمجة والذكاء الاصطناعي للأطفال";
   final List<String> _inquiryTypes = [
-    "استفسار عن الكورسات والتدريب",
-    "استشارة برمجية أو ذكاء اصطناعي",
-    "سؤال تقني حول أحد الدروس",
-    "طلب تدريب خاص أو كودنج كوتشينج",
-    "اقتراح أو تعاون تقني",
+    "استفسار عن كورس البرمجة والذكاء الاصطناعي للأطفال",
+    "استفسار عن كورس الخوارزميات وحل المشكلات",
+    "استفسار عن كورس سكراتش وتطوير الألعاب",
+    "استفسار عن كورس بايثون لليافعين",
+    "طلب تدريب خاص أو جلسة استشارية فردية",
+    "دعم فني أو مشكلة في الحساب",
     "أخرى",
   ];
 
-  final List<PlatformFile> _attachedFiles = [];
   bool _isSubmitting = false;
-  static DateTime? _lastSubmitTime;
 
   @override
   void dispose() {
     _nameController.dispose();
-    _emailController.dispose();
     _phoneController.dispose();
+    _emailController.dispose();
     _messageController.dispose();
     super.dispose();
   }
 
-  Future<void> _pickFiles() async {
-    try {
-      final files = await FilePicker.pickFiles(
-        type: FileType.any,
-      );
-
-      if (files.isNotEmpty) {
-        setState(() {
-          _attachedFiles.addAll(files);
-        });
-      }
-    } catch (e) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          backgroundColor: Colors.redAccent,
-          content: Text(
-            'حدث خطأ أثناء تحديد الملفات: $e',
-            style: GoogleFonts.cairo(),
-          ),
-        ),
-      );
+  void _launchUrl(String url) async {
+    final uri = Uri.parse(url);
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
     }
-  }
-
-  void _removeFile(int index) {
-    setState(() {
-      _attachedFiles.removeAt(index);
-    });
-  }
-
-  String _formatFileSize(int bytes) {
-    if (bytes < 1024) return '$bytes B';
-    if (bytes < 1024 * 1024) return '${(bytes / 1024).toStringAsFixed(1)} KB';
-    return '${(bytes / (1024 * 1024)).toStringAsFixed(1)} MB';
-  }
-
-  IconData _getFileIcon(String? extension) {
-    final ext = (extension ?? '').toLowerCase();
-    if (['jpg', 'jpeg', 'png', 'webp', 'gif', 'svg'].contains(ext)) {
-      return Icons.image_rounded;
-    } else if (['pdf'].contains(ext)) {
-      return Icons.picture_as_pdf_rounded;
-    } else if (['zip', 'rar', '7z', 'tar', 'gz'].contains(ext)) {
-      return Icons.folder_zip_rounded;
-    } else if (['dart', 'py', 'js', 'ts', 'html', 'css', 'cpp', 'java'].contains(ext)) {
-      return Icons.code_rounded;
-    } else if (['doc', 'docx', 'txt'].contains(ext)) {
-      return Icons.description_rounded;
-    }
-    return Icons.insert_drive_file_rounded;
   }
 
   Future<void> _submitForm() async {
-    if (!_formKey.currentState!.validate()) {
-      return;
-    }
+    if (!_formKey.currentState!.validate()) return;
 
-    // Anti-spam check (45 seconds interval)
-    if (_lastSubmitTime != null) {
-      final diff = DateTime.now().difference(_lastSubmitTime!).inSeconds;
-      if (diff < 45) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            backgroundColor: const Color(0xFFD97706),
-            content: Text(
-              '⚠️ برجاء الانتظار ${45 - diff} ثانية قبل إرسال رسالة أخرى لحماية النظام من التكرار.',
-              style: GoogleFonts.cairo(),
-            ),
-          ),
-        );
-        return;
-      }
-    }
-
-    setState(() {
-      _isSubmitting = true;
-    });
+    setState(() => _isSubmitting = true);
 
     final name = _nameController.text.trim();
-    final email = _emailController.text.trim();
     final phone = _phoneController.text.trim();
+    final email = _emailController.text.trim();
     final message = _messageController.text.trim();
-
-    final fileNames = _attachedFiles.map((f) => "${f.name} (${_formatFileSize(f.lengthSync() ?? 0)})").join(", ");
+    final type = _selectedInquiryType;
 
     try {
-      // 1. Direct Cloud Firestore Backup (Guarantees zero lost messages)
-      await FirebaseFirestore.instance.collection('contact_messages').add({
+      // Save inquiry to Firestore
+      await FirebaseFirestore.instance.collection('contacts').add({
         'name': name,
-        'email': email,
         'phone': phone,
-        'inquiryType': _selectedInquiryType,
+        'email': email,
+        'inquiryType': type,
         'message': message,
-        'files': fileNames,
-        'createdAt': DateTime.now().toIso8601String(),
-        'timestamp': FieldValue.serverTimestamp(),
-        'status': 'new',
+        'createdAt': FieldValue.serverTimestamp(),
+        'status': 'جديد',
       });
 
-      // 2. Submit via FormSubmit AJAX directly to en.islam.atef.mohamed@gmail.com
-      final url = Uri.parse("https://formsubmit.co/ajax/en.islam.atef.mohamed@gmail.com");
-      final response = await http.post(
-        url,
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-        },
-        body: jsonEncode({
-          'الاسم': name,
-          'البريد_الإلكتروني': email,
-          'رقم_الهاتف_الواتساب': phone.isNotEmpty ? phone : "غير محدد",
-          'نوع_الاستفسار': _selectedInquiryType,
-          'الرسالة': message,
-          'الملفات_المرفقة': _attachedFiles.isNotEmpty ? fileNames : "لا توجد مرفقات",
-          '_subject': "رسالة تواصل جديدة من الموقع: $name - $_selectedInquiryType",
-          '_template': "table",
-        }),
-      );
-
       if (!mounted) return;
 
-      if (response.statusCode >= 200 && response.statusCode < 300) {
-        _lastSubmitTime = DateTime.now();
-        _showSuccessDialog();
-      } else {
-        // Fallback to mailto if API error
-        _launchMailtoFallback(name, email, phone, message, fileNames);
-      }
-    } catch (_) {
-      if (!mounted) return;
-      // Message saved to Firestore above, show success with direct WhatsApp option
-      _lastSubmitTime = DateTime.now();
-      _showSuccessDialog();
-    } finally {
-      if (mounted) {
-        setState(() {
-          _isSubmitting = false;
-        });
-      }
-    }
-  }
+      _nameController.clear();
+      _phoneController.clear();
+      _emailController.clear();
+      _messageController.clear();
 
-  void _launchMailtoFallback(String name, String email, String phone, String message, String fileNames) async {
-    final subject = Uri.encodeComponent("رسالة تواصل من: $name - $_selectedInquiryType");
-    final body = Uri.encodeComponent(
-      "الاسم: $name\n"
-      "البريد الإلكتروني: $email\n"
-      "الهاتف: $phone\n"
-      "نوع الاستفسار: $_selectedInquiryType\n\n"
-      "الرسالة:\n$message\n\n"
-      "المرفقات المختارة: ${fileNames.isNotEmpty ? fileNames : 'لا توجد'}",
-    );
-
-    final mailtoUri = Uri.parse("mailto:en.islam.atef.mohamed@gmail.com?subject=$subject&body=$body");
-
-    if (await canLaunchUrl(mailtoUri)) {
-      await launchUrl(mailtoUri);
-    }
-
-    if (mounted) {
-      _showSuccessDialog();
-    }
-  }
-
-  void _showSuccessDialog() {
-    // Reset Form
-    _nameController.clear();
-    _emailController.clear();
-    _phoneController.clear();
-    _messageController.clear();
-    setState(() {
-      _attachedFiles.clear();
-    });
-
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-
-    showDialog(
-      context: context,
-      builder: (ctx) => Directionality(
-        textDirection: TextDirection.rtl,
-        child: AlertDialog(
-          backgroundColor: isDark ? AppColors.cardDark : Colors.white,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
-            side: const BorderSide(color: Color(0xFF00E5FF), width: 1.5),
-          ),
-          contentPadding: const EdgeInsets.all(28),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
+      showDialog(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          title: Row(
             children: [
-              Container(
-                width: 64,
-                height: 64,
-                decoration: BoxDecoration(
-                  color: const Color(0xFF00E5FF).withValues(alpha: 0.15),
-                  shape: BoxShape.circle,
-                ),
-                child: const Icon(Icons.check_circle_rounded, color: Color(0xFF00E5FF), size: 40),
-              ),
-              const SizedBox(height: 20),
-              Text(
-                "تم إرسال رسالتك بنجاح!",
-                style: GoogleFonts.cairo(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: isDark ? AppColors.textPrimary : const Color(0xFF0F172A),
-                ),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 12),
-              Text(
-                "شكراً لتواصلك معنا. تم إرسال رسالتك مباشرة إلى البريد الإلكتروني:\nen.islam.atef.mohamed@gmail.com\nوسيقوم Eslam Atef بالرد عليك في أقرب وقت.",
-                style: GoogleFonts.cairo(
-                  fontSize: 14,
-                  color: isDark ? AppColors.textSecondary : const Color(0xFF475569),
-                  height: 1.7,
-                ),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 24),
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF00E5FF),
-                  foregroundColor: Colors.black,
-                  padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                ),
-                onPressed: () => Navigator.of(ctx).pop(),
-                child: Text(
-                  "حسناً، شكراً لك",
-                  style: GoogleFonts.cairo(fontSize: 15, fontWeight: FontWeight.w900),
-                ),
-              ),
+              const Icon(Icons.check_circle_rounded, color: Color(0xFF10B981), size: 28),
+              const SizedBox(width: 10),
+              Text("تم استلام رسالتك بنجاح! 🚀", style: GoogleFonts.cairo(fontWeight: FontWeight.bold, fontSize: 16)),
             ],
           ),
+          content: Text(
+            "شكراً لتواصلك معنا يا $name. تم تسجيل رسالتك بنجاح، وسيتواصل معك م. إسلام عاطف أو فريق العمل في أقرب وقت عبر واتساب.",
+            style: GoogleFonts.cairo(fontSize: 14, height: 1.6),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(ctx).pop(),
+              child: Text("حسناً", style: GoogleFonts.cairo(fontWeight: FontWeight.bold)),
+            ),
+            ElevatedButton.icon(
+              onPressed: () {
+                Navigator.of(ctx).pop();
+                final encoded = Uri.encodeComponent("مرحباً أستاذ إسلام، أنا $name، أرسلت استفساراً بخصوص ($type):\n$message");
+                _launchUrl("https://wa.me/201100665674?text=$encoded");
+              },
+              icon: const Icon(Icons.chat_rounded, size: 16),
+              label: Text("المتابعة على واتساب فوراً", style: GoogleFonts.cairo(fontWeight: FontWeight.bold)),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF25D366),
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+              ),
+            ),
+          ],
         ),
-      ),
-    );
+      );
+    } catch (e) {
+      if (!mounted) return;
+      // Fallback: direct WhatsApp
+      final encoded = Uri.encodeComponent("مرحباً أستاذ إسلام، أنا $name:\n$message");
+      _launchUrl("https://wa.me/201100665674?text=$encoded");
+    } finally {
+      if (mounted) setState(() => _isSubmitting = false);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
-    final isMobile = screenWidth < 850;
+    final isMobile = screenWidth < 900;
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Directionality(
@@ -299,291 +136,235 @@ class _ContactPageState extends State<ContactPage> {
       child: Scaffold(
         backgroundColor: isDark ? AppColors.bgDark : AppColors.bgLight,
         endDrawer: isMobile ? const UnifiedAppDrawer(currentRoute: '/contact') : null,
-        body: SafeArea(
-          child: Column(
-            children: [
-              const UnifiedAppHeader(
-                currentRoute: '/contact',
-                pageTitle: 'تواصل معنا — يسعدنا استقبال رسائلك',
-              ),
-              Expanded(
-                child: SingleChildScrollView(
-                  child: Column(
-                    children: [
-                      const SizedBox(height: 28),
-                      _buildContactHero(isMobile, isDark),
-                      const SizedBox(height: 32),
-                      _buildContentContainer(isMobile, screenWidth, isDark),
-                      const SizedBox(height: 48),
-                      const UnifiedAppFooter(),
-                    ],
+        body: SelectionArea(
+          child: SafeArea(
+            child: Column(
+              children: [
+                UnifiedAppHeader(
+                  currentRoute: '/contact',
+                  pageTitle: 'تواصل معنا — دعم واستفسارات',
+                  showBackButton: true,
+                  onBack: () {
+                    if (Navigator.of(context).canPop()) {
+                      Navigator.of(context).pop();
+                    } else {
+                      Navigator.of(context).pushReplacementNamed('/');
+                    }
+                  },
+                ),
+                Expanded(
+                  child: SingleChildScrollView(
+                    child: Column(
+                      children: [
+                        const SizedBox(height: 32),
+                        _buildContactContent(context, isMobile, isDark),
+                        const SizedBox(height: 60),
+                        const UnifiedAppFooter(),
+                      ],
+                    ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
     );
   }
 
-
-  // -------------------------------------------------------------
-  // Hero Banner
-  // -------------------------------------------------------------
-  Widget _buildContactHero(bool isMobile, bool isDark) {
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: isMobile ? 20 : 32),
-      constraints: const BoxConstraints(maxWidth: 900),
-      child: Column(
-        children: [
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-            decoration: BoxDecoration(
-              color: const Color(0xFF00E5FF).withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(30),
-              border: Border.all(color: const Color(0xFF00E5FF).withValues(alpha: 0.3)),
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const Icon(Icons.mail_rounded, color: Color(0xFF00E5FF), size: 16),
-                const SizedBox(width: 8),
-                Text(
-                  "قنوات التواصل الرسمية",
-                  style: GoogleFonts.cairo(
-                    fontSize: 13,
-                    fontWeight: FontWeight.bold,
-                    color: const Color(0xFF00E5FF),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 16),
-          Text(
-            "تواصل معنا الآن",
-            style: GoogleFonts.cairo(
-              fontSize: isMobile ? 26 : 38,
-              fontWeight: FontWeight.w900,
-              color: isDark ? AppColors.textPrimary : const Color(0xFF0F172A),
-            ),
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 12),
-          Text(
-            "يسعدنا استقبال استفساراتك حول الكورسات البرمجية، التدريب الخاص، أو أي استشارة تقنية في هندسة البرمجيات والذكاء الاصطناعي. املأ النموذج أدناه وستصل رسالتك مباشرة إلى Eslam Atef.",
-            style: GoogleFonts.cairo(
-              fontSize: isMobile ? 14 : 16,
-              color: isDark ? AppColors.textSecondary : const Color(0xFF475569),
-              height: 1.8,
-            ),
-            textAlign: TextAlign.center,
-          ),
-        ],
-      ),
-    );
-  }
-
-  // -------------------------------------------------------------
-  // Main Content: Form + Quick Info Cards
-  // -------------------------------------------------------------
-  Widget _buildContentContainer(bool isMobile, double screenWidth, bool isDark) {
+  Widget _buildContactContent(BuildContext context, bool isMobile, bool isDark) {
     return Container(
       constraints: const BoxConstraints(maxWidth: 1100),
-      padding: EdgeInsets.symmetric(horizontal: isMobile ? 16 : 24),
+      padding: EdgeInsets.symmetric(horizontal: isMobile ? 18 : 28),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // Quick Contact Info Row
-          _buildQuickInfoCards(isMobile, isDark),
-          const SizedBox(height: 36),
-
-          // The Contact Form Card
-          Container(
-            decoration: BoxDecoration(
-              color: isDark ? AppColors.cardDark : Colors.white,
-              borderRadius: BorderRadius.circular(24),
-              border: Border.all(color: isDark ? AppColors.borderLightDark : const Color(0xFFE2E8F0)),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: isDark ? 0.4 : 0.06),
-                  blurRadius: 24,
-                  offset: const Offset(0, 8),
-                ),
-              ],
-            ),
-            padding: EdgeInsets.all(isMobile ? 20 : 36),
-            child: Form(
-              key: _formKey,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+          // 1. Hero Header
+          Center(
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 7),
+              decoration: BoxDecoration(
+                color: const Color(0xFF00E5FF).withOpacity(0.12),
+                borderRadius: BorderRadius.circular(100),
+                border: Border.all(color: const Color(0xFF00E5FF).withOpacity(0.3)),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
                 children: [
-                  Row(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(10),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF00E5FF).withValues(alpha: 0.12),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: const Icon(Icons.send_rounded, color: Color(0xFF00E5FF), size: 24),
-                      ),
-                      const SizedBox(width: 14),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              "نموذج المراسلة المباشر",
-                              style: GoogleFonts.cairo(
-                                fontSize: isMobile ? 18 : 22,
-                                fontWeight: FontWeight.bold,
-                                color: isDark ? AppColors.textPrimary : const Color(0xFF0F172A),
-                              ),
-                            ),
-                            Text(
-                              "تصل الرسالة فوراً إلى: en.islam.atef.mohamed@gmail.com",
-                              style: GoogleFonts.cairo(
-                                fontSize: isMobile ? 12 : 13,
-                                color: const Color(0xFF00E5FF),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
+                  const Icon(Icons.chat_bubble_outline_rounded, size: 16, color: Color(0xFF00E5FF)),
+                  const SizedBox(width: 8),
+                  Text(
+                    "قنوات التواصل والدعم الفني المباشر",
+                    style: GoogleFonts.cairo(
+                      fontSize: 12.5,
+                      fontWeight: FontWeight.bold,
+                      color: const Color(0xFF00E5FF),
+                    ),
                   ),
-                  const SizedBox(height: 28),
-
-                  // Fields: Name & Email
-                  if (!isMobile)
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Expanded(child: _buildNameField(isDark)),
-                        const SizedBox(width: 20),
-                        Expanded(child: _buildEmailField(isDark)),
-                      ],
-                    )
-                  else ...[
-                    _buildNameField(isDark),
-                    const SizedBox(height: 18),
-                    _buildEmailField(isDark),
-                  ],
-
-                  const SizedBox(height: 18),
-
-                  // Fields: Phone & Inquiry Type
-                  if (!isMobile)
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Expanded(child: _buildPhoneField(isDark)),
-                        const SizedBox(width: 20),
-                        Expanded(child: _buildInquiryTypeField(isDark)),
-                      ],
-                    )
-                  else ...[
-                    _buildPhoneField(isDark),
-                    const SizedBox(height: 18),
-                    _buildInquiryTypeField(isDark),
-                  ],
-
-                  const SizedBox(height: 18),
-
-                  // Message Field
-                  _buildMessageField(isDark),
-
-                  const SizedBox(height: 24),
-
-                  // File & Image Attachments Section
-                  _buildAttachmentsSection(isMobile, isDark),
-
-                  const SizedBox(height: 32),
-
-                  // Submit Button
-                  _buildSubmitButton(isMobile),
                 ],
               ),
             ),
           ),
+          const SizedBox(height: 18),
+
+          Center(
+            child: Text(
+              "يسعدنا تواصلك دائماً.. نحن هنا للإجابة على كافة تساؤلاتك",
+              textAlign: TextAlign.center,
+              style: GoogleFonts.cairo(
+                fontSize: isMobile ? 22 : 32,
+                fontWeight: FontWeight.w900,
+                color: isDark ? Colors.white : const Color(0xFF0F172A),
+                height: 1.35,
+              ),
+            ),
+          ),
+          const SizedBox(height: 10),
+
+          Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 720),
+              child: Text(
+                "سواء كنت ولي أمر ترغب في تسجيل طفلك، أو طالباً تسأل عن محتوى دورة، تواصل معنا بأسرع وسيلة تفضلها وسنكون سعداء بمساعدتك فوراً.",
+                textAlign: TextAlign.center,
+                style: GoogleFonts.cairo(
+                  fontSize: isMobile ? 13.5 : 15,
+                  height: 1.7,
+                  color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF475569),
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: 38),
+
+          // 2. Two-Column Layout (Quick Channels on Right, Form on Left)
+          if (!isMobile)
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Right Column (Direct Channels - 45% width)
+                Expanded(
+                  flex: 45,
+                  child: _buildQuickChannels(isDark),
+                ),
+                const SizedBox(width: 28),
+
+                // Left Column (Inquiry Form - 55% width)
+                Expanded(
+                  flex: 55,
+                  child: _buildContactFormCard(isDark),
+                ),
+              ],
+            )
+          else
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                _buildQuickChannels(isDark),
+                const SizedBox(height: 28),
+                _buildContactFormCard(isDark),
+              ],
+            ),
         ],
       ),
     );
   }
 
-  // -------------------------------------------------------------
-  // Quick Contact Info Cards
-  // -------------------------------------------------------------
-  Widget _buildQuickInfoCards(bool isMobile, bool isDark) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final useGrid = constraints.maxWidth > 700;
+  // --- Quick Direct Channels (Right Side) ---
+  Widget _buildQuickChannels(bool isDark) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        // WhatsApp Card (Most Popular)
+        _buildChannelCard(
+          icon: Icons.chat_rounded,
+          iconColor: const Color(0xFF25D366),
+          title: "محادثة واتساب سريعة ومباشرة",
+          desc: "الرد المباشر مع م. إسلام عاطف وفريق الأكاديمية للاستفسارات العاجلة.",
+          btnLabel: "تواصل عبر واتساب الآن 💬",
+          btnColor: const Color(0xFF25D366),
+          isDark: isDark,
+          onTap: () => _launchUrl("https://wa.me/201100665674"),
+        ),
+        const SizedBox(height: 18),
 
-        final cards = [
-          _infoCard(
-            icon: Icons.alternate_email_rounded,
-            title: "البريد الإلكتروني المباشر",
-            value: "en.islam.atef.mohamed@gmail.com",
-            actionText: "مراسلة عبر الإيميل",
-            iconColor: const Color(0xFF00E5FF),
-            isDark: isDark,
-            onTap: () => launchUrl(Uri.parse("mailto:en.islam.atef.mohamed@gmail.com")),
-          ),
-          _infoCard(
-            icon: Icons.chat_rounded,
-            title: "واتساب وهاتف التواصل",
-            value: "01100665674",
-            actionText: "محادثة فورية",
-            iconColor: const Color(0xFF25D366),
-            isDark: isDark,
-            onTap: () => launchUrl(Uri.parse(ArabicData.whatsappUrl)),
-          ),
-          _infoCard(
-            icon: Icons.send_rounded,
-            title: "قناة التليجرام",
-            value: "@EslamAtefAI",
-            actionText: "انضم للقناة",
-            iconColor: const Color(0xFF229ED9),
-            isDark: isDark,
-            onTap: () => launchUrl(Uri.parse(ArabicData.telegramUrl)),
-          ),
-        ];
+        // Telegram Channel Card
+        _buildChannelCard(
+          icon: Icons.send_rounded,
+          iconColor: const Color(0xFF0088CC),
+          title: "قناة ومجتمع الأكاديمية على تيليجرام",
+          desc: "انضم لمتابعة جديد الكورسات، الشروحات المجانية، وروابط المحاضرات.",
+          btnLabel: "الانضمام لقناة تيليجرام 📢",
+          btnColor: const Color(0xFF0088CC),
+          isDark: isDark,
+          onTap: () => _launchUrl("https://t.me/EslamAtefOfficial"),
+        ),
+        const SizedBox(height: 18),
 
-        if (useGrid) {
-          return Row(
-            children: cards.map((c) => Expanded(child: Padding(padding: const EdgeInsets.symmetric(horizontal: 8), child: c))).toList(),
-          );
-        } else {
-          return Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: cards.map((c) => Padding(padding: const EdgeInsets.only(bottom: 14), child: c)).toList(),
-          );
-        }
-      },
+        // Email & Response Guarantee Card
+        _buildChannelCard(
+          icon: Icons.mark_email_read_rounded,
+          iconColor: const Color(0xFF00E5FF),
+          title: "البريد الإلكتروني الرسمي",
+          desc: "للمراسلات الرسمية والشراكات: islamatef01016834012@gmail.com",
+          btnLabel: "إرسال بريد إلكتروني ✉️",
+          btnColor: const Color(0xFF0284C7),
+          isDark: isDark,
+          onTap: () => _launchUrl("mailto:islamatef01016834012@gmail.com"),
+        ),
+        const SizedBox(height: 18),
+
+        // Response Time Guarantee Box
+        Container(
+          padding: const EdgeInsets.all(18),
+          decoration: BoxDecoration(
+            color: isDark ? const Color(0xFF0A0F1D) : const Color(0xFFF1F5F9),
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: isDark ? const Color(0xFF1E293B) : const Color(0xFFCBD5E1)),
+          ),
+          child: Row(
+            children: [
+              const Icon(Icons.flash_on_rounded, color: Color(0xFFF59E0B), size: 24),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  "نضمن الرد على جميع الاستفسارات والرسائل في أقل من ساعتين خلال أوقات العمل.",
+                  style: GoogleFonts.cairo(
+                    fontSize: 12.5,
+                    fontWeight: FontWeight.w600,
+                    color: isDark ? const Color(0xFFCBD5E1) : const Color(0xFF334155),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 
-  Widget _infoCard({
+  Widget _buildChannelCard({
     required IconData icon,
-    required String title,
-    required String value,
-    required String actionText,
     required Color iconColor,
+    required String title,
+    required String desc,
+    required String btnLabel,
+    required Color btnColor,
     required bool isDark,
     required VoidCallback onTap,
   }) {
     return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(22),
       decoration: BoxDecoration(
-        color: isDark ? AppColors.cardDark : Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: isDark ? AppColors.borderLightDark : const Color(0xFFE2E8F0)),
+        color: isDark ? const Color(0xFF0F172A) : Colors.white,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(
+          color: isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0),
+        ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.04),
-            blurRadius: 12,
+            color: Colors.black.withOpacity(isDark ? 0.2 : 0.04),
+            blurRadius: 14,
             offset: const Offset(0, 4),
           ),
         ],
@@ -591,423 +372,275 @@ class _ContactPageState extends State<ContactPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              color: iconColor.withValues(alpha: 0.12),
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Icon(icon, color: iconColor, size: 22),
-          ),
-          const SizedBox(height: 14),
-          Text(
-            title,
-            style: GoogleFonts.cairo(
-              fontSize: 13,
-              color: isDark ? AppColors.textMuted : const Color(0xFF64748B),
-            ),
-          ),
-          const SizedBox(height: 4),
-          SelectableText(
-            value,
-            style: GoogleFonts.cairo(
-              fontSize: 14,
-              fontWeight: FontWeight.bold,
-              color: isDark ? AppColors.textPrimary : const Color(0xFF0F172A),
-            ),
-          ),
-          const SizedBox(height: 12),
-          MouseRegion(
-            cursor: SystemMouseCursors.click,
-            child: GestureDetector(
-              onTap: onTap,
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    actionText,
-                    style: GoogleFonts.cairo(
-                      fontSize: 13,
-                      fontWeight: FontWeight.bold,
-                      color: iconColor,
-                    ),
-                  ),
-                  const SizedBox(width: 4),
-                  Icon(Icons.arrow_back_rounded, size: 14, color: iconColor),
-                ],
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  // -------------------------------------------------------------
-  // Form Field Widgets
-  // -------------------------------------------------------------
-  Widget _buildNameField(bool isDark) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _fieldLabel("الاسم بالكامل", isDark: isDark, isRequired: true),
-        const SizedBox(height: 8),
-        TextFormField(
-          controller: _nameController,
-          style: GoogleFonts.cairo(color: isDark ? AppColors.textPrimary : const Color(0xFF0F172A), fontSize: 14),
-          decoration: _inputDecoration(
-            hint: "مثال: أحمد محمود",
-            prefixIcon: Icons.person_outline_rounded,
-            isDark: isDark,
-          ),
-          validator: (val) {
-            if (val == null || val.trim().isEmpty) {
-              return "يرجى كتابة الاسم";
-            }
-            return null;
-          },
-        ),
-      ],
-    );
-  }
-
-  Widget _buildEmailField(bool isDark) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _fieldLabel("البريد الإلكتروني", isDark: isDark, isRequired: true),
-        const SizedBox(height: 8),
-        TextFormField(
-          controller: _emailController,
-          keyboardType: TextInputType.emailAddress,
-          style: GoogleFonts.cairo(color: isDark ? AppColors.textPrimary : const Color(0xFF0F172A), fontSize: 14),
-          decoration: _inputDecoration(
-            hint: "example@gmail.com",
-            prefixIcon: Icons.alternate_email_rounded,
-            isDark: isDark,
-          ),
-          validator: (val) {
-            if (val == null || val.trim().isEmpty) {
-              return "يرجى كتابة البريد الإلكتروني";
-            }
-            if (!val.contains('@') || !val.contains('.')) {
-              return "يرجى إدخال بريد إلكتروني صحيح";
-            }
-            return null;
-          },
-        ),
-      ],
-    );
-  }
-
-  Widget _buildPhoneField(bool isDark) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _fieldLabel("رقم الهاتف أو الواتساب", isDark: isDark, isRequired: false),
-        const SizedBox(height: 8),
-        TextFormField(
-          controller: _phoneController,
-          keyboardType: TextInputType.phone,
-          style: GoogleFonts.cairo(color: isDark ? AppColors.textPrimary : const Color(0xFF0F172A), fontSize: 14),
-          decoration: _inputDecoration(
-            hint: "010xxxxxxxx أو مع كود الدولة",
-            prefixIcon: Icons.phone_outlined,
-            isDark: isDark,
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildInquiryTypeField(bool isDark) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _fieldLabel("موضوع الاستفسار", isDark: isDark, isRequired: true),
-        const SizedBox(height: 8),
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 14),
-          decoration: BoxDecoration(
-            color: isDark ? AppColors.surfaceDark : const Color(0xFFF8FAFC),
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: isDark ? AppColors.borderLightDark : const Color(0xFFCBD5E1)),
-          ),
-          child: DropdownButtonHideUnderline(
-            child: DropdownButton<String>(
-              value: _selectedInquiryType,
-              isExpanded: true,
-              dropdownColor: isDark ? AppColors.surfaceDark : Colors.white,
-              icon: const Icon(Icons.keyboard_arrow_down_rounded, color: AppColors.primaryLight),
-              style: GoogleFonts.cairo(color: isDark ? AppColors.textPrimary : const Color(0xFF0F172A), fontSize: 14),
-              items: _inquiryTypes.map((type) {
-                return DropdownMenuItem<String>(
-                  value: type,
-                  child: Text(type),
-                );
-              }).toList(),
-              onChanged: (val) {
-                if (val != null) {
-                  setState(() => _selectedInquiryType = val);
-                }
-              },
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildMessageField(bool isDark) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _fieldLabel("تفاصيل الرسالة أو الاستفسار", isDark: isDark, isRequired: true),
-        const SizedBox(height: 8),
-        TextFormField(
-          controller: _messageController,
-          maxLines: 5,
-          style: GoogleFonts.cairo(color: isDark ? AppColors.textPrimary : const Color(0xFF0F172A), fontSize: 14),
-          decoration: _inputDecoration(
-            hint: "اكتب جميع تفاصيل استفسارك أو هدفك التعليمي أو المشروع البرمجي هنا...",
-            prefixIcon: Icons.message_outlined,
-            isDark: isDark,
-          ),
-          validator: (val) {
-            if (val == null || val.trim().isEmpty) {
-              return "يرجى كتابة نص الرسالة";
-            }
-            if (val.trim().length < 10) {
-              return "يرجى كتابة تفاصيل كافية (10 أحرف على الأقل)";
-            }
-            return null;
-          },
-        ),
-      ],
-    );
-  }
-
-  // -------------------------------------------------------------
-  // File and Image Attachments Section
-  // -------------------------------------------------------------
-  Widget _buildAttachmentsSection(bool isMobile, bool isDark) {
-    return Container(
-      padding: const EdgeInsets.all(18),
-      decoration: BoxDecoration(
-        color: isDark ? AppColors.surfaceDark.withValues(alpha: 0.6) : const Color(0xFFF8FAFC),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: _attachedFiles.isNotEmpty
-              ? const Color(0xFF00E5FF).withValues(alpha: 0.5)
-              : (isDark ? AppColors.borderDark : const Color(0xFFCBD5E1)),
-          style: BorderStyle.solid,
-        ),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Row(
-                children: [
-                  const Icon(Icons.attach_file_rounded, color: Color(0xFF00E5FF), size: 20),
-                  const SizedBox(width: 8),
-                  Text(
-                    "إرفاق ملفات أو صور (اختياري)",
-                    style: GoogleFonts.cairo(
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold,
-                      color: isDark ? AppColors.textPrimary : const Color(0xFF0F172A),
-                    ),
-                  ),
-                ],
-              ),
-              ElevatedButton.icon(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF00E5FF).withValues(alpha: 0.15),
-                  foregroundColor: const Color(0xFF00E5FF),
-                  side: const BorderSide(color: Color(0xFF00E5FF)),
-                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: iconColor.withOpacity(0.12),
+                  borderRadius: BorderRadius.circular(12),
                 ),
-                onPressed: _pickFiles,
-                icon: const Icon(Icons.add_photo_alternate_outlined, size: 16),
-                label: Text(
-                  "اختيار ملفات",
-                  style: GoogleFonts.cairo(fontSize: 13, fontWeight: FontWeight.bold),
+                child: Icon(icon, color: iconColor, size: 22),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  title,
+                  style: GoogleFonts.cairo(
+                    fontSize: 15.5,
+                    fontWeight: FontWeight.bold,
+                    color: isDark ? Colors.white : const Color(0xFF0F172A),
+                  ),
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 10),
           Text(
-            "يمكنك إرفاق سكرين شوت، أكواد برمجية، ملفات PDF، أو أي مستندات تدعم استفسارك.",
+            desc,
             style: GoogleFonts.cairo(
-              fontSize: 12,
-              color: isDark ? AppColors.textMuted : const Color(0xFF64748B),
+              fontSize: 13,
+              height: 1.6,
+              color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF475569),
             ),
           ),
-
-          if (_attachedFiles.isNotEmpty) ...[
-            const SizedBox(height: 14),
-            Divider(color: isDark ? AppColors.borderDark : const Color(0xFFE2E8F0)),
-            const SizedBox(height: 10),
-            Wrap(
-              spacing: 10,
-              runSpacing: 10,
-              children: List.generate(_attachedFiles.length, (index) {
-                final file = _attachedFiles[index];
-                return Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                  decoration: BoxDecoration(
-                    color: isDark ? AppColors.cardDark : Colors.white,
-                    borderRadius: BorderRadius.circular(10),
-                    border: Border.all(
-                      color: isDark ? const Color(0xFF00E5FF).withValues(alpha: 0.3) : const Color(0xFFBAE6FD),
-                    ),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(_getFileIcon(file.extension), size: 18, color: const Color(0xFF00E5FF)),
-                      const SizedBox(width: 8),
-                      ConstrainedBox(
-                        constraints: const BoxConstraints(maxWidth: 160),
-                        child: Text(
-                          file.name,
-                          style: GoogleFonts.cairo(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w600,
-                            color: isDark ? Colors.white : const Color(0xFF0F172A),
-                          ),
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                      const SizedBox(width: 6),
-                      Text(
-                        "(${_formatFileSize(file.lengthSync() ?? 0)})",
-                        style: GoogleFonts.inter(
-                          fontSize: 11,
-                          color: isDark ? AppColors.textMuted : const Color(0xFF64748B),
-                        ),
-                      ),
-                      const SizedBox(width: 6),
-                      MouseRegion(
-                        cursor: SystemMouseCursors.click,
-                        child: GestureDetector(
-                          onTap: () => _removeFile(index),
-                          child: const Icon(Icons.close_rounded, size: 16, color: Colors.redAccent),
-                        ),
-                      ),
-                    ],
-                  ),
-                );
-              }),
+          const SizedBox(height: 16),
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton(
+              onPressed: onTap,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: btnColor,
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(vertical: 11),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                elevation: 0,
+              ),
+              child: Text(btnLabel, style: GoogleFonts.cairo(fontWeight: FontWeight.bold, fontSize: 13)),
             ),
-          ],
+          ),
         ],
       ),
     );
   }
 
-  // -------------------------------------------------------------
-  // Submit Button
-  // -------------------------------------------------------------
-  Widget _buildSubmitButton(bool isMobile) {
-    return SizedBox(
-      width: double.infinity,
-      height: 54,
-      child: ElevatedButton(
-        style: ElevatedButton.styleFrom(
-          backgroundColor: const Color(0xFF00E5FF),
-          foregroundColor: Colors.black,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-          elevation: 8,
-          shadowColor: const Color(0xFF00E5FF).withValues(alpha: 0.5),
+  // --- Fast Inquiry Form Card (Left Side) ---
+  Widget _buildContactFormCard(bool isDark) {
+    return Container(
+      padding: const EdgeInsets.all(28),
+      decoration: BoxDecoration(
+        color: isDark ? const Color(0xFF0F172A) : Colors.white,
+        borderRadius: BorderRadius.circular(22),
+        border: Border.all(
+          color: isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0),
         ),
-        onPressed: _isSubmitting ? null : _submitForm,
-        child: _isSubmitting
-            ? Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const SizedBox(
-                    width: 20,
-                    height: 20,
-                    child: CircularProgressIndicator(strokeWidth: 2.5, color: Colors.black),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(isDark ? 0.25 : 0.05),
+            blurRadius: 18,
+            offset: const Offset(0, 5),
+          ),
+        ],
+      ),
+      child: Form(
+        key: _formKey,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Row(
+              children: [
+                const Icon(Icons.edit_note_rounded, color: Color(0xFF00E5FF), size: 26),
+                const SizedBox(width: 10),
+                Text(
+                  "أرسل استفسارك أو طلبك مباشرة",
+                  style: GoogleFonts.cairo(
+                    fontSize: 17,
+                    fontWeight: FontWeight.bold,
+                    color: isDark ? Colors.white : const Color(0xFF0F172A),
                   ),
-                  const SizedBox(width: 14),
-                  Text(
-                    "جاري إرسال الرسالة إلى Eslam Atef...",
-                    style: GoogleFonts.cairo(fontSize: 15, fontWeight: FontWeight.bold, color: Colors.black),
-                  ),
-                ],
-              )
-            : Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Icon(Icons.send_rounded, size: 20, color: Colors.black),
-                  const SizedBox(width: 10),
-                  Text(
-                    "إرسال الرسالة الآن",
-                    style: GoogleFonts.cairo(fontSize: 16, fontWeight: FontWeight.w900, color: Colors.black),
-                  ),
-                ],
+                ),
+              ],
+            ),
+            const SizedBox(height: 6),
+            Text(
+              "املأ البيانات وسيقوم فريق الأكاديمية بمتابعة طلبك والرد فوراً.",
+              style: GoogleFonts.cairo(fontSize: 12.5, color: Colors.grey),
+            ),
+            const SizedBox(height: 22),
+
+            // 1. Full Name
+            _buildTextField(
+              controller: _nameController,
+              label: "الاسم بالكامل (أو اسم ولي الأمر)",
+              hint: "مثال: أحمد عبد الله",
+              icon: Icons.person_outline_rounded,
+              isDark: isDark,
+              validator: (v) => (v == null || v.trim().isEmpty) ? "يرجى كتابة الاسم" : null,
+            ),
+            const SizedBox(height: 16),
+
+            // 2. Phone / WhatsApp
+            _buildTextField(
+              controller: _phoneController,
+              label: "رقم الهاتف / واتساب",
+              hint: "مثال: 01012345678",
+              icon: Icons.phone_android_rounded,
+              isDark: isDark,
+              keyboardType: TextInputType.phone,
+              validator: (v) => (v == null || v.trim().isEmpty) ? "يرجى كتابة رقم الهاتف أو واتساب" : null,
+            ),
+            const SizedBox(height: 16),
+
+            // 3. Email (Optional)
+            _buildTextField(
+              controller: _emailController,
+              label: "البريد الإلكتروني (اختياري)",
+              hint: "example@gmail.com",
+              icon: Icons.alternate_email_rounded,
+              isDark: isDark,
+              keyboardType: TextInputType.emailAddress,
+            ),
+            const SizedBox(height: 16),
+
+            // 4. Inquiry Type Dropdown
+            Text(
+              "نوع الاستفسار أو الدورة",
+              style: GoogleFonts.cairo(
+                fontSize: 13,
+                fontWeight: FontWeight.bold,
+                color: isDark ? Colors.white70 : const Color(0xFF334155),
               ),
+            ),
+            const SizedBox(height: 6),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 14),
+              decoration: BoxDecoration(
+                color: isDark ? const Color(0xFF131D31) : const Color(0xFFF8FAFC),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: isDark ? const Color(0xFF334155) : const Color(0xFFCBD5E1)),
+              ),
+              child: DropdownButtonHideUnderline(
+                child: DropdownButton<String>(
+                  value: _selectedInquiryType,
+                  isExpanded: true,
+                  dropdownColor: isDark ? const Color(0xFF131D31) : Colors.white,
+                  icon: const Icon(Icons.arrow_drop_down_rounded),
+                  items: _inquiryTypes.map((t) => DropdownMenuItem(
+                    value: t,
+                    child: Text(t, style: GoogleFonts.cairo(fontSize: 13), overflow: TextOverflow.ellipsis),
+                  )).toList(),
+                  onChanged: (val) {
+                    if (val != null) setState(() => _selectedInquiryType = val);
+                  },
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+
+            // 5. Message
+            _buildTextField(
+              controller: _messageController,
+              label: "نص الرسالة أو الاستفسار بالتفصيل",
+              hint: "اكتب رسالتك أو أسئلتك هنا...",
+              icon: Icons.chat_outlined,
+              isDark: isDark,
+              maxLines: 4,
+              validator: (v) => (v == null || v.trim().isEmpty) ? "يرجى كتابة رسالتك" : null,
+            ),
+            const SizedBox(height: 24),
+
+            // 6. Submit Button
+            SizedBox(
+              height: 48,
+              child: ElevatedButton(
+                onPressed: _isSubmitting ? null : _submitForm,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF00E5FF),
+                  foregroundColor: const Color(0xFF070B14),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  elevation: 2,
+                ),
+                child: _isSubmitting
+                    ? const SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(strokeWidth: 2, color: Color(0xFF070B14)),
+                      )
+                    : Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Icon(Icons.send_rounded, size: 18),
+                          const SizedBox(width: 8),
+                          Text(
+                            "إرسال الرسالة الآن 🚀",
+                            style: GoogleFonts.cairo(fontSize: 15, fontWeight: FontWeight.bold),
+                          ),
+                        ],
+                      ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
 
-  Widget _fieldLabel(String label, {required bool isDark, required bool isRequired}) {
-    return Row(
+  Widget _buildTextField({
+    required TextEditingController controller,
+    required String label,
+    required String hint,
+    required IconData icon,
+    required bool isDark,
+    int maxLines = 1,
+    TextInputType keyboardType = TextInputType.text,
+    String? Function(String?)? validator,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           label,
           style: GoogleFonts.cairo(
-            fontSize: 14,
+            fontSize: 13,
             fontWeight: FontWeight.bold,
-            color: isDark ? AppColors.textPrimary : const Color(0xFF1E293B),
+            color: isDark ? Colors.white70 : const Color(0xFF334155),
           ),
         ),
-        if (isRequired)
-          Text(
-            " *",
-            style: GoogleFonts.cairo(color: Colors.redAccent, fontWeight: FontWeight.bold),
+        const SizedBox(height: 6),
+        TextFormField(
+          controller: controller,
+          maxLines: maxLines,
+          keyboardType: keyboardType,
+          validator: validator,
+          style: GoogleFonts.cairo(
+            fontSize: 14,
+            color: isDark ? Colors.white : Colors.black87,
           ),
+          decoration: InputDecoration(
+            hintText: hint,
+            hintStyle: GoogleFonts.cairo(
+              fontSize: 13,
+              color: isDark ? Colors.grey.shade500 : Colors.grey.shade400,
+            ),
+            prefixIcon: Icon(icon, size: 20, color: const Color(0xFF00E5FF)),
+            filled: true,
+            fillColor: isDark ? const Color(0xFF131D31) : const Color(0xFFF8FAFC),
+            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(color: isDark ? const Color(0xFF334155) : const Color(0xFFCBD5E1)),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(color: isDark ? const Color(0xFF334155) : const Color(0xFFCBD5E1)),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: const BorderSide(color: Color(0xFF00E5FF), width: 1.5),
+            ),
+          ),
+        ),
       ],
     );
   }
-
-  InputDecoration _inputDecoration({required String hint, required IconData prefixIcon, required bool isDark}) {
-    return InputDecoration(
-      hintText: hint,
-      hintStyle: GoogleFonts.cairo(color: isDark ? AppColors.textMuted : const Color(0xFF94A3B8), fontSize: 13),
-      prefixIcon: Icon(prefixIcon, color: AppColors.primaryLight, size: 20),
-      filled: true,
-      fillColor: isDark ? AppColors.surfaceDark : const Color(0xFFF8FAFC),
-      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-      border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
-        borderSide: BorderSide(color: isDark ? AppColors.borderLightDark : const Color(0xFFCBD5E1)),
-      ),
-      enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
-        borderSide: BorderSide(color: isDark ? AppColors.borderLightDark : const Color(0xFFCBD5E1)),
-      ),
-      focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
-        borderSide: const BorderSide(color: Color(0xFF00E5FF), width: 1.5),
-      ),
-      errorBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
-        borderSide: const BorderSide(color: Colors.redAccent),
-      ),
-      focusedErrorBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
-        borderSide: const BorderSide(color: Colors.redAccent, width: 1.5),
-      ),
-    );
-  }
-
 }
-

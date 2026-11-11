@@ -13,7 +13,6 @@ import '../widgets/article_content_renderer.dart';
 import '../widgets/interactive_html_view/interactive_html_view.dart';
 import '../widgets/youtube_embedded_player.dart';
 import '../widgets/auth_modal.dart';
-import '../widgets/safe_network_image/safe_network_image.dart';
 import '../widgets/unified_app_bar.dart';
 import '../widgets/pdf_viewer/pdf_viewer_modal.dart';
 
@@ -32,6 +31,138 @@ class _CoursesPageState extends State<CoursesPage> {
   final Set<String> _watchedLessonIds = {};
   StreamSubscription? _popStateSubscription;
   bool _isLessonArticleOpen = false;
+
+  // The 8 Official Courses of Eslam Atef | Code & AI
+  final List<Map<String, dynamic>> _officialCourses = [
+    {
+      "id": "01_cs_fundamentals",
+      "number": "01",
+      "title": "البرمجة والذكاء الاصطناعي للأطفال | من الصفر للاحتراف",
+      "titleEn": "Programming & AI for Kids | Zero to Hero",
+      "category": "الكورس التأسيسي الشامل",
+      "badge": "متاح الآن بالكامل 🔥",
+      "badgeColor": const Color(0xFF00E5FF),
+      "duration": "14 محاضرة تفاعلية كاملة",
+      "desc": "المدخل الشامل لفهم ما بداخل الكمبيوتر، كيفية عمل الإنترنت والشبكات، الأمان الرقمي، ومدخل الخوارزميات والبرمجة مع 14 محاضرة وواجبات تفاعلية.",
+      "image": "assets/images/courses/course_01.png",
+      "icon": Icons.laptop_chromebook_rounded,
+      "color": const Color(0xFF00E5FF),
+      "isPrimary": true,
+      "route": "/courses?course=01_cs_fundamentals",
+    },
+    {
+      "id": "02_algorithms",
+      "number": "02",
+      "title": "كورس الخوارزميات والتفكير المنطقي",
+      "titleEn": "Algorithms & Computational Thinking",
+      "category": "تفكير حسابي ومنطقي",
+      "badge": "قريباً ⏳",
+      "badgeColor": const Color(0xFF64748B),
+      "duration": "12 محاضرة تطبيقية",
+      "desc": "تطوير العقلية المنطقية والتفكير الحسابي، تفكيك المسائل المعقدة، خوارزميات البحث والترتيب، والتحضير لمسابقات البرمجة العالمية.",
+      "image": "assets/images/courses/course_02.png",
+      "icon": Icons.psychology_rounded,
+      "color": const Color(0xFF8B5CF6),
+      "isPrimary": false,
+      "route": "/courses",
+    },
+    {
+      "id": "03_scratch",
+      "number": "03",
+      "title": "كورس سكراتش وصناعة الألعاب",
+      "titleEn": "Scratch Programming & Game Design",
+      "category": "برمجة مرئية بالبلوكات",
+      "badge": "قريباً ⏳",
+      "badgeColor": const Color(0xFF64748B),
+      "duration": "12 محاضرة إبداعية",
+      "desc": "مدخل البرمجة المرئية بالبلوكات، صناعة الرسوم المتحركة، القصص التفاعلية، وبرمجة ألعاب 2D ممتعة تبني التفكير المنطقي بلا تعقيد.",
+      "image": "assets/images/courses/course_03.png",
+      "icon": Icons.sports_esports_rounded,
+      "color": const Color(0xFF10B981),
+      "isPrimary": false,
+      "route": "/courses",
+    },
+    {
+      "id": "04_python",
+      "number": "04",
+      "title": "كورس لغة بايثون للأطفال واليافعين",
+      "titleEn": "Python Programming",
+      "category": "لغات العصر البرمجية",
+      "badge": "قريباً ⏳",
+      "badgeColor": const Color(0xFF64748B),
+      "duration": "16 محاضرة تطبيقية",
+      "desc": "الانتقال لكتابة الكود النصي الحقيقي، المتغيرات، الشروط، الحلقات، وبناء برامج وألعاب تفاعلية بمكتبات بايثون الشهيرة خطوة بخطوة.",
+      "image": "assets/images/courses/course_04.png",
+      "icon": Icons.code_rounded,
+      "color": const Color(0xFF3B82F6),
+      "isPrimary": false,
+      "route": "/courses",
+    },
+    {
+      "id": "05_ai_tools",
+      "number": "05",
+      "title": "كورس أدوات وهندسة أوامر الذكاء الاصطناعي",
+      "titleEn": "AI Tools & Prompt Engineering",
+      "category": "تقنيات المستقبل",
+      "badge": "قريباً ⏳",
+      "badgeColor": const Color(0xFF64748B),
+      "duration": "10 محاضرات عملية",
+      "desc": "احتراف استخدام نماذج الذكاء الاصطناعي التوليدي، كتابة الأوامر الفائقة (Prompt Engineering)، وتوظيف الـ AI في الدراسة والتصميم والابتكار.",
+      "image": "assets/images/courses/course_05.png",
+      "icon": Icons.smart_toy_rounded,
+      "color": const Color(0xFF0D9488),
+      "isPrimary": false,
+      "route": "/courses",
+    },
+    {
+      "id": "06_ai_agents",
+      "number": "06",
+      "title": "كورس وكلاء الذكاء الاصطناعي المستقلة",
+      "titleEn": "AI Autonomous Agents",
+      "category": "ذكاء اصطناعي متقدم",
+      "badge": "قريباً ⏳",
+      "badgeColor": const Color(0xFF64748B),
+      "duration": "12 محاضرة متقدمة",
+      "desc": "فهم وبناء الأنظمة الذكية المستقلة التي تخطط وتنفذ المشاريع المعقدة بنفسها وكيفية توجيه الوكلاء الأذكياء لحل المشكلات.",
+      "image": "assets/images/courses/course_06.png",
+      "icon": Icons.precision_manufacturing_rounded,
+      "color": const Color(0xFFF59E0B),
+      "isPrimary": false,
+      "route": "/courses",
+    },
+    {
+      "id": "07_cybersecurity",
+      "number": "07",
+      "title": "كورس الأمان السيبراني والدفاع الرقمي",
+      "titleEn": "Cybersecurity & Digital Defense",
+      "category": "أمان وحماية الأنظمة",
+      "badge": "قريباً ⏳",
+      "badgeColor": const Color(0xFF64748B),
+      "duration": "10 محاضرات حية",
+      "desc": "أسرار حماية البيانات، تشفير المعلومات، كشف محاولات الاختراق والتصيد الاحتيالي، وبناء درع أمني رقمي للجيل القادم.",
+      "image": "assets/images/courses/course_07.png",
+      "icon": Icons.security_rounded,
+      "color": const Color(0xFFEF4444),
+      "isPrimary": false,
+      "route": "/courses",
+    },
+    {
+      "id": "08_roblox_lua",
+      "number": "08",
+      "title": "كورس برمجة ألعاب روبلوكس بلغة Lua",
+      "titleEn": "Roblox Coding with Lua",
+      "category": "صناعة ألعاب 3D",
+      "badge": "قريباً ⏳",
+      "badgeColor": const Color(0xFF64748B),
+      "duration": "14 محاضرة ممتعة",
+      "desc": "تعلم لغة البرمجة الحقيقية Lua داخل محرك Roblox Studio، بناء عوالم ثلاثية الأبعاد تفاعلية، برمجة آليات اللعب ونشر الألعاب عالمياً.",
+      "image": "assets/images/courses/course_08.png",
+      "icon": Icons.videogame_asset_rounded,
+      "color": const Color(0xFFEC4899),
+      "isPrimary": false,
+      "route": "/courses",
+    },
+  ];
 
   String _extractYouTubeUrl(String content, [String? explicitUrl]) {
     if (explicitUrl != null && explicitUrl.trim().length > 5) {
@@ -113,19 +244,23 @@ class _CoursesPageState extends State<CoursesPage> {
       final lessonId = params['lesson'] ?? params['lessonId'] ?? params['l'];
 
       if (courseId != null && courseId.isNotEmpty) {
-        final matchedCourses = _dataService.courses.where((c) => c['id'].toString() == courseId && _isItemPublished(c)).toList();
-        if (matchedCourses.isNotEmpty) {
-          _activeCourse = matchedCourses.first;
-          _checkEnrollment();
+        Map<String, dynamic>? targetCourse;
+        final off = _officialCourses.where((c) => c['id'].toString() == courseId).toList();
+        if (off.isNotEmpty) {
+          targetCourse = off.first;
+        } else {
+          final cloud = _dataService.courses.where((c) => c['id'].toString() == courseId && _isItemPublished(c)).toList();
+          if (cloud.isNotEmpty) targetCourse = cloud.first;
+        }
 
+        if (targetCourse != null) {
+          if (_activeCourse == null || _activeCourse!['id'] != targetCourse['id']) {
+            _openCourseContent(targetCourse);
+          }
           if (lessonId != null && lessonId.isNotEmpty) {
             final lessons = List<Map<String, dynamic>>.from(_activeCourse!['lessons'] ?? []).where(_isItemPublished).toList();
-            final matchedLessons = lessons.where((l) => (l['id'] ?? '').toString() == lessonId).toList();
-            if (matchedLessons.isNotEmpty) {
-              _activeLesson = matchedLessons.first;
-            } else {
-              _activeLesson = null;
-            }
+            final matched = lessons.where((l) => (l['id'] ?? '').toString() == lessonId).toList();
+            _activeLesson = matched.isNotEmpty ? matched.first : null;
           } else {
             _activeLesson = null;
           }
@@ -214,6 +349,15 @@ class _CoursesPageState extends State<CoursesPage> {
     if (mounted) {
       if (_activeCourse == null) {
         _checkUrlParameters();
+      } else {
+        final cid = _activeCourse!['id']?.toString() ?? '';
+        final fromService = _dataService.courses.firstWhere(
+          (dc) => dc['id'] == cid,
+          orElse: () => <String, dynamic>{},
+        );
+        if (fromService.isNotEmpty) {
+          _activeCourse!['lessons'] = List<Map<String, dynamic>>.from(fromService['lessons'] ?? []);
+        }
       }
       _checkEnrollment();
       setState(() {});
@@ -261,119 +405,6 @@ class _CoursesPageState extends State<CoursesPage> {
     if (allowedCourses.contains(courseId)) return true;
     final allowedLessons = List<String>.from(cached['allowedLessons'] ?? []);
     return allowedLessons.contains(lessonId);
-  }
-
-  String _resolveLessonThumbnail(Map<String, dynamic> lesson, [Map<String, dynamic>? course]) {
-    final courseImg = sanitizeImageUrl((course?['image'] ?? course?['imageUrl'] ?? '').toString());
-
-    // 1. Try to extract first image from the lesson article content (HTML or Markdown)
-    final htmlCode = (lesson['htmlCode'] ?? '').toString();
-    final content = (lesson['content'] ?? '').toString();
-    final desc = (lesson['description'] ?? '').toString();
-    final article = (lesson['article'] ?? lesson['body'] ?? lesson['details'] ?? '').toString();
-    var combined = '$htmlCode $content $desc $article';
-
-    if (combined.trim().isNotEmpty) {
-      // Auto-repair any broken Unsplash photo URLs
-      if (combined.contains('photo-151632131')) {
-        combined = combined.replaceAll(
-          RegExp(r'https?://images\.unsplash\.com/photo-151632131[^\s\x22\x27<>]*', caseSensitive: false),
-          'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=1200&q=85',
-        );
-      }
-
-      // Unescape HTML quotes & entities
-      final unescaped = combined
-          .replaceAll('&quot;', '"')
-          .replaceAll('&#39;', "'")
-          .replaceAll('&amp;', '&')
-          .replaceAll(r'\"', '"')
-          .replaceAll(r"\'", "'");
-
-      // Check HTML <img ... src="..."> with support for multiline attributes and quotes
-      final htmlMatch = RegExp(
-        r'''<img\b[^>]*?\bsrc\s*=\s*(?:["']([^"']+)["']|([^\s>]+))''',
-        caseSensitive: false,
-      ).firstMatch(unescaped);
-      if (htmlMatch != null) {
-        var rawSrc = (htmlMatch.group(1) ?? htmlMatch.group(2) ?? '').trim();
-        var src = sanitizeImageUrl(rawSrc);
-        if (src.startsWith('//')) src = 'https:$src';
-        if (src.isNotEmpty && src != courseImg && !src.contains('slide1.png') && !src.contains('slide2.png')) {
-          return src;
-        }
-      }
-
-      // Check Markdown ![...](...)
-      final mdMatch = RegExp(r'!\[[^\]]*\]\(([^)\s]+)\)').firstMatch(unescaped);
-      if (mdMatch != null) {
-        var src = sanitizeImageUrl(mdMatch.group(1)!.trim());
-        if (src.startsWith('//')) src = 'https:$src';
-        if (src.isNotEmpty && src != courseImg && !src.contains('slide1.png')) {
-          return src;
-        }
-      }
-
-      // Check CSS background-image: url(...)
-      final cssMatch = RegExp(
-        r'''background(?:-image)?\s*:\s*url\s*\(\s*(?:["']([^"']+)["']|([^)"'\s]+))\s*\)''',
-        caseSensitive: false,
-      ).firstMatch(unescaped);
-      if (cssMatch != null) {
-        var src = sanitizeImageUrl((cssMatch.group(1) ?? cssMatch.group(2) ?? '').trim());
-        if (src.startsWith('//')) src = 'https:$src';
-        if (src.isNotEmpty && src != courseImg && !src.contains('slide1.png')) {
-          return src;
-        }
-      }
-
-      // Check direct image URL ending with standard image extension
-      final extMatch = RegExp(
-        r'(https?:\/\/[^\s"<>\)]+\.(?:jpg|jpeg|png|webp|gif|svg))',
-        caseSensitive: false,
-      ).firstMatch(unescaped);
-      if (extMatch != null) {
-        final src = sanitizeImageUrl(extMatch.group(1)!.trim());
-        if (src.isNotEmpty && src != courseImg && !src.contains('slide1.png')) {
-          return src;
-        }
-      }
-    }
-
-    // 2. Check lesson explicit image if distinct from course cover and slide default
-    final rawLessonImg = sanitizeImageUrl((lesson['image'] ?? lesson['imageUrl'] ?? '').toString());
-    if (rawLessonImg.isNotEmpty &&
-        rawLessonImg != courseImg &&
-        !rawLessonImg.contains('slide1.png') &&
-        !rawLessonImg.contains('slide2.png')) {
-      return rawLessonImg;
-    }
-
-    // 3. Fallback: if YouTube video exists, extract its official high-quality thumbnail
-    final ytUrl = (lesson['youtubeUrl'] ?? lesson['videoUrl'] ?? '').toString().trim();
-    if (ytUrl.isNotEmpty) {
-      final ytMatch = RegExp(
-        r'(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|shorts\/|live\/))([a-zA-Z0-9_-]{11})',
-      ).firstMatch(ytUrl);
-      if (ytMatch != null) {
-        return 'https://img.youtube.com/vi/${ytMatch.group(1)}/hqdefault.jpg';
-      }
-    }
-
-    // Also check if YouTube URL is inside the article content
-    if (combined.contains('youtu')) {
-      final contentYtMatch = RegExp(
-        r'(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|shorts\/|live\/))([a-zA-Z0-9_-]{11})',
-      ).firstMatch(combined);
-      if (contentYtMatch != null) {
-        return 'https://img.youtube.com/vi/${contentYtMatch.group(1)}/hqdefault.jpg';
-      }
-    }
-
-    // 4. Fallback to course cover or lesson image
-    if (courseImg.isNotEmpty && !courseImg.contains('slide1.png')) return courseImg;
-    if (rawLessonImg.isNotEmpty && !rawLessonImg.contains('slide1.png')) return rawLessonImg;
-    return courseImg.isNotEmpty ? courseImg : (rawLessonImg.isNotEmpty ? rawLessonImg : 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=1200&q=85');
   }
 
   @override
@@ -435,57 +466,62 @@ class _CoursesPageState extends State<CoursesPage> {
 
 
   // ==========================================
-  // VIEW 1: Course Folders Catalog
+  // VIEW 1: Course Folders Catalog (8 Official Courses)
   // ==========================================
   Widget _buildCourseFoldersCatalog(BuildContext context, bool isMobile, bool isDark) {
-    final courses = _dataService.courses.where(_isItemPublished).toList();
-
     return Center(
       child: Container(
-        constraints: const BoxConstraints(maxWidth: 1200),
+        constraints: const BoxConstraints(maxWidth: 1220),
         padding: EdgeInsets.symmetric(horizontal: isMobile ? 18 : 28),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          // Banner
-          Container(
-            padding: EdgeInsets.all(isMobile ? 22 : 36),
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: isDark
-                    ? [const Color(0xFF131D33), const Color(0xFF0F172A)]
-                    : [Colors.white, const Color(0xFFF8FAFC)],
+          children: [
+            // Top Section Header Banner
+            Container(
+              padding: EdgeInsets.all(isMobile ? 22 : 36),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: isDark
+                      ? [const Color(0xFF131D33), const Color(0xFF0F172A)]
+                      : [Colors.white, const Color(0xFFF8FAFC)],
+                ),
+                borderRadius: BorderRadius.circular(24),
+                border: Border.all(color: isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0)),
               ),
-              borderRadius: BorderRadius.circular(24),
-              border: Border.all(color: isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0)),
-            ),
-            child: Column(
-              children: [
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF00E5FF).withValues(alpha: 0.14),
-                    borderRadius: BorderRadius.circular(30),
+              child: Column(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF00E5FF).withOpacity(0.14),
+                      borderRadius: BorderRadius.circular(30),
+                    ),
+                    child: Text(
+                      "المسارات البرمجية المعتمدة (8 كورسات تخصصية متدرجة)",
+                      style: GoogleFonts.cairo(fontSize: 12.5, fontWeight: FontWeight.bold, color: const Color(0xFF00E5FF)),
+                    ),
                   ),
-                  child: Text(
-                    "مسارات برمجية كاملة مقسمة إلى دروس وفيديوهات",
-                    style: GoogleFonts.cairo(fontSize: 12.5, fontWeight: FontWeight.bold, color: const Color(0xFF00E5FF)),
+                  const SizedBox(height: 14),
+                  Text(
+                    "كورسات أكاديمية Eslam Atef | Code & AI",
+                    style: GoogleFonts.cairo(fontSize: isMobile ? 22 : 32, fontWeight: FontWeight.w900),
+                    textAlign: TextAlign.center,
                   ),
-                ),
-                const SizedBox(height: 14),
-                Text(
-                  "اختر المسار وافتح ملف الكورس لمشاهدة الدروس والاختبارات",
-                  style: GoogleFonts.cairo(fontSize: isMobile ? 22 : 32, fontWeight: FontWeight.w900),
-                  textAlign: TextAlign.center,
-                ),
-              ],
+                  const SizedBox(height: 8),
+                  Container(
+                    constraints: const BoxConstraints(maxWidth: 750),
+                    child: Text(
+                      "منهج عملي تطبيقي متدرج ينقل طفلك من فهم أساسيات التكنولوجيا حتى احتراف لغات البرمجة والذكاء الاصطناعي وصناعة الألعاب خطوة بخطوة.",
+                      style: GoogleFonts.cairo(fontSize: isMobile ? 13 : 15, color: Colors.grey, height: 1.6),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ),
-          const SizedBox(height: 32),
+            const SizedBox(height: 36),
 
-          if (courses.isEmpty)
-            _buildEmptyState("لا توجد كورسات مضافة بعد", "يمكنك إنشاء ملفات الكورسات وإضافة الفيديوهات والشروحات من لوحة التحكم.", isDark)
-          else
+            // Responsive Grid for 8 Course Cards
             LayoutBuilder(
               builder: (ctx, constraints) {
                 int cols = constraints.maxWidth < 650 ? 1 : (constraints.maxWidth < 980 ? 2 : 3);
@@ -494,98 +530,201 @@ class _CoursesPageState extends State<CoursesPage> {
                 return Wrap(
                   spacing: 20,
                   runSpacing: 22,
-                  children: courses.map((course) {
-                    final lessons = ((course['lessons'] as List?) ?? [])
-                        .where((l) => _isItemPublished(Map<String, dynamic>.from(l as Map)))
-                        .toList();
-                    final rawCourseImg = (course['image'] ?? course['imageUrl'] ?? '').toString().trim();
-                    final image = rawCourseImg;
-
+                  children: _officialCourses.map((course) {
                     return SizedBox(
                       width: width,
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: isDark ? const Color(0xFF0F172A) : Colors.white,
-                          borderRadius: BorderRadius.circular(20),
-                          border: Border.all(color: isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0)),
-                        ),
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(19),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            children: [
-                              Container(
-                                height: 210,
-                                width: double.infinity,
-                                color: isDark ? const Color(0xFF060D1F) : const Color(0xFF0F172A),
-                                child: SafeNetworkImage(
-                                  imageUrl: image,
-                                  height: 210,
-                                  width: double.infinity,
-                                  fit: BoxFit.contain,
-                                ),
-                              ),
-                              Padding(
-                                padding: const EdgeInsets.all(18),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Row(
-                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Text(course['category'] ?? 'كورس', style: GoogleFonts.cairo(color: const Color(0xFF00E5FF), fontWeight: FontWeight.bold, fontSize: 12)),
-                                        Container(
-                                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                                          decoration: BoxDecoration(
-                                            color: course['isPaid'] == true ? const Color(0xFFDC2626).withValues(alpha: 0.15) : const Color(0xFF16A34A).withValues(alpha: 0.15),
-                                            borderRadius: BorderRadius.circular(6),
-                                            border: Border.all(color: course['isPaid'] == true ? const Color(0xFFDC2626) : const Color(0xFF16A34A), width: 0.8),
-                                          ),
-                                          child: Text(
-                                            course['isPaid'] == true ? "🔒 مدفوع" : "🟢 مجاني",
-                                            style: GoogleFonts.cairo(fontSize: 10, fontWeight: FontWeight.bold, color: course['isPaid'] == true ? const Color(0xFFEF4444) : const Color(0xFF22C55E)),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                    const SizedBox(height: 6),
-                                    Text(course['title'] ?? '', style: GoogleFonts.cairo(fontSize: 17, fontWeight: FontWeight.w900), maxLines: 2),
-                                    const SizedBox(height: 6),
-                                    Text(course['description'] ?? 'مسار تدريبي شامل وتطبيقي.', style: GoogleFonts.cairo(fontSize: 13, color: Colors.grey), maxLines: 2),
-                                    const SizedBox(height: 16),
-                                    Row(
-                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Container(
-                                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                                          decoration: BoxDecoration(color: Colors.white10, borderRadius: BorderRadius.circular(6)),
-                                          child: Text("📂 ${lessons.length} درس وفيديو", style: GoogleFonts.cairo(fontSize: 12, fontWeight: FontWeight.bold)),
-                                        ),
-                                        ElevatedButton(
-                                          onPressed: () {
-                                            setState(() {
-                                              _activeCourse = course;
-                                              _activeLesson = null;
-                                            });
-                                            _syncUrl();
-                                          },
-                                          style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF00E5FF), foregroundColor: Colors.black),
-                                          child: Text("فتح الكورس ➔", style: GoogleFonts.cairo(fontSize: 12, fontWeight: FontWeight.bold)),
-                                        ),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
+                      child: _buildOfficialCourseCard(context, course, isDark, isMobile),
                     );
                   }).toList(),
                 );
-                },
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _openCourseContent(Map<String, dynamic> c) {
+    final courseData = Map<String, dynamic>.from(c);
+    final fromService = _dataService.courses.firstWhere(
+      (dc) => dc['id'] == c['id'],
+      orElse: () => <String, dynamic>{},
+    );
+    final serviceLessons = List<Map<String, dynamic>>.from(fromService['lessons'] ?? []);
+    courseData['lessons'] = serviceLessons;
+    courseData['isPaid'] = fromService['isPaid'] ?? c['isPaid'] ?? false;
+
+    setState(() {
+      _activeCourse = courseData;
+      _activeLesson = null;
+    });
+    _syncUrl();
+  }
+
+  Widget _buildOfficialCourseCard(BuildContext context, Map<String, dynamic> c, bool isDark, bool isMobile) {
+    final bool isPrimary = c["isPrimary"] == true;
+    final String imagePath = c["image"] as String;
+
+    return Container(
+      decoration: BoxDecoration(
+        color: isDark ? const Color(0xFF0F172A) : Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: isPrimary
+              ? const Color(0xFF00E5FF)
+              : (isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0)),
+          width: isPrimary ? 2 : 1,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: isPrimary
+                ? const Color(0xFF00E5FF).withOpacity(0.2)
+                : Colors.black.withOpacity(isDark ? 0.2 : 0.04),
+            blurRadius: isPrimary ? 16 : 8,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(19),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            // 1. Course Thumbnail Image Container (STRICT 16:9 Aspect Ratio)
+            AspectRatio(
+              aspectRatio: 16 / 9,
+              child: Stack(
+                fit: StackFit.expand,
+                children: [
+                  Image.asset(
+                    imagePath,
+                    fit: BoxFit.cover,
+                    errorBuilder: (_, _, _) => Container(
+                      color: const Color(0xFF131D31),
+                      child: const Center(
+                        child: Icon(Icons.code_rounded, size: 48, color: Color(0xFF00E5FF)),
+                      ),
+                    ),
+                  ),
+
+                  // Status Badge (Top Left)
+                  Positioned(
+                    top: 12,
+                    left: 12,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                      decoration: BoxDecoration(
+                        color: isPrimary ? const Color(0xFF0284C7) : const Color(0xFF334155).withOpacity(0.9),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Text(
+                        isPrimary ? "متاح الآن بالكامل 🔥" : "قريباً ⏳",
+                        style: GoogleFonts.cairo(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w800,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
+            ),
+
+            // 2. Card Content
+            Padding(
+              padding: const EdgeInsets.all(18),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Course Title
+                  Text(
+                    c["title"] as String,
+                    style: GoogleFonts.cairo(
+                      fontSize: 16.5,
+                      fontWeight: FontWeight.w900,
+                      color: isDark ? Colors.white : const Color(0xFF0F172A),
+                      height: 1.35,
+                    ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 6),
+
+                  // If NOT Primary (Courses 2..8): strictly show "قريباً" badge and NOTHING ELSE!
+                  if (!isPrimary) ...[
+                    const SizedBox(height: 10),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                      decoration: BoxDecoration(
+                        color: isDark ? const Color(0xFF1E293B) : const Color(0xFFF1F5F9),
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(
+                          color: isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0),
+                        ),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(Icons.hourglass_empty_rounded, size: 14, color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B)),
+                          const SizedBox(width: 6),
+                          Text(
+                            "قريباً",
+                            style: GoogleFonts.cairo(
+                              fontSize: 12,
+                              fontWeight: FontWeight.bold,
+                              color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ] else ...[
+                    // For Course 01: Direct Action Button (Requires User Login)
+                    const SizedBox(height: 14),
+                    MouseRegion(
+                      cursor: SystemMouseCursors.click,
+                      child: SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton.icon(
+                          onPressed: () {
+                            final user = FirebaseAuth.instance.currentUser;
+                            if (user == null) {
+                              showDialog(context: context, builder: (c) => const AuthModal());
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(
+                                    "يرجى تسجيل الدخول أولاً للوصول إلى محتوى الكورس 🔐",
+                                    style: GoogleFonts.cairo(fontWeight: FontWeight.bold),
+                                  ),
+                                  backgroundColor: const Color(0xFF0284C7),
+                                  behavior: SnackBarBehavior.floating,
+                                ),
+                              );
+                              return;
+                            }
+                            _openCourseContent(c);
+                          },
+                          icon: const Icon(Icons.play_circle_fill_rounded, size: 18),
+                          label: Text(
+                            "اضغط هنا لبدا الكورس",
+                            style: GoogleFonts.cairo(fontSize: 13.5, fontWeight: FontWeight.bold),
+                          ),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF00E5FF),
+                            foregroundColor: const Color(0xFF070B14),
+                            padding: const EdgeInsets.symmetric(vertical: 12),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                            elevation: 0,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            ),
           ],
         ),
       ),
@@ -593,534 +732,1068 @@ class _CoursesPageState extends State<CoursesPage> {
   }
 
   // ==========================================
-  // VIEW 2: Inside Course Folder (Playlist of lessons/videos)
+  // VIEW 2: Inside Course Folder (For9a-Style Two-Column Layout)
   // ==========================================
   Widget _buildCourseInsideView(BuildContext context, bool isMobile, bool isDark) {
     final course = _activeCourse!;
     final courseId = course['id']?.toString() ?? '';
-    final lessons = List<Map<String, dynamic>>.from(course['lessons'] ?? []).where(_isItemPublished).toList();
+    // STRICT RULE: Only show lessons that have a real, published video link!
+    final lessons = List<Map<String, dynamic>>.from(course['lessons'] ?? [])
+        .where(_isItemPublished)
+        .where((l) {
+          final yt = (l['youtubeUrl'] ?? l['videoUrl'] ?? '').toString().trim();
+          return yt.isNotEmpty;
+        })
+        .toList();
+
     final isPaid = course['isPaid'] == true;
-    final price = course['price'] ?? 250;
     final user = FirebaseAuth.instance.currentUser;
     final isEnrolled = _isUserEnrolled(courseId: courseId, isPaid: isPaid);
 
+    final totalDurationStr = _calculateTotalDuration(lessons);
+    final hoursBadgeStr = _calculateHoursBadge(lessons);
+    final totalCount = lessons.length;
+    final lecturesCountStr = "$totalCount ${totalCount <= 10 ? 'محاضرات' : 'محاضرة'}";
+
+    // Split lessons into Level 1, Level 2, and any extra
+    final level1Lessons = lessons.where((l) {
+      final lvl = l['levelNumber'];
+      final num = l['number'] ?? 0;
+      return lvl == 1 || (num >= 1 && num <= 5);
+    }).toList();
+
+    final level2Lessons = lessons.where((l) {
+      final lvl = l['levelNumber'];
+      final num = l['number'] ?? 0;
+      return lvl == 2 || (num >= 6 && num <= 14);
+    }).toList();
+
+    final extraLessons = lessons.where((l) => !level1Lessons.contains(l) && !level2Lessons.contains(l)).toList();
+
     return Center(
       child: Container(
-        constraints: const BoxConstraints(maxWidth: 1100),
-        padding: EdgeInsets.symmetric(horizontal: isMobile ? 18 : 28),
+        constraints: const BoxConstraints(maxWidth: 1200),
+        padding: EdgeInsets.symmetric(horizontal: isMobile ? 16 : 24, vertical: 20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            if (isMobile) ...[
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  OutlinedButton.icon(
-                    onPressed: _handleBack,
-                    icon: const Icon(Icons.arrow_forward_rounded, size: 16),
-                    label: Text("العودة للكورسات", style: GoogleFonts.cairo(fontWeight: FontWeight.bold, fontSize: 12)),
-                    style: OutlinedButton.styleFrom(foregroundColor: const Color(0xFF00E5FF)),
-                  ),
-                  OutlinedButton.icon(
-                    onPressed: () => _copyLink(
-                      'https://eslamatef-sepia.vercel.app/courses?course=$courseId',
-                      "تم نسخ رابط الكورس المباشر 📋",
-                    ),
-                    icon: const Icon(Icons.link_rounded, size: 16),
-                    label: Text("مشاركة الكورس", style: GoogleFonts.cairo(fontWeight: FontWeight.bold, fontSize: 12)),
-                    style: OutlinedButton.styleFrom(foregroundColor: const Color(0xFF10B981)),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 12),
-              Text(
-                course['title'] ?? '',
-                style: GoogleFonts.cairo(fontSize: 20, fontWeight: FontWeight.w900),
-              ),
-            ] else ...[
-              Row(
-                children: [
-                  OutlinedButton.icon(
-                    onPressed: _handleBack,
-                    icon: const Icon(Icons.arrow_forward_rounded, size: 16),
-                    label: Text("العودة لكافة الكورسات", style: GoogleFonts.cairo(fontWeight: FontWeight.bold)),
-                    style: OutlinedButton.styleFrom(foregroundColor: const Color(0xFF00E5FF)),
-                  ),
-                  const SizedBox(width: 12),
-                  OutlinedButton.icon(
-                    onPressed: () => _copyLink(
-                      'https://eslamatef-sepia.vercel.app/courses?course=$courseId',
-                      "تم نسخ رابط الكورس المباشر 📋",
-                    ),
-                    icon: const Icon(Icons.link_rounded, size: 16),
-                    label: Text("نسخ رابط الكورس 📋", style: GoogleFonts.cairo(fontWeight: FontWeight.bold)),
-                    style: OutlinedButton.styleFrom(foregroundColor: const Color(0xFF10B981)),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: Text(course['title'] ?? '', style: GoogleFonts.cairo(fontSize: 24, fontWeight: FontWeight.bold)),
-                  ),
-                ],
-              ),
-            ],
+            // 1. Top Breadcrumbs Navigation Row
+            _buildBreadcrumbsRow(course, isMobile, isDark),
             const SizedBox(height: 20),
 
-          // Enrollment / Progress Banner
-          if (!isEnrolled) ...[
-            Container(
-              padding: const EdgeInsets.all(22),
-              margin: const EdgeInsets.only(bottom: 24),
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: isDark
-                      ? [const Color(0xFF0F2D6B), const Color(0xFF0F172A)]
-                      : [const Color(0xFFE0F2FE), Colors.white],
-                  begin: Alignment.topRight,
-                  end: Alignment.bottomLeft,
-                ),
-                borderRadius: BorderRadius.circular(18),
-                border: Border.all(color: const Color(0xFF00E5FF).withValues(alpha: 0.4)),
-                boxShadow: [
-                  BoxShadow(
-                    color: const Color(0xFF00E5FF).withValues(alpha: 0.08),
-                    blurRadius: 16,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
-              ),
-              child: Column(
+            // 2. Top Hero Card (Title, Badges, Instructor, 16:9 Thumbnail)
+            _buildCourseHeroCard(
+              course: course,
+              lessons: lessons,
+              hoursBadgeStr: hoursBadgeStr,
+              lecturesCountStr: lecturesCountStr,
+              isDark: isDark,
+              isMobile: isMobile,
+            ),
+            const SizedBox(height: 32),
+
+            // 3. Two-Column Layout (Main Content on right, Sidebar card on left)
+            if (!isMobile)
+              Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Row(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(10),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF00E5FF).withValues(alpha: 0.15),
-                          borderRadius: BorderRadius.circular(12),
+                  // Main Content Column (محتوى الدورة)
+                  Expanded(
+                    flex: 66,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        _buildCourseModulesContent(
+                          context,
+                          course,
+                          level1Lessons,
+                          level2Lessons,
+                          extraLessons,
+                          lecturesCountStr,
+                          isEnrolled,
+                          isDark,
                         ),
-                        child: const Icon(Icons.school_rounded, color: Color(0xFF00E5FF), size: 26),
-                      ),
-                      const SizedBox(width: 14),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              "سجّل الآن في هذا الكورس لتفعيل الدروس وحفظ تقدمك 🎓",
-                              style: GoogleFonts.cairo(
-                                fontSize: 17,
-                                fontWeight: FontWeight.bold,
-                                color: isDark ? Colors.white : const Color(0xFF0F172A),
-                              ),
-                            ),
-                            Text(
-                              isPaid
-                                  ? "هذا الكورس يتطلب اشتراكاً مدفوعاً ($price ج.م) للحصول على الوصول الكامل والمحاضرات والاختبارات."
-                                  : "الالتحاق مجاني بالكامل! سجّل لتتمكن من متابعة الدروس واحتساب نسبة إنجازك في ملفك الشخصي.",
-                              style: GoogleFonts.cairo(
-                                fontSize: 13,
-                                color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
+                        const SizedBox(height: 24),
+                        _buildCoursePdfCard(course, isDark, isMobile),
+                      ],
+                    ),
                   ),
-                  const SizedBox(height: 16),
-                  Wrap(
-                    spacing: 12,
-                    runSpacing: 10,
-                    children: [
-                      if (user == null)
-                        ElevatedButton.icon(
-                          onPressed: () => showDialog(context: context, builder: (c) => const AuthModal()),
-                          icon: const Icon(Icons.login_rounded, size: 18),
-                          label: Text("تسجيل الدخول للالتحاق بالكورس 🔐", style: GoogleFonts.cairo(fontWeight: FontWeight.bold)),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF00E5FF),
-                            foregroundColor: Colors.black,
-                            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                          ),
-                        )
-                      else if (!isPaid)
-                        ElevatedButton.icon(
-                          onPressed: () async {
-                            await _dataService.enrollInCourse(
-                              courseId: courseId,
-                              userId: user.uid,
-                              userEmail: user.email,
-                              userName: user.displayName,
-                            );
-                            setState(() => _enrolledCourseIds.add(courseId));
-                            if (!context.mounted) return;
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text("تم تسجيلك في الكورس بنجاح! تم فتح جميع المحاضرات لك 🚀", style: GoogleFonts.cairo(fontWeight: FontWeight.bold)),
-                                backgroundColor: const Color(0xFF10B981),
-                              ),
-                            );
-                          },
-                          icon: const Icon(Icons.check_circle_outline_rounded, size: 18),
-                          label: Text("الالتحاق بالكورس مجاناً (تسجيل فوري) 🎓", style: GoogleFonts.cairo(fontWeight: FontWeight.bold)),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF10B981),
-                            foregroundColor: Colors.white,
-                            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                          ),
-                        )
-                      else
-                        ElevatedButton.icon(
-                          onPressed: () => Navigator.of(context).pushNamed('/checkout', arguments: course),
-                          icon: const Icon(Icons.credit_card_rounded, size: 18),
-                          label: Text("شراء الكورس والاشتراك الآن 💳 ($price ج.م)", style: GoogleFonts.cairo(fontWeight: FontWeight.bold)),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFFDC2626),
-                            foregroundColor: Colors.white,
-                            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                          ),
-                        ),
-                    ],
+                  const SizedBox(width: 24),
+
+                  // Sidebar Column (معلومات سريعة عن الدورة + زر البدء)
+                  Expanded(
+                    flex: 34,
+                    child: _buildCourseSidebarCard(
+                      context,
+                      course,
+                      lessons,
+                      totalDurationStr,
+                      lecturesCountStr,
+                      isEnrolled,
+                      user,
+                      isDark,
+                      isMobile,
+                    ),
                   ),
                 ],
-              ),
-            ),
-          ] else ...[
-            // Enrolled Concise Badge (علامة خضراء أنيقة ومختصرة)
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-              margin: const EdgeInsets.only(bottom: 20),
-              decoration: BoxDecoration(
-                color: const Color(0xFF10B981).withValues(alpha: 0.12),
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: const Color(0xFF10B981).withValues(alpha: 0.35)),
-              ),
-              child: Row(
+              )
+            else
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  const Icon(Icons.check_circle_rounded, color: Color(0xFF10B981), size: 20),
-                  const SizedBox(width: 8),
-                  Text(
-                    "مسجّل في هذا الكورس",
-                    style: GoogleFonts.cairo(
-                      fontWeight: FontWeight.bold,
-                      color: const Color(0xFF10B981),
-                      fontSize: 13,
-                    ),
+                  _buildCourseSidebarCard(
+                    context,
+                    course,
+                    lessons,
+                    totalDurationStr,
+                    lecturesCountStr,
+                    isEnrolled,
+                    user,
+                    isDark,
+                    isMobile,
                   ),
-                  const Spacer(),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF10B981).withValues(alpha: 0.18),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Text(
-                      "${_watchedLessonIds.length}/${lessons.length} مكتمل",
-                      style: GoogleFonts.cairo(
-                        fontSize: 11.5,
-                        fontWeight: FontWeight.bold,
-                        color: const Color(0xFF10B981),
-                      ),
-                    ),
+                  const SizedBox(height: 24),
+                  _buildCourseModulesContent(
+                    context,
+                    course,
+                    level1Lessons,
+                    level2Lessons,
+                    extraLessons,
+                    lecturesCountStr,
+                    isEnrolled,
+                    isDark,
                   ),
+                  const SizedBox(height: 24),
+                  _buildCoursePdfCard(course, isDark, isMobile),
                 ],
               ),
-            ),
           ],
+        ),
+      ),
+    );
+  }
 
-          // Course PDF Material (ملزمة الكورس)
-          if ((course['pdfUrl'] ?? course['pdfLink'] ?? '').toString().trim().isNotEmpty) ...[
-            _buildCoursePdfCard(course, isDark, isMobile),
-          ],
+  // --- Dynamic Duration & Count Helpers ---
+  String _calculateTotalDuration(List<Map<String, dynamic>> lessons) {
+    int totalSeconds = 0;
+    for (final l in lessons) {
+      final durStr = (l['duration'] ?? '').toString().trim();
+      final parts = durStr.split(':');
+      if (parts.length == 3) {
+        final h = int.tryParse(parts[0]) ?? 0;
+        final m = int.tryParse(parts[1]) ?? 0;
+        final s = int.tryParse(parts[2]) ?? 0;
+        totalSeconds += (h * 3600) + (m * 60) + s;
+      } else if (parts.length == 2) {
+        final m = int.tryParse(parts[0]) ?? 0;
+        final s = int.tryParse(parts[1]) ?? 0;
+        totalSeconds += (m * 60) + s;
+      }
+    }
+    if (totalSeconds == 0) return '02:10:45';
+    final hours = totalSeconds ~/ 3600;
+    final minutes = (totalSeconds % 3600) ~/ 60;
+    final seconds = totalSeconds % 60;
+    final hStr = hours.toString().padLeft(2, '0');
+    final mStr = minutes.toString().padLeft(2, '0');
+    final sStr = seconds.toString().padLeft(2, '0');
+    return '$hStr:$mStr:$sStr';
+  }
 
-          if (lessons.isEmpty)
-            _buildEmptyState("لا توجد دروس أو فيديوهات داخل هذا الكورس بعد", "يمكنك إضافة دروس جديدة لهذا الكورس عبر لوحة التحكم.", isDark)
-          else
-            ...lessons.asMap().entries.map((entry) {
-              final idx = entry.key;
-              final lesson = entry.value;
-              final lessonId = (lesson['id'] ?? '').toString();
-              final isWatched = _watchedLessonIds.contains(lessonId);
-              final image = _resolveLessonThumbnail(lesson, _activeCourse);
-              final youtubeUrl = (lesson['youtubeUrl'] ?? lesson['videoUrl'] ?? '').toString();
-              final hasYoutube = youtubeUrl.isNotEmpty;
-              final hasQuiz = lesson['hasQuiz'] == true;
+  String _calculateHoursBadge(List<Map<String, dynamic>> lessons) {
+    int totalSeconds = 0;
+    for (final l in lessons) {
+      final durStr = (l['duration'] ?? '').toString().trim();
+      final parts = durStr.split(':');
+      if (parts.length == 3) {
+        final h = int.tryParse(parts[0]) ?? 0;
+        final m = int.tryParse(parts[1]) ?? 0;
+        final s = int.tryParse(parts[2]) ?? 0;
+        totalSeconds += (h * 3600) + (m * 60) + s;
+      } else if (parts.length == 2) {
+        final m = int.tryParse(parts[0]) ?? 0;
+        final s = int.tryParse(parts[1]) ?? 0;
+        totalSeconds += (m * 60) + s;
+      }
+    }
+    final hours = (totalSeconds / 3600).ceil();
+    if (hours <= 0) return '+2 ساعة تدريبية';
+    return '+$hours ساعات تدريبية';
+  }
 
-              final lessonRawTitle = (lesson['title'] ?? '').toString().trim();
-              String lessonTitle = lessonRawTitle;
-              if (lessonTitle.isEmpty || lessonTitle == 'درس جديد') {
-                final code = (lesson['htmlCode'] ?? lesson['content'] ?? '').toString();
-                final h1Match = RegExp(r'<h1[^>]*>([^<]+)</h1>', caseSensitive: false).firstMatch(code);
-                if (h1Match != null && h1Match.group(1)!.trim().isNotEmpty) {
-                  lessonTitle = h1Match.group(1)!.trim();
-                } else {
-                  lessonTitle = 'المحاضرة ${(idx + 1).toString().padLeft(2, '0')}';
-                }
-              }
+  String _getCourseShareUrl(String courseId) {
+    try {
+      final origin = html.window.location.origin;
+      if (origin.isNotEmpty && origin != 'null') {
+        return '$origin/courses?course=$courseId';
+      }
+    } catch (_) {}
+    return '/courses?course=$courseId';
+  }
 
-              return Container(
-                margin: const EdgeInsets.only(bottom: 16),
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: isDark ? const Color(0xFF0F172A) : Colors.white,
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(
-                    color: isWatched
-                        ? const Color(0xFF10B981).withValues(alpha: 0.5)
-                        : (isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0)),
+  // --- 1. Breadcrumbs Navigation ---
+  Widget _buildBreadcrumbsRow(Map<String, dynamic> course, bool isMobile, bool isDark) {
+    return Row(
+      children: [
+        InkWell(
+          onTap: _handleBack,
+          borderRadius: BorderRadius.circular(6),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(Icons.arrow_forward_rounded, size: 16, color: Color(0xFF00E5FF)),
+                const SizedBox(width: 4),
+                Text(
+                  "الكورسات",
+                  style: GoogleFonts.cairo(
+                    fontSize: 13,
+                    fontWeight: FontWeight.bold,
+                    color: const Color(0xFF00E5FF),
                   ),
                 ),
-                child: isMobile
-                    ? Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          Row(
-                            children: [
-                              Container(
-                                width: 32,
-                                height: 32,
-                                decoration: BoxDecoration(
-                                  color: isWatched ? const Color(0xFF10B981) : const Color(0xFF00E5FF),
-                                  shape: BoxShape.circle,
-                                ),
-                                child: Center(
-                                  child: isWatched
-                                      ? const Icon(Icons.check, size: 18, color: Colors.white)
-                                      : Text("${idx + 1}", style: GoogleFonts.inter(fontWeight: FontWeight.bold, fontSize: 12, color: Colors.black)),
-                                ),
-                              ),
-                              const SizedBox(width: 10),
-                              ClipRRect(
-                                borderRadius: BorderRadius.circular(8),
-                                child: SizedBox(
-                                  width: 70,
-                                  height: 50,
-                                  child: SafeNetworkImage(
-                                    imageUrl: image,
-                                    width: 70,
-                                    height: 50,
-                                    fit: BoxFit.cover,
-                                    borderRadius: BorderRadius.circular(8),
-                                    errorWidget: Container(
-                                      width: 70,
-                                      height: 50,
-                                      color: isDark ? const Color(0xFF060D1F) : const Color(0xFFF1F5F9),
-                                      child: const Icon(Icons.play_circle_outline_rounded, color: Color(0xFF00E5FF), size: 24),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(width: 10),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      lessonTitle,
-                                      style: GoogleFonts.cairo(fontSize: 14, fontWeight: FontWeight.bold),
-                                      maxLines: 2,
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                    const SizedBox(height: 4),
-                                    Wrap(
-                                      spacing: 6,
-                                      runSpacing: 4,
-                                      children: [
-                                        if (hasYoutube)
-                                          Text("▶ يوتيوب", style: GoogleFonts.cairo(fontSize: 10, color: Colors.red, fontWeight: FontWeight.bold)),
-                                        if (hasQuiz)
-                                          Text("📝 اختبار", style: GoogleFonts.cairo(fontSize: 10, color: const Color(0xFF10B981), fontWeight: FontWeight.bold)),
-                                        if (isWatched)
-                                          Text("✓ مكتمل", style: GoogleFonts.cairo(fontSize: 10, color: const Color(0xFF10B981), fontWeight: FontWeight.bold)),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 12),
-                          ElevatedButton.icon(
-                            onPressed: () async {
-                              if (user == null) {
-                                showDialog(context: context, builder: (c) => const AuthModal());
-                                return;
-                              }
-                              if (!isEnrolled) {
-                                if (!isPaid) {
-                                  await _dataService.enrollInCourse(
-                                    courseId: courseId,
-                                    userId: user.uid,
-                                    userEmail: user.email,
-                                    userName: user.displayName,
-                                  );
-                                  setState(() => _enrolledCourseIds.add(courseId));
-                                } else {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      content: Text("هذا الكورس يتطلب اشتراكاً مدفوعاً لمشاهدة الدروس 🔒", style: GoogleFonts.cairo(fontWeight: FontWeight.bold)),
-                                      backgroundColor: const Color(0xFFDC2626),
-                                    ),
-                                  );
-                                  return;
-                                }
-                              }
-                              setState(() {
-                                _activeLesson = lesson;
-                                _isLessonArticleOpen = false;
-                              });
-                              _syncUrl();
-                              if (lessonId.isNotEmpty) {
-                                _dataService.markLessonWatched(courseId: courseId, lessonId: lessonId, userId: user.uid);
-                                setState(() => _watchedLessonIds.add(lessonId));
-                              }
-                            },
-                            icon: Icon(isEnrolled ? Icons.play_arrow_rounded : Icons.lock_outline_rounded, size: 18),
-                            label: Text(
-                              isEnrolled
-                                  ? (isWatched ? "مشاهدة الدرس (مكتمل ✓)" : "مشاهدة الدرس ➔")
-                                  : "يتطلب التسجيل 🔒",
-                              style: GoogleFonts.cairo(fontWeight: FontWeight.bold, fontSize: 13),
-                            ),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: isEnrolled ? const Color(0xFF00E5FF) : Colors.grey.shade700,
-                              foregroundColor: isEnrolled ? Colors.black : Colors.white70,
-                              padding: const EdgeInsets.symmetric(vertical: 10),
-                            ),
-                          ),
-                        ],
-                      )
-                    : Row(
-                        children: [
-                          Container(
-                            width: 36,
-                            height: 36,
-                            decoration: BoxDecoration(
-                              color: isWatched ? const Color(0xFF10B981) : const Color(0xFF00E5FF),
-                              shape: BoxShape.circle,
-                            ),
-                            child: Center(
-                              child: isWatched
-                                  ? const Icon(Icons.check, size: 20, color: Colors.white)
-                                  : Text("${idx + 1}", style: GoogleFonts.inter(fontWeight: FontWeight.bold, color: Colors.black)),
-                            ),
-                          ),
-                          const SizedBox(width: 16),
-                          ClipRRect(
-                            borderRadius: BorderRadius.circular(10),
-                            child: SizedBox(
-                              width: 90,
-                              height: 65,
-                              child: SafeNetworkImage(
-                                imageUrl: image,
-                                width: 90,
-                                height: 65,
-                                fit: BoxFit.cover,
-                                borderRadius: BorderRadius.circular(10),
-                                errorWidget: Container(
-                                  width: 90,
-                                  height: 65,
-                                  color: isDark ? const Color(0xFF060D1F) : const Color(0xFFF1F5F9),
-                                  child: const Icon(Icons.play_circle_outline_rounded, color: Color(0xFF00E5FF), size: 28),
-                                ),
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 16),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(lessonTitle, style: GoogleFonts.cairo(fontSize: 16, fontWeight: FontWeight.bold)),
-                                Row(
-                                  children: [
-                                    if (hasYoutube)
-                                      Container(
-                                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                                        decoration: BoxDecoration(color: Colors.red.withValues(alpha: 0.15), borderRadius: BorderRadius.circular(4)),
-                                        child: Text("▶ فيديو يوتيوب مدمج", style: GoogleFonts.cairo(fontSize: 11, color: Colors.red, fontWeight: FontWeight.bold)),
-                                      ),
-                                    if (hasQuiz) ...[
-                                      const SizedBox(width: 8),
-                                      Container(
-                                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                                        decoration: BoxDecoration(color: const Color(0xFF10B981).withValues(alpha: 0.15), borderRadius: BorderRadius.circular(4)),
-                                        child: Text("📝 اختبار متاح", style: GoogleFonts.cairo(fontSize: 11, color: const Color(0xFF10B981), fontWeight: FontWeight.bold)),
-                                      ),
-                                    ],
-                                    if (isWatched) ...[
-                                      const SizedBox(width: 8),
-                                      Container(
-                                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                                        decoration: BoxDecoration(color: const Color(0xFF10B981).withValues(alpha: 0.15), borderRadius: BorderRadius.circular(4)),
-                                        child: Text("تمت المشاهدة ✓", style: GoogleFonts.cairo(fontSize: 11, color: const Color(0xFF10B981), fontWeight: FontWeight.bold)),
-                                      ),
-                                    ],
-                                  ],
-                                ),
-                              ],
-                            ),
-                          ),
-                          ElevatedButton.icon(
-                            onPressed: () async {
-                              if (user == null) {
-                                showDialog(context: context, builder: (c) => const AuthModal());
-                                return;
-                              }
-                              if (!isEnrolled) {
-                                if (!isPaid) {
-                                  await _dataService.enrollInCourse(
-                                    courseId: courseId,
-                                    userId: user.uid,
-                                    userEmail: user.email,
-                                    userName: user.displayName,
-                                  );
-                                  setState(() => _enrolledCourseIds.add(courseId));
-                                } else {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      content: Text("هذا الكورس يتطلب اشتراكاً مدفوعاً لمشاهدة الدروس 🔒", style: GoogleFonts.cairo(fontWeight: FontWeight.bold)),
-                                      backgroundColor: const Color(0xFFDC2626),
-                                    ),
-                                  );
-                                  return;
-                                }
-                              }
-                              setState(() {
-                                _activeLesson = lesson;
-                                _isLessonArticleOpen = false;
-                              });
-                              _syncUrl();
-                              if (lessonId.isNotEmpty) {
-                                _dataService.markLessonWatched(courseId: courseId, lessonId: lessonId, userId: user.uid);
-                                setState(() => _watchedLessonIds.add(lessonId));
-                              }
-                            },
-                            icon: Icon(isEnrolled ? Icons.play_arrow_rounded : Icons.lock_outline_rounded, size: 20),
-                            label: Text(
-                              isEnrolled
-                                  ? (isWatched ? "مشاهدة الدرس (مكتمل ✓)" : "مشاهدة الدرس ➔")
-                                  : "يتطلب التسجيل 🔒",
-                              style: GoogleFonts.cairo(fontWeight: FontWeight.bold, fontSize: 13),
-                            ),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: isEnrolled ? const Color(0xFF00E5FF) : Colors.grey.shade700,
-                              foregroundColor: isEnrolled ? Colors.black : Colors.white70,
-                            ),
-                          ),
-                        ],
+              ],
+            ),
+          ),
+        ),
+        Text(
+          " › ",
+          style: GoogleFonts.cairo(fontSize: 13, color: Colors.grey),
+        ),
+        Text(
+          "مسار علوم الحاسب والذكاء الاصطناعي للأطفال",
+          style: GoogleFonts.cairo(
+            fontSize: isMobile ? 11.5 : 13,
+            color: isDark ? Colors.grey.shade400 : Colors.grey.shade700,
+          ),
+          overflow: TextOverflow.ellipsis,
+        ),
+        if (!isMobile) ...[
+          Text(
+            " › ",
+            style: GoogleFonts.cairo(fontSize: 13, color: Colors.grey),
+          ),
+          Expanded(
+            child: Text(
+              course['title'] ?? '',
+              style: GoogleFonts.cairo(
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+                color: isDark ? Colors.white70 : Colors.black87,
+              ),
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+        ],
+      ],
+    );
+  }
+
+  // --- 2. Top Hero Card ---
+  Widget _buildCourseHeroCard({
+    required Map<String, dynamic> course,
+    required List<Map<String, dynamic>> lessons,
+    required String hoursBadgeStr,
+    required String lecturesCountStr,
+    required bool isDark,
+    required bool isMobile,
+  }) {
+    final title = course['title'] ?? 'كورس البرمجة والذكاء الاصطناعي للأطفال | من الصفر للاحتراف';
+    final desc = course['description'] ??
+        'رحلة تأسيسية تفاعلية شيقة تمكّن الأطفال واليافعين من فهم الكمبيوتر والإنترنت، والتفكير البرمجي وبناء مشاريع ذكاء اصطناعي حقيقية خطوة بخطوة من الصفر للاحتراف.';
+
+    final textColumn = Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Track Category
+        Text(
+          "دورات علوم الحاسب والبرمجة للأطفال واليافعين",
+          style: GoogleFonts.cairo(
+            fontSize: 13,
+            fontWeight: FontWeight.bold,
+            color: const Color(0xFF00E5FF),
+          ),
+        ),
+        const SizedBox(height: 8),
+
+        // Main Title
+        Text(
+          title,
+          style: GoogleFonts.cairo(
+            fontSize: isMobile ? 22 : 28,
+            fontWeight: FontWeight.w900,
+            height: 1.3,
+            color: isDark ? Colors.white : const Color(0xFF0F172A),
+          ),
+        ),
+        const SizedBox(height: 10),
+
+        // Subtitle / Description
+        Text(
+          desc,
+          style: GoogleFonts.cairo(
+            fontSize: isMobile ? 13 : 14.5,
+            height: 1.6,
+            color: isDark ? Colors.grey.shade300 : const Color(0xFF475569),
+          ),
+        ),
+        const SizedBox(height: 16),
+
+        // Badges Strip (strictly reflects active videos count and hours)
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: [
+            _buildBadgePill(Icons.language_rounded, "عربي", isDark),
+            _buildBadgePill(Icons.access_time_rounded, hoursBadgeStr, isDark),
+            _buildBadgePill(Icons.ondemand_video_rounded, lecturesCountStr, isDark),
+            _buildBadgePill(Icons.workspace_premium_rounded, "بشهادة إتمام معتمدة", isDark),
+          ],
+        ),
+        const SizedBox(height: 20),
+
+        // Teacher & Stats Row
+        Wrap(
+          spacing: 24,
+          runSpacing: 14,
+          crossAxisAlignment: WrapCrossAlignment.center,
+          children: [
+            // Instructor
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(24),
+                  child: Container(
+                    width: 44,
+                    height: 44,
+                    color: const Color(0xFF00E5FF).withOpacity(0.15),
+                    child: Image.asset(
+                      'assets/images/courses/course_01.png',
+                      fit: BoxFit.cover,
+                      errorBuilder: (_, __, ___) => const Icon(Icons.person, color: Color(0xFF00E5FF)),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "اسم المدرب",
+                      style: GoogleFonts.cairo(fontSize: 11, color: Colors.grey),
+                    ),
+                    Text(
+                      "م. إسلام عاطف",
+                      style: GoogleFonts.cairo(
+                        fontSize: 13.5,
+                        fontWeight: FontWeight.bold,
+                        color: isDark ? Colors.white : Colors.black87,
                       ),
-              );
-            }),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+
+            // Rating
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  "تقييم الدورة",
+                  style: GoogleFonts.cairo(fontSize: 11, color: Colors.grey),
+                ),
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(Icons.star_rounded, size: 18, color: Color(0xFFF59E0B)),
+                    const SizedBox(width: 4),
+                    Text(
+                      "4.9 (101+ تقييماً)",
+                      style: GoogleFonts.cairo(
+                        fontSize: 13.5,
+                        fontWeight: FontWeight.bold,
+                        color: isDark ? Colors.white : Colors.black87,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+
+            // Students Count
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  "عدد المسجلين بالدورة",
+                  style: GoogleFonts.cairo(fontSize: 11, color: Colors.grey),
+                ),
+                Text(
+                  "👥 209+ طالب",
+                  style: GoogleFonts.cairo(
+                    fontSize: 13.5,
+                    fontWeight: FontWeight.bold,
+                    color: isDark ? Colors.white : Colors.black87,
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ],
+    );
+
+    // 16:9 Thumbnail Image
+    final thumbnailImage = ClipRRect(
+      borderRadius: BorderRadius.circular(16),
+      child: Stack(
+        children: [
+          AspectRatio(
+            aspectRatio: 16 / 9,
+            child: Image.asset(
+              'assets/images/courses/course_01.png',
+              fit: BoxFit.cover,
+            ),
+          ),
+          Positioned(
+            top: 12,
+            right: 12,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              decoration: BoxDecoration(
+                gradient: const LinearGradient(
+                  colors: [Color(0xFFFF7A00), Color(0xFFF59E0B)],
+                ),
+                borderRadius: BorderRadius.circular(20),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.3),
+                    blurRadius: 8,
+                  ),
+                ],
+              ),
+              child: Text(
+                "دورة مجانية بالكامل ✨",
+                style: GoogleFonts.cairo(
+                  fontSize: 11.5,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
+              ),
+            ),
+          ),
         ],
       ),
-    ),
-  );
-}
+    );
+
+    if (isMobile) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          thumbnailImage,
+          const SizedBox(height: 18),
+          textColumn,
+        ],
+      );
+    }
+
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Expanded(flex: 6, child: textColumn),
+        const SizedBox(width: 28),
+        SizedBox(width: 360, child: thumbnailImage),
+      ],
+    );
+  }
+
+  Widget _buildBadgePill(IconData icon, String text, bool isDark) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+      decoration: BoxDecoration(
+        color: isDark ? const Color(0xFF1E293B) : const Color(0xFFF1F5F9),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(
+          color: isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0),
+        ),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 14, color: isDark ? Colors.grey.shade400 : Colors.grey.shade600),
+          const SizedBox(width: 6),
+          Text(
+            text,
+            style: GoogleFonts.cairo(
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+              color: isDark ? Colors.grey.shade300 : const Color(0xFF334155),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // --- 3. Modules & Lessons Content (Right Main Column) ---
+  Widget _buildCourseModulesContent(
+    BuildContext context,
+    Map<String, dynamic> course,
+    List<Map<String, dynamic>> level1Lessons,
+    List<Map<String, dynamic>> level2Lessons,
+    List<Map<String, dynamic>> extraLessons,
+    String lecturesCountStr,
+    bool isEnrolled,
+    bool isDark,
+  ) {
+    return Container(
+      decoration: BoxDecoration(
+        color: isDark ? const Color(0xFF0F172A) : Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0),
+        ),
+      ),
+      padding: const EdgeInsets.all(20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          // Section Header
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                "محتوى الدورة",
+                style: GoogleFonts.cairo(
+                  fontSize: 20,
+                  fontWeight: FontWeight.w900,
+                  color: isDark ? Colors.white : const Color(0xFF0F172A),
+                ),
+              ),
+              Text(
+                "$lecturesCountStr متاحة للمشاهدة الآن",
+                style: GoogleFonts.cairo(fontSize: 12.5, color: Colors.grey),
+              ),
+            ],
+          ),
+          const SizedBox(height: 18),
+
+          // Module 1: المستوى 1 (Only rendered if it has active video lessons)
+          if (level1Lessons.isNotEmpty)
+            _buildModuleCard(
+              context: context,
+              title: "المستوى 1: عالم الكمبيوتر والإنترنت",
+              badgeText: "${level1Lessons.length} دروس",
+              lessons: level1Lessons,
+              isEnrolled: isEnrolled,
+              isDark: isDark,
+              course: course,
+            ),
+
+          // Module 2: المستوى 2 (Only rendered if it has active video lessons)
+          if (level2Lessons.isNotEmpty) ...[
+            const SizedBox(height: 18),
+            _buildModuleCard(
+              context: context,
+              title: "المستوى 2: التفكير البرمجي والخوارزميات",
+              badgeText: "${level2Lessons.length} دروس",
+              lessons: level2Lessons,
+              isEnrolled: isEnrolled,
+              isDark: isDark,
+              course: course,
+            ),
+          ],
+
+          // Extra Module (Cloud / Admin Updates - Only rendered if it has active video lessons)
+          if (extraLessons.isNotEmpty) ...[
+            const SizedBox(height: 18),
+            _buildModuleCard(
+              context: context,
+              title: "المحاضرات الإضافية وتحديثات الأكاديمية",
+              badgeText: "${extraLessons.length} دروس",
+              lessons: extraLessons,
+              isEnrolled: isEnrolled,
+              isDark: isDark,
+              course: course,
+            ),
+          ],
+
+          // Clean Empty State when course has no published lectures
+          if (level1Lessons.isEmpty && level2Lessons.isEmpty && extraLessons.isEmpty) ...[
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 48),
+              child: Center(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      width: 64,
+                      height: 64,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF00E5FF).withOpacity(0.12),
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(Icons.video_collection_outlined, size: 32, color: Color(0xFF00E5FF)),
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      "لا توجد محاضرات منشورة حالياً في هذا الكورس",
+                      style: GoogleFonts.cairo(
+                        fontSize: 17,
+                        fontWeight: FontWeight.bold,
+                        color: isDark ? Colors.white : const Color(0xFF0F172A),
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 6),
+                    Text(
+                      "سيتم إضافة ورفع المحاضرات قريباً من لوحة التحكم 🚀",
+                      style: GoogleFonts.cairo(
+                        fontSize: 13.5,
+                        color: isDark ? Colors.grey.shade400 : Colors.grey.shade600,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _buildModuleCard({
+    required BuildContext context,
+    required String title,
+    required String badgeText,
+    required List<Map<String, dynamic>> lessons,
+    required bool isEnrolled,
+    required bool isDark,
+    required Map<String, dynamic> course,
+  }) {
+    return Container(
+      decoration: BoxDecoration(
+        color: isDark ? const Color(0xFF131D31) : const Color(0xFFF8FAFC),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(
+          color: isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0),
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          // Module Title Bar
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            decoration: BoxDecoration(
+              color: isDark ? const Color(0xFF1E293B) : const Color(0xFFF1F5F9),
+              borderRadius: const BorderRadius.vertical(top: Radius.circular(14)),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  title,
+                  style: GoogleFonts.cairo(
+                    fontSize: 14.5,
+                    fontWeight: FontWeight.bold,
+                    color: isDark ? Colors.white : const Color(0xFF1E293B),
+                  ),
+                ),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
+                  decoration: BoxDecoration(
+                    color: isDark ? const Color(0xFF0F172A) : Colors.white,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: isDark ? const Color(0xFF334155) : const Color(0xFFCBD5E1),
+                    ),
+                  ),
+                  child: Text(
+                    badgeText,
+                    style: GoogleFonts.cairo(
+                      fontSize: 11.5,
+                      fontWeight: FontWeight.w600,
+                      color: isDark ? Colors.grey.shade300 : const Color(0xFF475569),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          // Lessons Rows
+          ListView.separated(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: lessons.length,
+            separatorBuilder: (_, __) => Divider(
+              height: 1,
+              thickness: 1,
+              color: isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0),
+            ),
+            itemBuilder: (context, idx) {
+              final lesson = lessons[idx];
+              return _buildLessonItemRow(context, lesson, course, isEnrolled, isDark);
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildLessonItemRow(
+    BuildContext context,
+    Map<String, dynamic> lesson,
+    Map<String, dynamic> course,
+    bool isEnrolled,
+    bool isDark,
+  ) {
+    final title = lesson['title'] ?? 'محاضرة تعليمية';
+    final duration = lesson['duration'] ?? '00:45:00';
+    final ytUrl = (lesson['youtubeUrl'] ?? lesson['videoUrl'] ?? '').toString().trim();
+    final hasActiveVideo = ytUrl.isNotEmpty;
+
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      child: InkWell(
+        onTap: () {
+          setState(() {
+            _activeLesson = lesson;
+            _isLessonArticleOpen = false;
+          });
+          _syncUrl();
+        },
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          child: Row(
+            children: [
+              // Play Icon
+              Icon(
+                hasActiveVideo ? Icons.play_circle_fill_rounded : Icons.play_circle_outline_rounded,
+                size: 22,
+                color: hasActiveVideo ? const Color(0xFF00E5FF) : Colors.grey,
+              ),
+              const SizedBox(width: 12),
+
+              // Lecture Title
+              Expanded(
+                child: Row(
+                  children: [
+                    Flexible(
+                      child: Text(
+                        title,
+                        style: GoogleFonts.cairo(
+                          fontSize: 13.5,
+                          fontWeight: FontWeight.w600,
+                          color: isDark ? Colors.white : const Color(0xFF1E293B),
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    if (hasActiveVideo) ...[
+                      const SizedBox(width: 8),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF00E5FF).withOpacity(0.12),
+                          borderRadius: BorderRadius.circular(6),
+                          border: Border.all(color: const Color(0xFF00E5FF).withOpacity(0.3)),
+                        ),
+                        child: Text(
+                          "فيديو 🎬",
+                          style: GoogleFonts.cairo(
+                            fontSize: 10,
+                            fontWeight: FontWeight.bold,
+                            color: const Color(0xFF00E5FF),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+
+              // Duration
+              Text(
+                duration,
+                style: GoogleFonts.cairo(fontSize: 12, color: Colors.grey),
+              ),
+              const SizedBox(width: 10),
+
+              // Status Icon (Play arrow)
+              Icon(
+                Icons.arrow_back_ios_new_rounded,
+                size: 13,
+                color: hasActiveVideo ? const Color(0xFF00E5FF) : Colors.grey.shade500,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  // --- 4. Sidebar Card (Left Column) ---
+  Widget _buildCourseSidebarCard(
+    BuildContext context,
+    Map<String, dynamic> course,
+    List<Map<String, dynamic>> lessons,
+    String totalDurationStr,
+    String lecturesCountStr,
+    bool isEnrolled,
+    User? user,
+    bool isDark,
+    bool isMobile,
+  ) {
+    return Container(
+      decoration: BoxDecoration(
+        color: isDark ? const Color(0xFF0F172A) : Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0),
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(isDark ? 0.3 : 0.05),
+            blurRadius: 16,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      padding: const EdgeInsets.all(22),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          // Primary Start Course CTA Button
+          ElevatedButton(
+            onPressed: lessons.isEmpty
+                ? null
+                : () {
+                    setState(() {
+                      _activeLesson = lessons.first;
+                      _isLessonArticleOpen = false;
+                    });
+                    _syncUrl();
+                  },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFFFF7A00),
+              disabledBackgroundColor: isDark ? const Color(0xFF334155) : const Color(0xFFCBD5E1),
+              foregroundColor: Colors.white,
+              disabledForegroundColor: isDark ? Colors.white54 : Colors.black45,
+              padding: const EdgeInsets.symmetric(vertical: 14),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              elevation: lessons.isEmpty ? 0 : 4,
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(lessons.isEmpty ? Icons.hourglass_empty_rounded : Icons.play_arrow_rounded, size: 22),
+                const SizedBox(width: 8),
+                Text(
+                  lessons.isEmpty ? "قريباً - لا توجد محاضرات حالياً ⏳" : "ابدأ مشاهدة الدورة الآن 🎬",
+                  style: GoogleFonts.cairo(
+                    fontSize: 15,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 24),
+
+          // Sidebar Title
+          Text(
+            "معلومات سريعة عن الدورة",
+            style: GoogleFonts.cairo(
+              fontSize: 15.5,
+              fontWeight: FontWeight.bold,
+              color: isDark ? Colors.white : const Color(0xFF0F172A),
+            ),
+          ),
+          const SizedBox(height: 16),
+
+          // Facts List (Strictly reflecting actual published videos)
+          _buildSidebarFactRow(
+            Icons.access_time_rounded,
+            "الوقت الإجمالي:",
+            totalDurationStr,
+            const Color(0xFF00E5FF),
+            isDark,
+          ),
+          _buildSidebarFactRow(
+            Icons.ondemand_video_rounded,
+            "عدد المحاضرات:",
+            lecturesCountStr,
+            const Color(0xFF818CF8),
+            isDark,
+          ),
+          _buildSidebarFactRow(
+            Icons.check_circle_outline_rounded,
+            "إمكانية الوصول:",
+            "متاح دائماً 24/7",
+            const Color(0xFF10B981),
+            isDark,
+          ),
+          _buildSidebarFactRow(
+            Icons.language_rounded,
+            "لغة الدورة:",
+            "عربي",
+            const Color(0xFF38BDF8),
+            isDark,
+          ),
+          _buildSidebarFactRow(
+            Icons.workspace_premium_rounded,
+            "شهادة مشاركة:",
+            "نعم (معتمدة)",
+            const Color(0xFFF59E0B),
+            isDark,
+          ),
+          _buildSidebarFactRow(
+            Icons.card_giftcard_rounded,
+            "رسوم الدورة:",
+            "مجاناً بالكامل",
+            const Color(0xFF10B981),
+            isDark,
+          ),
+
+          const SizedBox(height: 20),
+          Divider(color: isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0)),
+          const SizedBox(height: 14),
+
+          // Share with friends (Clean dynamic links without external hardcoded domains)
+          Text(
+            "شارك الدورة مع أصدقائك",
+            style: GoogleFonts.cairo(
+              fontSize: 14,
+              fontWeight: FontWeight.bold,
+              color: isDark ? Colors.white70 : const Color(0xFF334155),
+            ),
+          ),
+          const SizedBox(height: 12),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              _buildSocialShareCircle(
+                Icons.chat_rounded,
+                const Color(0xFF25D366),
+                "واتساب",
+                () => _shareToWhatsApp(course),
+              ),
+              _buildSocialShareCircle(
+                Icons.send_rounded,
+                const Color(0xFF0088CC),
+                "تيليجرام",
+                () => _shareToTelegram(course),
+              ),
+              _buildSocialShareCircle(
+                Icons.facebook_rounded,
+                const Color(0xFF1877F2),
+                "فيسبوك",
+                () => _shareToFacebook(course),
+              ),
+              _buildSocialShareCircle(
+                Icons.link_rounded,
+                const Color(0xFF00E5FF),
+                "نسخ الرابط",
+                () => _copyLink(
+                  _getCourseShareUrl(course['id']?.toString() ?? ''),
+                  'تم نسخ رابط الكورس بنجاح 📋',
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSidebarFactRow(
+    IconData icon,
+    String label,
+    String value,
+    Color iconColor,
+    bool isDark,
+  ) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 9),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(icon, size: 18, color: iconColor),
+              const SizedBox(width: 8),
+              Text(
+                label,
+                style: GoogleFonts.cairo(
+                  fontSize: 13,
+                  color: isDark ? Colors.grey.shade400 : const Color(0xFF64748B),
+                ),
+              ),
+            ],
+          ),
+          Text(
+            value,
+            style: GoogleFonts.cairo(
+              fontSize: 13,
+              fontWeight: FontWeight.bold,
+              color: isDark ? Colors.white : const Color(0xFF0F172A),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSocialShareCircle(
+    IconData icon,
+    Color color,
+    String tooltip,
+    VoidCallback onTap,
+  ) {
+    return Tooltip(
+      message: tooltip,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(20),
+        child: Container(
+          width: 42,
+          height: 42,
+          decoration: BoxDecoration(
+            color: color.withOpacity(0.12),
+            shape: BoxShape.circle,
+            border: Border.all(color: color.withOpacity(0.3)),
+          ),
+          child: Icon(icon, color: color, size: 20),
+        ),
+      ),
+    );
+  }
+
+  void _shareToWhatsApp(Map<String, dynamic> course) {
+    final title = course['title'] ?? 'كورس البرمجة والذكاء الاصطناعي';
+    final url = _getCourseShareUrl(course['id']?.toString() ?? '');
+    final msg = 'شاهد $title مجاناً على منصة م. إسلام عاطف: $url';
+    html.window.open('https://wa.me/?text=${Uri.encodeComponent(msg)}', '_blank');
+  }
+
+  void _shareToTelegram(Map<String, dynamic> course) {
+    final title = course['title'] ?? 'كورس البرمجة والذكاء الاصطناعي';
+    final url = _getCourseShareUrl(course['id']?.toString() ?? '');
+    html.window.open('https://t.me/share/url?url=${Uri.encodeComponent(url)}&text=${Uri.encodeComponent(title)}', '_blank');
+  }
+
+  void _shareToFacebook(Map<String, dynamic> course) {
+    final url = _getCourseShareUrl(course['id']?.toString() ?? '');
+    html.window.open('https://www.facebook.com/sharer/sharer.php?u=${Uri.encodeComponent(url)}', '_blank');
+  }
 
   Widget _buildCoursePdfCard(Map<String, dynamic> course, bool isDark, bool isMobile) {
     final pdfUrl = (course['pdfUrl'] ?? course['pdfLink'] ?? '').toString().trim();
@@ -1304,6 +1977,26 @@ class _CoursesPageState extends State<CoursesPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            // 0. Top Back to Course Navigation Button
+            Align(
+              alignment: Alignment.centerRight,
+              child: OutlinedButton.icon(
+                onPressed: _handleBack,
+                icon: const Icon(Icons.arrow_forward_rounded, size: 16),
+                label: Text(
+                  "العودة إلى محتوى الكورس",
+                  style: GoogleFonts.cairo(fontWeight: FontWeight.bold, fontSize: 13),
+                ),
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: const Color(0xFF00E5FF),
+                  side: const BorderSide(color: Color(0xFF00E5FF)),
+                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+
             // 1. عنوان الدرس (فقط للدروس العادية التي لا تحتوي على مقال HTML مستقل متكامل وليست "درس جديد")
             if (showCustomTitle) ...[
               Text(
@@ -1331,7 +2024,7 @@ class _CoursesPageState extends State<CoursesPage> {
               const SizedBox(height: 20),
             ],
 
-            // 3. الفيديو (Video / YouTube Player) - يظهر في الأعلى مباشرة من الرابط المضاف بالمقال أو الدرس
+            // 3. الفيديو (Video / YouTube Player) أو مشغل المحاضرة المهيأ
             if (resolvedVideoUrl.isNotEmpty) ...[
               Center(
                 child: ConstrainedBox(
@@ -1343,6 +2036,135 @@ class _CoursesPageState extends State<CoursesPage> {
                       height: isMobile ? 240 : 480,
                       showWatermark: isPaid && FirebaseAuth.instance.currentUser != null,
                       watermarkText: FirebaseAuth.instance.currentUser?.displayName ?? FirebaseAuth.instance.currentUser?.email?.split('@').first ?? 'طالب منصة إسلام عاطف',
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 20),
+            ] else ...[
+              Center(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 850),
+                  child: AspectRatio(
+                    aspectRatio: 16 / 9,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        gradient: const LinearGradient(
+                          colors: [Color(0xFF0F172A), Color(0xFF1E293B), Color(0xFF070B14)],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(color: const Color(0xFF00E5FF).withOpacity(0.4)),
+                        boxShadow: [
+                          BoxShadow(
+                            color: const Color(0xFF00E5FF).withOpacity(0.12),
+                            blurRadius: 20,
+                            offset: const Offset(0, 6),
+                          ),
+                        ],
+                      ),
+                      child: Stack(
+                        alignment: Alignment.center,
+                        children: [
+                          Positioned.fill(
+                            child: Opacity(
+                              opacity: 0.15,
+                              child: Image.asset(
+                                'assets/images/courses/course_01.png',
+                                fit: BoxFit.cover,
+                              ),
+                            ),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.all(24),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Container(
+                                  width: 64,
+                                  height: 64,
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFF00E5FF).withOpacity(0.15),
+                                    shape: BoxShape.circle,
+                                    border: Border.all(color: const Color(0xFF00E5FF), width: 2),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: const Color(0xFF00E5FF).withOpacity(0.35),
+                                        blurRadius: 20,
+                                      ),
+                                    ],
+                                  ),
+                                  child: const Center(
+                                    child: Icon(Icons.play_arrow_rounded, color: Color(0xFF00E5FF), size: 40),
+                                  ),
+                                ),
+                                const SizedBox(height: 16),
+                                Text(
+                                  "مشغل فيديو المحاضرة مهيأ وجاهز",
+                                  textAlign: TextAlign.center,
+                                  style: GoogleFonts.cairo(
+                                    fontSize: isMobile ? 16 : 20,
+                                    fontWeight: FontWeight.w900,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                                const SizedBox(height: 6),
+                                Text(
+                                  "سيتم ربط وإضافة مقطع الفيديو والشرح لهذه المحاضرة لاحقاً بجودة عالية.",
+                                  textAlign: TextAlign.center,
+                                  style: GoogleFonts.cairo(
+                                    fontSize: isMobile ? 12 : 14,
+                                    color: const Color(0xFF94A3B8),
+                                  ),
+                                ),
+                                const SizedBox(height: 16),
+                                Wrap(
+                                  spacing: 12,
+                                  runSpacing: 10,
+                                  alignment: WrapAlignment.center,
+                                  children: [
+                                    if ((lesson['webUrl'] ?? '').toString().isNotEmpty)
+                                      ElevatedButton.icon(
+                                        onPressed: () {
+                                          final webUrl = lesson['webUrl'].toString();
+                                          html.window.open(webUrl, '_blank');
+                                        },
+                                        icon: const Icon(Icons.laptop_chromebook_rounded, size: 16),
+                                        label: Text(
+                                          "تشغيل العرض التقديمي للحصة 🖥️",
+                                          style: GoogleFonts.cairo(fontSize: 12.5, fontWeight: FontWeight.bold),
+                                        ),
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor: const Color(0xFF00E5FF),
+                                          foregroundColor: const Color(0xFF070B14),
+                                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                                        ),
+                                      ),
+                                    if ((lesson['quizUrl'] ?? '').toString().isNotEmpty)
+                                      OutlinedButton.icon(
+                                        onPressed: () {
+                                          final quizUrl = lesson['quizUrl'].toString();
+                                          html.window.open(quizUrl, '_blank');
+                                        },
+                                        icon: const Icon(Icons.quiz_rounded, size: 16),
+                                        label: Text(
+                                          "خوض الاختبار التفاعلي 🧠",
+                                          style: GoogleFonts.cairo(fontSize: 12.5, fontWeight: FontWeight.bold),
+                                        ),
+                                        style: OutlinedButton.styleFrom(
+                                          foregroundColor: const Color(0xFF10B981),
+                                          side: const BorderSide(color: Color(0xFF10B981)),
+                                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                                        ),
+                                      ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ),
@@ -1755,28 +2577,6 @@ class _CoursesPageState extends State<CoursesPage> {
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(color: bg, border: Border.all(color: border), borderRadius: BorderRadius.circular(8)),
         child: Text(text, style: GoogleFonts.cairo(fontSize: 13, fontWeight: FontWeight.w600)),
-      ),
-    );
-  }
-
-  Widget _buildEmptyState(String title, String subtitle, bool isDark) {
-    return Container(
-      padding: const EdgeInsets.all(36),
-      decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF0F172A) : Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0)),
-      ),
-      child: Center(
-        child: Column(
-          children: [
-            const Icon(Icons.video_library_outlined, size: 52, color: Color(0xFF64748B)),
-            const SizedBox(height: 14),
-            Text(title, style: GoogleFonts.cairo(fontSize: 16, fontWeight: FontWeight.bold)),
-            const SizedBox(height: 6),
-            Text(subtitle, style: GoogleFonts.cairo(fontSize: 13, color: const Color(0xFF64748B)), textAlign: TextAlign.center),
-          ],
-        ),
       ),
     );
   }

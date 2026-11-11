@@ -140,9 +140,9 @@ class _WhatsAppPainter extends CustomPainter {
     final h = size.height;
 
     if (!whiteOnly) {
-      // Green Circle Base
+      // Official WhatsApp Green Circle Base
       final bgPaint = Paint()
-        ..color = const Color(0xFF25D366) // Official WhatsApp Green
+        ..color = const Color(0xFF25D366)
         ..style = PaintingStyle.fill;
       canvas.drawCircle(Offset(w / 2, h / 2), w / 2, bgPaint);
     }
@@ -150,26 +150,24 @@ class _WhatsAppPainter extends CustomPainter {
     // Speech bubble outline & tail
     final bubblePath = Path();
     final center = Offset(w * 0.5, h * 0.48);
-    final radius = w * 0.38;
+    final radius = w * 0.36;
 
     bubblePath.addOval(Rect.fromCircle(center: center, radius: radius));
     // Tail pointing to bottom-left
-    bubblePath.moveTo(w * 0.28, h * 0.72);
+    bubblePath.moveTo(w * 0.30, h * 0.70);
     bubblePath.lineTo(w * 0.16, h * 0.86);
-    bubblePath.lineTo(w * 0.38, h * 0.80);
+    bubblePath.lineTo(w * 0.40, h * 0.78);
     bubblePath.close();
 
-    if (!whiteOnly) {
-      final borderPaint = Paint()
-        ..color = Colors.white
-        ..strokeWidth = w * 0.08
-        ..style = PaintingStyle.stroke;
-      canvas.drawPath(bubblePath, borderPaint);
-    }
+    final borderPaint = Paint()
+      ..color = Colors.white
+      ..strokeWidth = w * 0.085
+      ..style = PaintingStyle.stroke;
+    canvas.drawPath(bubblePath, borderPaint);
 
     // Phone Handset inside bubble
     final phonePaint = Paint()
-      ..color = whiteOnly ? const Color(0xFF25D366) : Colors.white
+      ..color = Colors.white
       ..style = PaintingStyle.fill;
 
     canvas.save();
@@ -178,15 +176,15 @@ class _WhatsAppPainter extends CustomPainter {
 
     // Draw stylized phone handset
     final phonePath = Path()
-      ..moveTo(-w * 0.16, -w * 0.12)
-      ..cubicTo(-w * 0.18, -w * 0.18, -w * 0.12, -w * 0.22, -w * 0.06, -w * 0.18)
+      ..moveTo(-w * 0.15, -w * 0.11)
+      ..cubicTo(-w * 0.17, -w * 0.17, -w * 0.11, -w * 0.21, -w * 0.05, -w * 0.17)
       ..lineTo(-w * 0.01, -w * 0.08)
       ..cubicTo(w * 0.03, -w * 0.02, w * 0.01, w * 0.04, -w * 0.04, w * 0.08)
       ..cubicTo(w * 0.02, w * 0.14, w * 0.08, w * 0.20, w * 0.14, w * 0.24)
       ..cubicTo(w * 0.18, w * 0.19, w * 0.24, w * 0.17, w * 0.30, w * 0.21)
       ..lineTo(w * 0.38, w * 0.26)
       ..cubicTo(w * 0.42, w * 0.32, w * 0.38, w * 0.38, w * 0.32, w * 0.38)
-      ..cubicTo(w * 0.18, w * 0.38, -w * 0.10, w * 0.15, -w * 0.16, -w * 0.12)
+      ..cubicTo(w * 0.18, w * 0.38, -w * 0.10, w * 0.15, -w * 0.15, -w * 0.11)
       ..close();
 
     canvas.drawPath(phonePath, phonePaint);
@@ -316,7 +314,7 @@ class SocialIconsBar extends StatelessWidget {
   final String facebookUrl;
   final String youtubeUrl;
   final String telegramUrl;
-  final String linkedinUrl;
+  final String? linkedinUrl;
   final double iconSize;
 
   const SocialIconsBar({
@@ -324,7 +322,7 @@ class SocialIconsBar extends StatelessWidget {
     required this.facebookUrl,
     required this.youtubeUrl,
     required this.telegramUrl,
-    required this.linkedinUrl,
+    this.linkedinUrl,
     this.iconSize = 20,
   });
 
@@ -355,14 +353,14 @@ class SocialIconsBar extends StatelessWidget {
           url: telegramUrl,
           iconWidget: TelegramLogo(size: iconSize),
         ),
-        const SizedBox(width: 8),
-
-        // 4. LinkedIn
-        SocialIconButton(
-          tooltip: "لينكد إن",
-          url: linkedinUrl,
-          iconWidget: LinkedInLogo(size: iconSize),
-        ),
+        if (linkedinUrl != null && linkedinUrl!.isNotEmpty) ...[
+          const SizedBox(width: 8),
+          SocialIconButton(
+            tooltip: "لينكد إن",
+            url: linkedinUrl!,
+            iconWidget: LinkedInLogo(size: iconSize),
+          ),
+        ],
       ],
     );
   }

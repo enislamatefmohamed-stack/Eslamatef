@@ -10,7 +10,7 @@ class ArabicData {
   static const String facebookUrl = "https://facebook.com/EslamAtefCodeAI";
   static const String youtubeUrl = "https://www.youtube.com/@EslamAtefCodeAI";
   static const String telegramUrl = "https://t.me/EslamAtefAI";
-  static const String linkedinUrl = "https://www.linkedin.com/in/eslam-atef-1a5933439";
+  static const String linkedinUrl = "";
   static const String githubUrl = "https://github.com/eslam-atef-ai";
 
   // The 5 Slide Items

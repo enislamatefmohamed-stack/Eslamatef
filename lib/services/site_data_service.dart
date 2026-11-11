@@ -33,6 +33,7 @@ class SiteDataService extends ChangeNotifier {
   List<Map<String, dynamic>> _weeklyChallenges = [];
   List<Map<String, dynamic>> _challengeSubmissions = [];
   List<Map<String, dynamic>> _members = [];
+  List<Map<String, dynamic>> _notifications = [];
 
   bool _isInitialized = false;
 
@@ -55,6 +56,7 @@ class SiteDataService extends ChangeNotifier {
   List<Map<String, dynamic>> get weeklyChallenges => _weeklyChallenges;
   List<Map<String, dynamic>> get challengeSubmissions => _challengeSubmissions;
   List<Map<String, dynamic>> get members => _members;
+  List<Map<String, dynamic>> get notifications => _notifications;
   bool get isInitialized => _isInitialized;
 
   // Kids Course Sessions Custom Code (تعديل كود الجلسات)
@@ -139,6 +141,13 @@ class SiteDataService extends ChangeNotifier {
       final membersStr = prefs.getString('site_members');
       if (membersStr != null) {
         _members = List<Map<String, dynamic>>.from(jsonDecode(membersStr));
+      }
+
+      final notifStr = prefs.getString('site_notifications');
+      if (notifStr != null) {
+        try {
+          _notifications = List<Map<String, dynamic>>.from(jsonDecode(notifStr));
+        } catch (_) {}
       }
 
       final recStr = prefs.getString('site_recording_lessons');
@@ -326,6 +335,20 @@ class SiteDataService extends ChangeNotifier {
           notifyListeners();
         }
       }, onError: (e) => debugPrint("Firestore users error: $e"));
+
+      // Notifications Collection
+      _firestore.collection('notifications').snapshots().listen((snapshot) {
+        if (snapshot.docs.isNotEmpty) {
+          _notifications = snapshot.docs.map((doc) {
+            final d = doc.data();
+            d['id'] = doc.id;
+            return d;
+          }).toList();
+          _notifications.sort((a, b) => (b['createdAt'] ?? '').toString().compareTo((a['createdAt'] ?? '').toString()));
+          _saveNotifications();
+          notifyListeners();
+        }
+      }, onError: (e) => debugPrint("Firestore notifications error: $e"));
 
       // Latest Updates Collection
       _firestore.collection('latest_updates').snapshots().listen((snapshot) {
@@ -546,35 +569,48 @@ class SiteDataService extends ChangeNotifier {
   }
 
   Future<void> addLessonToCourse(String courseId, Map<String, dynamic> lesson) async {
-    final idx = _courses.indexWhere((c) => c['id'] == courseId);
-    if (idx != -1) {
-      final lessonId = (lesson['id'] != null && lesson['id'].toString().isNotEmpty)
-          ? lesson['id'].toString()
-          : 'lec_${DateTime.now().millisecondsSinceEpoch}';
-      lesson['id'] = lessonId;
-      lesson['courseId'] = courseId;
-      _normalizeLesson(lesson);
-      final list = List<Map<String, dynamic>>.from(_courses[idx]['lessons'] ?? []);
-      list.add(lesson);
-      _courses[idx]['lessons'] = list;
-      await _saveCourses();
-      notifyListeners();
+    var idx = _courses.indexWhere((c) => c['id'] == courseId);
+    if (idx == -1) {
+      final newCourse = {
+        'id': courseId,
+        'title': lesson['courseTitle'] ?? courseId,
+        'lessons': <Map<String, dynamic>>[],
+        'isPublished': true,
+        'isPaid': false,
+        'createdAt': DateTime.now().toIso8601String(),
+      };
+      _courses.add(newCourse);
+      idx = _courses.length - 1;
+    }
 
-      if (isFirebaseReady) {
-        try {
-          // Write to subcollection (المرحلة الخامسة: فصل الدروس في مجموعات فرعية)
-          await _firestore
-              .collection('courses')
-              .doc(courseId)
-              .collection('lessons')
-              .doc(lessonId)
-              .set(lesson, SetOptions(merge: true));
+    final lessonId = (lesson['id'] != null && lesson['id'].toString().isNotEmpty)
+        ? lesson['id'].toString()
+        : 'lec_${DateTime.now().millisecondsSinceEpoch}';
+    lesson['id'] = lessonId;
+    lesson['courseId'] = courseId;
+    _normalizeLesson(lesson);
+    final list = List<Map<String, dynamic>>.from(_courses[idx]['lessons'] ?? []);
+    list.add(lesson);
+    _courses[idx]['lessons'] = list;
+    await _saveCourses();
+    notifyListeners();
 
-          // Also keep backward-compatible array update
-          await _firestore.collection('courses').doc(courseId).update({'lessons': list});
-        } catch (e) {
-          debugPrint("Firestore addLessonToCourse error: $e");
-        }
+    if (isFirebaseReady) {
+      try {
+        await _firestore
+            .collection('courses')
+            .doc(courseId)
+            .collection('lessons')
+            .doc(lessonId)
+            .set(lesson, SetOptions(merge: true));
+
+        await _firestore.collection('courses').doc(courseId).set({
+          'id': courseId,
+          'lessons': list,
+          'updatedAt': DateTime.now().toIso8601String(),
+        }, SetOptions(merge: true));
+      } catch (e) {
+        debugPrint("Firestore addLessonToCourse error: $e");
       }
     }
   }
@@ -1356,6 +1392,57 @@ class SiteDataService extends ChangeNotifier {
   Future<void> _saveMembers() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('site_members', jsonEncode(_members));
+  }
+
+  Future<void> _saveNotifications() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('site_notifications', jsonEncode(_notifications));
+  }
+
+  Future<void> sendNotification({
+    required String title,
+    required String body,
+    String target = 'all',
+    String? targetUid,
+    String? targetName,
+    String? targetEmail,
+  }) async {
+    final notif = {
+      'id': 'notif_${DateTime.now().millisecondsSinceEpoch}',
+      'title': title.trim(),
+      'body': body.trim(),
+      'target': target,
+      'targetUid': targetUid,
+      'targetName': targetName,
+      'targetEmail': targetEmail,
+      'createdAt': DateTime.now().toIso8601String(),
+      'sender': 'م. إسلام عاطف',
+      'isRead': false,
+    };
+    _notifications.insert(0, notif);
+    await _saveNotifications();
+    notifyListeners();
+
+    if (isFirebaseReady) {
+      try {
+        await _firestore.collection('notifications').doc(notif['id'] as String).set(notif);
+      } catch (e) {
+        debugPrint("Firestore sendNotification error: $e");
+      }
+    }
+  }
+
+  Future<void> deleteNotification(String id) async {
+    _notifications.removeWhere((n) => n['id'] == id);
+    await _saveNotifications();
+    notifyListeners();
+    if (isFirebaseReady) {
+      try {
+        await _firestore.collection('notifications').doc(id).delete();
+      } catch (e) {
+        debugPrint("Firestore deleteNotification error: $e");
+      }
+    }
   }
 
   // =========================================================================
