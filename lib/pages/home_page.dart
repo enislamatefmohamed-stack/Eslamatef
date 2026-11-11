@@ -1,9 +1,11 @@
 // ignore_for_file: deprecated_member_use, avoid_web_libraries_in_flutter
+import 'dart:async';
 import 'dart:html' as html;
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../widgets/unified_app_bar.dart';
 import '../widgets/social_icons.dart';
+import '../services/site_data_service.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -13,9 +15,39 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  final _dataService = SiteDataService.instance;
   int _expandedFaqIndex = -1;
   int _visibleReviewsCount = 6;
   final Set<int> _expandedReviews = {};
+  final ScrollController _whatsNewScrollCtrl = ScrollController();
+  Timer? _whatsNewAutoScrollTimer;
+
+  @override
+  void initState() {
+    super.initState();
+    _startWhatsNewAutoScroll();
+  }
+
+  @override
+  void dispose() {
+    _whatsNewAutoScrollTimer?.cancel();
+    _whatsNewScrollCtrl.dispose();
+    super.dispose();
+  }
+
+  void _startWhatsNewAutoScroll() {
+    _whatsNewAutoScrollTimer?.cancel();
+    _whatsNewAutoScrollTimer = Timer.periodic(const Duration(milliseconds: 35), (timer) {
+      if (!_whatsNewScrollCtrl.hasClients) return;
+      final maxExtent = _whatsNewScrollCtrl.position.maxScrollExtent;
+      final current = _whatsNewScrollCtrl.offset;
+      if (current >= maxExtent) {
+        _whatsNewScrollCtrl.jumpTo(0);
+      } else {
+        _whatsNewScrollCtrl.jumpTo(current + 1);
+      }
+    });
+  }
 
   // Authentic Student and Parent Reviews
   final List<Map<String, dynamic>> _reviews = [
@@ -164,6 +196,10 @@ class _HomePageState extends State<HomePage> {
 
                         // 2. Trust Metrics Bar
                         _buildTrustBar(isMobile, screenWidth, isDark),
+                        SizedBox(height: isMobile ? 40 : 70),
+
+                        // ✨ NEW: What's New Moving Animated Slider (جديد الموقع والأكاديمية)
+                        _buildWhatsNewSliderSection(isMobile, screenWidth, isDark),
                         SizedBox(height: isMobile ? 40 : 70),
 
                         // 3. Student & Parent Reviews Section (اراء الطلاب وأولياء الأمور)
@@ -429,6 +465,231 @@ class _HomePageState extends State<HomePage> {
   // =========================================================================
   // 3. STUDENT & PARENT REVIEWS SECTION (آراء الطلاب وأولياء الأمور)
   // =========================================================================
+  // =========================================================================
+  // ✨ WHAT\'S NEW MOVING SLIDER SECTION (جديد الموقع والأكاديمية)
+  // =========================================================================
+  Widget _buildWhatsNewSliderSection(bool isMobile, double screenWidth, bool isDark) {
+    final List<Map<String, dynamic>> items = [];
+
+    // 1. Featured Courses
+    items.add({
+      'type': 'course',
+      'typeLabel': 'كورس أساسي 🎓',
+      'typeColor': const Color(0xFF00E5FF),
+      'title': 'البرمجة والذكاء الاصطناعي للأطفال | من الصفر للاحتراف',
+      'subtitle': 'الكورس التأسيسي الشامل لعلوم الحاسب وبناء الخوارزميات',
+      'route': '/courses?course=01_cs_fundamentals',
+      'icon': Icons.school_rounded,
+    });
+    items.add({
+      'type': 'course',
+      'typeLabel': 'كورس تخصصي 💡',
+      'typeColor': const Color(0xFF8B5CF6),
+      'title': 'كورس الخوارزميات والتفكير المنطقي',
+      'subtitle': 'تطوير العقلية المنطقية والتحضير لمسابقات البرمجة العالمية',
+      'route': '/courses',
+      'icon': Icons.psychology_rounded,
+    });
+
+    // 2. Published Lectures from Courses
+    for (final c in _dataService.courses) {
+      final lessons = List<Map<String, dynamic>>.from(c['lessons'] ?? []);
+      for (final l in lessons.take(3)) {
+        final title = (l['title'] ?? '').toString();
+        if (title.isNotEmpty) {
+          items.add({
+            'type': 'lecture',
+            'typeLabel': 'محاضرة جديدة 🎬',
+            'typeColor': const Color(0xFFFF7A00),
+            'title': title,
+            'subtitle': 'ضمن مسار ' + (c['title'] ?? 'الكورس'),
+            'route': '/courses?course=' + c['id'].toString(),
+            'icon': Icons.play_circle_fill_rounded,
+          });
+        }
+      }
+    }
+
+    // 3. Published Articles
+    for (final a in _dataService.articles.take(5)) {
+      items.add({
+        'type': 'article',
+        'typeLabel': 'مقال تقني 📝',
+        'typeColor': const Color(0xFF10B981),
+        'title': a['title'] ?? 'مقال جديد',
+        'subtitle': a['category'] ?? 'مدونة علوم الحاسب',
+        'route': '/blog?article=' + a['id'].toString(),
+        'icon': Icons.article_rounded,
+      });
+    }
+
+    final sliderItems = [...items, ...items, ...items];
+
+    return Center(
+      child: Container(
+        constraints: const BoxConstraints(maxWidth: 1220),
+        padding: EdgeInsets.symmetric(horizontal: isMobile ? 14 : 32),
+        child: Column(
+          children: [
+            _buildSectionHeader(
+              tag: '🚀 جديد الأكاديمية والموقع',
+              title: 'جديد الكورسات، المحاضرات، والمقالات التعليمية',
+              subtitle: 'محتوى تعليمي متجدد وتحديثات حية ومستمرة لإثراء المعرفة البرمجية لأبنائنا خطوة بخطوة.',
+              isDark: isDark,
+              isMobile: isMobile,
+            ),
+            const SizedBox(height: 20),
+
+            // Controls Bar
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                IconButton(
+                  icon: const Icon(Icons.arrow_forward_ios_rounded, size: 16),
+                  tooltip: 'التالي',
+                  onPressed: () {
+                    if (_whatsNewScrollCtrl.hasClients) {
+                      _whatsNewScrollCtrl.animateTo(
+                        _whatsNewScrollCtrl.offset + 320,
+                        duration: const Duration(milliseconds: 300),
+                        curve: Curves.easeOut,
+                      );
+                    }
+                  },
+                ),
+                IconButton(
+                  icon: const Icon(Icons.arrow_back_ios_rounded, size: 16),
+                  tooltip: 'السابق',
+                  onPressed: () {
+                    if (_whatsNewScrollCtrl.hasClients) {
+                      _whatsNewScrollCtrl.animateTo(
+                        _whatsNewScrollCtrl.offset - 320,
+                        duration: const Duration(milliseconds: 300),
+                        curve: Curves.easeOut,
+                      );
+                    }
+                  },
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+
+            // The Smooth Moving Slider
+            MouseRegion(
+              onEnter: (_) => _whatsNewAutoScrollTimer?.cancel(),
+              onExit: (_) => _startWhatsNewAutoScroll(),
+              child: SizedBox(
+                height: 190,
+                child: ListView.separated(
+                  controller: _whatsNewScrollCtrl,
+                  scrollDirection: Axis.horizontal,
+                  physics: const BouncingScrollPhysics(),
+                  itemCount: sliderItems.length,
+                  separatorBuilder: (_, __) => const SizedBox(width: 16),
+                  itemBuilder: (context, idx) {
+                    final it = sliderItems[idx];
+                    final color = it['typeColor'] as Color;
+
+                    return InkWell(
+                      onTap: () {
+                        final r = it['route'] as String;
+                        Navigator.of(context).pushNamed(r);
+                      },
+                      borderRadius: BorderRadius.circular(16),
+                      child: Container(
+                        width: isMobile ? 280 : 320,
+                        padding: const EdgeInsets.all(18),
+                        decoration: BoxDecoration(
+                          color: isDark ? const Color(0xFF0F172A) : Colors.white,
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(
+                            color: color.withOpacity(isDark ? 0.35 : 0.25),
+                            width: 1.2,
+                          ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: color.withOpacity(isDark ? 0.12 : 0.06),
+                              blurRadius: 12,
+                              offset: const Offset(0, 4),
+                            ),
+                          ],
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                                  decoration: BoxDecoration(
+                                    color: color.withOpacity(0.14),
+                                    borderRadius: BorderRadius.circular(20),
+                                    border: Border.all(color: color.withOpacity(0.4)),
+                                  ),
+                                  child: Text(
+                                    it['typeLabel'],
+                                    style: GoogleFonts.cairo(
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.bold,
+                                      color: color,
+                                    ),
+                                  ),
+                                ),
+                                Icon(it['icon'] as IconData, color: color, size: 22),
+                              ],
+                            ),
+                            const SizedBox(height: 10),
+                            Text(
+                              it['title'],
+                              style: GoogleFonts.cairo(
+                                fontSize: 14,
+                                fontWeight: FontWeight.bold,
+                                height: 1.35,
+                                color: isDark ? Colors.white : const Color(0xFF0F172A),
+                              ),
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              it['subtitle'],
+                              style: GoogleFonts.cairo(
+                                fontSize: 11.5,
+                                color: isDark ? Colors.grey.shade400 : Colors.grey.shade600,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            const SizedBox(height: 10),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: [
+                                Text(
+                                  'استكشف الآن ➔',
+                                  style: GoogleFonts.cairo(
+                                    fontSize: 11.5,
+                                    fontWeight: FontWeight.bold,
+                                    color: color,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _buildStudentReviewsSection(bool isMobile, double screenWidth, bool isDark) {
     final displayedReviews = _reviews.take(_visibleReviewsCount).toList();
 

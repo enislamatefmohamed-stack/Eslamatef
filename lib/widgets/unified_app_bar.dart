@@ -1,6 +1,7 @@
 // ignore_for_file: deprecated_member_use
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../theme/app_theme.dart';
 import '../data/arabic_data.dart';
 import '../services/auth_service.dart';
@@ -8,6 +9,7 @@ import '../services/site_data_service.dart';
 import 'social_icons.dart';
 import 'auth_modal.dart';
 import 'achievements_dialog.dart';
+import 'interactive_html_view/interactive_html_view.dart';
 
 /// Unified Header used across all pages of the application.
 /// Ensures identical design, branding, navigation, and smart back behavior everywhere.
@@ -118,6 +120,9 @@ class UnifiedAppHeader extends StatelessWidget implements PreferredSizeWidget {
                             final body = (n['body'] ?? '').toString();
                             final sender = (n['sender'] ?? 'إدارة الأكاديمية').toString();
                             final isPublic = (n['target'] ?? 'all') == 'all';
+                            final isHtml = n['isHtml'] == true || (body.contains('<') && body.contains('>'));
+                            final attachmentUrl = (n['attachmentUrl'] ?? '').toString().trim();
+                            final attachmentName = (n['attachmentName'] ?? '').toString().trim();
                             final time = (n['createdAt'] ?? '').toString();
                             String timeStr = '';
                             if (time.isNotEmpty) {
@@ -179,13 +184,61 @@ class UnifiedAppHeader extends StatelessWidget implements PreferredSizeWidget {
                                     ),
                                   ),
                                   if (body.isNotEmpty) ...[
-                                    const SizedBox(height: 4),
-                                    Text(
-                                      body,
-                                      style: GoogleFonts.cairo(
-                                        fontSize: 12.5,
-                                        height: 1.5,
-                                        color: isDark ? Colors.grey.shade300 : const Color(0xFF475569),
+                                    const SizedBox(height: 6),
+                                    if (isHtml)
+                                      ClipRRect(
+                                        borderRadius: BorderRadius.circular(8),
+                                        child: SizedBox(
+                                          height: 180,
+                                          child: InteractiveHtmlView(
+                                            id: 'notif_${n['id'] ?? idx}',
+                                            rawHtml: body,
+                                            height: 180,
+                                          ),
+                                        ),
+                                      )
+                                    else
+                                      Text(
+                                        body,
+                                        style: GoogleFonts.cairo(
+                                          fontSize: 12.5,
+                                          height: 1.5,
+                                          color: isDark ? Colors.grey.shade300 : const Color(0xFF475569),
+                                        ),
+                                      ),
+                                  ],
+                                  if (attachmentUrl.isNotEmpty) ...[
+                                    const SizedBox(height: 10),
+                                    InkWell(
+                                      onTap: () async {
+                                        final uri = Uri.tryParse(attachmentUrl);
+                                        if (uri != null) {
+                                          await launchUrl(uri, mode: LaunchMode.externalApplication);
+                                        }
+                                      },
+                                      borderRadius: BorderRadius.circular(8),
+                                      child: Container(
+                                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                                        decoration: BoxDecoration(
+                                          color: const Color(0xFF00E5FF).withOpacity(0.12),
+                                          borderRadius: BorderRadius.circular(8),
+                                          border: Border.all(color: const Color(0xFF00E5FF).withOpacity(0.35)),
+                                        ),
+                                        child: Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            const Icon(Icons.attach_file_rounded, size: 16, color: Color(0xFF00E5FF)),
+                                            const SizedBox(width: 6),
+                                            Text(
+                                              attachmentName.isNotEmpty ? attachmentName : "تحميل / فتح المرفق 📎",
+                                              style: GoogleFonts.cairo(
+                                                fontSize: 11.5,
+                                                fontWeight: FontWeight.bold,
+                                                color: const Color(0xFF00E5FF),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
                                       ),
                                     ),
                                   ],

@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../services/site_data_service.dart';
-import '../widgets/blogger_post_editor.dart';
 
 enum AdminSection { home, courses, members, articles }
 
@@ -1838,15 +1837,17 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
 
     final titleCtrl = TextEditingController(text: "رسالة هامة من المهندس إسلام عاطف");
     final bodyCtrl = TextEditingController();
+    final attachmentCtrl = TextEditingController();
 
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
         title: Text("إرسال إشعار خاص إلى: $name", style: GoogleFonts.cairo(fontWeight: FontWeight.bold)),
         content: SizedBox(
-          width: 480,
+          width: 520,
           child: Column(
             mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               TextField(
                 controller: titleCtrl,
@@ -1858,10 +1859,21 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
               const SizedBox(height: 14),
               TextField(
                 controller: bodyCtrl,
-                maxLines: 4,
+                maxLines: 5,
                 decoration: InputDecoration(
-                  labelText: "نص الرسالة أو الإشعار",
-                  hintText: "اكتب رسالتك الموجهة لهذا الطالب هنا...",
+                  labelText: "نص الرسالة أو الإشعار (يدعم وسوم وتنسيقات HTML)",
+                  hintText: "اكتب رسالتك أو كود HTML الموجه لهذا الطالب...",
+                  helperText: "يدعم وسوم HTML والروابط والتنسيقات الكاملة",
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                ),
+              ),
+              const SizedBox(height: 14),
+              TextField(
+                controller: attachmentCtrl,
+                decoration: InputDecoration(
+                  labelText: "رابط المرفق (اختياري - PDF / صورة / ملف)",
+                  hintText: "https://example.com/file.pdf",
+                  prefixIcon: const Icon(Icons.attach_file_rounded),
                   border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
                 ),
               ),
@@ -1877,11 +1889,13 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
             onPressed: () async {
               final t = titleCtrl.text.trim();
               final b = bodyCtrl.text.trim();
+              final att = attachmentCtrl.text.trim();
               if (t.isEmpty || b.isEmpty) {
                 _showSnackBar("برجاء إدخال عنوان ونص الإشعار", isError: true);
                 return;
               }
 
+              final isHtml = b.contains('<') && b.contains('>');
               await _dataService.sendNotification(
                 title: t,
                 body: b,
@@ -1889,6 +1903,8 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                 targetUid: uid,
                 targetName: name,
                 targetEmail: email,
+                attachmentUrl: att.isNotEmpty ? att : null,
+                isHtml: isHtml,
               );
 
               if (ctx.mounted) Navigator.of(ctx).pop();
@@ -1936,6 +1952,7 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
   void _showBroadcastNotificationDialog() {
     final titleCtrl = TextEditingController(text: "إعلان عام لجميع الطلاب");
     final bodyCtrl = TextEditingController();
+    final attachmentCtrl = TextEditingController();
 
     showDialog(
       context: context,
@@ -1948,9 +1965,10 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
           ],
         ),
         content: SizedBox(
-          width: 500,
+          width: 520,
           child: Column(
             mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               TextField(
                 controller: titleCtrl,
@@ -1962,10 +1980,21 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
               const SizedBox(height: 14),
               TextField(
                 controller: bodyCtrl,
-                maxLines: 4,
+                maxLines: 5,
                 decoration: InputDecoration(
-                  labelText: "نص الإعلان أو التنبيه",
-                  hintText: "اكتب الرسالة التي ستصل لجميع الطلاب في جرس الإشعارات...",
+                  labelText: "نص الإعلان أو التنبيه (يدعم وسوم وتنسيقات HTML)",
+                  hintText: "اكتب الرسالة أو كود HTML التفاعلي...",
+                  helperText: "يدعم وسوم HTML والروابط والتنسيقات الكاملة",
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                ),
+              ),
+              const SizedBox(height: 14),
+              TextField(
+                controller: attachmentCtrl,
+                decoration: InputDecoration(
+                  labelText: "رابط المرفق (اختياري - ملف PDF أو صورة أو رابط)",
+                  hintText: "https://example.com/file.pdf",
+                  prefixIcon: const Icon(Icons.attach_file_rounded),
                   border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
                 ),
               ),
@@ -1981,12 +2010,16 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
             onPressed: () async {
               final t = titleCtrl.text.trim();
               final b = bodyCtrl.text.trim();
+              final att = attachmentCtrl.text.trim();
               if (t.isEmpty || b.isEmpty) return;
 
+              final isHtml = b.contains('<') && b.contains('>');
               await _dataService.sendNotification(
                 title: t,
                 body: b,
                 target: 'all',
+                attachmentUrl: att.isNotEmpty ? att : null,
+                isHtml: isHtml,
               );
 
               if (ctx.mounted) Navigator.of(ctx).pop();
@@ -2119,22 +2152,21 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
 
   // Article Editor Tab
   Widget _buildArticleEditorTab(bool isDark) {
-    return BloggerPostEditor(
+    return ArticleDirectEditorView(
       key: ValueKey(_editingArticle?['id'] ?? 'new_article'),
-      initialTitle: _editingArticle?['title'] ?? '',
-      initialHtml: _editingArticle?['htmlCode'] ?? _editingArticle?['content'] ?? '',
-      initialContent: _editingArticle?['content'] ?? '',
-      initialCategory: _editingArticle?['category'] ?? 'عام',
-      initialStatus: _editingArticle?['status'] ?? 'منشور',
-      availableCategories: _dataService.articleCategories,
+      initialArticle: _editingArticle,
+      categories: _dataService.articleCategories,
       onCancel: () {
         setState(() {
           _editingArticle = null;
           _articlesSubTab = 1;
         });
       },
-      onSave: (result) async {
-        final articleData = Map<String, dynamic>.from(result);
+      onAddCategory: (newCat) async {
+        await _dataService.addArticleCategory(newCat);
+        _showSnackBar("تمت إضافة التصنيف بنجاح ✅");
+      },
+      onSave: (articleData) async {
         if (_editingArticle != null) {
           final id = _editingArticle!['id'].toString();
           await _dataService.updateArticle(id, articleData);
@@ -2417,6 +2449,314 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
               }
             },
             child: Text("حفظ التعديل", style: GoogleFonts.cairo(fontWeight: FontWeight.bold)),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ==========================================
+// DEDICATED 3-FIELD ARTICLE DIRECT EDITOR
+// ==========================================
+class ArticleDirectEditorView extends StatefulWidget {
+  final Map<String, dynamic>? initialArticle;
+  final List<String> categories;
+  final VoidCallback onCancel;
+  final Future<void> Function(Map<String, dynamic> data) onSave;
+  final Future<void> Function(String newCategory) onAddCategory;
+
+  const ArticleDirectEditorView({
+    super.key,
+    this.initialArticle,
+    required this.categories,
+    required this.onCancel,
+    required this.onSave,
+    required this.onAddCategory,
+  });
+
+  @override
+  State<ArticleDirectEditorView> createState() => _ArticleDirectEditorViewState();
+}
+
+class _ArticleDirectEditorViewState extends State<ArticleDirectEditorView> {
+  late TextEditingController _titleCtrl;
+  late TextEditingController _codeCtrl;
+  String _selectedCategory = 'عام';
+  bool _isSaving = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _titleCtrl = TextEditingController(text: widget.initialArticle?['title'] ?? '');
+    _codeCtrl = TextEditingController(
+      text: widget.initialArticle?['htmlCode'] ?? widget.initialArticle?['content'] ?? '',
+    );
+    final initialCat = widget.initialArticle?['category'] ?? 'عام';
+    if (widget.categories.contains(initialCat)) {
+      _selectedCategory = initialCat;
+    } else if (widget.categories.isNotEmpty) {
+      _selectedCategory = widget.categories.first;
+    }
+  }
+
+  @override
+  void dispose() {
+    _titleCtrl.dispose();
+    _codeCtrl.dispose();
+    super.dispose();
+  }
+
+  void _promptAddNewCategory() {
+    final catCtrl = TextEditingController();
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text("إضافة تصنيف جديد 🏷️", style: GoogleFonts.cairo(fontWeight: FontWeight.bold)),
+        content: TextField(
+          controller: catCtrl,
+          autofocus: true,
+          decoration: InputDecoration(
+            labelText: "اسم التصنيف الجديد",
+            hintText: "مثال: ذكاء اصطناعي، بايثون، روبوتات...",
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(),
+            child: Text("إلغاء", style: GoogleFonts.cairo(color: Colors.grey)),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              final newCat = catCtrl.text.trim();
+              if (newCat.isNotEmpty) {
+                await widget.onAddCategory(newCat);
+                if (mounted) {
+                  setState(() {
+                    _selectedCategory = newCat;
+                  });
+                }
+                if (ctx.mounted) Navigator.of(ctx).pop();
+              }
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF00E5FF),
+              foregroundColor: const Color(0xFF0F172A),
+            ),
+            child: Text("إضافة التصنيف", style: GoogleFonts.cairo(fontWeight: FontWeight.bold)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final isEditing = widget.initialArticle != null;
+
+    final cats = List<String>.from(widget.categories);
+    if (!cats.contains(_selectedCategory) && _selectedCategory.isNotEmpty) {
+      cats.insert(0, _selectedCategory);
+    }
+    if (cats.isEmpty) {
+      cats.add('عام');
+    }
+
+    return Container(
+      decoration: BoxDecoration(
+        color: isDark ? const Color(0xFF0F172A) : Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0)),
+      ),
+      padding: const EdgeInsets.all(24),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Row(
+                children: [
+                  Icon(
+                    isEditing ? Icons.edit_note_rounded : Icons.post_add_rounded,
+                    color: const Color(0xFF00E5FF),
+                    size: 28,
+                  ),
+                  const SizedBox(width: 10),
+                  Text(
+                    isEditing ? "تعديل المقال" : "إضافة مقال جديد",
+                    style: GoogleFonts.cairo(fontSize: 20, fontWeight: FontWeight.bold),
+                  ),
+                ],
+              ),
+              IconButton(
+                icon: const Icon(Icons.close_rounded),
+                onPressed: widget.onCancel,
+                tooltip: "إلغاء والعودة",
+              ),
+            ],
+          ),
+          const SizedBox(height: 20),
+
+          // الحقل الأول: عنوان المقال
+          Text(
+            "1. عنوان المقال *",
+            style: GoogleFonts.cairo(fontWeight: FontWeight.bold, fontSize: 14),
+          ),
+          const SizedBox(height: 8),
+          TextField(
+            controller: _titleCtrl,
+            decoration: InputDecoration(
+              hintText: "أدخل عنوان المقال الشيق والجذاب هنا...",
+              prefixIcon: const Icon(Icons.title_rounded),
+              filled: true,
+              fillColor: isDark ? const Color(0xFF1E293B) : const Color(0xFFF8FAFC),
+              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+            ),
+          ),
+          const SizedBox(height: 20),
+
+          // الحقل الثاني: تصنيف المقال (ولو فاضية يبقي فيه إضافة تصنيف)
+          Text(
+            "2. تصنيف المقال *",
+            style: GoogleFonts.cairo(fontWeight: FontWeight.bold, fontSize: 14),
+          ),
+          const SizedBox(height: 8),
+          Row(
+            children: [
+              Expanded(
+                child: DropdownButtonFormField<String>(
+                  value: cats.contains(_selectedCategory) ? _selectedCategory : cats.first,
+                  decoration: InputDecoration(
+                    prefixIcon: const Icon(Icons.category_rounded),
+                    filled: true,
+                    fillColor: isDark ? const Color(0xFF1E293B) : const Color(0xFFF8FAFC),
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                  ),
+                  items: cats.map((cat) {
+                    return DropdownMenuItem<String>(
+                      value: cat,
+                      child: Text(cat, style: GoogleFonts.cairo(fontWeight: FontWeight.w600)),
+                    );
+                  }).toList(),
+                  onChanged: (val) {
+                    if (val != null) {
+                      setState(() => _selectedCategory = val);
+                    }
+                  },
+                ),
+              ),
+              const SizedBox(width: 12),
+              ElevatedButton.icon(
+                onPressed: _promptAddNewCategory,
+                icon: const Icon(Icons.add_rounded, size: 18),
+                label: Text(
+                  "+ إضافة تصنيف",
+                  style: GoogleFonts.cairo(fontWeight: FontWeight.bold),
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF00E5FF),
+                  foregroundColor: const Color(0xFF0F172A),
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 20),
+
+          // الحقل الثالث: كود المقال (HTML)
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                "3. كود المقال (HTML) *",
+                style: GoogleFonts.cairo(fontWeight: FontWeight.bold, fontSize: 14),
+              ),
+              Text(
+                "يدعم وسوم HTML كاملة <h1>، <p>، <img>، <iframe>، والتنسيقات",
+                style: GoogleFonts.cairo(fontSize: 12, color: Colors.grey),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          TextField(
+            controller: _codeCtrl,
+            maxLines: 15,
+            style: const TextStyle(fontFamily: 'monospace', fontSize: 13, height: 1.5),
+            decoration: InputDecoration(
+              hintText: "الصق أو اكتب كود المقال (HTML) هنا مباشرة...",
+              filled: true,
+              fillColor: isDark ? const Color(0xFF1E293B) : const Color(0xFFF8FAFC),
+              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+            ),
+          ),
+          const SizedBox(height: 24),
+
+          // الأزرار
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              TextButton(
+                onPressed: widget.onCancel,
+                child: Text("إلغاء والرجوع", style: GoogleFonts.cairo(color: Colors.grey)),
+              ),
+              const SizedBox(width: 16),
+              ElevatedButton.icon(
+                onPressed: _isSaving
+                    ? null
+                    : () async {
+                        final title = _titleCtrl.text.trim();
+                        final code = _codeCtrl.text.trim();
+                        if (title.isEmpty) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text("يرجى كتابة عنوان المقال", style: GoogleFonts.cairo()),
+                              backgroundColor: Colors.red,
+                            ),
+                          );
+                          return;
+                        }
+                        if (code.isEmpty) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text("يرجى كتابة أو لصق كود المقال", style: GoogleFonts.cairo()),
+                              backgroundColor: Colors.red,
+                            ),
+                          );
+                          return;
+                        }
+
+                        setState(() => _isSaving = true);
+                        try {
+                          await widget.onSave({
+                            'title': title,
+                            'htmlCode': code,
+                            'content': code,
+                            'category': _selectedCategory,
+                            'status': 'منشور',
+                          });
+                        } finally {
+                          if (mounted) setState(() => _isSaving = false);
+                        }
+                      },
+                icon: _isSaving
+                    ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2, color: Color(0xFF0F172A)))
+                    : const Icon(Icons.rocket_launch_rounded, size: 18),
+                label: Text(
+                  isEditing ? "حفظ تعديلات المقال ✅" : "حفظ ونشر المقال 🚀",
+                  style: GoogleFonts.cairo(fontWeight: FontWeight.bold, fontSize: 14),
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF00E5FF),
+                  foregroundColor: const Color(0xFF0F172A),
+                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                ),
+              ),
+            ],
           ),
         ],
       ),

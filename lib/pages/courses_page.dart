@@ -1470,67 +1470,38 @@ class _CoursesPageState extends State<CoursesPage> {
           _syncUrl();
         },
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
           child: Row(
             children: [
-              // Play Icon
+              // Icon (Lock or Play matching the screenshot style)
               Icon(
-                hasActiveVideo ? Icons.play_circle_fill_rounded : Icons.play_circle_outline_rounded,
-                size: 22,
-                color: hasActiveVideo ? const Color(0xFF00E5FF) : Colors.grey,
+                hasActiveVideo ? Icons.play_circle_fill_rounded : Icons.lock_outline_rounded,
+                size: 20,
+                color: hasActiveVideo ? const Color(0xFF00E5FF) : Colors.grey.shade400,
               ),
               const SizedBox(width: 12),
 
               // Lecture Title
               Expanded(
-                child: Row(
-                  children: [
-                    Flexible(
-                      child: Text(
-                        title,
-                        style: GoogleFonts.cairo(
-                          fontSize: 13.5,
-                          fontWeight: FontWeight.w600,
-                          color: isDark ? Colors.white : const Color(0xFF1E293B),
-                        ),
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                    if (hasActiveVideo) ...[
-                      const SizedBox(width: 8),
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF00E5FF).withOpacity(0.12),
-                          borderRadius: BorderRadius.circular(6),
-                          border: Border.all(color: const Color(0xFF00E5FF).withOpacity(0.3)),
-                        ),
-                        child: Text(
-                          "فيديو 🎬",
-                          style: GoogleFonts.cairo(
-                            fontSize: 10,
-                            fontWeight: FontWeight.bold,
-                            color: const Color(0xFF00E5FF),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ],
+                child: Text(
+                  title,
+                  style: GoogleFonts.cairo(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: isDark ? Colors.white : const Color(0xFF1E293B),
+                  ),
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
 
-              // Duration
+              // Duration on opposite side (identical to the screenshot)
               Text(
                 duration,
-                style: GoogleFonts.cairo(fontSize: 12, color: Colors.grey),
-              ),
-              const SizedBox(width: 10),
-
-              // Status Icon (Play arrow)
-              Icon(
-                Icons.arrow_back_ios_new_rounded,
-                size: 13,
-                color: hasActiveVideo ? const Color(0xFF00E5FF) : Colors.grey.shade500,
+                style: GoogleFonts.cairo(
+                  fontSize: 12.5,
+                  fontWeight: FontWeight.w500,
+                  color: isDark ? Colors.grey.shade400 : const Color(0xFF64748B),
+                ),
               ),
             ],
           ),
@@ -1570,11 +1541,24 @@ class _CoursesPageState extends State<CoursesPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // Primary Start Course CTA Button
+          // Primary Start Course CTA Button (سجّل بالدورة / ابدأ المشاهدة)
           ElevatedButton(
             onPressed: lessons.isEmpty
                 ? null
-                : () {
+                : () async {
+                    if (user == null) {
+                      showDialog(context: context, builder: (c) => const AuthModal());
+                      return;
+                    }
+                    if (!isEnrolled) {
+                      await _dataService.enrollInCourse(
+                        courseId: course['id']?.toString() ?? '',
+                        userId: user.uid,
+                        userEmail: user.email ?? '',
+                        userName: user.displayName ?? '',
+                      );
+                      _checkEnrollment();
+                    }
                     setState(() {
                       _activeLesson = lessons.first;
                       _isLessonArticleOpen = false;
@@ -1593,10 +1577,17 @@ class _CoursesPageState extends State<CoursesPage> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(lessons.isEmpty ? Icons.hourglass_empty_rounded : Icons.play_arrow_rounded, size: 22),
+                Icon(
+                  lessons.isEmpty
+                      ? Icons.hourglass_empty_rounded
+                      : (isEnrolled ? Icons.play_arrow_rounded : Icons.how_to_reg_rounded),
+                  size: 22,
+                ),
                 const SizedBox(width: 8),
                 Text(
-                  lessons.isEmpty ? "قريباً - لا توجد محاضرات حالياً ⏳" : "ابدأ مشاهدة الدورة الآن 🎬",
+                  lessons.isEmpty
+                      ? "قريباً - لا توجد محاضرات حالياً ⏳"
+                      : (isEnrolled ? "ابدأ مشاهدة الدورة الآن 🎬" : "سجّل بالدورة"),
                   style: GoogleFonts.cairo(
                     fontSize: 15,
                     fontWeight: FontWeight.bold,
@@ -1635,8 +1626,8 @@ class _CoursesPageState extends State<CoursesPage> {
           ),
           _buildSidebarFactRow(
             Icons.check_circle_outline_rounded,
-            "إمكانية الوصول:",
-            "متاح دائماً 24/7",
+            "إمكانية الوصول للمحاضرات بأي وقت",
+            "",
             const Color(0xFF10B981),
             isDark,
           ),
@@ -1650,14 +1641,14 @@ class _CoursesPageState extends State<CoursesPage> {
           _buildSidebarFactRow(
             Icons.workspace_premium_rounded,
             "شهادة مشاركة:",
-            "نعم (معتمدة)",
+            "نعم",
             const Color(0xFFF59E0B),
             isDark,
           ),
           _buildSidebarFactRow(
             Icons.card_giftcard_rounded,
             "رسوم الدورة:",
-            "مجاناً بالكامل",
+            "مجاناً",
             const Color(0xFF10B981),
             isDark,
           ),
@@ -1666,9 +1657,9 @@ class _CoursesPageState extends State<CoursesPage> {
           Divider(color: isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0)),
           const SizedBox(height: 14),
 
-          // Share with friends (Clean dynamic links without external hardcoded domains)
+          // Share with friends (Matching the screenshot)
           Text(
-            "شارك الدورة مع أصدقائك",
+            "شارك الأصدقاء",
             style: GoogleFonts.cairo(
               fontSize: 14,
               fontWeight: FontWeight.bold,
@@ -1720,6 +1711,45 @@ class _CoursesPageState extends State<CoursesPage> {
     Color iconColor,
     bool isDark,
   ) {
+    Widget valueWidget;
+    if (value == "نعم") {
+      valueWidget = Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
+        decoration: BoxDecoration(
+          color: const Color(0xFF10B981).withOpacity(0.12),
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: Text(
+          "نعم",
+          style: GoogleFonts.cairo(
+            fontSize: 12,
+            fontWeight: FontWeight.bold,
+            color: const Color(0xFF10B981),
+          ),
+        ),
+      );
+    } else if (value == "مجاناً" || value == "مجاناً بالكامل") {
+      valueWidget = Text(
+        "مجاناً",
+        style: GoogleFonts.cairo(
+          fontSize: 13.5,
+          fontWeight: FontWeight.bold,
+          color: const Color(0xFF10B981),
+        ),
+      );
+    } else if (value.isEmpty) {
+      valueWidget = const SizedBox.shrink();
+    } else {
+      valueWidget = Text(
+        value,
+        style: GoogleFonts.cairo(
+          fontSize: 13,
+          fontWeight: FontWeight.bold,
+          color: isDark ? Colors.white : const Color(0xFF0F172A),
+        ),
+      );
+    }
+
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 9),
       child: Row(
@@ -1739,14 +1769,7 @@ class _CoursesPageState extends State<CoursesPage> {
               ),
             ],
           ),
-          Text(
-            value,
-            style: GoogleFonts.cairo(
-              fontSize: 13,
-              fontWeight: FontWeight.bold,
-              color: isDark ? Colors.white : const Color(0xFF0F172A),
-            ),
-          ),
+          valueWidget,
         ],
       ),
     );

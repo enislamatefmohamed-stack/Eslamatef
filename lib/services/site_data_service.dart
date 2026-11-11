@@ -1406,6 +1406,9 @@ class SiteDataService extends ChangeNotifier {
     String? targetUid,
     String? targetName,
     String? targetEmail,
+    String? attachmentUrl,
+    String? attachmentName,
+    bool isHtml = false,
   }) async {
     final notif = {
       'id': 'notif_${DateTime.now().millisecondsSinceEpoch}',
@@ -1415,6 +1418,9 @@ class SiteDataService extends ChangeNotifier {
       'targetUid': targetUid,
       'targetName': targetName,
       'targetEmail': targetEmail,
+      'attachmentUrl': attachmentUrl?.trim(),
+      'attachmentName': attachmentName?.trim(),
+      'isHtml': isHtml,
       'createdAt': DateTime.now().toIso8601String(),
       'sender': 'م. إسلام عاطف',
       'isRead': false,
