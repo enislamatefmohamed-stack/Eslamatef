@@ -445,18 +445,16 @@ class SiteDataService extends ChangeNotifier {
         }
       }, onError: (e) => debugPrint("Firestore users error: $e"));
 
-      // Notifications Collection
+      // Notifications Collection (Real-time live sync)
       _firestore.collection('notifications').snapshots().listen((snapshot) {
-        if (snapshot.docs.isNotEmpty) {
-          _notifications = snapshot.docs.map((doc) {
-            final d = doc.data();
-            d['id'] = doc.id;
-            return d;
-          }).toList();
-          _notifications.sort((a, b) => (b['createdAt'] ?? '').toString().compareTo((a['createdAt'] ?? '').toString()));
-          _saveNotifications();
-          notifyListeners();
-        }
+        _notifications = snapshot.docs.map((doc) {
+          final d = doc.data();
+          d['id'] = doc.id;
+          return d;
+        }).toList();
+        _notifications.sort((a, b) => (b['createdAt'] ?? '').toString().compareTo((a['createdAt'] ?? '').toString()));
+        _saveNotifications();
+        notifyListeners();
       }, onError: (e) => debugPrint("Firestore notifications error: $e"));
 
       // Latest Updates Collection
@@ -1546,7 +1544,35 @@ class SiteDataService extends ChangeNotifier {
 
     if (isFirebaseReady) {
       try {
-        await _firestore.collection('notifications').doc(notif['id'] as String).set(notif);
+        final notifId = notif['id'] as String;
+        // 1. Save to Global Notifications
+        await _firestore.collection('notifications').doc(notifId).set(notif, SetOptions(merge: true));
+
+        // 2. If targetUid is specified, also save directly into user's notifications subcollection
+        if (targetUid != null && targetUid.isNotEmpty && targetUid != 'all') {
+          await _firestore
+              .collection('users')
+              .doc(targetUid)
+              .collection('notifications')
+              .doc(notifId)
+              .set(notif, SetOptions(merge: true));
+        }
+
+        // 3. If targetEmail is given, find matching member and save to their doc as well
+        if (targetEmail != null && targetEmail.isNotEmpty) {
+          final matched = _members.where((m) => (m['email'] ?? '').toString().toLowerCase() == targetEmail.toLowerCase()).toList();
+          for (final m in matched) {
+            final mUid = (m['uid'] ?? m['id'] ?? '').toString();
+            if (mUid.isNotEmpty && mUid != targetUid) {
+              await _firestore
+                  .collection('users')
+                  .doc(mUid)
+                  .collection('notifications')
+                  .doc(notifId)
+                  .set(notif, SetOptions(merge: true));
+            }
+          }
+        }
       } catch (e) {
         debugPrint("Firestore sendNotification error: $e");
       }

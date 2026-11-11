@@ -519,7 +519,7 @@ class _HomePageState extends State<HomePage> {
       String articleImg = (a['image'] ?? a['imageUrl'] ?? a['cover'] ?? '').toString();
       if (articleImg.isEmpty) {
         final code = (a['htmlCode'] ?? a['content'] ?? '').toString();
-        final imgMatch = RegExp(r'<img[^>]+src=["\']([^"\']+)["\']', caseSensitive: false).firstMatch(code);
+        final imgMatch = RegExp(r"""<img[^>]+src=["']([^"']+)["']""", caseSensitive: false).firstMatch(code);
         if (imgMatch != null) {
           articleImg = imgMatch.group(1) ?? '';
         }

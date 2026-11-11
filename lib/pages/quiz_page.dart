@@ -561,7 +561,7 @@ class _QuizPageState extends State<QuizPage> {
                           if (context.mounted) {
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(
-                                content: Text("تم حفظ النتيجة وتوثيقها في صفحة إنجازاتي بالفايربيز بنجاح 🎯"),
+                                content: Text("تم حفظ النتيجة وتوثيقها بنجاح 🎯"),
                                 backgroundColor: Color(0xFF10B981),
                               ),
                             );
@@ -878,7 +878,7 @@ class _QuizPageState extends State<QuizPage> {
                   const Icon(Icons.verified_rounded, color: Color(0xFF10B981), size: 18),
                   const SizedBox(width: 8),
                   Text(
-                    "تم توثيق نتيجتك رسمياً في إنجازاتي بالفايربيز • الاختبار متاح مرة واحدة فقط",
+                    "تم توثيق نتيجتك رسمياً في حسابك بالفايربيز • الاختبار متاح مرة واحدة فقط",
                     style: GoogleFonts.cairo(fontSize: 12.5, fontWeight: FontWeight.bold, color: const Color(0xFF10B981)),
                   ),
                 ],
@@ -893,8 +893,8 @@ class _QuizPageState extends State<QuizPage> {
               children: [
                 ElevatedButton.icon(
                   onPressed: () => Navigator.of(context).pushNamed('/profile'),
-                  icon: const Icon(Icons.workspace_premium_rounded, size: 20),
-                  label: Text("عرض نتيجتي في إنجازاتي 🏆", style: GoogleFonts.cairo(fontWeight: FontWeight.bold, fontSize: 15)),
+                  icon: const Icon(Icons.person_rounded, size: 20),
+                  label: Text("عرض حسابي الشخصي 👤", style: GoogleFonts.cairo(fontWeight: FontWeight.bold, fontSize: 15)),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF00E5FF),
                     foregroundColor: const Color(0xFF0F172A),

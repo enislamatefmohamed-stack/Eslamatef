@@ -8,7 +8,6 @@ import '../services/auth_service.dart';
 import '../services/site_data_service.dart';
 import 'social_icons.dart';
 import 'auth_modal.dart';
-import 'achievements_dialog.dart';
 import 'interactive_html_view/interactive_html_view.dart';
 
 /// Unified Header used across all pages of the application.
@@ -406,11 +405,20 @@ class UnifiedAppHeader extends StatelessWidget implements PreferredSizeWidget {
                       builder: (ctx, _) {
                         final user = AuthService.instance.currentUser;
                         final notifs = SiteDataService.instance.notifications.where((n) {
-                          final target = (n['target'] ?? 'all').toString();
-                          if (target == 'all') return true;
-                          if (user != null && (target == user.uid || (n['targetUid'] ?? '') == user.uid || (n['targetEmail'] ?? '') == user.email)) return true;
+                          final target = (n['target'] ?? 'all').toString().trim().toLowerCase();
+                          if (target == 'all' || target.isEmpty) return true;
+                          if (user != null) {
+                            final uid = user.uid.trim();
+                            final email = (user.email ?? '').trim().toLowerCase();
+                            final tUid = (n['targetUid'] ?? '').toString().trim();
+                            final tEmail = (n['targetEmail'] ?? '').toString().trim().toLowerCase();
+                            if (target == uid || tUid == uid) return true;
+                            if (email.isNotEmpty && (target == email || tEmail == email)) return true;
+                          }
                           return false;
                         }).toList();
+
+                        final hasNotifs = notifs.isNotEmpty;
 
                         return MouseRegion(
                           cursor: SystemMouseCursors.click,
@@ -419,29 +427,30 @@ class UnifiedAppHeader extends StatelessWidget implements PreferredSizeWidget {
                             children: [
                               IconButton(
                                 icon: Icon(
-                                  Icons.notifications_outlined,
-                                  color: isDark ? Colors.white70 : const Color(0xFF1E293B),
-                                  size: 22,
+                                  hasNotifs ? Icons.notifications_active_rounded : Icons.notifications_outlined,
+                                  color: hasNotifs ? const Color(0xFFFF7A00) : (isDark ? Colors.white70 : const Color(0xFF1E293B)),
+                                  size: 23,
                                 ),
-                                tooltip: "الإشعارات والتنبيهات",
+                                tooltip: "الإشعارات والتنبيهات (${notifs.length})",
                                 onPressed: () => _showNotificationsDialog(context, notifs, isDark),
                               ),
-                              if (notifs.isNotEmpty)
+                              if (hasNotifs)
                                 Positioned(
-                                  top: 8,
-                                  right: 8,
+                                  top: 6,
+                                  right: 6,
                                   child: Container(
                                     padding: const EdgeInsets.all(4),
-                                    decoration: const BoxDecoration(
-                                      color: Color(0xFFEF4444),
+                                    decoration: BoxDecoration(
+                                      color: const Color(0xFFEF4444),
                                       shape: BoxShape.circle,
+                                      border: Border.all(color: isDark ? const Color(0xFF0F172A) : Colors.white, width: 1.5),
                                     ),
-                                    constraints: const BoxConstraints(minWidth: 16, minHeight: 16),
+                                    constraints: const BoxConstraints(minWidth: 18, minHeight: 18),
                                     child: Center(
                                       child: Text(
                                         notifs.length > 9 ? '+9' : '${notifs.length}',
                                         style: GoogleFonts.cairo(
-                                          fontSize: 9,
+                                          fontSize: 9.5,
                                           fontWeight: FontWeight.bold,
                                           color: Colors.white,
                                           height: 1,
@@ -489,16 +498,6 @@ class UnifiedAppHeader extends StatelessWidget implements PreferredSizeWidget {
                                   onTap: () => Navigator.of(context).pushNamed('/admin'),
                                   icon: Icons.admin_panel_settings_rounded,
                                   label: "لوحة التحكم",
-                                  color: const Color(0xFF0284C7),
-                                  isDark: isDark,
-                                ),
-                                const SizedBox(width: 6),
-                              ],
-                              if (!isMobile) ...[
-                                _HoverBadgeButton(
-                                  onTap: () => AchievementsDialog.show(context),
-                                  icon: Icons.emoji_events_rounded,
-                                  label: "إنجازاتي",
                                   color: const Color(0xFF0284C7),
                                   isDark: isDark,
                                 ),

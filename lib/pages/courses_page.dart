@@ -30,7 +30,6 @@ class _CoursesPageState extends State<CoursesPage> {
   final Set<String> _enrolledCourseIds = {};
   final Set<String> _watchedLessonIds = {};
   StreamSubscription? _popStateSubscription;
-  bool _isLessonArticleOpen = false;
 
   // The 8 Official Courses of Eslam Atef | Code & AI
   final List<Map<String, dynamic>> _officialCourses = [
@@ -1064,13 +1063,12 @@ class _CoursesPageState extends State<CoursesPage> {
         ),
         const SizedBox(height: 16),
 
-        // Badges Strip (strictly reflects active videos count and hours)
+        // Badges Strip (strictly reflects active videos count and certified badge)
         Wrap(
           spacing: 8,
           runSpacing: 8,
           children: [
             _buildBadgePill(Icons.language_rounded, "عربي", isDark),
-            _buildBadgePill(Icons.access_time_rounded, hoursBadgeStr, isDark),
             _buildBadgePill(Icons.ondemand_video_rounded, lecturesCountStr, isDark),
             _buildBadgePill(Icons.workspace_premium_rounded, "بشهادة إتمام معتمدة", isDark),
           ],
@@ -1499,7 +1497,6 @@ class _CoursesPageState extends State<CoursesPage> {
     bool isDark,
   ) {
     final title = lesson['title'] ?? 'محاضرة تعليمية';
-    final duration = lesson['duration'] ?? '00:45:00';
     final ytUrl = (lesson['youtubeUrl'] ?? lesson['videoUrl'] ?? '').toString().trim();
     final hasActiveVideo = ytUrl.isNotEmpty;
 
@@ -1509,7 +1506,6 @@ class _CoursesPageState extends State<CoursesPage> {
         onTap: () {
           setState(() {
             _activeLesson = lesson;
-            _isLessonArticleOpen = false;
           });
           _trackLessonWatched(lesson);
           _syncUrl();
@@ -1536,16 +1532,6 @@ class _CoursesPageState extends State<CoursesPage> {
                     color: isDark ? Colors.white : const Color(0xFF1E293B),
                   ),
                   overflow: TextOverflow.ellipsis,
-                ),
-              ),
-
-              // Duration on opposite side (identical to the screenshot)
-              Text(
-                duration,
-                style: GoogleFonts.cairo(
-                  fontSize: 12.5,
-                  fontWeight: FontWeight.w500,
-                  color: isDark ? Colors.grey.shade400 : const Color(0xFF64748B),
                 ),
               ),
             ],
@@ -1606,7 +1592,6 @@ class _CoursesPageState extends State<CoursesPage> {
                     }
                     setState(() {
                       _activeLesson = lessons.first;
-                      _isLessonArticleOpen = false;
                     });
                     _trackLessonWatched(lessons.first);
                     _syncUrl();
@@ -1656,13 +1641,6 @@ class _CoursesPageState extends State<CoursesPage> {
           const SizedBox(height: 16),
 
           // Facts List (Strictly reflecting actual published videos)
-          _buildSidebarFactRow(
-            Icons.access_time_rounded,
-            "الوقت الإجمالي:",
-            totalDurationStr,
-            const Color(0xFF00E5FF),
-            isDark,
-          ),
           _buildSidebarFactRow(
             Icons.ondemand_video_rounded,
             "عدد المحاضرات:",
@@ -2032,6 +2010,11 @@ class _CoursesPageState extends State<CoursesPage> {
         displayContent.contains('<header');
 
     final String resolvedVideoUrl = _extractYouTubeUrl(rawContent, youtubeUrl);
+    final String bookUrl = (lesson['bookUrl'] ?? lesson['bookLink'] ?? '').toString().trim();
+    final String quizHtml = (lesson['quizHtml'] ?? '').toString().trim();
+    final String finalHtmlToDisplay = quizHtml.isNotEmpty
+        ? quizHtml
+        : (rawContent.isNotEmpty ? rawContent : '');
 
     final bool showCustomTitle = !isFullHtml && title.trim() != 'درس جديد';
     final bool showCustomDesc = !isFullHtml &&
@@ -2242,7 +2225,6 @@ class _CoursesPageState extends State<CoursesPage> {
             ],
 
             // 4. كتاب / كتيب المحاضرة إن وُجد (Book / Worksheet Link)
-            final String bookUrl = (lesson['bookUrl'] ?? lesson['bookLink'] ?? '').toString().trim();
             if (bookUrl.isNotEmpty) ...[
               Center(
                 child: ConstrainedBox(
@@ -2277,11 +2259,6 @@ class _CoursesPageState extends State<CoursesPage> {
             ],
 
             // 5. الملخص والاختبار التفاعلي المباشر تحت الفيديو مباشرة دون الحاجة لأزرار إضافية
-            final String quizHtml = (lesson['quizHtml'] ?? '').toString().trim();
-            final String finalHtmlToDisplay = quizHtml.isNotEmpty
-                ? quizHtml
-                : (rawContent.isNotEmpty ? rawContent : '');
-
             if (finalHtmlToDisplay.isNotEmpty) ...[
               Center(
                 child: ConstrainedBox(
@@ -2603,8 +2580,8 @@ class _CoursesPageState extends State<CoursesPage> {
                   Navigator.pop(ctx);
                   Navigator.pushNamed(context, '/profile');
                 },
-                icon: const Icon(Icons.workspace_premium_rounded, size: 18),
-                label: const Text("عرض صفحة إنجازاتي 🏆"),
+                icon: const Icon(Icons.person_rounded, size: 18),
+                label: const Text("عرض الملف الشخصي 👤"),
                 style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF00E5FF), foregroundColor: const Color(0xFF0F172A)),
               ),
             ],
@@ -2659,14 +2636,14 @@ class _CoursesPageState extends State<CoursesPage> {
                       if (context.mounted) {
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
-                            content: Text("تهانينا! تم تسجيل نتيجتك (10/10) بنجاح في صفحة إنجازاتي بالفايربيز 🎯", style: GoogleFonts.cairo(fontWeight: FontWeight.bold)),
+                            content: Text("تهانينا! تم تسجيل نتيجتك (10/10) بنجاح 🎯", style: GoogleFonts.cairo(fontWeight: FontWeight.bold)),
                             backgroundColor: const Color(0xFF10B981),
                           ),
                         );
                       }
                     },
                     icon: const Icon(Icons.check_circle_rounded),
-                    label: Text("تسجيل وتوثيق نتيجتي في إنجازاتي 🚀", style: GoogleFonts.cairo(fontWeight: FontWeight.bold)),
+                    label: Text("تسجيل النتيجة 🚀", style: GoogleFonts.cairo(fontWeight: FontWeight.bold)),
                     style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF10B981), foregroundColor: Colors.white),
                   ),
                 ],
@@ -2732,14 +2709,14 @@ class _CoursesPageState extends State<CoursesPage> {
                       if (context.mounted) {
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
-                            content: Text("تم حفظ وتوثيق نتيجتك ($score/10) بنجاح في صفحة إنجازاتي بالفايربيز 🎯", style: GoogleFonts.cairo(fontWeight: FontWeight.bold)),
+                            content: Text("تم حفظ وتوثيق نتيجتك ($score/10) بنجاح 🎯", style: GoogleFonts.cairo(fontWeight: FontWeight.bold)),
                             backgroundColor: const Color(0xFF10B981),
                           ),
                         );
                       }
                     },
                     style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF10B981), foregroundColor: Colors.white),
-                    child: const Text("حفظ النتيجة في إنجازاتي"),
+                    child: const Text("حفظ النتيجة 🎯"),
                   ),
               ],
             );

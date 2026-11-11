@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../services/auth_service.dart';
 import '../services/user_service.dart';
 import '../services/site_data_service.dart';
@@ -374,6 +375,11 @@ class _StudentProfilePageState extends State<StudentProfilePage> {
 
                       const SizedBox(height: 28),
 
+                      // 📬 Notifications & Direct Messages from Academy
+                      _buildUserNotificationsSection(user, isDark),
+
+                      const SizedBox(height: 28),
+
                       // Quizzes Submissions List
                       Text("📊 نتائج اختباراتك المسجلة:", style: GoogleFonts.cairo(fontWeight: FontWeight.bold, fontSize: 16, color: isDark ? Colors.white : const Color(0xFF0F172A))),
                       const SizedBox(height: 12),
@@ -458,6 +464,226 @@ class _StudentProfilePageState extends State<StudentProfilePage> {
           },
         ),
       ),
+    );
+  }
+
+  Widget _buildUserNotificationsSection(User user, bool isDark) {
+    return ListenableBuilder(
+      listenable: _dataService,
+      builder: (context, _) {
+        final uid = user.uid.trim();
+        final email = (user.email ?? '').trim().toLowerCase();
+
+        final notifs = _dataService.notifications.where((n) {
+          final target = (n['target'] ?? 'all').toString().trim().toLowerCase();
+          if (target == 'all' || target.isEmpty) return true;
+          final tUid = (n['targetUid'] ?? '').toString().trim();
+          final tEmail = (n['targetEmail'] ?? '').toString().trim().toLowerCase();
+          if (target == uid || tUid == uid) return true;
+          if (email.isNotEmpty && (target == email || tEmail == email)) return true;
+          return false;
+        }).toList();
+
+        return Container(
+          decoration: BoxDecoration(
+            color: isDark ? const Color(0xFF0F172A) : Colors.white,
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0)),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(isDark ? 0.2 : 0.04),
+                blurRadius: 10,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFFF7A00).withOpacity(0.15),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: const Icon(Icons.mark_email_unread_rounded, color: Color(0xFFFF7A00), size: 20),
+                      ),
+                      const SizedBox(width: 10),
+                      Text(
+                        "صندوق الإشعارات والرسائل الواردة 📬",
+                        style: GoogleFonts.cairo(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                          color: isDark ? Colors.white : const Color(0xFF0F172A),
+                        ),
+                      ),
+                    ],
+                  ),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: notifs.isNotEmpty ? const Color(0xFFEF4444).withOpacity(0.15) : Colors.grey.withOpacity(0.12),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Text(
+                      "${notifs.length} رسالة",
+                      style: GoogleFonts.cairo(
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                        color: notifs.isNotEmpty ? const Color(0xFFEF4444) : Colors.grey,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 14),
+              const Divider(),
+              const SizedBox(height: 10),
+              if (notifs.isEmpty)
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 20),
+                  child: Center(
+                    child: Column(
+                      children: [
+                        Icon(Icons.notifications_none_rounded, color: Colors.grey.shade400, size: 36),
+                        const SizedBox(height: 8),
+                        Text(
+                          "لا توجد إشعارات جديدة حالياً",
+                          style: GoogleFonts.cairo(color: Colors.grey, fontSize: 13, fontWeight: FontWeight.w600),
+                        ),
+                        Text(
+                          "أي رسالة أو إشعار خاص من إدارة الأكاديمية سيظهر لك هنا فوراً",
+                          style: GoogleFonts.cairo(color: Colors.grey, fontSize: 11),
+                        ),
+                      ],
+                    ),
+                  ),
+                )
+              else
+                ListView.separated(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: notifs.length,
+                  separatorBuilder: (_, __) => const SizedBox(height: 12),
+                  itemBuilder: (ctx, idx) {
+                    final n = notifs[idx];
+                    final title = (n['title'] ?? 'إشعار من الأكاديمية').toString();
+                    final body = (n['body'] ?? '').toString();
+                    final time = (n['createdAt'] ?? '').toString();
+                    final sender = (n['sender'] ?? 'م. إسلام عاطف').toString();
+                    final isPublic = (n['target'] ?? 'all').toString().toLowerCase() == 'all';
+                    final attachmentUrl = (n['attachmentUrl'] ?? '').toString().trim();
+
+                    return Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: isDark ? const Color(0xFF1E293B) : const Color(0xFFF8FAFC),
+                        borderRadius: BorderRadius.circular(14),
+                        border: Border.all(
+                          color: isPublic
+                              ? const Color(0xFF00E5FF).withOpacity(0.3)
+                              : const Color(0xFFFF7A00).withOpacity(0.4),
+                        ),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Row(
+                                children: [
+                                  Icon(
+                                    isPublic ? Icons.campaign_rounded : Icons.person_pin_rounded,
+                                    size: 18,
+                                    color: isPublic ? const Color(0xFF00E5FF) : const Color(0xFFFF7A00),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Text(
+                                    title,
+                                    style: GoogleFonts.cairo(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 14.5,
+                                      color: isDark ? Colors.white : const Color(0xFF0F172A),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                                decoration: BoxDecoration(
+                                  color: isPublic ? const Color(0xFF00E5FF).withOpacity(0.15) : const Color(0xFFFF7A00).withOpacity(0.15),
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: Text(
+                                  isPublic ? "إشعار عام 📢" : "خاص بك 🔒",
+                                  style: GoogleFonts.cairo(
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.bold,
+                                    color: isPublic ? const Color(0xFF00E5FF) : const Color(0xFFFF7A00),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            body,
+                            style: GoogleFonts.cairo(
+                              fontSize: 13,
+                              color: isDark ? const Color(0xFFCBD5E1) : const Color(0xFF334155),
+                              height: 1.5,
+                            ),
+                          ),
+                          if (attachmentUrl.isNotEmpty) ...[
+                            const SizedBox(height: 10),
+                            OutlinedButton.icon(
+                              onPressed: () async {
+                                final uri = Uri.tryParse(attachmentUrl);
+                                if (uri != null) {
+                                  await launchUrl(uri, mode: LaunchMode.externalApplication);
+                                }
+                              },
+                              icon: const Icon(Icons.attach_file_rounded, size: 16),
+                              label: Text("تحميل / فتح المرفق 📎", style: GoogleFonts.cairo(fontSize: 12, fontWeight: FontWeight.bold)),
+                              style: OutlinedButton.styleFrom(
+                                foregroundColor: const Color(0xFF0284C7),
+                                side: const BorderSide(color: Color(0xFF0284C7)),
+                                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                              ),
+                            ),
+                          ],
+                          const SizedBox(height: 8),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                "المرسل: $sender",
+                                style: GoogleFonts.cairo(fontSize: 11, color: Colors.grey, fontWeight: FontWeight.w600),
+                              ),
+                              if (time.isNotEmpty)
+                                Text(
+                                  time.split('T').first,
+                                  style: GoogleFonts.cairo(fontSize: 11, color: Colors.grey),
+                                ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                ),
+            ],
+          ),
+        );
+      },
     );
   }
 
