@@ -1118,51 +1118,6 @@ class _CoursesPageState extends State<CoursesPage> {
                 ),
               ],
             ),
-
-            // Rating
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  "تقييم الدورة",
-                  style: GoogleFonts.cairo(fontSize: 11, color: Colors.grey),
-                ),
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Icon(Icons.star_rounded, size: 18, color: Color(0xFFF59E0B)),
-                    const SizedBox(width: 4),
-                    Text(
-                      "4.9 (101+ تقييماً)",
-                      style: GoogleFonts.cairo(
-                        fontSize: 13.5,
-                        fontWeight: FontWeight.bold,
-                        color: isDark ? Colors.white : Colors.black87,
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-
-            // Students Count
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  "عدد المسجلين بالدورة",
-                  style: GoogleFonts.cairo(fontSize: 11, color: Colors.grey),
-                ),
-                Text(
-                  "👥 209+ طالب",
-                  style: GoogleFonts.cairo(
-                    fontSize: 13.5,
-                    fontWeight: FontWeight.bold,
-                    color: isDark ? Colors.white : Colors.black87,
-                  ),
-                ),
-              ],
-            ),
           ],
         ),
       ],
