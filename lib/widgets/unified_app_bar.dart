@@ -100,7 +100,7 @@ class UnifiedAppHeader extends StatelessWidget implements PreferredSizeWidget {
                         )
                       : ListView.separated(
                           itemCount: notifs.length,
-                          separatorBuilder: (_, __) => const SizedBox(height: 10),
+                          separatorBuilder: (_, _) => const SizedBox(height: 10),
                           itemBuilder: (c, idx) {
                             final n = notifs[idx];
                             final title = (n['title'] ?? 'إشعار').toString();
