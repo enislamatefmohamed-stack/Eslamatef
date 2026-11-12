@@ -51,16 +51,7 @@ class EslamAtefApp extends StatelessWidget {
           darkTheme: AppTheme.darkTheme,
           themeMode: currentMode,
           initialRoute: '/',
-          builder: (context, child) {
-            return Overlay(
-              initialEntries: [
-                OverlayEntry(
-                  builder: (context) =>
-                      SelectionArea(child: child ?? const SizedBox.shrink()),
-                ),
-              ],
-            );
-          },
+          builder: (context, child) => child ?? const SizedBox.shrink(),
           onGenerateRoute: (settings) {
             final rawName = settings.name ?? '';
             final uri = Uri.tryParse(rawName) ?? Uri();

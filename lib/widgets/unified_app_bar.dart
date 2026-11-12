@@ -836,8 +836,13 @@ class _HoverBadgeButtonState extends State<_HoverBadgeButton> {
 /// Unified Mobile Drawer matching the top header across all pages.
 class UnifiedAppDrawer extends StatelessWidget {
   final String? currentRoute;
+  final VoidCallback? onResetCurrentPage;
 
-  const UnifiedAppDrawer({super.key, this.currentRoute});
+  const UnifiedAppDrawer({
+    super.key,
+    this.currentRoute,
+    this.onResetCurrentPage,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -917,12 +922,16 @@ class UnifiedAppDrawer extends StatelessWidget {
                       ),
                     ),
                     onTap: () {
-                      Navigator.pop(context);
-                      if (AuthService.instance.currentUser != null) {
-                        Navigator.of(context).pushNamed('/profile');
-                      } else {
-                        AuthModal.show(context);
-                      }
+                      final nav = Navigator.of(context);
+                      nav.pop();
+                      WidgetsBinding.instance.addPostFrameCallback((_) {
+                        if (AuthService.instance.currentUser != null) {
+                          nav.pushNamed('/profile');
+                        } else {
+                          final rootCtx = nav.context;
+                          AuthModal.show(rootCtx);
+                        }
+                      });
                     },
                   ),
                   if (AuthService.instance.isAdmin)
@@ -967,8 +976,21 @@ class UnifiedAppDrawer extends StatelessWidget {
         ),
       ),
       onTap: () {
-        Navigator.pop(context);
-        Navigator.of(context).pushNamed(route);
+        final nav = Navigator.of(context);
+        nav.pop(); // Close drawer first
+
+        if (isActive && onResetCurrentPage != null) {
+          onResetCurrentPage!();
+          return;
+        }
+
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (route == '/') {
+            nav.pushNamedAndRemoveUntil('/', (r) => false);
+          } else {
+            nav.pushNamedAndRemoveUntil(route, (r) => r.isFirst);
+          }
+        });
       },
     );
   }

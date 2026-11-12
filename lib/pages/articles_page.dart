@@ -227,9 +227,10 @@ class _ArticlesPageState extends State<ArticlesPage> {
     final screenWidth = MediaQuery.of(context).size.width;
     final isMobile = screenWidth < 850;
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final isTopRoute = ModalRoute.of(context)?.isCurrent ?? true;
 
     return PopScope(
-      canPop: _activeArticle == null,
+      canPop: !isTopRoute || (_activeArticle == null),
       onPopInvokedWithResult: (didPop, result) {
         if (didPop) return;
         _handleBack();
@@ -237,7 +238,15 @@ class _ArticlesPageState extends State<ArticlesPage> {
       child: Directionality(
         textDirection: TextDirection.rtl,
         child: Scaffold(
-          endDrawer: isMobile ? const UnifiedAppDrawer(currentRoute: '/blog') : null,
+          endDrawer: isMobile
+              ? UnifiedAppDrawer(
+                  currentRoute: '/blog',
+                  onResetCurrentPage: () {
+                    setState(() => _activeArticle = null);
+                    _syncUrl(replace: true);
+                  },
+                )
+              : null,
           backgroundColor: isDark ? AppColors.bgDark : AppColors.bgLight,
           body: SelectionArea(
             child: SafeArea(
@@ -251,7 +260,7 @@ class _ArticlesPageState extends State<ArticlesPage> {
                   ),
                   Expanded(
                     child: SingleChildScrollView(
-                      physics: const AlwaysScrollableScrollPhysics(),
+                      physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
                       child: Center(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.center,

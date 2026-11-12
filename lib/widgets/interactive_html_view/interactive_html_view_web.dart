@@ -84,51 +84,92 @@ class _AutoResizingHtmlWidgetState extends State<AutoResizingHtmlWidget> {
         deltaX: e.deltaX
       }, '*');
     } catch(err) {}
-
-    try {
-      var pWin = window.parent;
-      if (pWin && pWin.scrollBy) {
-        pWin.scrollBy(0, e.deltaY);
-      }
-    } catch(err) {}
   }, { passive: true });
 
-  // High-performance touch scroll forwarder for mobile phones (natural touch sensitivity)
+  // Ultra-smooth 60-120fps touch scroll forwarder with momentum fling physics for mobile
   var lastTouchY = 0;
   var lastTouchX = 0;
+  var velocityY = 0;
+  var lastTouchTime = 0;
+  var pendingDy = 0;
+  var isTouching = false;
+  var rafId = null;
+  var momentumRafId = null;
+
+  function flushScroll() {
+    rafId = null;
+    if (Math.abs(pendingDy) > 0.05) {
+      try {
+        window.parent.postMessage({
+          type: 'flutter_html_wheel',
+          id: '${widget.id}',
+          deltaY: pendingDy
+        }, '*');
+      } catch(err) {}
+      pendingDy = 0;
+    }
+  }
+
   window.addEventListener('touchstart', function(e) {
+    if (momentumRafId) {
+      cancelAnimationFrame(momentumRafId);
+      momentumRafId = null;
+    }
     if (e.touches && e.touches.length > 0) {
+      isTouching = true;
       lastTouchY = e.touches[0].clientY;
       lastTouchX = e.touches[0].clientX;
+      lastTouchTime = performance.now();
+      velocityY = 0;
+      pendingDy = 0;
     }
   }, { passive: true });
 
   window.addEventListener('touchmove', function(e) {
     if (e.touches && e.touches.length > 0) {
       var currentY = e.touches[0].clientY;
-      var currentX = e.touches[0].clientX;
-      var dy = (lastTouchY - currentY) * 1.6; // Responsive touch speed multiplier
-      var dx = lastTouchX - currentX;
-      lastTouchY = currentY;
-      lastTouchX = currentX;
+      var currentTime = performance.now();
+      var dy = lastTouchY - currentY;
+      var dt = currentTime - lastTouchTime;
 
-      if (Math.abs(dy) > 0.3) {
+      if (dt > 0) {
+        var instantV = (dy / dt) * 16;
+        velocityY = 0.7 * instantV + 0.3 * velocityY;
+      }
+
+      lastTouchY = currentY;
+      lastTouchTime = currentTime;
+      pendingDy += dy;
+
+      if (!rafId) {
+        rafId = requestAnimationFrame(flushScroll);
+      }
+    }
+  }, { passive: true });
+
+  window.addEventListener('touchend', function(e) {
+    isTouching = false;
+    if (rafId) {
+      flushScroll();
+    }
+    if (Math.abs(velocityY) > 1.2) {
+      function runMomentum() {
+        if (isTouching) return;
+        velocityY *= 0.94; // Smooth natural iOS/Android friction decay
+        if (Math.abs(velocityY) < 0.25) {
+          momentumRafId = null;
+          return;
+        }
         try {
           window.parent.postMessage({
             type: 'flutter_html_wheel',
             id: '${widget.id}',
-            deltaY: dy,
-            deltaX: dx
+            deltaY: velocityY
           }, '*');
         } catch(err) {}
-
-        try {
-          var pWin = window.parent;
-          if (pWin && pWin.scrollBy) {
-            pWin.scrollBy(0, dy);
-          }
-        } catch(err) {}
+        momentumRafId = requestAnimationFrame(runMomentum);
       }
+      momentumRafId = requestAnimationFrame(runMomentum);
     }
   }, { passive: true });
 
@@ -167,6 +208,7 @@ class _AutoResizingHtmlWidgetState extends State<AutoResizingHtmlWidget> {
           ..style.backgroundColor = 'transparent'
           ..style.overflow = 'hidden'
           ..style.touchAction = 'pan-y'
+          ..style.willChange = 'transform'
           ..setAttribute('scrolling', 'no')
           ..allow =
               'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen'
@@ -181,7 +223,7 @@ class _AutoResizingHtmlWidgetState extends State<AutoResizingHtmlWidget> {
         final data = event.data;
         if (data is Map && data['type'] == 'flutter_html_resize' && data['id'] == widget.id) {
           final h = (data['height'] as num?)?.toDouble();
-          if (h != null && h > 50 && (h - _currentHeight).abs() > 10) {
+          if (h != null && h > 50 && (h - _currentHeight).abs() > 25) {
             if (mounted) {
               setState(() {
                 _currentHeight = h + 25; // padding

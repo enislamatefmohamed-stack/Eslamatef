@@ -229,9 +229,10 @@ class _LessonsPageState extends State<LessonsPage> {
     final screenWidth = MediaQuery.of(context).size.width;
     final isMobile = screenWidth < 850;
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final isTopRoute = ModalRoute.of(context)?.isCurrent ?? true;
 
     return PopScope(
-      canPop: _selectedLesson == null,
+      canPop: !isTopRoute || (_selectedLesson == null),
       onPopInvokedWithResult: (didPop, result) {
         if (didPop) return;
         if (_selectedLesson != null) {
@@ -241,7 +242,14 @@ class _LessonsPageState extends State<LessonsPage> {
       child: Directionality(
         textDirection: TextDirection.rtl,
         child: Scaffold(
-          endDrawer: isMobile ? const UnifiedAppDrawer(currentRoute: '/lessons') : null,
+          endDrawer: isMobile
+              ? UnifiedAppDrawer(
+                  currentRoute: '/lessons',
+                  onResetCurrentPage: () {
+                    setState(() => _selectedLesson = null);
+                  },
+                )
+              : null,
           backgroundColor: isDark ? AppColors.bgDark : AppColors.bgLight,
           body: SelectionArea(
             child: SafeArea(
@@ -257,7 +265,7 @@ class _LessonsPageState extends State<LessonsPage> {
                   ),
                 Expanded(
                   child: SingleChildScrollView(
-                    physics: const AlwaysScrollableScrollPhysics(),
+                    physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
                     child: Center(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.center,

@@ -435,9 +435,10 @@ class _CoursesPageState extends State<CoursesPage> {
     final screenWidth = MediaQuery.of(context).size.width;
     final isMobile = screenWidth < 850;
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final isTopRoute = ModalRoute.of(context)?.isCurrent ?? true;
 
     return PopScope(
-      canPop: _activeLesson == null && _activeCourse == null,
+      canPop: !isTopRoute || (_activeLesson == null && _activeCourse == null),
       onPopInvokedWithResult: (didPop, result) {
         if (didPop) return;
         _handleBack();
@@ -445,7 +446,18 @@ class _CoursesPageState extends State<CoursesPage> {
       child: Directionality(
         textDirection: TextDirection.rtl,
         child: Scaffold(
-          endDrawer: isMobile ? const UnifiedAppDrawer(currentRoute: '/courses') : null,
+          endDrawer: isMobile
+              ? UnifiedAppDrawer(
+                  currentRoute: '/courses',
+                  onResetCurrentPage: () {
+                    setState(() {
+                      _activeLesson = null;
+                      _activeCourse = null;
+                    });
+                    _syncUrl(replace: true);
+                  },
+                )
+              : null,
           backgroundColor: isDark ? AppColors.bgDark : AppColors.bgLight,
           body: SelectionArea(
             child: SafeArea(
@@ -461,6 +473,7 @@ class _CoursesPageState extends State<CoursesPage> {
                   ),
                   Expanded(
                     child: SingleChildScrollView(
+                      physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
                       child: Center(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.center,
