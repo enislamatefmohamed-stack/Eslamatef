@@ -74,7 +74,7 @@ class _AutoResizingHtmlWidgetState extends State<AutoResizingHtmlWidget> {
     } catch(e) {}
   }
 
-  // Forward mouse wheel scrolling over iframe text/content to parent Flutter page
+  // Fast direct mouse wheel scrolling forwarder
   window.addEventListener('wheel', function(e) {
     try {
       window.parent.postMessage({
@@ -86,26 +86,14 @@ class _AutoResizingHtmlWidgetState extends State<AutoResizingHtmlWidget> {
     } catch(err) {}
 
     try {
-      var pDoc = window.parent.document;
-      var target = pDoc.querySelector('flutter-view') || 
-                   pDoc.querySelector('flt-glass-pane') || 
-                   pDoc.body;
-      if (target) {
-        var evt = new WheelEvent('wheel', {
-          deltaX: e.deltaX,
-          deltaY: e.deltaY,
-          deltaMode: e.deltaMode,
-          clientX: e.clientX,
-          clientY: e.clientY,
-          bubbles: true,
-          cancelable: true
-        });
-        target.dispatchEvent(evt);
+      var pWin = window.parent;
+      if (pWin && pWin.scrollBy) {
+        pWin.scrollBy(0, e.deltaY);
       }
     } catch(err) {}
   }, { passive: true });
 
-  // Forward touch scrolling on mobile to parent Flutter window
+  // High-performance touch scroll forwarder for mobile phones (natural touch sensitivity)
   var lastTouchY = 0;
   var lastTouchX = 0;
   window.addEventListener('touchstart', function(e) {
@@ -119,12 +107,12 @@ class _AutoResizingHtmlWidgetState extends State<AutoResizingHtmlWidget> {
     if (e.touches && e.touches.length > 0) {
       var currentY = e.touches[0].clientY;
       var currentX = e.touches[0].clientX;
-      var dy = lastTouchY - currentY;
+      var dy = (lastTouchY - currentY) * 1.6; // Responsive touch speed multiplier
       var dx = lastTouchX - currentX;
       lastTouchY = currentY;
       lastTouchX = currentX;
 
-      if (Math.abs(dy) > 0.5) {
+      if (Math.abs(dy) > 0.3) {
         try {
           window.parent.postMessage({
             type: 'flutter_html_wheel',
@@ -223,8 +211,7 @@ class _AutoResizingHtmlWidgetState extends State<AutoResizingHtmlWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 200),
+    return SizedBox(
       height: _currentHeight,
       width: double.infinity,
       child: HtmlElementView(viewType: _viewId),

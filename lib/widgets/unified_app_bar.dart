@@ -968,9 +968,7 @@ class UnifiedAppDrawer extends StatelessWidget {
       ),
       onTap: () {
         Navigator.pop(context);
-        if (!isActive) {
-          Navigator.of(context).pushNamed(route);
-        }
+        Navigator.of(context).pushNamed(route);
       },
     );
   }
