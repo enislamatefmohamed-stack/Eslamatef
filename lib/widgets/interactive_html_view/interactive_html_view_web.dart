@@ -105,6 +105,45 @@ class _AutoResizingHtmlWidgetState extends State<AutoResizingHtmlWidget> {
     } catch(err) {}
   }, { passive: true });
 
+  // Forward touch scrolling on mobile to parent Flutter window
+  var lastTouchY = 0;
+  var lastTouchX = 0;
+  window.addEventListener('touchstart', function(e) {
+    if (e.touches && e.touches.length > 0) {
+      lastTouchY = e.touches[0].clientY;
+      lastTouchX = e.touches[0].clientX;
+    }
+  }, { passive: true });
+
+  window.addEventListener('touchmove', function(e) {
+    if (e.touches && e.touches.length > 0) {
+      var currentY = e.touches[0].clientY;
+      var currentX = e.touches[0].clientX;
+      var dy = lastTouchY - currentY;
+      var dx = lastTouchX - currentX;
+      lastTouchY = currentY;
+      lastTouchX = currentX;
+
+      if (Math.abs(dy) > 0.5) {
+        try {
+          window.parent.postMessage({
+            type: 'flutter_html_wheel',
+            id: '${widget.id}',
+            deltaY: dy,
+            deltaX: dx
+          }, '*');
+        } catch(err) {}
+
+        try {
+          var pWin = window.parent;
+          if (pWin && pWin.scrollBy) {
+            pWin.scrollBy(0, dy);
+          }
+        } catch(err) {}
+      }
+    }
+  }, { passive: true });
+
   if (document.readyState === 'complete' || document.readyState === 'interactive') {
     sendHeight();
   } else {
@@ -139,6 +178,7 @@ class _AutoResizingHtmlWidgetState extends State<AutoResizingHtmlWidget> {
           ..style.minHeight = '100%'
           ..style.backgroundColor = 'transparent'
           ..style.overflow = 'hidden'
+          ..style.touchAction = 'pan-y'
           ..setAttribute('scrolling', 'no')
           ..allow =
               'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen'

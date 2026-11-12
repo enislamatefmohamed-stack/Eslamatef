@@ -251,6 +251,7 @@ class _ArticlesPageState extends State<ArticlesPage> {
                   ),
                   Expanded(
                     child: SingleChildScrollView(
+                      physics: const AlwaysScrollableScrollPhysics(),
                       child: Center(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.center,
@@ -682,19 +683,10 @@ class _ArticlesPageState extends State<ArticlesPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // Top action buttons bar
+            // Top action buttons bar (Share)
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                OutlinedButton.icon(
-                  onPressed: _handleBack,
-                  icon: const Icon(Icons.arrow_forward_rounded, size: 16),
-                  label: Text("العودة لكافة المقالات", style: GoogleFonts.cairo(fontWeight: FontWeight.bold, fontSize: 13)),
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: const Color(0xFF0284C7),
-                    side: const BorderSide(color: Color(0xFF0284C7)),
-                  ),
-                ),
                 OutlinedButton.icon(
                   onPressed: () {
                     final origin = html.window.location.origin;
@@ -784,23 +776,6 @@ class _ArticlesPageState extends State<ArticlesPage> {
 
             // Comments Section (التعليقات للمسجلين فقط)
             _buildCommentsSection(context, article, isMobile, isDark),
-
-            const SizedBox(height: 32),
-
-            // Bottom Return Button
-            Center(
-              child: ElevatedButton.icon(
-                onPressed: _handleBack,
-                icon: const Icon(Icons.arrow_forward_rounded, size: 18),
-                label: Text("العودة لكافة المقالات", style: GoogleFonts.cairo(fontSize: 15, fontWeight: FontWeight.bold)),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF0284C7),
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 14),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                ),
-              ),
-            ),
           ],
         ),
       ),

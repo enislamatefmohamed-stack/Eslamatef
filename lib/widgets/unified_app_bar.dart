@@ -29,18 +29,6 @@ class UnifiedAppHeader extends StatelessWidget implements PreferredSizeWidget {
   @override
   Size get preferredSize => const Size.fromHeight(72);
 
-  void _handleBack(BuildContext context) {
-    if (onBack != null) {
-      onBack!();
-      return;
-    }
-    if (Navigator.of(context).canPop()) {
-      Navigator.of(context).pop();
-    } else {
-      Navigator.of(context).pushReplacementNamed('/');
-    }
-  }
-
   void _showNotificationsDialog(BuildContext context, List<Map<String, dynamic>> notifs, bool isDark) {
     showDialog(
       context: context,
@@ -302,48 +290,63 @@ class UnifiedAppHeader extends StatelessWidget implements PreferredSizeWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 // 1. Right: Logo + Brand + Page Subtitle
-                MouseRegion(
-                  cursor: SystemMouseCursors.click,
-                  child: InkWell(
-                    onTap: () => Navigator.of(context).pushReplacementNamed('/'),
-                    borderRadius: BorderRadius.circular(12),
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
-                      child: Row(
-                        children: [
-                          ClipOval(
-                            child: Image.asset(
-                              'assets/images/logo.jpeg',
-                              width: 42,
-                              height: 42,
-                              fit: BoxFit.cover,
+                Flexible(
+                  child: MouseRegion(
+                    cursor: SystemMouseCursors.click,
+                    child: InkWell(
+                      onTap: () => Navigator.of(context).pushReplacementNamed('/'),
+                      borderRadius: BorderRadius.circular(12),
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(horizontal: isMobile ? 2 : 6, vertical: 4),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Container(
+                              width: isMobile ? 36 : 42,
+                              height: isMobile ? 36 : 42,
+                              decoration: const BoxDecoration(
+                                shape: BoxShape.circle,
+                              ),
+                              clipBehavior: Clip.antiAlias,
+                              child: Image.asset(
+                                'assets/images/logo.jpeg',
+                                width: isMobile ? 36 : 42,
+                                height: isMobile ? 36 : 42,
+                                fit: BoxFit.cover,
+                              ),
                             ),
-                          ),
-                          const SizedBox(width: 12),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Text(
-                                ArabicData.brandName,
-                                style: GoogleFonts.inter(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w800,
-                                  color: isDark ? AppColors.textPrimary : AppColors.textPrimaryLight,
-                                  height: 1.2,
-                                ),
+                            SizedBox(width: isMobile ? 8 : 12),
+                            Flexible(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Text(
+                                    ArabicData.brandName,
+                                    overflow: TextOverflow.ellipsis,
+                                    maxLines: 1,
+                                    style: GoogleFonts.inter(
+                                      fontSize: isMobile ? 14 : 16,
+                                      fontWeight: FontWeight.w800,
+                                      color: isDark ? AppColors.textPrimary : AppColors.textPrimaryLight,
+                                      height: 1.2,
+                                    ),
+                                  ),
+                                  Text(
+                                    pageTitle ?? ArabicData.brandSubtitle,
+                                    overflow: TextOverflow.ellipsis,
+                                    maxLines: 1,
+                                    style: GoogleFonts.cairo(
+                                      fontSize: isMobile ? 10 : 11,
+                                      fontWeight: FontWeight.w700,
+                                      color: const Color(0xFF00E5FF),
+                                    ),
+                                  ),
+                                ],
                               ),
-                              Text(
-                                pageTitle ?? ArabicData.brandSubtitle,
-                                style: GoogleFonts.cairo(
-                                  fontSize: 11,
-                                  fontWeight: FontWeight.w700,
-                                  color: const Color(0xFF00E5FF),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ),
@@ -369,35 +372,10 @@ class UnifiedAppHeader extends StatelessWidget implements PreferredSizeWidget {
                     ],
                   ),
 
-                // 3. Left: Smart Back Button, Theme, Auth & Social
+                // 3. Left: Theme, Notifications, Auth
                 Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    // Smart Back Button (only when explicitly requested)
-                    if (showBackButton) ...[
-                      MouseRegion(
-                        cursor: SystemMouseCursors.click,
-                        child: ElevatedButton.icon(
-                          onPressed: () => _handleBack(context),
-                          icon: const Icon(Icons.arrow_forward_rounded, size: 16),
-                          label: Text(
-                            "رجوع",
-                            style: GoogleFonts.cairo(fontSize: 12, fontWeight: FontWeight.bold),
-                          ),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: isDark ? const Color(0xFF1E293B) : const Color(0xFFF1F5F9),
-                            foregroundColor: const Color(0xFF00E5FF),
-                            elevation: 0,
-                            side: BorderSide(
-                              color: isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0),
-                            ),
-                            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                    ],
 
                     // Notification Bell Icon with Badge
                     ListenableBuilder(

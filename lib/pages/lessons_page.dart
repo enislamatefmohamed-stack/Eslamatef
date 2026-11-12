@@ -257,6 +257,7 @@ class _LessonsPageState extends State<LessonsPage> {
                   ),
                 Expanded(
                   child: SingleChildScrollView(
+                    physics: const AlwaysScrollableScrollPhysics(),
                     child: Center(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.center,
@@ -496,16 +497,6 @@ class _LessonsPageState extends State<LessonsPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Align(
-            alignment: Alignment.centerRight,
-            child: OutlinedButton.icon(
-              onPressed: () => setState(() => _selectedLesson = null),
-              icon: const Icon(Icons.arrow_forward_rounded, size: 16),
-              label: Text("العودة لكافة الدروس", style: GoogleFonts.cairo(fontWeight: FontWeight.bold)),
-              style: OutlinedButton.styleFrom(foregroundColor: const Color(0xFF3B82F6)),
-            ),
-          ),
-          const SizedBox(height: 16),
 
           // 1. العنوان الأول (Lesson Title)
           Text(
