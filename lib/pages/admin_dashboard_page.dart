@@ -2488,6 +2488,38 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                                       ),
                                       child: Text(category, style: GoogleFonts.cairo(fontSize: 11, color: Colors.grey)),
                                     ),
+                                    const SizedBox(width: 8),
+                                    // Order Badge
+                                    Builder(
+                                      builder: (_) {
+                                        final rawOrder = article['displayOrder'] ?? article['order'] ?? 50;
+                                        final order = (rawOrder is num) ? rawOrder.toInt() : 50;
+                                        String posLabel;
+                                        Color posColor;
+                                        if (order <= 5) {
+                                          posLabel = '🌟 في الأول';
+                                          posColor = const Color(0xFF00E5FF);
+                                        } else if (order >= 900) {
+                                          posLabel = '📌 في الآخر';
+                                          posColor = const Color(0xFFFF7A00);
+                                        } else {
+                                          posLabel = '⚖️ في المنتصف';
+                                          posColor = const Color(0xFF8B5CF6);
+                                        }
+                                        return Container(
+                                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                          decoration: BoxDecoration(
+                                            color: posColor.withOpacity(0.12),
+                                            borderRadius: BorderRadius.circular(4),
+                                            border: Border.all(color: posColor.withOpacity(0.3), width: 0.8),
+                                          ),
+                                          child: Text(
+                                            posLabel,
+                                            style: GoogleFonts.cairo(fontSize: 10, fontWeight: FontWeight.bold, color: posColor),
+                                          ),
+                                        );
+                                      },
+                                    ),
                                     if (date.isNotEmpty) ...[
                                       const SizedBox(width: 8),
                                       Text(
@@ -2499,6 +2531,36 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
                                 ),
                               ],
                             ),
+                          ),
+                          PopupMenuButton<int>(
+                            tooltip: "تغيير موضع المقال فوراً",
+                            icon: const Icon(Icons.swap_vert_rounded, color: Color(0xFF8B5CF6), size: 22),
+                            onSelected: (newOrder) async {
+                              await _dataService.updateArticleOrder(article['id'].toString(), newOrder);
+                              if (context.mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text("تم تحديث موضع وترتيب المقال بنجاح ✅", style: GoogleFonts.cairo()),
+                                    backgroundColor: const Color(0xFF059669),
+                                    behavior: SnackBarBehavior.floating,
+                                  ),
+                                );
+                              }
+                            },
+                            itemBuilder: (ctx) => [
+                              PopupMenuItem(
+                                value: 1,
+                                child: Text("🌟 نقل لأول المقالات (المقدمة)", style: GoogleFonts.cairo(fontSize: 13, fontWeight: FontWeight.bold)),
+                              ),
+                              PopupMenuItem(
+                                value: 50,
+                                child: Text("⚖️ نقل لمنتصف المقالات (طبيعي)", style: GoogleFonts.cairo(fontSize: 13)),
+                              ),
+                              PopupMenuItem(
+                                value: 999,
+                                child: Text("📌 نقل لآخر المقالات (النهاية)", style: GoogleFonts.cairo(fontSize: 13)),
+                              ),
+                            ],
                           ),
                           IconButton(
                             icon: const Icon(Icons.edit_rounded, color: Color(0xFF00E5FF), size: 20),
@@ -2682,7 +2744,10 @@ class ArticleDirectEditorView extends StatefulWidget {
 class _ArticleDirectEditorViewState extends State<ArticleDirectEditorView> {
   late TextEditingController _titleCtrl;
   late TextEditingController _codeCtrl;
+  late TextEditingController _customOrderCtrl;
   String _selectedCategory = 'عام';
+  int _displayOrder = 50;
+  String _positionPreset = 'middle'; // 'first', 'middle', 'last', 'custom'
   bool _isSaving = false;
 
   @override
@@ -2698,12 +2763,26 @@ class _ArticleDirectEditorViewState extends State<ArticleDirectEditorView> {
     } else if (widget.categories.isNotEmpty) {
       _selectedCategory = widget.categories.first;
     }
+
+    final rawOrder = widget.initialArticle?['displayOrder'] ?? widget.initialArticle?['order'] ?? 50;
+    _displayOrder = (rawOrder is num) ? rawOrder.toInt() : 50;
+    if (_displayOrder <= 5) {
+      _positionPreset = 'first';
+    } else if (_displayOrder >= 900) {
+      _positionPreset = 'last';
+    } else if (_displayOrder == 50) {
+      _positionPreset = 'middle';
+    } else {
+      _positionPreset = 'custom';
+    }
+    _customOrderCtrl = TextEditingController(text: _displayOrder.toString());
   }
 
   @override
   void dispose() {
     _titleCtrl.dispose();
     _codeCtrl.dispose();
+    _customOrderCtrl.dispose();
     super.dispose();
   }
 
@@ -2867,12 +2946,115 @@ class _ArticleDirectEditorViewState extends State<ArticleDirectEditorView> {
           ),
           const SizedBox(height: 20),
 
-          // الحقل الثالث: كود المقال (HTML)
+          // الحقل الثالث: مكان وترتيب المقال في القائمة (الأول، المنتصف، الآخر)
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    "3. موضع وترتيب ظهور المقال 📌",
+                    style: GoogleFonts.cairo(fontWeight: FontWeight.bold, fontSize: 14),
+                  ),
+                  Text(
+                    "تحكّم في ترتيب ظهور المقال بالموقع (الأول، المنتصف، أو الآخر)",
+                    style: GoogleFonts.cairo(fontSize: 12, color: Colors.grey),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 10),
+              Wrap(
+                spacing: 10,
+                runSpacing: 10,
+                children: [
+                  _buildPositionSelectButton(
+                    id: 'first',
+                    title: '🌟 في أول المقالات (المقدمة)',
+                    subtitle: 'يظهر في بداية القائمة',
+                    color: const Color(0xFF00E5FF),
+                    isSelected: _positionPreset == 'first',
+                    onTap: () {
+                      setState(() {
+                        _positionPreset = 'first';
+                        _displayOrder = 1;
+                        _customOrderCtrl.text = '1';
+                      });
+                    },
+                  ),
+                  _buildPositionSelectButton(
+                    id: 'middle',
+                    title: '⚖️ في المنتصف (طبيعي)',
+                    subtitle: 'الترتيب الافتراضي للمقالات',
+                    color: const Color(0xFF8B5CF6),
+                    isSelected: _positionPreset == 'middle',
+                    onTap: () {
+                      setState(() {
+                        _positionPreset = 'middle';
+                        _displayOrder = 50;
+                        _customOrderCtrl.text = '50';
+                      });
+                    },
+                  ),
+                  _buildPositionSelectButton(
+                    id: 'last',
+                    title: '📌 في آخر المقالات (النهاية)',
+                    subtitle: 'يظهر في نهاية القائمة',
+                    color: const Color(0xFFFF7A00),
+                    isSelected: _positionPreset == 'last',
+                    onTap: () {
+                      setState(() {
+                        _positionPreset = 'last';
+                        _displayOrder = 999;
+                        _customOrderCtrl.text = '999';
+                      });
+                    },
+                  ),
+                  _buildPositionSelectButton(
+                    id: 'custom',
+                    title: '🔢 ترتيب رقمي مخصص',
+                    subtitle: 'حدد رقم الترتيب يدوياً',
+                    color: const Color(0xFF10B981),
+                    isSelected: _positionPreset == 'custom',
+                    onTap: () {
+                      setState(() {
+                        _positionPreset = 'custom';
+                      });
+                    },
+                  ),
+                ],
+              ),
+              if (_positionPreset == 'custom') ...[
+                const SizedBox(height: 12),
+                SizedBox(
+                  width: 250,
+                  child: TextField(
+                    controller: _customOrderCtrl,
+                    keyboardType: TextInputType.number,
+                    decoration: InputDecoration(
+                      labelText: "رقم الترتيب (1 للأول، 2، 3...)",
+                      prefixIcon: const Icon(Icons.format_list_numbered_rounded, size: 18),
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                    ),
+                    onChanged: (val) {
+                      final n = int.tryParse(val.trim());
+                      if (n != null) {
+                        _displayOrder = n;
+                      }
+                    },
+                  ),
+                ),
+              ],
+            ],
+          ),
+          const SizedBox(height: 20),
+
+          // الحقل الرابع: كود المقال (HTML)
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                "3. كود المقال (HTML) *",
+                "4. كود المقال (HTML) *",
                 style: GoogleFonts.cairo(fontWeight: FontWeight.bold, fontSize: 14),
               ),
               Text(
@@ -2937,6 +3119,8 @@ class _ArticleDirectEditorViewState extends State<ArticleDirectEditorView> {
                             'content': code,
                             'category': _selectedCategory,
                             'status': 'منشور',
+                            'displayOrder': _displayOrder,
+                            'positionType': _positionPreset,
                           });
                         } finally {
                           if (mounted) setState(() => _isSaving = false);
@@ -2959,6 +3143,57 @@ class _ArticleDirectEditorViewState extends State<ArticleDirectEditorView> {
             ],
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildPositionSelectButton({
+    required String id,
+    required String title,
+    required String subtitle,
+    required Color color,
+    required bool isSelected,
+    required VoidCallback onTap,
+  }) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(12),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+        decoration: BoxDecoration(
+          color: isSelected
+              ? color.withOpacity(isDark ? 0.2 : 0.12)
+              : (isDark ? const Color(0xFF1E293B) : const Color(0xFFF1F5F9)),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: isSelected ? color : (isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0)),
+            width: isSelected ? 2 : 1,
+          ),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              title,
+              style: GoogleFonts.cairo(
+                fontSize: 13,
+                fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
+                color: isSelected ? (isDark ? Colors.white : color) : (isDark ? Colors.grey[300] : Colors.grey[800]),
+              ),
+            ),
+            const SizedBox(height: 2),
+            Text(
+              subtitle,
+              style: GoogleFonts.cairo(
+                fontSize: 10,
+                color: isDark ? Colors.grey[400] : Colors.grey[600],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

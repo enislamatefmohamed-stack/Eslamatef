@@ -46,6 +46,17 @@ void registerHtmlViewFactory(String viewId, String rawHtml, {bool isDark = false
       (m) => '<img${m[1]}src="https://${m[2]}" referrerpolicy="no-referrer"',
     );
 
+    // Resolve local "صوره المقال/X.png" to website route "/images/articles/XX/X.png" if article number is present
+    final artNumMatch = RegExp(r'(?:رقم\s*#?|المقال\s*#?|article\s*#?|#)0*(\d{1,3})', caseSensitive: false).firstMatch(rawHtml);
+    if (artNumMatch != null) {
+      final artNum = int.tryParse(artNumMatch.group(1)!) ?? 1;
+      final artPad = artNum.toString().padLeft(2, '0');
+      processed = processed.replaceAllMapped(
+        RegExp(r'src=["\x27](?:صوره%20المقال|صوره\s+المقال)\/(\d+\.(?:png|jpg|jpeg|webp))["\x27]', caseSensitive: false),
+        (m) => 'src="/images/articles/$artPad/${m[1]}"',
+      );
+    }
+
     // Add referrerpolicy="no-referrer" to all images if missing
     processed = processed.replaceAllMapped(
       RegExp(r'<img((?![^>]*referrerpolicy)[^>]*src=["\x27][^"\x27]+["\x27][^>]*)>', caseSensitive: false),

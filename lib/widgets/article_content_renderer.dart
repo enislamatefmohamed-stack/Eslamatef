@@ -187,9 +187,22 @@ class ArticleContentRenderer extends StatelessWidget {
         final srcMatch = RegExp(r'src=["\x27]([^"\x27]+)["\x27]', caseSensitive: false).firstMatch(tagAttrs);
         final altMatch = RegExp(r'alt=["\x27]([^"\x27]+)["\x27]', caseSensitive: false).firstMatch(tagAttrs);
         if (srcMatch != null) {
+          var imgUrl = srcMatch.group(1);
+          if (imgUrl != null) {
+            if (imgUrl.contains('صوره المقال') || imgUrl.contains('صوره%20المقال')) {
+              final artNumMatch = RegExp(r'\b0*(\d{1,3})\b').firstMatch(raw);
+              final n = artNumMatch != null ? (int.tryParse(artNumMatch.group(1)!) ?? 1) : 1;
+              final imgNum = RegExp(r'(\d+)\.(?:png|jpg|jpeg|webp)').firstMatch(imgUrl)?.group(1) ?? '1';
+              imgUrl = 'assets/images/articles/${n.toString().padLeft(2, '0')}/$imgNum.png';
+            } else if (imgUrl.startsWith('/images/articles/')) {
+              imgUrl = 'assets$imgUrl';
+            } else if (imgUrl.startsWith('images/articles/')) {
+              imgUrl = 'assets/$imgUrl';
+            }
+          }
           blocks.add(_ArticleBlock(
             type: _BlockType.image,
-            imageUrl: srcMatch.group(1),
+            imageUrl: imgUrl,
             caption: altMatch?.group(1),
           ));
         }

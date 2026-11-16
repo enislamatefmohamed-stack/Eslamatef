@@ -65,6 +65,17 @@ flutter:
   assets:
     - assets/images/
     - assets/images/courses/
+    - assets/images/articles/01/
+    - assets/images/articles/02/
+    - assets/images/articles/03/
+    - assets/images/articles/04/
+    - assets/images/articles/05/
+    - assets/images/articles/06/
+    - assets/images/articles/07/
+    - assets/images/articles/08/
+    - assets/images/articles/09/
+    - assets/images/articles/10/
+    - assets/images/articles/11/
     - assets/images/articles/2026/12/04/
     - assets/images/articles/2026/12/11/
     - assets/images/articles/2026/12/18/

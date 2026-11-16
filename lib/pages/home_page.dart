@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../widgets/unified_app_bar.dart';
 import '../widgets/social_icons.dart';
+import '../widgets/safe_network_image/safe_network_image.dart';
 import '../services/site_data_service.dart';
 
 class HomePage extends StatefulWidget {
@@ -19,32 +20,53 @@ class _HomePageState extends State<HomePage> {
   int _expandedFaqIndex = -1;
   int _visibleReviewsCount = 6;
   final Set<int> _expandedReviews = {};
-  final ScrollController _whatsNewScrollCtrl = ScrollController();
-  Timer? _whatsNewAutoScrollTimer;
+
+  // Controllers & Timers for Dual Independent Sliders (المقالات والكورسات)
+  final ScrollController _articlesScrollCtrl = ScrollController();
+  Timer? _articlesAutoScrollTimer;
+  final ScrollController _coursesScrollCtrl = ScrollController();
+  Timer? _coursesAutoScrollTimer;
 
   @override
   void initState() {
     super.initState();
-    _startWhatsNewAutoScroll();
+    _startArticlesAutoScroll();
+    _startCoursesAutoScroll();
   }
 
   @override
   void dispose() {
-    _whatsNewAutoScrollTimer?.cancel();
-    _whatsNewScrollCtrl.dispose();
+    _articlesAutoScrollTimer?.cancel();
+    _articlesScrollCtrl.dispose();
+    _coursesAutoScrollTimer?.cancel();
+    _coursesScrollCtrl.dispose();
     super.dispose();
   }
 
-  void _startWhatsNewAutoScroll() {
-    _whatsNewAutoScrollTimer?.cancel();
-    _whatsNewAutoScrollTimer = Timer.periodic(const Duration(milliseconds: 35), (timer) {
-      if (!_whatsNewScrollCtrl.hasClients) return;
-      final maxExtent = _whatsNewScrollCtrl.position.maxScrollExtent;
-      final current = _whatsNewScrollCtrl.offset;
+  void _startArticlesAutoScroll() {
+    _articlesAutoScrollTimer?.cancel();
+    _articlesAutoScrollTimer = Timer.periodic(const Duration(milliseconds: 38), (timer) {
+      if (!_articlesScrollCtrl.hasClients) return;
+      final maxExtent = _articlesScrollCtrl.position.maxScrollExtent;
+      final current = _articlesScrollCtrl.offset;
       if (current >= maxExtent) {
-        _whatsNewScrollCtrl.jumpTo(0);
+        _articlesScrollCtrl.jumpTo(0);
       } else {
-        _whatsNewScrollCtrl.jumpTo(current + 1);
+        _articlesScrollCtrl.jumpTo(current + 1);
+      }
+    });
+  }
+
+  void _startCoursesAutoScroll() {
+    _coursesAutoScrollTimer?.cancel();
+    _coursesAutoScrollTimer = Timer.periodic(const Duration(milliseconds: 38), (timer) {
+      if (!_coursesScrollCtrl.hasClients) return;
+      final maxExtent = _coursesScrollCtrl.position.maxScrollExtent;
+      final current = _coursesScrollCtrl.offset;
+      if (current >= maxExtent) {
+        _coursesScrollCtrl.jumpTo(0);
+      } else {
+        _coursesScrollCtrl.jumpTo(current + 1);
       }
     });
   }
@@ -198,15 +220,19 @@ class _HomePageState extends State<HomePage> {
                         _buildTrustBar(isMobile, screenWidth, isDark),
                         SizedBox(height: isMobile ? 40 : 70),
 
-                        // ✨ NEW: What's New Moving Animated Slider (جديد الموقع والأكاديمية)
-                        _buildWhatsNewSliderSection(isMobile, screenWidth, isDark),
+                        // 3. Articles Slider Section (اسلايدر المقالات التعليمية) - قبل آراء العملاء
+                        _buildArticlesSliderSection(isMobile, screenWidth, isDark),
                         SizedBox(height: isMobile ? 40 : 70),
 
-                        // 3. Student & Parent Reviews Section (اراء الطلاب وأولياء الأمور)
+                        // 4. Student & Parent Reviews Section (آراء الطلاب وأولياء الأمور)
                         _buildStudentReviewsSection(isMobile, screenWidth, isDark),
                         SizedBox(height: isMobile ? 40 : 70),
 
-                        // 4. Parent FAQ Section
+                        // 5. Courses Slider Section (اسلايدر الكورسات والمسارات) - بعد آراء العملاء
+                        _buildCoursesSliderSection(isMobile, screenWidth, isDark),
+                        SizedBox(height: isMobile ? 40 : 70),
+
+                        // 6. Parent FAQ Section
                         _buildFaqSection(isMobile, screenWidth, isDark),
                         SizedBox(height: isMobile ? 40 : 60),
 
@@ -465,78 +491,100 @@ class _HomePageState extends State<HomePage> {
   // =========================================================================
   // 3. STUDENT & PARENT REVIEWS SECTION (آراء الطلاب وأولياء الأمور)
   // =========================================================================
+
   // =========================================================================
-  // ✨ WHAT\'S NEW MOVING SLIDER SECTION (جديد الموقع والأكاديمية)
+  // 3. ARTICLES SLIDER SECTION (اسلايدر المقالات التعليمية - قبل آراء العملاء)
   // =========================================================================
-  Widget _buildWhatsNewSliderSection(bool isMobile, double screenWidth, bool isDark) {
+  Widget _buildArticlesSliderSection(bool isMobile, double screenWidth, bool isDark) {
     final List<Map<String, dynamic>> items = [];
 
-    // 1. Featured Courses
-    items.add({
-      'type': 'course',
-      'typeLabel': 'كورس أساسي 🎓',
-      'typeColor': const Color(0xFF00E5FF),
-      'title': 'البرمجة والذكاء الاصطناعي للأطفال | من الصفر للاحتراف',
-      'subtitle': 'الكورس التأسيسي الشامل لعلوم الحاسب وبناء الخوارزميات',
-      'route': '/courses?course=01_cs_fundamentals',
-      'icon': Icons.school_rounded,
-      'image': 'assets/images/courses/course_01.png',
-    });
-    items.add({
-      'type': 'course',
-      'typeLabel': 'كورس تخصصي 💡',
-      'typeColor': const Color(0xFF8B5CF6),
-      'title': 'كورس الخوارزميات والتفكير المنطقي',
-      'subtitle': 'تطوير العقلية المنطقية والتحضير لمسابقات البرمجة العالمية',
-      'route': '/courses',
-      'icon': Icons.psychology_rounded,
-      'image': 'assets/images/courses/course_02.png',
-    });
-
-    // 2. Published Lectures from Courses
-    for (final c in _dataService.courses) {
-      final lessons = List<Map<String, dynamic>>.from(c['lessons'] ?? []);
-      for (final l in lessons.take(3)) {
-        final title = (l['title'] ?? '').toString();
-        if (title.isNotEmpty) {
-          final lecImg = (l['imageUrl'] ?? l['image'] ?? c['image'] ?? c['imageUrl'] ?? 'assets/images/courses/course_01.png').toString();
-          items.add({
-            'type': 'lecture',
-            'typeLabel': 'محاضرة جديدة 🎬',
-            'typeColor': const Color(0xFFFF7A00),
-            'title': title,
-            'subtitle': 'ضمن مسار ${c['title'] ?? 'الكورس'}',
-            'route': '/courses?course=${c['id']}&lesson=${l['id'] ?? ''}',
-            'icon': Icons.play_circle_fill_rounded,
-            'image': lecImg,
-          });
-        }
+    // Extract published articles sorted by displayOrder
+    final rawArticles = _dataService.articles.toList();
+    rawArticles.sort((a, b) {
+      final orderA = (a['displayOrder'] is num)
+          ? (a['displayOrder'] as num).toInt()
+          : ((a['order'] is num) ? (a['order'] as num).toInt() : 50);
+      final orderB = (b['displayOrder'] is num)
+          ? (b['displayOrder'] as num).toInt()
+          : ((b['order'] is num) ? (b['order'] as num).toInt() : 50);
+      if (orderA != orderB) {
+        return orderA.compareTo(orderB);
       }
-    }
+      final dateA = (a['createdAt'] ?? '').toString();
+      final dateB = (b['createdAt'] ?? '').toString();
+      return dateB.compareTo(dateA);
+    });
 
-    // 3. Published Articles
-    for (final a in _dataService.articles.take(5)) {
-      String articleImg = (a['image'] ?? a['imageUrl'] ?? a['cover'] ?? '').toString();
-      if (articleImg.isEmpty) {
+    for (final a in rawArticles.take(12)) {
+      String articleImg = (a['imageUrl'] ?? a['image'] ?? a['thumbnail'] ?? a['cover'] ?? '').toString().trim();
+      if (articleImg.isEmpty || articleImg.contains('صوره المقال') || articleImg.contains('placeholder')) {
         final code = (a['htmlCode'] ?? a['content'] ?? '').toString();
-        final imgMatch = RegExp(r"""<img[^>]+src=["']([^"']+)["']""", caseSensitive: false).firstMatch(code);
-        if (imgMatch != null) {
-          articleImg = imgMatch.group(1) ?? '';
+        final imgMatch = RegExp(r"""<img[^>]*\bsrc\s*=\s*["']?([^"'>\s]+)["']?""", caseSensitive: false).firstMatch(code);
+        if (imgMatch != null && imgMatch.group(1) != null) {
+          articleImg = imgMatch.group(1)!.trim();
         }
       }
+
+      if (articleImg.contains('صوره المقال') || articleImg.contains('صوره%20المقال')) {
+        final title = (a['title'] ?? '').toString();
+        final id = (a['id'] ?? '').toString();
+        final numMatch = RegExp(r'\b0*(\d{1,3})\b').firstMatch(title.trim().isNotEmpty ? title.trim() : id);
+        final n = numMatch != null ? (int.tryParse(numMatch.group(1)!) ?? 1) : 1;
+        final imgNum = RegExp(r'(\d+)\.(?:png|jpg|jpeg|webp)').firstMatch(articleImg)?.group(1) ?? '1';
+        articleImg = 'assets/images/articles/${n.toString().padLeft(2, '0')}/$imgNum.png';
+      } else if (articleImg.startsWith('/images/articles/')) {
+        articleImg = 'assets$articleImg';
+      } else if (articleImg.startsWith('images/articles/')) {
+        articleImg = 'assets/$articleImg';
+      }
+
       if (articleImg.isEmpty) {
         articleImg = 'assets/images/courses/course_01.png';
       }
 
       items.add({
         'type': 'article',
-        'typeLabel': 'مقال تقني 📝',
+        'typeLabel': 'مقال تفاعلي 📝',
         'typeColor': const Color(0xFF10B981),
-        'title': a['title'] ?? 'مقال جديد',
-        'subtitle': a['category'] ?? 'مدونة علوم الحاسب',
-        'route': '/blog?article=${a['id']}',
+        'title': a['title'] ?? 'مقال تعليمي جديد',
+        'subtitle': a['category'] ?? 'مدونة علوم الحاسب والذكاء الاصطناعي',
+        'route': '/blog?article=${a['id'] ?? ''}',
         'icon': Icons.article_rounded,
         'image': articleImg,
+      });
+    }
+
+    // Default sample articles if list is short
+    if (items.isEmpty) {
+      items.add({
+        'type': 'article',
+        'typeLabel': 'مقال تفاعلي 📝',
+        'typeColor': const Color(0xFF10B981),
+        'title': 'سحر بايثون: لماذا هي لغة الذكاء الاصطناعي الأولى عالمياً ولماذا يحبها الصغار؟',
+        'subtitle': 'لغات العصر والذكاء الاصطناعي',
+        'route': '/blog',
+        'icon': Icons.article_rounded,
+        'image': 'assets/images/articles/02/1.png',
+      });
+      items.add({
+        'type': 'article',
+        'typeLabel': 'مقال تفاعلي 📝',
+        'typeColor': const Color(0xFF10B981),
+        'title': 'البرمجة بالبلوكات: كيف يبني سكراتش عقلية المبرمج كألعاب الليجو؟',
+        'subtitle': 'برمجة مرئية للأطفال',
+        'route': '/blog',
+        'icon': Icons.article_rounded,
+        'image': 'assets/images/articles/03/1.png',
+      });
+      items.add({
+        'type': 'article',
+        'typeLabel': 'مقال تفاعلي 📝',
+        'typeColor': const Color(0xFF10B981),
+        'title': 'انطلاقة رحلة البرمجة: كيف تختار أول لغة برمجة يتعلمها طفلك اليوم خطوة بخطوة',
+        'subtitle': 'تأسيس برمجي للأطفال',
+        'route': '/blog',
+        'icon': Icons.article_rounded,
+        'image': 'assets/images/articles/01/1.png',
       });
     }
 
@@ -549,56 +597,74 @@ class _HomePageState extends State<HomePage> {
         child: Column(
           children: [
             _buildSectionHeader(
-              tag: '🚀 جديد الأكاديمية والموقع',
-              title: 'جديد الكورسات، المحاضرات، والمقالات التعليمية',
-              subtitle: 'محتوى تعليمي متجدد وتحديثات حية ومستمرة لإثراء المعرفة البرمجية لأبنائنا خطوة بخطوة.',
+              tag: '📚 مدونة ومقالات المستقبل',
+              title: 'أحدث المقالات التقنية والمعرفية التفاعلية',
+              subtitle: 'مقالات تفاعلية مشوقة مصممة خصيصاً لتبسيط علوم الحاسب والذكاء الاصطناعي للأطفال واليافعين.',
               isDark: isDark,
               isMobile: isMobile,
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 16),
 
             // Controls Bar
             Row(
-              mainAxisAlignment: MainAxisAlignment.end,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                IconButton(
-                  icon: const Icon(Icons.arrow_forward_ios_rounded, size: 16),
-                  tooltip: 'التالي',
-                  onPressed: () {
-                    if (_whatsNewScrollCtrl.hasClients) {
-                      _whatsNewScrollCtrl.animateTo(
-                        _whatsNewScrollCtrl.offset + 320,
-                        duration: const Duration(milliseconds: 300),
-                        curve: Curves.easeOut,
-                      );
-                    }
-                  },
+                OutlinedButton.icon(
+                  onPressed: () => Navigator.of(context).pushNamed('/blog'),
+                  icon: const Icon(Icons.menu_book_rounded, size: 16),
+                  label: Text(
+                    "تصفح كل المقالات (${_dataService.articles.isNotEmpty ? _dataService.articles.length : 53}+ مقال) ←",
+                    style: GoogleFonts.cairo(fontWeight: FontWeight.bold, fontSize: 13),
+                  ),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: const Color(0xFF10B981),
+                    side: BorderSide(color: const Color(0xFF10B981).withOpacity(0.5)),
+                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                  ),
                 ),
-                IconButton(
-                  icon: const Icon(Icons.arrow_back_ios_rounded, size: 16),
-                  tooltip: 'السابق',
-                  onPressed: () {
-                    if (_whatsNewScrollCtrl.hasClients) {
-                      _whatsNewScrollCtrl.animateTo(
-                        _whatsNewScrollCtrl.offset - 320,
-                        duration: const Duration(milliseconds: 300),
-                        curve: Curves.easeOut,
-                      );
-                    }
-                  },
+                Row(
+                  children: [
+                    IconButton(
+                      icon: const Icon(Icons.arrow_forward_ios_rounded, size: 16),
+                      tooltip: 'التالي',
+                      onPressed: () {
+                        if (_articlesScrollCtrl.hasClients) {
+                          _articlesScrollCtrl.animateTo(
+                            _articlesScrollCtrl.offset + 320,
+                            duration: const Duration(milliseconds: 300),
+                            curve: Curves.easeOut,
+                          );
+                        }
+                      },
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.arrow_back_ios_rounded, size: 16),
+                      tooltip: 'السابق',
+                      onPressed: () {
+                        if (_articlesScrollCtrl.hasClients) {
+                          _articlesScrollCtrl.animateTo(
+                            _articlesScrollCtrl.offset - 320,
+                            duration: const Duration(milliseconds: 300),
+                            curve: Curves.easeOut,
+                          );
+                        }
+                      },
+                    ),
+                  ],
                 ),
               ],
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 10),
 
-            // The Smooth Moving Slider with Rich Visual Cards
+            // The Smooth Moving Articles Slider
             MouseRegion(
-              onEnter: (_) => _whatsNewAutoScrollTimer?.cancel(),
-              onExit: (_) => _startWhatsNewAutoScroll(),
+              onEnter: (_) => _articlesAutoScrollTimer?.cancel(),
+              onExit: (_) => _startArticlesAutoScroll(),
               child: SizedBox(
                 height: 310,
                 child: ListView.separated(
-                  controller: _whatsNewScrollCtrl,
+                  controller: _articlesScrollCtrl,
                   scrollDirection: Axis.horizontal,
                   physics: const BouncingScrollPhysics(),
                   itemCount: sliderItems.length,
@@ -634,7 +700,6 @@ class _HomePageState extends State<HomePage> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            // 1. Cover Image with Badge Overlay
                             SizedBox(
                               height: 145,
                               width: double.infinity,
@@ -646,7 +711,6 @@ class _HomePageState extends State<HomePage> {
                                       child: _buildSliderImageWidget(imgPath, color),
                                     ),
                                   ),
-                                  // Gradient Overlay
                                   Positioned.fill(
                                     child: Container(
                                       decoration: BoxDecoration(
@@ -662,7 +726,6 @@ class _HomePageState extends State<HomePage> {
                                       ),
                                     ),
                                   ),
-                                  // Badge
                                   Positioned(
                                     top: 10,
                                     right: 10,
@@ -683,7 +746,6 @@ class _HomePageState extends State<HomePage> {
                                       ),
                                     ),
                                   ),
-                                  // Icon Badge
                                   Positioned(
                                     bottom: 10,
                                     left: 10,
@@ -696,8 +758,6 @@ class _HomePageState extends State<HomePage> {
                                 ],
                               ),
                             ),
-
-                            // 2. Card Content
                             Expanded(
                               child: Padding(
                                 padding: const EdgeInsets.all(14),
@@ -735,7 +795,7 @@ class _HomePageState extends State<HomePage> {
                                       mainAxisAlignment: MainAxisAlignment.end,
                                       children: [
                                         Text(
-                                          'عرض المحتوى ➔',
+                                          'قراءة المقال ➔',
                                           style: GoogleFonts.cairo(
                                             fontSize: 12,
                                             fontWeight: FontWeight.bold,
@@ -762,18 +822,313 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  // =========================================================================
+  // 5. COURSES SLIDER SECTION (اسلايدر الكورسات والمسارات - بعد آراء العملاء)
+  // =========================================================================
+  Widget _buildCoursesSliderSection(bool isMobile, double screenWidth, bool isDark) {
+    final List<Map<String, dynamic>> items = [];
+
+    // The 8 Official Courses of Eslam Atef Platform
+    for (final c in SiteDataService.officialPlatformCourses) {
+      final id = c['id'] ?? '';
+      final title = c['title'] ?? '';
+      final category = c['category'] ?? '';
+      final badge = c['badge'] ?? 'معتمد 🎓';
+      final image = c['image'] ?? 'assets/images/courses/course_01.png';
+
+      Color courseColor = const Color(0xFF00E5FF);
+      if (id.toString().contains('algorithm')) courseColor = const Color(0xFF8B5CF6);
+      if (id.toString().contains('scratch')) courseColor = const Color(0xFFFF7A00);
+      if (id.toString().contains('python')) courseColor = const Color(0xFF10B981);
+      if (id.toString().contains('agent')) courseColor = const Color(0xFFEC4899);
+      if (id.toString().contains('tools')) courseColor = const Color(0xFFF59E0B);
+
+      items.add({
+        'type': 'course',
+        'typeLabel': badge,
+        'typeColor': courseColor,
+        'title': title,
+        'subtitle': category,
+        'route': '/courses?course=$id',
+        'icon': Icons.school_rounded,
+        'image': image,
+      });
+    }
+
+    // Also include published lessons
+    for (final c in _dataService.courses) {
+      final lessons = List<Map<String, dynamic>>.from(c['lessons'] ?? []);
+      for (final l in lessons.take(2)) {
+        final title = (l['title'] ?? '').toString();
+        if (title.isNotEmpty) {
+          final lecImg = (l['imageUrl'] ?? l['image'] ?? c['image'] ?? c['imageUrl'] ?? 'assets/images/courses/course_01.png').toString();
+          items.add({
+            'type': 'lecture',
+            'typeLabel': 'محاضرة تطبيقية 🎬',
+            'typeColor': const Color(0xFFFF7A00),
+            'title': title,
+            'subtitle': 'ضمن ${c['title'] ?? 'الكورس'}',
+            'route': '/courses?course=${c['id']}&lesson=${l['id'] ?? ''}',
+            'icon': Icons.play_circle_fill_rounded,
+            'image': lecImg,
+          });
+        }
+      }
+    }
+
+    final sliderItems = [...items, ...items, ...items];
+
+    return Center(
+      child: Container(
+        constraints: const BoxConstraints(maxWidth: 1220),
+        padding: EdgeInsets.symmetric(horizontal: isMobile ? 14 : 32),
+        child: Column(
+          children: [
+            _buildSectionHeader(
+              tag: '🎓 الكورسات والمسارات المعتمدة',
+              title: 'مسارات البرمجة والذكاء الاصطناعي للأجيال الصاعدة',
+              subtitle: 'منهج احترافي متكامل يبدأ من أساسيات علوم الحاسب حتى هندسة الذكاء الاصطناعي وصناعة الألعاب.',
+              isDark: isDark,
+              isMobile: isMobile,
+            ),
+            const SizedBox(height: 16),
+
+            // Controls Bar
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                OutlinedButton.icon(
+                  onPressed: () => Navigator.of(context).pushNamed('/courses'),
+                  icon: const Icon(Icons.school_rounded, size: 16),
+                  label: Text(
+                    "استكشف جميع الكورسات الـ 8 المعتمدة ←",
+                    style: GoogleFonts.cairo(fontWeight: FontWeight.bold, fontSize: 13),
+                  ),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: const Color(0xFF00E5FF),
+                    side: BorderSide(color: const Color(0xFF00E5FF).withOpacity(0.5)),
+                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                  ),
+                ),
+                Row(
+                  children: [
+                    IconButton(
+                      icon: const Icon(Icons.arrow_forward_ios_rounded, size: 16),
+                      tooltip: 'التالي',
+                      onPressed: () {
+                        if (_coursesScrollCtrl.hasClients) {
+                          _coursesScrollCtrl.animateTo(
+                            _coursesScrollCtrl.offset + 320,
+                            duration: const Duration(milliseconds: 300),
+                            curve: Curves.easeOut,
+                          );
+                        }
+                      },
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.arrow_back_ios_rounded, size: 16),
+                      tooltip: 'السابق',
+                      onPressed: () {
+                        if (_coursesScrollCtrl.hasClients) {
+                          _coursesScrollCtrl.animateTo(
+                            _coursesScrollCtrl.offset - 320,
+                            duration: const Duration(milliseconds: 300),
+                            curve: Curves.easeOut,
+                          );
+                        }
+                      },
+                    ),
+                  ],
+                ),
+              ],
+            ),
+            const SizedBox(height: 10),
+
+            // The Smooth Moving Courses Slider
+            MouseRegion(
+              onEnter: (_) => _coursesAutoScrollTimer?.cancel(),
+              onExit: (_) => _startCoursesAutoScroll(),
+              child: SizedBox(
+                height: 310,
+                child: ListView.separated(
+                  controller: _coursesScrollCtrl,
+                  scrollDirection: Axis.horizontal,
+                  physics: const BouncingScrollPhysics(),
+                  itemCount: sliderItems.length,
+                  separatorBuilder: (_, __) => const SizedBox(width: 18),
+                  itemBuilder: (context, idx) {
+                    final it = sliderItems[idx];
+                    final color = it['typeColor'] as Color;
+                    final imgPath = (it['image'] ?? '').toString();
+
+                    return InkWell(
+                      onTap: () {
+                        final r = it['route'] as String;
+                        Navigator.of(context).pushNamed(r);
+                      },
+                      borderRadius: BorderRadius.circular(18),
+                      child: Container(
+                        width: isMobile ? 280 : 310,
+                        decoration: BoxDecoration(
+                          color: isDark ? const Color(0xFF0F172A) : Colors.white,
+                          borderRadius: BorderRadius.circular(18),
+                          border: Border.all(
+                            color: color.withOpacity(isDark ? 0.35 : 0.25),
+                            width: 1.2,
+                          ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: color.withOpacity(isDark ? 0.12 : 0.06),
+                              blurRadius: 14,
+                              offset: const Offset(0, 5),
+                            ),
+                          ],
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            SizedBox(
+                              height: 145,
+                              width: double.infinity,
+                              child: Stack(
+                                children: [
+                                  Positioned.fill(
+                                    child: ClipRRect(
+                                      borderRadius: const BorderRadius.vertical(top: Radius.circular(17)),
+                                      child: _buildSliderImageWidget(imgPath, color),
+                                    ),
+                                  ),
+                                  Positioned.fill(
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                        borderRadius: const BorderRadius.vertical(top: Radius.circular(17)),
+                                        gradient: LinearGradient(
+                                          colors: [
+                                            Colors.black.withOpacity(0.65),
+                                            Colors.transparent,
+                                          ],
+                                          begin: Alignment.bottomCenter,
+                                          end: Alignment.topCenter,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  Positioned(
+                                    top: 10,
+                                    right: 10,
+                                    child: Container(
+                                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                                      decoration: BoxDecoration(
+                                        color: Colors.black.withOpacity(0.75),
+                                        borderRadius: BorderRadius.circular(20),
+                                        border: Border.all(color: color.withOpacity(0.8), width: 1),
+                                      ),
+                                      child: Text(
+                                        it['typeLabel'],
+                                        style: GoogleFonts.cairo(
+                                          fontSize: 11,
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  Positioned(
+                                    bottom: 10,
+                                    left: 10,
+                                    child: CircleAvatar(
+                                      radius: 15,
+                                      backgroundColor: color,
+                                      child: Icon(it['icon'] as IconData, color: Colors.white, size: 16),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Expanded(
+                              child: Padding(
+                                padding: const EdgeInsets.all(14),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          it['title'],
+                                          style: GoogleFonts.cairo(
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.bold,
+                                            height: 1.35,
+                                            color: isDark ? Colors.white : const Color(0xFF0F172A),
+                                          ),
+                                          maxLines: 2,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                        const SizedBox(height: 4),
+                                        Text(
+                                          it['subtitle'],
+                                          style: GoogleFonts.cairo(
+                                            fontSize: 11.5,
+                                            color: isDark ? Colors.grey.shade400 : Colors.grey.shade600,
+                                          ),
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                      ],
+                                    ),
+                                    Row(
+                                      mainAxisAlignment: MainAxisAlignment.end,
+                                      children: [
+                                        Text(
+                                          'تفاصيل الكورس ➔',
+                                          style: GoogleFonts.cairo(
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.bold,
+                                            color: color,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+
   Widget _buildSliderImageWidget(String imgUrl, Color fallbackColor) {
-    if (imgUrl.startsWith('http://') || imgUrl.startsWith('https://')) {
-      return Image.network(
-        imgUrl,
-        fit: BoxFit.cover,
-        errorBuilder: (_, __, ___) => _buildSliderPlaceholder(fallbackColor),
-      );
-    } else if (imgUrl.isNotEmpty) {
+    if (imgUrl.startsWith('assets/')) {
       return Image.asset(
         imgUrl,
         fit: BoxFit.cover,
         errorBuilder: (_, __, ___) => _buildSliderPlaceholder(fallbackColor),
+      );
+    } else if (imgUrl.startsWith('http://') || imgUrl.startsWith('https://')) {
+      return SafeNetworkImage(
+        imageUrl: imgUrl,
+        fit: BoxFit.cover,
+        errorWidget: _buildSliderPlaceholder(fallbackColor),
+      );
+    } else if (imgUrl.isNotEmpty) {
+      return SafeNetworkImage(
+        imageUrl: imgUrl,
+        fit: BoxFit.cover,
+        errorWidget: _buildSliderPlaceholder(fallbackColor),
       );
     }
     return _buildSliderPlaceholder(fallbackColor);

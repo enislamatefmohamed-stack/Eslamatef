@@ -299,6 +299,7 @@ class SiteDataService extends ChangeNotifier {
       if (artStr != null && artStr.isNotEmpty) {
         try {
           _articles = List<Map<String, dynamic>>.from(jsonDecode(artStr));
+          _sortArticles();
         } catch (_) {}
       }
 
@@ -497,6 +498,7 @@ class SiteDataService extends ChangeNotifier {
           d['id'] = doc.id;
           return d;
         }).toList();
+        _sortArticles();
         _saveArticles();
         notifyListeners();
       }, onError: (e) {
@@ -1092,6 +1094,38 @@ class SiteDataService extends ChangeNotifier {
   // =========================================================================
   // ARTICLES CRUD (المقالات)
   // =========================================================================
+  void _sortArticles() {
+    _articles.sort((a, b) {
+      final orderA = (a['displayOrder'] is num)
+          ? (a['displayOrder'] as num).toInt()
+          : ((a['order'] is num) ? (a['order'] as num).toInt() : 50);
+      final orderB = (b['displayOrder'] is num)
+          ? (b['displayOrder'] as num).toInt()
+          : ((b['order'] is num) ? (b['order'] as num).toInt() : 50);
+      if (orderA != orderB) {
+        return orderA.compareTo(orderB);
+      }
+      final dateA = (a['createdAt'] ?? '').toString();
+      final dateB = (b['createdAt'] ?? '').toString();
+      return dateB.compareTo(dateA);
+    });
+  }
+
+  String _cleanArticleImageUrl(String rawUrl, String title, String id) {
+    var u = rawUrl.trim();
+    if (u.contains('صوره المقال') || u.contains('صوره%20المقال')) {
+      final numMatch = RegExp(r'\b0*(\d{1,3})\b').firstMatch(title.trim().isNotEmpty ? title.trim() : id);
+      final n = numMatch != null ? (int.tryParse(numMatch.group(1)!) ?? 1) : 1;
+      final imgNum = RegExp(r'(\d+)\.(?:png|jpg|jpeg|webp)').firstMatch(u)?.group(1) ?? '1';
+      u = 'assets/images/articles/${n.toString().padLeft(2, '0')}/$imgNum.png';
+    } else if (u.startsWith('/images/articles/')) {
+      u = 'assets$u';
+    } else if (u.startsWith('images/articles/')) {
+      u = 'assets/$u';
+    }
+    return u;
+  }
+
   Future<void> addArticle(Map<String, dynamic> article) async {
     final id = (article['id'] != null && article['id'].toString().isNotEmpty)
         ? article['id'].toString()
@@ -1099,19 +1133,23 @@ class SiteDataService extends ChangeNotifier {
     article['id'] = id;
     article['createdAt'] ??= DateTime.now().toIso8601String();
     article['isPublished'] ??= true;
+    article['displayOrder'] ??= 50;
 
-    // Auto extract image thumbnail if missing
-    if ((article['imageUrl'] == null || article['imageUrl'].toString().isEmpty) &&
-        (article['image'] == null || article['image'].toString().isEmpty)) {
+    // Auto extract image thumbnail if missing or unformatted
+    var img = (article['imageUrl'] ?? article['image'] ?? '').toString().trim();
+    if (img.isEmpty || img.contains('صوره المقال') || img.contains('placeholder')) {
       final code = (article['htmlCode'] ?? article['content'] ?? '').toString();
       final imgMatch = RegExp(r'''<img[^>]*\bsrc\s*=\s*["']?([^"'>\s]+)["']?''', caseSensitive: false).firstMatch(code);
       if (imgMatch != null && imgMatch.group(1) != null) {
-        article['imageUrl'] = imgMatch.group(1)!;
-        article['image'] = imgMatch.group(1)!;
+        img = imgMatch.group(1)!;
       }
     }
+    final resolvedImg = _cleanArticleImageUrl(img, (article['title'] ?? '').toString(), id);
+    article['imageUrl'] = resolvedImg;
+    article['image'] = resolvedImg;
 
     _articles.insert(0, article);
+    _sortArticles();
     await _saveArticles();
     notifyListeners();
 
@@ -1129,19 +1167,23 @@ class SiteDataService extends ChangeNotifier {
     if (idx != -1) {
       updated['id'] = id;
       updated['updatedAt'] = DateTime.now().toIso8601String();
+      updated['displayOrder'] ??= _articles[idx]['displayOrder'] ?? 50;
 
-      // Auto extract image thumbnail if missing
-      if ((updated['imageUrl'] == null || updated['imageUrl'].toString().isEmpty) &&
-          (updated['image'] == null || updated['image'].toString().isEmpty)) {
+      // Auto extract image thumbnail if missing or unformatted
+      var img = (updated['imageUrl'] ?? updated['image'] ?? '').toString().trim();
+      if (img.isEmpty || img.contains('صوره المقال') || img.contains('placeholder')) {
         final code = (updated['htmlCode'] ?? updated['content'] ?? '').toString();
         final imgMatch = RegExp(r'''<img[^>]*\bsrc\s*=\s*["']?([^"'>\s]+)["']?''', caseSensitive: false).firstMatch(code);
         if (imgMatch != null && imgMatch.group(1) != null) {
-          updated['imageUrl'] = imgMatch.group(1)!;
-          updated['image'] = imgMatch.group(1)!;
+          img = imgMatch.group(1)!;
         }
       }
+      final resolvedImg = _cleanArticleImageUrl(img, (updated['title'] ?? '').toString(), id);
+      updated['imageUrl'] = resolvedImg;
+      updated['image'] = resolvedImg;
 
       _articles[idx] = updated;
+      _sortArticles();
       await _saveArticles();
       notifyListeners();
 
@@ -1150,6 +1192,26 @@ class SiteDataService extends ChangeNotifier {
           await _firestore.collection('articles').doc(id).set(updated, SetOptions(merge: true));
         } catch (e) {
           debugPrint("Firestore updateArticle error: $e");
+        }
+      }
+    }
+  }
+
+  Future<void> updateArticleOrder(String id, int newOrder) async {
+    final idx = _articles.indexWhere((a) => a['id'] == id);
+    if (idx != -1) {
+      _articles[idx]['displayOrder'] = newOrder;
+      _sortArticles();
+      await _saveArticles();
+      notifyListeners();
+
+      if (isFirebaseReady) {
+        try {
+          await _firestore.collection('articles').doc(id).set({
+            'displayOrder': newOrder,
+          }, SetOptions(merge: true));
+        } catch (e) {
+          debugPrint("Firestore updateArticleOrder error: $e");
         }
       }
     }

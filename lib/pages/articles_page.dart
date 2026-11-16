@@ -185,23 +185,41 @@ class _ArticlesPageState extends State<ArticlesPage> {
   }
 
   String _extractThumbnail(Map<String, dynamic> article) {
-    final explicit = (article['imageUrl'] ?? article['image'] ?? article['thumbnail'] ?? article['cover'] ?? '').toString();
-    if (explicit.isNotEmpty && !explicit.contains('placeholder')) {
-      return sanitizeImageUrl(explicit);
+    var rawUrl = (article['imageUrl'] ?? article['image'] ?? article['thumbnail'] ?? article['cover'] ?? '').toString().trim();
+    
+    if (rawUrl.isEmpty || rawUrl.contains('placeholder')) {
+      final code = (article['htmlCode'] ?? article['content'] ?? '').toString();
+      final imgMatch = RegExp(r'''<img[^>]*\bsrc\s*=\s*["']?([^"'>\s]+)["']?''', caseSensitive: false).firstMatch(code);
+      if (imgMatch != null && imgMatch.group(1) != null) {
+        rawUrl = imgMatch.group(1)!.trim();
+      }
     }
 
-    final code = (article['htmlCode'] ?? article['content'] ?? '').toString();
-    final imgMatch = RegExp(r'''<img[^>]*\bsrc\s*=\s*["']?([^"'>\s]+)["']?''', caseSensitive: false).firstMatch(code);
-    if (imgMatch != null && imgMatch.group(1) != null) {
-      return sanitizeImageUrl(imgMatch.group(1)!);
+    if (rawUrl.isEmpty) {
+      final code = (article['htmlCode'] ?? article['content'] ?? '').toString();
+      final mdMatch = RegExp(r'!\[.*?\]\((https?://[^\s\)]+)\)').firstMatch(code);
+      if (mdMatch != null && mdMatch.group(1) != null) {
+        rawUrl = mdMatch.group(1)!.trim();
+      }
     }
 
-    final mdMatch = RegExp(r'!\[.*?\]\((https?://[^\s\)]+)\)').firstMatch(code);
-    if (mdMatch != null && mdMatch.group(1) != null) {
-      return sanitizeImageUrl(mdMatch.group(1)!);
+    if (rawUrl.isEmpty) return '';
+
+    // Auto-resolve local relative paths like "صوره المقال/1.png" or "صوره%20المقال/1.png"
+    if (rawUrl.contains('صوره المقال') || rawUrl.contains('صوره%20المقال')) {
+      final title = (article['title'] ?? '').toString();
+      final id = (article['id'] ?? '').toString();
+      final numMatch = RegExp(r'\b0*(\d{1,3})\b').firstMatch(title.trim().isNotEmpty ? title.trim() : id);
+      final n = numMatch != null ? (int.tryParse(numMatch.group(1)!) ?? 1) : 1;
+      final imgNum = RegExp(r'(\d+)\.(?:png|jpg|jpeg|webp)').firstMatch(rawUrl)?.group(1) ?? '1';
+      rawUrl = 'assets/images/articles/${n.toString().padLeft(2, '0')}/$imgNum.png';
+    } else if (rawUrl.startsWith('/images/articles/')) {
+      rawUrl = 'assets$rawUrl';
+    } else if (rawUrl.startsWith('images/articles/')) {
+      rawUrl = 'assets/$rawUrl';
     }
 
-    return '';
+    return sanitizeImageUrl(rawUrl);
   }
 
   String _extractSnippet(Map<String, dynamic> article) {
@@ -290,6 +308,21 @@ class _ArticlesPageState extends State<ArticlesPage> {
   // ==========================================
   Widget _buildArticlesCatalog(BuildContext context, bool isMobile, bool isDark) {
     final allArticles = _dataService.articles.where(_isItemPublished).toList();
+    // Sort articles by displayOrder (1: first, 50: middle, 999: last), then by createdAt descending
+    allArticles.sort((a, b) {
+      final orderA = (a['displayOrder'] is num)
+          ? (a['displayOrder'] as num).toInt()
+          : ((a['order'] is num) ? (a['order'] as num).toInt() : 50);
+      final orderB = (b['displayOrder'] is num)
+          ? (b['displayOrder'] as num).toInt()
+          : ((b['order'] is num) ? (b['order'] as num).toInt() : 50);
+      if (orderA != orderB) {
+        return orderA.compareTo(orderB);
+      }
+      final dateA = (a['createdAt'] ?? '').toString();
+      final dateB = (b['createdAt'] ?? '').toString();
+      return dateB.compareTo(dateA);
+    });
     final categories = ['الكل', ..._dataService.articleCategories];
 
     final filtered = allArticles.where((a) {

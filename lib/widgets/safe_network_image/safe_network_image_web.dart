@@ -15,10 +15,17 @@ Widget buildPlatformSafeImage({
   Widget? placeholder,
   Widget? errorWidget,
 }) {
-  final cleanUrl = sanitizeImageUrl(imageUrl);
+  var cleanUrl = sanitizeImageUrl(imageUrl);
 
   if (cleanUrl.isEmpty) {
     return errorWidget ?? _buildColorFallback(width: width, height: height, borderRadius: borderRadius);
+  }
+
+  // Handle local article image paths seamlessly (maps to Flutter compiled assets)
+  if (cleanUrl.startsWith('/images/articles/')) {
+    cleanUrl = 'assets$cleanUrl';
+  } else if (cleanUrl.startsWith('images/articles/')) {
+    cleanUrl = 'assets/$cleanUrl';
   }
 
   // 1. Local App Assets
