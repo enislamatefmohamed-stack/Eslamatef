@@ -1113,9 +1113,24 @@ class SiteDataService extends ChangeNotifier {
 
   String _cleanArticleImageUrl(String rawUrl, String title, String id) {
     var u = rawUrl.trim();
+    if (u == 'صوره' || u.isEmpty || u.contains('placeholder')) {
+      if (title.contains('انطلاقة') || title.contains('أول لغة')) return '/images/articles/2027/01/01/1.png';
+      if (title.contains('بايثون')) return '/images/articles/2027/01/08/1.png';
+      if (title.contains('سكراتش') || title.contains('البلوكات') || title.contains('الليجو')) return '/images/articles/2027/01/15/1.png';
+      return '/images/articles/01/1.png';
+    }
     if (u.contains('صوره المقال') || u.contains('صوره%20المقال')) {
-      final numMatch = RegExp(r'\b0*(\d{1,3})\b').firstMatch(title.trim().isNotEmpty ? title.trim() : id);
-      final n = numMatch != null ? (int.tryParse(numMatch.group(1)!) ?? 1) : 1;
+      int n = 1;
+      if (title.contains('انطلاقة') || title.contains('أول لغة')) {
+        n = 1;
+      } else if (title.contains('بايثون')) {
+        n = 2;
+      } else if (title.contains('سكراتش') || title.contains('البلوكات') || title.contains('الليجو')) {
+        n = 3;
+      } else {
+        final numMatch = RegExp(r'\b0*(\d{1,3})\b').firstMatch(title.trim().isNotEmpty ? title.trim() : id);
+        n = numMatch != null ? (int.tryParse(numMatch.group(1)!) ?? 1) : 1;
+      }
       final imgNum = RegExp(r'(\d+)\.(?:png|jpg|jpeg|webp)').firstMatch(u)?.group(1) ?? '1';
       u = 'assets/images/articles/${n.toString().padLeft(2, '0')}/$imgNum.png';
     } else if (u.startsWith('/images/articles/')) {
@@ -1137,7 +1152,7 @@ class SiteDataService extends ChangeNotifier {
 
     // Auto extract image thumbnail if missing or unformatted
     var img = (article['imageUrl'] ?? article['image'] ?? '').toString().trim();
-    if (img.isEmpty || img.contains('صوره المقال') || img.contains('placeholder')) {
+    if (img.isEmpty || img == 'صوره' || img.contains('صوره المقال') || img.contains('placeholder')) {
       final code = (article['htmlCode'] ?? article['content'] ?? '').toString();
       final imgMatch = RegExp(r'''<img[^>]*\bsrc\s*=\s*["']?([^"'>\s]+)["']?''', caseSensitive: false).firstMatch(code);
       if (imgMatch != null && imgMatch.group(1) != null) {
@@ -1171,7 +1186,7 @@ class SiteDataService extends ChangeNotifier {
 
       // Auto extract image thumbnail if missing or unformatted
       var img = (updated['imageUrl'] ?? updated['image'] ?? '').toString().trim();
-      if (img.isEmpty || img.contains('صوره المقال') || img.contains('placeholder')) {
+      if (img.isEmpty || img == 'صوره' || img.contains('صوره المقال') || img.contains('placeholder')) {
         final code = (updated['htmlCode'] ?? updated['content'] ?? '').toString();
         final imgMatch = RegExp(r'''<img[^>]*\bsrc\s*=\s*["']?([^"'>\s]+)["']?''', caseSensitive: false).firstMatch(code);
         if (imgMatch != null && imgMatch.group(1) != null) {

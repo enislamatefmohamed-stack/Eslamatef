@@ -517,7 +517,16 @@ class _HomePageState extends State<HomePage> {
 
     for (final a in rawArticles.take(12)) {
       String articleImg = (a['imageUrl'] ?? a['image'] ?? a['thumbnail'] ?? a['cover'] ?? '').toString().trim();
-      if (articleImg.isEmpty || articleImg.contains('صوره المقال') || articleImg.contains('placeholder')) {
+      
+      bool isValidImg(String u) {
+        final s = u.trim();
+        if (s.isEmpty || s == 'صوره' || s.contains('placeholder')) return false;
+        if (s.startsWith('http://') || s.startsWith('https://') || s.startsWith('/') || s.startsWith('assets/')) return true;
+        if (s.contains('/') && (s.endsWith('.png') || s.endsWith('.jpg') || s.endsWith('.jpeg') || s.endsWith('.webp') || s.endsWith('.svg'))) return true;
+        return false;
+      }
+
+      if (!isValidImg(articleImg)) {
         final code = (a['htmlCode'] ?? a['content'] ?? '').toString();
         final imgMatch = RegExp(r"""<img[^>]*\bsrc\s*=\s*["']?([^"'>\s]+)["']?""", caseSensitive: false).firstMatch(code);
         if (imgMatch != null && imgMatch.group(1) != null) {
@@ -525,11 +534,31 @@ class _HomePageState extends State<HomePage> {
         }
       }
 
+      if (!isValidImg(articleImg)) {
+        final title = (a['title'] ?? '').toString();
+        if (title.contains('انطلاقة') || title.contains('أول لغة')) {
+          articleImg = '/images/articles/2027/01/01/1.png';
+        } else if (title.contains('بايثون')) {
+          articleImg = '/images/articles/2027/01/08/1.png';
+        } else if (title.contains('سكراتش') || title.contains('البلوكات') || title.contains('الليجو')) {
+          articleImg = '/images/articles/2027/01/15/1.png';
+        }
+      }
+
       if (articleImg.contains('صوره المقال') || articleImg.contains('صوره%20المقال')) {
         final title = (a['title'] ?? '').toString();
         final id = (a['id'] ?? '').toString();
-        final numMatch = RegExp(r'\b0*(\d{1,3})\b').firstMatch(title.trim().isNotEmpty ? title.trim() : id);
-        final n = numMatch != null ? (int.tryParse(numMatch.group(1)!) ?? 1) : 1;
+        int n = 1;
+        if (title.contains('انطلاقة') || title.contains('أول لغة')) {
+          n = 1;
+        } else if (title.contains('بايثون')) {
+          n = 2;
+        } else if (title.contains('سكراتش') || title.contains('البلوكات') || title.contains('الليجو')) {
+          n = 3;
+        } else {
+          final numMatch = RegExp(r'\b0*(\d{1,3})\b').firstMatch(title.trim().isNotEmpty ? title.trim() : id);
+          n = numMatch != null ? (int.tryParse(numMatch.group(1)!) ?? 1) : 1;
+        }
         final imgNum = RegExp(r'(\d+)\.(?:png|jpg|jpeg|webp)').firstMatch(articleImg)?.group(1) ?? '1';
         articleImg = 'assets/images/articles/${n.toString().padLeft(2, '0')}/$imgNum.png';
       } else if (articleImg.startsWith('/images/articles/')) {
@@ -538,7 +567,7 @@ class _HomePageState extends State<HomePage> {
         articleImg = 'assets/$articleImg';
       }
 
-      if (articleImg.isEmpty) {
+      if (articleImg.isEmpty || articleImg == 'صوره') {
         articleImg = 'assets/images/courses/course_01.png';
       }
 

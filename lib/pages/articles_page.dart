@@ -187,7 +187,15 @@ class _ArticlesPageState extends State<ArticlesPage> {
   String _extractThumbnail(Map<String, dynamic> article) {
     var rawUrl = (article['imageUrl'] ?? article['image'] ?? article['thumbnail'] ?? article['cover'] ?? '').toString().trim();
     
-    if (rawUrl.isEmpty || rawUrl.contains('placeholder')) {
+    bool isValidImg(String u) {
+      final s = u.trim();
+      if (s.isEmpty || s == 'صوره' || s.contains('placeholder')) return false;
+      if (s.startsWith('http://') || s.startsWith('https://') || s.startsWith('/') || s.startsWith('assets/')) return true;
+      if (s.contains('/') && (s.endsWith('.png') || s.endsWith('.jpg') || s.endsWith('.jpeg') || s.endsWith('.webp') || s.endsWith('.svg'))) return true;
+      return false;
+    }
+
+    if (!isValidImg(rawUrl)) {
       final code = (article['htmlCode'] ?? article['content'] ?? '').toString();
       final imgMatch = RegExp(r'''<img[^>]*\bsrc\s*=\s*["']?([^"'>\s]+)["']?''', caseSensitive: false).firstMatch(code);
       if (imgMatch != null && imgMatch.group(1) != null) {
@@ -195,11 +203,22 @@ class _ArticlesPageState extends State<ArticlesPage> {
       }
     }
 
-    if (rawUrl.isEmpty) {
+    if (!isValidImg(rawUrl)) {
       final code = (article['htmlCode'] ?? article['content'] ?? '').toString();
       final mdMatch = RegExp(r'!\[.*?\]\((https?://[^\s\)]+)\)').firstMatch(code);
       if (mdMatch != null && mdMatch.group(1) != null) {
         rawUrl = mdMatch.group(1)!.trim();
+      }
+    }
+
+    if (!isValidImg(rawUrl)) {
+      final title = (article['title'] ?? '').toString();
+      if (title.contains('انطلاقة') || title.contains('أول لغة')) {
+        rawUrl = '/images/articles/2027/01/01/1.png';
+      } else if (title.contains('بايثون')) {
+        rawUrl = '/images/articles/2027/01/08/1.png';
+      } else if (title.contains('سكراتش') || title.contains('البلوكات') || title.contains('الليجو')) {
+        rawUrl = '/images/articles/2027/01/15/1.png';
       }
     }
 
@@ -209,8 +228,17 @@ class _ArticlesPageState extends State<ArticlesPage> {
     if (rawUrl.contains('صوره المقال') || rawUrl.contains('صوره%20المقال')) {
       final title = (article['title'] ?? '').toString();
       final id = (article['id'] ?? '').toString();
-      final numMatch = RegExp(r'\b0*(\d{1,3})\b').firstMatch(title.trim().isNotEmpty ? title.trim() : id);
-      final n = numMatch != null ? (int.tryParse(numMatch.group(1)!) ?? 1) : 1;
+      int n = 1;
+      if (title.contains('انطلاقة') || title.contains('أول لغة')) {
+        n = 1;
+      } else if (title.contains('بايثون')) {
+        n = 2;
+      } else if (title.contains('سكراتش') || title.contains('البلوكات') || title.contains('الليجو')) {
+        n = 3;
+      } else {
+        final numMatch = RegExp(r'\b0*(\d{1,3})\b').firstMatch(title.trim().isNotEmpty ? title.trim() : id);
+        n = numMatch != null ? (int.tryParse(numMatch.group(1)!) ?? 1) : 1;
+      }
       final imgNum = RegExp(r'(\d+)\.(?:png|jpg|jpeg|webp)').firstMatch(rawUrl)?.group(1) ?? '1';
       rawUrl = 'assets/images/articles/${n.toString().padLeft(2, '0')}/$imgNum.png';
     } else if (rawUrl.startsWith('/images/articles/')) {

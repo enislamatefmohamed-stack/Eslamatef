@@ -193,6 +193,23 @@ class _AutoResizingHtmlWidgetState extends State<AutoResizingHtmlWidget> {
 ''';
 
       var processedHtml = widget.rawHtml;
+
+      // Auto-resolve relative "صوره المقال/N.png" inside HTML
+      if (processedHtml.contains('صوره المقال') || processedHtml.contains('صوره%20المقال')) {
+        int n = 1;
+        if (processedHtml.contains('انطلاقة') || processedHtml.contains('أول لغة')) {
+          n = 1;
+        } else if (processedHtml.contains('بايثون')) {
+          n = 2;
+        } else if (processedHtml.contains('سكراتش') || processedHtml.contains('البلوكات') || processedHtml.contains('الليجو')) {
+          n = 3;
+        }
+        processedHtml = processedHtml.replaceAllMapped(
+          RegExp(r'["\x27](?:صوره\s*المقال|صوره%20المقال)/(\d+)\.png["\x27]'),
+          (m) => '"/images/articles/${n.toString().padLeft(2, '0')}/${m.group(1)}.png"',
+        );
+      }
+
       if (processedHtml.contains('</body>')) {
         processedHtml = processedHtml.replaceFirst('</body>', '$resizeScript</body>');
       } else {
