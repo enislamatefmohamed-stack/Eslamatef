@@ -21,14 +21,14 @@ Widget buildPlatformSafeImage({
     return errorWidget ?? _buildColorFallback(width: width, height: height, borderRadius: borderRadius);
   }
 
-  // Handle local article image paths seamlessly (maps to Flutter compiled assets)
-  if (cleanUrl.startsWith('/images/articles/')) {
-    cleanUrl = 'assets$cleanUrl';
+  // Normalize local article image paths to web root paths so browser loads them via native <img>
+  if (cleanUrl.startsWith('assets/images/articles/')) {
+    cleanUrl = cleanUrl.replaceFirst('assets', '');
   } else if (cleanUrl.startsWith('images/articles/')) {
-    cleanUrl = 'assets/$cleanUrl';
+    cleanUrl = '/$cleanUrl';
   }
 
-  // 1. Local App Assets
+  // 1. Local App Assets (courses, logo, banners - non-articles)
   if (cleanUrl.startsWith('assets/')) {
     return ClipRRect(
       borderRadius: borderRadius ?? BorderRadius.zero,
@@ -42,11 +42,11 @@ Widget buildPlatformSafeImage({
     );
   }
 
-  // 2. Web Network Image:
+  // 2. Web Network & Article Images:
   // Render via native HTML <img> element with referrerPolicy="no-referrer".
-  // This completely bypasses CanvasKit CORS restrictions, ensuring external images
-  // (Top4top, Blogger, Imgur, Google Drive, etc.) load 100% reliably in the browser.
-  final viewId = 'safe_img_${cleanUrl.hashCode}_${fit.name}';
+  // This completely bypasses CanvasKit CORS restrictions and AssetManifest limitations.
+  final safeKey = cleanUrl.replaceAll(RegExp(r'[^a-zA-Z0-9_]'), '_');
+  final viewId = 'safe_img_${safeKey}_${fit.name}';
 
   if (!_registeredImageViews.contains(viewId)) {
     _registeredImageViews.add(viewId);

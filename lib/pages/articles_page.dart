@@ -190,14 +190,20 @@ class _ArticlesPageState extends State<ArticlesPage> {
     bool isValidImg(String u) {
       final s = u.trim();
       if (s.isEmpty || s == 'صوره' || s.contains('placeholder')) return false;
-      if (s.startsWith('http://') || s.startsWith('https://') || s.startsWith('/') || s.startsWith('assets/')) return true;
-      if (s.contains('/') && (s.endsWith('.png') || s.endsWith('.jpg') || s.endsWith('.jpeg') || s.endsWith('.webp') || s.endsWith('.svg'))) return true;
+      if (s.startsWith('http://') || s.startsWith('https://') || s.startsWith('/') || s.startsWith('assets/')) {
+        return true;
+      }
+      if (s.contains('/') && (s.endsWith('.png') || s.endsWith('.jpg') || s.endsWith('.jpeg') || s.endsWith('.webp') || s.endsWith('.svg'))) {
+        return true;
+      }
       return false;
     }
 
+    // Always prefer extracting from htmlCode if rawUrl is empty, 'صوره', or placeholder
     if (!isValidImg(rawUrl)) {
       final code = (article['htmlCode'] ?? article['content'] ?? '').toString();
-      final imgMatch = RegExp(r'''<img[^>]*\bsrc\s*=\s*["']?([^"'>\s]+)["']?''', caseSensitive: false).firstMatch(code);
+      // Non-greedy match for first <img ... src="..." (avoids capturing onerror or breaking on spaces)
+      final imgMatch = RegExp(r'''<img\b[^>]*?\bsrc\s*=\s*["']([^"']+)["']''', caseSensitive: false).firstMatch(code);
       if (imgMatch != null && imgMatch.group(1) != null) {
         rawUrl = imgMatch.group(1)!.trim();
       }
@@ -211,40 +217,68 @@ class _ArticlesPageState extends State<ArticlesPage> {
       }
     }
 
-    if (!isValidImg(rawUrl)) {
-      final title = (article['title'] ?? '').toString();
-      if (title.contains('انطلاقة') || title.contains('أول لغة')) {
-        rawUrl = '/images/articles/2027/01/01/1.png';
-      } else if (title.contains('بايثون')) {
-        rawUrl = '/images/articles/2027/01/08/1.png';
-      } else if (title.contains('سكراتش') || title.contains('البلوكات') || title.contains('الليجو')) {
-        rawUrl = '/images/articles/2027/01/15/1.png';
-      }
-    }
-
-    if (rawUrl.isEmpty) return '';
-
     // Auto-resolve local relative paths like "صوره المقال/1.png" or "صوره%20المقال/1.png"
     if (rawUrl.contains('صوره المقال') || rawUrl.contains('صوره%20المقال')) {
+      final code = (article['htmlCode'] ?? article['content'] ?? '').toString();
       final title = (article['title'] ?? '').toString();
       final id = (article['id'] ?? '').toString();
-      int n = 1;
-      if (title.contains('انطلاقة') || title.contains('أول لغة')) {
-        n = 1;
-      } else if (title.contains('بايثون')) {
-        n = 2;
-      } else if (title.contains('سكراتش') || title.contains('البلوكات') || title.contains('الليجو')) {
-        n = 3;
-      } else {
-        final numMatch = RegExp(r'\b0*(\d{1,3})\b').firstMatch(title.trim().isNotEmpty ? title.trim() : id);
-        n = numMatch != null ? (int.tryParse(numMatch.group(1)!) ?? 1) : 1;
-      }
       final imgNum = RegExp(r'(\d+)\.(?:png|jpg|jpeg|webp)').firstMatch(rawUrl)?.group(1) ?? '1';
-      rawUrl = 'assets/images/articles/${n.toString().padLeft(2, '0')}/$imgNum.png';
-    } else if (rawUrl.startsWith('/images/articles/')) {
-      rawUrl = 'assets$rawUrl';
+
+      // 1. Try to extract date from HTML like 2027-01-22 or 2026-12-04
+      final dateMatch = RegExp(r'\b(202[67])-(\d{2})-(\d{2})\b').firstMatch(code);
+      if (dateMatch != null) {
+        rawUrl = '/images/articles/${dateMatch.group(1)}/${dateMatch.group(2)}/${dateMatch.group(3)}/$imgNum.png';
+      } else {
+        // 2. Fallback to title keywords
+        int n = 1;
+        if (title.contains('انطلاقة') || title.contains('أول لغة')) {
+          n = 1;
+        } else if (title.contains('بايثون') && !title.contains('متغيرات')) {
+          n = 2;
+        } else if (title.contains('سكراتش') || title.contains('البلوكات') || title.contains('الليجو')) {
+          n = 3;
+        } else if (title.contains('فرسان') || title.contains('HTML') || title.contains('بناء أول موقع')) {
+          n = 4;
+        } else if (title.contains('لغة الآلة') || title.contains('0 و 1')) {
+          n = 5;
+        } else if (title.contains('الخوارزميات') || title.contains('كيف تفكر')) {
+          n = 6;
+        } else if (title.contains('الشبكات العصبية')) {
+          n = 7;
+        } else if (title.contains('الأمن السيبراني')) {
+          n = 8;
+        } else if (title.contains('المدن الذكية')) {
+          n = 9;
+        } else if (title.contains('حصاد 2027')) {
+          n = 10;
+        } else if (title.contains('تطورت لغات البرمجة')) {
+          n = 11;
+        } else if (title.contains('تشريح صندوق الكمبيوتر')) {
+          n = 12;
+        } else if (title.contains('متغيرات بايثون')) {
+          n = 13;
+        } else if (title.contains('التشفير')) {
+          n = 14;
+        } else if (title.contains('كلمة مرور')) {
+          n = 15;
+        } else if (title.contains('صيد الحسابات') || title.contains('Phishing')) {
+          n = 16;
+        } else if (title.contains('جدران الحماية') || title.contains('Firewalls')) {
+          n = 17;
+        } else {
+          final numMatch = RegExp(r'\b0*(\d{1,3})\b').firstMatch(title.trim().isNotEmpty ? title.trim() : id);
+          n = numMatch != null ? (int.tryParse(numMatch.group(1)!) ?? 1) : 1;
+        }
+        rawUrl = '/images/articles/${n.toString().padLeft(2, '0')}/$imgNum.png';
+      }
+    } else if (rawUrl.startsWith('assets/images/articles/')) {
+      rawUrl = rawUrl.replaceFirst('assets', '');
     } else if (rawUrl.startsWith('images/articles/')) {
-      rawUrl = 'assets/$rawUrl';
+      rawUrl = '/$rawUrl';
+    }
+
+    if (!isValidImg(rawUrl)) {
+      return '';
     }
 
     return sanitizeImageUrl(rawUrl);

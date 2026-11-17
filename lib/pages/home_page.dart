@@ -528,43 +528,68 @@ class _HomePageState extends State<HomePage> {
 
       if (!isValidImg(articleImg)) {
         final code = (a['htmlCode'] ?? a['content'] ?? '').toString();
-        final imgMatch = RegExp(r"""<img[^>]*\bsrc\s*=\s*["']?([^"'>\s]+)["']?""", caseSensitive: false).firstMatch(code);
+        final imgMatch = RegExp(r'''<img\b[^>]*?\bsrc\s*=\s*["']([^"']+)["']''', caseSensitive: false).firstMatch(code);
         if (imgMatch != null && imgMatch.group(1) != null) {
           articleImg = imgMatch.group(1)!.trim();
         }
       }
 
-      if (!isValidImg(articleImg)) {
-        final title = (a['title'] ?? '').toString();
-        if (title.contains('انطلاقة') || title.contains('أول لغة')) {
-          articleImg = '/images/articles/2027/01/01/1.png';
-        } else if (title.contains('بايثون')) {
-          articleImg = '/images/articles/2027/01/08/1.png';
-        } else if (title.contains('سكراتش') || title.contains('البلوكات') || title.contains('الليجو')) {
-          articleImg = '/images/articles/2027/01/15/1.png';
-        }
-      }
-
+      // Auto-resolve local relative paths like "صوره المقال/1.png" or "صوره%20المقال/1.png"
       if (articleImg.contains('صوره المقال') || articleImg.contains('صوره%20المقال')) {
+        final code = (a['htmlCode'] ?? a['content'] ?? '').toString();
         final title = (a['title'] ?? '').toString();
         final id = (a['id'] ?? '').toString();
-        int n = 1;
-        if (title.contains('انطلاقة') || title.contains('أول لغة')) {
-          n = 1;
-        } else if (title.contains('بايثون')) {
-          n = 2;
-        } else if (title.contains('سكراتش') || title.contains('البلوكات') || title.contains('الليجو')) {
-          n = 3;
-        } else {
-          final numMatch = RegExp(r'\b0*(\d{1,3})\b').firstMatch(title.trim().isNotEmpty ? title.trim() : id);
-          n = numMatch != null ? (int.tryParse(numMatch.group(1)!) ?? 1) : 1;
-        }
         final imgNum = RegExp(r'(\d+)\.(?:png|jpg|jpeg|webp)').firstMatch(articleImg)?.group(1) ?? '1';
-        articleImg = 'assets/images/articles/${n.toString().padLeft(2, '0')}/$imgNum.png';
-      } else if (articleImg.startsWith('/images/articles/')) {
-        articleImg = 'assets$articleImg';
+
+        final dateMatch = RegExp(r'\b(202[67])-(\d{2})-(\d{2})\b').firstMatch(code);
+        if (dateMatch != null) {
+          articleImg = '/images/articles/${dateMatch.group(1)}/${dateMatch.group(2)}/${dateMatch.group(3)}/$imgNum.png';
+        } else {
+          int n = 1;
+          if (title.contains('انطلاقة') || title.contains('أول لغة')) {
+            n = 1;
+          } else if (title.contains('بايثون') && !title.contains('متغيرات')) {
+            n = 2;
+          } else if (title.contains('سكراتش') || title.contains('البلوكات') || title.contains('الليجو')) {
+            n = 3;
+          } else if (title.contains('فرسان') || title.contains('HTML') || title.contains('بناء أول موقع')) {
+            n = 4;
+          } else if (title.contains('لغة الآلة') || title.contains('0 و 1')) {
+            n = 5;
+          } else if (title.contains('الخوارزميات') || title.contains('كيف تفكر')) {
+            n = 6;
+          } else if (title.contains('الشبكات العصبية')) {
+            n = 7;
+          } else if (title.contains('الأمن السيبراني')) {
+            n = 8;
+          } else if (title.contains('المدن الذكية')) {
+            n = 9;
+          } else if (title.contains('حصاد 2027')) {
+            n = 10;
+          } else if (title.contains('تطورت لغات البرمجة')) {
+            n = 11;
+          } else if (title.contains('تشريح صندوق الكمبيوتر')) {
+            n = 12;
+          } else if (title.contains('متغيرات بايثون')) {
+            n = 13;
+          } else if (title.contains('التشفير')) {
+            n = 14;
+          } else if (title.contains('كلمة مرور')) {
+            n = 15;
+          } else if (title.contains('صيد الحسابات') || title.contains('Phishing')) {
+            n = 16;
+          } else if (title.contains('جدران الحماية') || title.contains('Firewalls')) {
+            n = 17;
+          } else {
+            final numMatch = RegExp(r'\b0*(\d{1,3})\b').firstMatch(title.trim().isNotEmpty ? title.trim() : id);
+            n = numMatch != null ? (int.tryParse(numMatch.group(1)!) ?? 1) : 1;
+          }
+          articleImg = '/images/articles/${n.toString().padLeft(2, '0')}/$imgNum.png';
+        }
+      } else if (articleImg.startsWith('assets/images/articles/')) {
+        articleImg = articleImg.replaceFirst('assets', '');
       } else if (articleImg.startsWith('images/articles/')) {
-        articleImg = 'assets/$articleImg';
+        articleImg = '/$articleImg';
       }
 
       if (articleImg.isEmpty || articleImg == 'صوره') {
@@ -1141,26 +1166,14 @@ class _HomePageState extends State<HomePage> {
 
 
   Widget _buildSliderImageWidget(String imgUrl, Color fallbackColor) {
-    if (imgUrl.startsWith('assets/')) {
-      return Image.asset(
-        imgUrl,
-        fit: BoxFit.cover,
-        errorBuilder: (_, __, ___) => _buildSliderPlaceholder(fallbackColor),
-      );
-    } else if (imgUrl.startsWith('http://') || imgUrl.startsWith('https://')) {
-      return SafeNetworkImage(
-        imageUrl: imgUrl,
-        fit: BoxFit.cover,
-        errorWidget: _buildSliderPlaceholder(fallbackColor),
-      );
-    } else if (imgUrl.isNotEmpty) {
-      return SafeNetworkImage(
-        imageUrl: imgUrl,
-        fit: BoxFit.cover,
-        errorWidget: _buildSliderPlaceholder(fallbackColor),
-      );
+    if (imgUrl.isEmpty) {
+      return _buildSliderPlaceholder(fallbackColor);
     }
-    return _buildSliderPlaceholder(fallbackColor);
+    return SafeNetworkImage(
+      imageUrl: imgUrl,
+      fit: BoxFit.cover,
+      errorWidget: _buildSliderPlaceholder(fallbackColor),
+    );
   }
 
   Widget _buildSliderPlaceholder(Color color) {

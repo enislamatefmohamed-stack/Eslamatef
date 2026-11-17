@@ -193,11 +193,11 @@ class ArticleContentRenderer extends StatelessWidget {
               final artNumMatch = RegExp(r'\b0*(\d{1,3})\b').firstMatch(raw);
               final n = artNumMatch != null ? (int.tryParse(artNumMatch.group(1)!) ?? 1) : 1;
               final imgNum = RegExp(r'(\d+)\.(?:png|jpg|jpeg|webp)').firstMatch(imgUrl)?.group(1) ?? '1';
-              imgUrl = 'assets/images/articles/${n.toString().padLeft(2, '0')}/$imgNum.png';
-            } else if (imgUrl.startsWith('/images/articles/')) {
-              imgUrl = 'assets$imgUrl';
+              imgUrl = '/images/articles/${n.toString().padLeft(2, '0')}/$imgNum.png';
+            } else if (imgUrl.startsWith('assets/images/articles/')) {
+              imgUrl = imgUrl.replaceFirst('assets', '');
             } else if (imgUrl.startsWith('images/articles/')) {
-              imgUrl = 'assets/$imgUrl';
+              imgUrl = '/$imgUrl';
             }
           }
           blocks.add(_ArticleBlock(

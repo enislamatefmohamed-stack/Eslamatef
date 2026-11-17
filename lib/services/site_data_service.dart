@@ -1113,31 +1113,47 @@ class SiteDataService extends ChangeNotifier {
 
   String _cleanArticleImageUrl(String rawUrl, String title, String id) {
     var u = rawUrl.trim();
+
+    // Map title/id to article index (1 to 17)
+    int getArticleNumber() {
+      if (title.contains('انطلاقة') || title.contains('أول لغة')) return 1;
+      if (title.contains('بايثون') && !title.contains('متغيرات')) return 2;
+      if (title.contains('سكراتش') || title.contains('البلوكات') || title.contains('الليجو')) return 3;
+      if (title.contains('فرسان') || title.contains('HTML') || title.contains('بناء أول موقع')) return 4;
+      if (title.contains('لغة الآلة') || title.contains('0 و 1')) return 5;
+      if (title.contains('الخوارزميات') || title.contains('كيف تفكر')) return 6;
+      if (title.contains('الشبكات العصبية')) return 7;
+      if (title.contains('الأمن السيبراني')) return 8;
+      if (title.contains('المدن الذكية')) return 9;
+      if (title.contains('حصاد 2027')) return 10;
+      if (title.contains('تطورت لغات البرمجة')) return 11;
+      if (title.contains('تشريح صندوق الكمبيوتر')) return 12;
+      if (title.contains('متغيرات بايثون')) return 13;
+      if (title.contains('التشفير')) return 14;
+      if (title.contains('كلمة مرور')) return 15;
+      if (title.contains('صيد الحسابات') || title.contains('Phishing')) return 16;
+      if (title.contains('جدران الحماية') || title.contains('Firewalls')) return 17;
+      final numMatch = RegExp(r'\b0*(\d{1,3})\b').firstMatch(title.trim().isNotEmpty ? title.trim() : id);
+      return numMatch != null ? (int.tryParse(numMatch.group(1)!) ?? 1) : 1;
+    }
+
     if (u == 'صوره' || u.isEmpty || u.contains('placeholder')) {
-      if (title.contains('انطلاقة') || title.contains('أول لغة')) return '/images/articles/2027/01/01/1.png';
-      if (title.contains('بايثون')) return '/images/articles/2027/01/08/1.png';
-      if (title.contains('سكراتش') || title.contains('البلوكات') || title.contains('الليجو')) return '/images/articles/2027/01/15/1.png';
-      return '/images/articles/01/1.png';
+      final n = getArticleNumber();
+      return '/images/articles/${n.toString().padLeft(2, '0')}/1.png';
     }
+
     if (u.contains('صوره المقال') || u.contains('صوره%20المقال')) {
-      int n = 1;
-      if (title.contains('انطلاقة') || title.contains('أول لغة')) {
-        n = 1;
-      } else if (title.contains('بايثون')) {
-        n = 2;
-      } else if (title.contains('سكراتش') || title.contains('البلوكات') || title.contains('الليجو')) {
-        n = 3;
-      } else {
-        final numMatch = RegExp(r'\b0*(\d{1,3})\b').firstMatch(title.trim().isNotEmpty ? title.trim() : id);
-        n = numMatch != null ? (int.tryParse(numMatch.group(1)!) ?? 1) : 1;
-      }
+      final n = getArticleNumber();
       final imgNum = RegExp(r'(\d+)\.(?:png|jpg|jpeg|webp)').firstMatch(u)?.group(1) ?? '1';
-      u = 'assets/images/articles/${n.toString().padLeft(2, '0')}/$imgNum.png';
-    } else if (u.startsWith('/images/articles/')) {
-      u = 'assets$u';
-    } else if (u.startsWith('images/articles/')) {
-      u = 'assets/$u';
+      return '/images/articles/${n.toString().padLeft(2, '0')}/$imgNum.png';
     }
+
+    if (u.startsWith('assets/images/articles/')) {
+      u = u.replaceFirst('assets', '');
+    } else if (u.startsWith('images/articles/')) {
+      u = '/$u';
+    }
+
     return u;
   }
 
@@ -1154,7 +1170,7 @@ class SiteDataService extends ChangeNotifier {
     var img = (article['imageUrl'] ?? article['image'] ?? '').toString().trim();
     if (img.isEmpty || img == 'صوره' || img.contains('صوره المقال') || img.contains('placeholder')) {
       final code = (article['htmlCode'] ?? article['content'] ?? '').toString();
-      final imgMatch = RegExp(r'''<img[^>]*\bsrc\s*=\s*["']?([^"'>\s]+)["']?''', caseSensitive: false).firstMatch(code);
+      final imgMatch = RegExp(r'''<img\b[^>]*?\bsrc\s*=\s*["']([^"']+)["']''', caseSensitive: false).firstMatch(code);
       if (imgMatch != null && imgMatch.group(1) != null) {
         img = imgMatch.group(1)!;
       }
@@ -1188,7 +1204,7 @@ class SiteDataService extends ChangeNotifier {
       var img = (updated['imageUrl'] ?? updated['image'] ?? '').toString().trim();
       if (img.isEmpty || img == 'صوره' || img.contains('صوره المقال') || img.contains('placeholder')) {
         final code = (updated['htmlCode'] ?? updated['content'] ?? '').toString();
-        final imgMatch = RegExp(r'''<img[^>]*\bsrc\s*=\s*["']?([^"'>\s]+)["']?''', caseSensitive: false).firstMatch(code);
+        final imgMatch = RegExp(r'''<img\b[^>]*?\bsrc\s*=\s*["']([^"']+)["']''', caseSensitive: false).firstMatch(code);
         if (imgMatch != null && imgMatch.group(1) != null) {
           img = imgMatch.group(1)!;
         }
