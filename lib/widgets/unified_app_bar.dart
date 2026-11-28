@@ -352,7 +352,7 @@ class UnifiedAppHeader extends StatelessWidget implements PreferredSizeWidget {
                   ),
                 ),
 
-                // 2. Center: Desktop Navigation Links (الكورسات - المقالات فقط)
+                // 2. Center: Desktop Navigation Links (الكورسات - المقالات - الألعاب)
                 if (!isMobile)
                   Row(
                     children: [
@@ -362,11 +362,18 @@ class UnifiedAppHeader extends StatelessWidget implements PreferredSizeWidget {
                         isActive: currentRoute == '/courses',
                         isDark: isDark,
                       ),
-                      const SizedBox(width: 6),
+                      const SizedBox(width: 8),
                       InteractiveNavButton(
                         title: "المقالات",
                         route: '/blog',
                         isActive: currentRoute == '/blog' || currentRoute == '/articles',
+                        isDark: isDark,
+                      ),
+                      const SizedBox(width: 8),
+                      InteractiveNavButton(
+                        title: "الألعاب",
+                        route: '/games',
+                        isActive: currentRoute == '/games',
                         isDark: isDark,
                       ),
                     ],
@@ -550,25 +557,44 @@ class _InteractiveNavButtonState extends State<InteractiveNavButton> {
 
   @override
   Widget build(BuildContext context) {
-    const activeColor = Color(0xFF0284C7);
     final isDark = widget.isDark;
 
-    Color textColor;
-    if (widget.isActive) {
-      textColor = activeColor;
-    } else if (_isHovered) {
-      textColor = const Color(0xFF00E5FF);
-    } else {
-      textColor = isDark ? AppColors.textPrimary : AppColors.textPrimaryLight;
-    }
+    // Palette definition:
+    // Active: clear calm cyan background + subtle border, clean & distinct
+    // Hover: smooth 250ms transition, text turns cyan, very subtle transparent tint, no heavy shadow, no size change
+    // Inactive: transparent background, soft light gray text
+    final Color textColor;
+    final Color bgColor;
+    final Color borderColor;
 
-    Color bgColor;
-    if (widget.isActive) {
-      bgColor = isDark ? const Color(0xFF0284C7).withOpacity(0.2) : const Color(0xFFE0F2FE);
-    } else if (_isHovered) {
-      bgColor = const Color(0xFF00E5FF).withOpacity(0.08); // Subtle cyan glow without gray
+    if (isDark) {
+      if (widget.isActive) {
+        textColor = const Color(0xFF00E5FF);
+        bgColor = const Color(0xFF00E5FF).withOpacity(0.12);
+        borderColor = const Color(0xFF00E5FF).withOpacity(0.35);
+      } else if (_isHovered) {
+        textColor = const Color(0xFF00E5FF);
+        bgColor = const Color(0xFF00E5FF).withOpacity(0.06);
+        borderColor = Colors.transparent;
+      } else {
+        textColor = const Color(0xFF94A3B8); // Slate-400 light gray
+        bgColor = Colors.transparent;
+        borderColor = Colors.transparent;
+      }
     } else {
-      bgColor = Colors.transparent;
+      if (widget.isActive) {
+        textColor = const Color(0xFF0284C7); // Sky-600 refined calm cyan
+        bgColor = const Color(0xFFE0F2FE); // Sky-100 soft cyan
+        borderColor = const Color(0xFF0284C7).withOpacity(0.30);
+      } else if (_isHovered) {
+        textColor = const Color(0xFF0284C7);
+        bgColor = const Color(0xFF0284C7).withOpacity(0.06);
+        borderColor = Colors.transparent;
+      } else {
+        textColor = const Color(0xFF64748B); // Slate-500 neutral gray
+        bgColor = Colors.transparent;
+        borderColor = Colors.transparent;
+      }
     }
 
     return MouseRegion(
@@ -581,33 +607,24 @@ class _InteractiveNavButtonState extends State<InteractiveNavButton> {
           Navigator.of(context).pushNamed(widget.route);
         },
         child: AnimatedContainer(
-          duration: const Duration(milliseconds: 180),
+          duration: const Duration(milliseconds: 250),
           curve: Curves.easeInOut,
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           decoration: BoxDecoration(
             color: bgColor,
             borderRadius: BorderRadius.circular(10),
             border: Border.all(
-              color: (widget.isActive || _isHovered)
-                  ? const Color(0xFF00E5FF).withOpacity(0.5)
-                  : Colors.transparent,
+              color: borderColor,
               width: 1.2,
             ),
-            boxShadow: [
-              if (_isHovered || widget.isActive)
-                BoxShadow(
-                  color: const Color(0xFF00E5FF).withOpacity(0.25),
-                  blurRadius: 10,
-                  spreadRadius: 0.5,
-                ),
-            ],
           ),
           child: Text(
             widget.title,
             style: GoogleFonts.cairo(
-              fontSize: 13.5,
-              fontWeight: (widget.isActive || _isHovered) ? FontWeight.w800 : FontWeight.w600,
-              color: (widget.isActive || _isHovered) ? const Color(0xFF00E5FF) : textColor,
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
+              color: textColor,
+              height: 1.2,
             ),
           ),
         ),
@@ -903,6 +920,7 @@ class UnifiedAppDrawer extends StatelessWidget {
                   _drawerItem(context, "الرئيسية", Icons.home_rounded, '/', currentRoute == '/'),
                   _drawerItem(context, "الكورسات", Icons.school_rounded, '/courses', currentRoute == '/courses'),
                   _drawerItem(context, "المقالات", Icons.article_rounded, '/blog', currentRoute == '/blog' || currentRoute == '/articles'),
+                  _drawerItem(context, "الألعاب", Icons.sports_esports_rounded, '/games', currentRoute == '/games'),
                   _drawerItem(context, "من نحن", Icons.info_outline_rounded, '/about', currentRoute == '/about'),
                   _drawerItem(context, "سياسة الاستخدام", Icons.verified_user_rounded, '/privacy', currentRoute == '/privacy'),
                   _drawerItem(context, "تواصل معنا", Icons.support_agent_rounded, '/contact', currentRoute == '/contact'),
@@ -1057,6 +1075,7 @@ class UnifiedAppFooter extends StatelessWidget {
                         children: [
                           AnimatedHoverFooterLink(title: "الكورسات", route: '/courses', isDark: isDark),
                           AnimatedHoverFooterLink(title: "المقالات", route: '/blog', isDark: isDark),
+                          AnimatedHoverFooterLink(title: "الألعاب", route: '/games', isDark: isDark),
                           AnimatedHoverFooterLink(title: "من نحن", route: '/about', isDark: isDark),
                           AnimatedHoverFooterLink(title: "سياسة الاستخدام", route: '/privacy', isDark: isDark),
                           AnimatedHoverFooterLink(title: "تواصل معنا", route: '/contact', isDark: isDark),
@@ -1106,6 +1125,7 @@ class UnifiedAppFooter extends StatelessWidget {
                         children: [
                           AnimatedHoverFooterLink(title: "الكورسات", route: '/courses', isDark: isDark),
                           AnimatedHoverFooterLink(title: "المقالات", route: '/blog', isDark: isDark),
+                          AnimatedHoverFooterLink(title: "الألعاب", route: '/games', isDark: isDark),
                           AnimatedHoverFooterLink(title: "من نحن", route: '/about', isDark: isDark),
                           AnimatedHoverFooterLink(title: "سياسة الاستخدام", route: '/privacy', isDark: isDark),
                           AnimatedHoverFooterLink(title: "تواصل معنا", route: '/contact', isDark: isDark),
