@@ -11,6 +11,7 @@ import 'pages/courses_page.dart';
 import 'pages/lessons_page.dart';
 import 'pages/articles_page.dart';
 import 'pages/games_page.dart';
+import 'pages/tools_page.dart';
 import 'pages/admin_dashboard_page.dart';
 import 'pages/challenge_page.dart';
 import 'pages/quiz_page.dart';
@@ -73,6 +74,9 @@ class EslamAtefApp extends StatelessWidget {
                 break;
               case '/games':
                 page = const GamesPage();
+                break;
+              case '/tools':
+                page = const ToolsPage();
                 break;
               case '/challenge':
                 page = const WeeklyChallengePage();
@@ -179,6 +183,10 @@ class EslamAtefApp extends StatelessWidget {
             '/games': (context) => const Directionality(
               textDirection: TextDirection.rtl,
               child: GamesPage(),
+            ),
+            '/tools': (context) => const Directionality(
+              textDirection: TextDirection.rtl,
+              child: ToolsPage(),
             ),
           },
         );

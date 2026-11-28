@@ -1,0 +1,165 @@
+<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>تشفير وفك Base64</title><style>:root{--bg:#eaf5ff;--bg2:#f6fbff;--card:#fff;--p:#2f9bf0;--p2:#6cc0ff;--p3:#d8ecfd;--p4:#eef7ff;--ink:#17364f;--mut:#5f7e98;--line:#d3e7f8;--ok:#14a06b;--okbg:#e5f8ef;--bad:#d24b4b;--badbg:#fdeeee;--star:#f6b400;--sh:0 10px 30px rgba(47,155,240,.13)}
+*{box-sizing:border-box}
+body.codeai{margin:0;background:radial-gradient(1200px 500px at 85% -10%,#cfe8ff 0,transparent 60%),radial-gradient(900px 400px at 0 0,#dff0ff 0,transparent 55%),var(--bg);color:var(--ink);font-family:"Cairo","Segoe UI",Tahoma,Arial,sans-serif;line-height:1.7;min-height:100vh}
+a{color:inherit;text-decoration:none}
+.top{position:sticky;top:0;z-index:10;background:rgba(255,255,255,.88);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.top-in{max-width:1120px;margin:0 auto;padding:10px 18px;display:flex;align-items:center;gap:14px}
+.brand{white-space:nowrap;display:flex;align-items:center;gap:10px;font-weight:800;font-size:19px;line-height:1.2}
+.logo{width:38px;height:38px;border-radius:11px;background:linear-gradient(135deg,var(--p2),var(--p));display:grid;place-items:center;color:#fff;font:800 15px/1 Consolas,monospace;direction:ltr;box-shadow:0 6px 14px rgba(47,155,240,.35)}
+.brand small{display:block;font-size:11px;font-weight:600;color:var(--mut);direction:ltr;text-align:right}
+nav{margin-inline-start:auto;overflow-x:auto;max-width:100%;display:flex;gap:6px;background:var(--p4);padding:4px;border-radius:14px;border:1px solid var(--line)}
+nav a{padding:7px 16px;border-radius:10px;font-weight:700;font-size:14px;color:var(--mut);white-space:nowrap}
+nav a.on{background:var(--p);color:#fff;box-shadow:0 4px 12px rgba(47,155,240,.35)}
+.wrap{max-width:1120px;margin:0 auto;padding:22px 18px 40px}
+.hero{background:linear-gradient(135deg,#7ec8ff 0,#a9dbff 55%,#cfeaff 100%);border-radius:24px;padding:26px;position:relative;overflow:hidden;box-shadow:var(--sh);margin-bottom:20px}
+.hero:after{content:"</>";position:absolute;left:18px;bottom:-30px;font:800 130px/1 Consolas,monospace;color:rgba(255,255,255,.35);direction:ltr}
+.hero h1{margin:0 0 4px;font-size:28px;font-weight:800;position:relative}
+.hero p{margin:0;color:#244d6e;position:relative;max-width:620px}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px;position:relative}
+.chip{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.88);border-radius:999px;padding:3px 13px;font-size:13px;font-weight:700}
+.chip svg{width:15px;height:15px}
+.grid{display:grid;grid-template-columns:5fr 7fr;gap:18px;align-items:start}
+.grid.ed2{grid-template-columns:7fr 5fr}
+@media(max-width:860px){.grid,.grid.ed2{grid-template-columns:1fr}.hero h1{font-size:23px}.top-in{padding:8px 12px}.brand small{display:none}}
+.card{background:var(--card);border:1px solid var(--line);border-radius:20px;box-shadow:var(--sh);overflow:hidden}
+.card-h{padding:14px 18px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:10px;font-weight:800;background:linear-gradient(180deg,#fafdff,#f2f9ff)}
+.card-b{padding:18px}
+.dot{width:10px;height:10px;border-radius:50%;background:var(--p2)}
+.btn{display:inline-flex;align-items:center;gap:8px;border:0;border-radius:12px;padding:9px 20px;font:700 15px "Cairo",sans-serif;cursor:pointer;background:linear-gradient(135deg,var(--p2),var(--p));color:#fff;box-shadow:0 6px 16px rgba(47,155,240,.35)}
+.btn:disabled{opacity:.5;cursor:wait;box-shadow:none}
+.btn.sec{background:var(--p4);color:var(--ink);box-shadow:none;border:1px solid var(--line)}
+.btn svg{width:16px;height:16px}
+.bar{display:flex;gap:8px;flex-wrap:wrap;padding:12px 14px;border-top:1px solid var(--line);background:var(--bg2)}
+.ed{display:flex;direction:ltr;background:#fbfdff;font:14.5px/1.65 "Cascadia Code",Consolas,Menlo,monospace}
+.gut{padding:12px 10px;text-align:right;color:#9bbbd6;background:#f0f8ff;border-right:1px solid var(--line);user-select:none;white-space:pre;overflow:hidden;min-width:42px;height:auto}
+.ed textarea{flex:1;border:0;outline:0;resize:none;background:transparent;font:inherit;color:var(--ink);padding:12px;min-height:260px;white-space:pre;overflow:auto;tab-size:4;direction:ltr;text-align:left}
+.ed:focus-within{box-shadow:inset 0 0 0 2px var(--p2)}
+.out{direction:ltr;text-align:left;margin:0;padding:14px 16px;min-height:90px;white-space:pre-wrap;font:14px/1.6 "Cascadia Code",Consolas,Menlo,monospace;background:var(--p4);color:var(--ink)}
+.out .err{color:var(--bad)}
+.hint{unicode-bidi:plaintext;margin-top:12px;background:#fff8e3;border:1px solid #f4dc95;border-radius:12px;padding:10px 14px;font-size:14px}
+.test{padding:8px 12px;border-radius:10px;font:13.5px/1.5 Consolas,Menlo,monospace;margin-bottom:6px;background:var(--p4);direction:ltr;text-align:left}
+.test.ok{background:var(--okbg);color:#0b6e49}.test.no{background:var(--badbg);color:#9b2d2d}
+.msg{margin:12px 0 0;padding:12px 16px;border-radius:14px;font-weight:700}
+.msg.ok{background:var(--okbg);color:#0b6e49}.msg.no{background:var(--badbg);color:#9b2d2d}
+.stars{display:flex;gap:6px;direction:ltr;justify-content:center;margin-top:14px}
+.stars svg{width:38px;height:38px;fill:#e1edf7}.stars svg.on{fill:var(--star);filter:drop-shadow(0 3px 5px rgba(246,180,0,.4));animation:pop .4s}
+@keyframes pop{0%{transform:scale(.4)}70%{transform:scale(1.2)}100%{transform:scale(1)}}
+.task h2{margin:0 0 6px;font-size:21px}
+.task p{margin:0 0 12px}
+code.fn{direction:ltr;display:inline-block;background:var(--p3);padding:0 8px;border-radius:7px;font-family:Consolas,monospace;font-size:14px}
+.status{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--mut);font-weight:600}
+.status i{width:9px;height:9px;border-radius:50%;background:#f0b429;display:inline-block}
+.status.ready i{background:var(--ok)}.status.fail i{background:var(--bad)}
+.tag{margin-inline-start:auto}
+.lvl-easy{color:#0b8a5a}.lvl-mid{color:#b86e00}.lvl-hard{color:#b3323c}
+.chipbtn{border:1px solid var(--line);background:#fff;border-radius:999px;padding:5px 14px;font:700 13px "Cairo",sans-serif;color:var(--ink);cursor:pointer}
+.tips{display:grid;gap:6px;margin:0;padding:0;list-style:none;font-size:14px}
+.tips li{display:flex;gap:8px}.tips li:before{content:"";flex:none;width:8px;height:8px;margin-top:10px;border-radius:50%;background:var(--p2)}
+footer{text-align:center;color:var(--mut);font-size:13px;padding:10px}
+
+@media(max-width:860px){.top-in{flex-wrap:wrap}nav{margin-inline-start:0;width:100%}}
+.field{margin-bottom:14px}.field label{display:block;font-weight:800;margin-bottom:6px;font-size:14px}
+.in,.sel{width:100%;border:2px solid var(--line);border-radius:12px;padding:10px 12px;font:600 15px "Cairo",sans-serif;color:var(--ink);background:#fbfdff;outline:0}
+.in:focus,.sel:focus{border-color:var(--p2)}
+textarea.in{min-height:120px;resize:vertical}
+.pills{display:flex;flex-wrap:wrap;gap:8px}
+.pill{border:2px solid var(--line);background:#fff;border-radius:999px;padding:6px 16px;font:700 14px "Cairo",sans-serif;color:var(--ink);cursor:pointer}
+.pill.on{background:var(--p);border-color:var(--p);color:#fff}
+.sec-t{font-weight:800;margin:0 0 6px}
+.box{background:var(--p4);border:1px solid var(--line);border-radius:14px;padding:12px 16px;margin-bottom:12px}
+.box.fix{background:var(--okbg);border-color:#bfe9d6}
+.box.why{background:#fff8e3;border-color:#f4dc95}
+.box pre{direction:ltr;text-align:left;margin:6px 0 0;white-space:pre-wrap;font:14px/1.6 Consolas,Menlo,monospace}
+.etype{display:inline-block;direction:ltr;background:var(--p);color:#fff;padding:2px 12px;border-radius:9px;font:700 14px Consolas,monospace;margin-bottom:8px}
+.pout{direction:ltr;text-align:left;white-space:pre-wrap;font:15px/1.7 "Segoe UI",Arial,sans-serif;background:var(--p4);border:1px solid var(--line);border-radius:14px;padding:14px 16px;min-height:120px}
+.target{direction:ltr;text-align:left;font:22px/1.8 "Cascadia Code",Consolas,Menlo,monospace;background:#fbfdff;border:2px solid var(--line);border-radius:14px;padding:18px;min-height:90px;word-break:break-all}
+.target .ok{color:var(--ok);background:var(--okbg)}.target .no{color:#fff;background:var(--bad)}.target .cur{background:var(--p3);box-shadow:0 2px 0 var(--p)}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:12px 0}
+.stat{background:var(--p4);border:1px solid var(--line);border-radius:14px;padding:10px;text-align:center}
+.stat b{display:block;font-size:24px;direction:ltr}.stat span{font-size:12.5px;color:var(--mut)}
+.prog{height:10px;background:var(--p3);border-radius:99px;overflow:hidden;margin:10px 0}.prog i{display:block;height:100%;background:linear-gradient(90deg,var(--p2),var(--p));width:0;transition:width .3s}
+.drop{border:2.5px dashed var(--p2);background:var(--p4);border-radius:18px;padding:26px 16px;text-align:center;cursor:pointer;transition:.15s}
+.drop.over,.drop:hover{background:var(--p3);border-color:var(--p)}
+.drop b{display:block;font-size:17px}.drop span{color:var(--mut);font-size:13.5px}
+.drop svg{width:42px;height:42px;stroke:var(--p);fill:none;stroke-width:2;margin-bottom:6px}
+.files{display:grid;gap:8px;margin-top:14px}
+.fi{display:flex;align-items:center;gap:12px;background:#fff;border:1px solid var(--line);border-radius:14px;padding:8px 10px}
+.fi img,.fi .ico{width:54px;height:54px;border-radius:10px;object-fit:cover;background:var(--p3);flex:none;display:grid;place-items:center;font:800 13px Consolas,monospace;color:var(--p)}
+.fi .nm{flex:1;min-width:0}.fi .nm b{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;direction:ltr;text-align:right;font-size:14px}
+.fi .nm small{display:block;unicode-bidi:plaintext;color:var(--mut);font-size:12.5px}
+.fi .sv{color:var(--ok);font-weight:800}
+.ib{border:1px solid var(--line);background:var(--p4);border-radius:10px;width:34px;height:34px;cursor:pointer;font:800 15px sans-serif;color:var(--ink)}
+.ib:hover{background:var(--p3)}
+.rng{width:100%;accent-color:var(--p)}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:560px){.two{grid-template-columns:1fr}}
+.qrbox{background:#fff;border:1px solid var(--line);border-radius:18px;padding:18px;display:grid;place-items:center}
+.qrbox canvas{max-width:100%;height:auto;image-rendering:pixelated}
+.note{color:var(--mut);font-size:13px;margin-top:8px}
+</style></head><body class="codeai"><div id="root"><div class="codeai-root"><div class="top"><div class="top-in"><a class="brand" href="/tools"><span class="logo">&lt;/&gt;</span><span>كود إيه آي<small>Think. Code. Build with AI.</small></span></a></div></div><div class="wrap"><div class="wrap"><section class="hero"><div class="chips"><span class="chip">مجاني</span><span class="chip">من غير رفع على سيرفر</span></div>
+<h1>تشفير وفك Base64</h1><p>حوّل النص أو أي ملف لـ Base64 وارجعه تاني، كله جوه المتصفح.</p></section>
+<div class="card" style="margin-bottom:18px"><div class="card-b"><div class="pills" id="tabs"></div></div></div>
+<div id="p_txt">
+<div class="grid ed2">
+<div class="card"><div class="card-h"><span class="dot"></span>الإدخال</div><div class="card-b"><textarea class="in" id="ti" dir="auto" style="min-height:200px" placeholder="اكتب نص أو الصق Base64..."></textarea>
+<label style="display:flex;gap:8px;align-items:center;margin-top:10px;font-weight:700"><input type="checkbox" id="us" style="width:18px;height:18px;accent-color:#2f9bf0"> نسخة آمنة للروابط (URL-safe)</label>
+<div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap"><button class="btn" id="enc" type="button">شفّر</button><button class="btn sec" id="dec" type="button">فك التشفير</button></div></div></div>
+<div class="card"><div class="card-h"><span class="dot"></span>النتيجة</div><div class="card-b"><textarea class="in" id="to" dir="auto" style="min-height:200px" readonly></textarea><p class="note" id="ts"></p>
+<button class="btn" id="tcp" type="button">انسخ</button></div></div></div></div>
+<div id="p_file" hidden>
+<div class="grid ed2">
+<div class="card"><div class="card-h"><span class="dot"></span>ملف إلى Base64</div><div class="card-b">
+<div class="drop" id="dz"><svg viewBox="0 0 24 24"><path d="M12 16V4M7 9l5-5 5 5M4 16v4h16v-4"/></svg><b>اسحب ملف هنا أو اضغط للاختيار</b><span>أي نوع ملف | لحد 20 ميجا</span></div><input type="file" id="fi" hidden>
+<label style="display:flex;gap:8px;align-items:center;margin-top:10px;font-weight:700"><input type="checkbox" id="du" checked style="width:18px;height:18px;accent-color:#2f9bf0"> ضيف data URI قدام الكود</label>
+<textarea class="in" id="fo" style="min-height:140px;margin-top:10px;direction:ltr;text-align:left" readonly></textarea><p class="note" id="fs"></p>
+<button class="btn" id="fcp" type="button">انسخ الكود</button> <button class="btn sec" id="fsv" type="button">نزّل كـ TXT</button></div></div>
+<div class="card"><div class="card-h"><span class="dot"></span>Base64 إلى ملف</div><div class="card-b">
+<textarea class="in" id="bi" style="min-height:140px;direction:ltr;text-align:left" placeholder="الصق كود Base64 أو data URI هنا"></textarea>
+<div class="field" style="margin-top:10px"><label>اسم الملف</label><input class="in" id="bn" value="file.bin" dir="ltr"></div>
+<button class="btn" id="bgo" type="button">حوّل لملف</button> <p class="note" id="bs"></p><div id="bp"></div></div></div></div></div>
+<div class="card" id="hostres" hidden style="margin-top:18px"><div class="card-h"><span class="dot"></span>الملفات الجاهزة (اضغط على الزرار يفتح الملف في تبويب جديد وتحفظه من هناك)</div><div class="card-b" id="hostlist"></div></div><footer>كود إيه آي | أدوات مجانية</footer></div>
+</div></div><script>
+
+const $=id=>document.getElementById(id);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const fmt=n=>n<1024?n+" B":n<1048576?(n/1024).toFixed(1)+" KB":(n/1048576).toFixed(2)+" MB";
+function dl(blob,name){const u=URL.createObjectURL(blob);$("hostres").hidden=false;const d=document.createElement("div");d.style.cssText="margin:8px 0;display:flex;gap:10px;align-items:center;flex-wrap:wrap";
+ if(blob.type.indexOf("image/")===0){const im=document.createElement("img");im.src=u;im.alt="";im.style.cssText="width:54px;height:54px;object-fit:cover;border-radius:10px";d.appendChild(im)}
+ const a=document.createElement("a");a.href=u;a.target="_blank";a.rel="noopener";a.className="btn";a.textContent="افتح "+name+" ("+fmt(blob.size)+")";d.appendChild(a);$("hostlist").appendChild(d)}
+function dropzone(el,input,onFiles){
+  el.onclick=()=>input.click();
+  input.onchange=()=>{onFiles([...input.files]);input.value=""};
+  ["dragenter","dragover"].forEach(e=>el.addEventListener(e,ev=>{ev.preventDefault();el.classList.add("over")}));
+  ["dragleave","drop"].forEach(e=>el.addEventListener(e,ev=>{ev.preventDefault();el.classList.remove("over")}));
+  el.addEventListener("drop",ev=>onFiles([...ev.dataTransfer.files]));
+}
+const UP='<svg viewBox="0 0 24 24"><path d="M12 16V4M7 9l5-5 5 5M4 16v4h16v-4"/></svg>';
+function rd(f){return new Promise((r,j)=>{const x=new FileReader();x.onload=()=>r(x.result);x.onerror=j;x.readAsArrayBuffer(f)})}
+async function bitmap(f){return await createImageBitmap(f)}
+
+function cp(t,btn){const done=()=>{if(btn){const o=btn.dataset.o||btn.textContent;btn.dataset.o=o;btn.textContent="اتنسخ";setTimeout(()=>btn.textContent=o,1500)}};
+ const fb=()=>{const a=document.createElement("textarea");a.value=t;a.style.cssText="position:fixed;opacity:0";document.body.appendChild(a);a.select();try{document.execCommand("copy")}catch(e){}a.remove();done()};
+ if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(t).then(done,fb);else fb()}
+function save(text,name,type){dl(new Blob([text],{type:type||"text/plain;charset=utf-8"}),name)}
+function lget(k,d){try{const v=localStorage.getItem(k);return v==null?d:JSON.parse(v)}catch(e){return d}}
+function lset(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
+
+const enc8=s=>{const b=new TextEncoder().encode(s);let r="";for(let i=0;i<b.length;i+=8192)r+=String.fromCharCode.apply(null,b.subarray(i,i+8192));return btoa(r)};
+const dec8=b=>{const r=atob(b),u=new Uint8Array(r.length);for(let i=0;i<r.length;i++)u[i]=r.charCodeAt(i);return new TextDecoder("utf-8",{fatal:true}).decode(u)};
+const norm=s=>{s=s.replace(/^data:[^,]*,/,"").replace(/\s+/g,"").replace(/-/g,"+").replace(/_/g,"/");while(s.length%4)s+="=";return s};
+function sel(t){["txt","file"].forEach(k=>$("p_"+k).hidden=k!==t);[...$("tabs").children].forEach(b=>b.className="pill"+(b.dataset.t===t?" on":""))}
+[["txt","نص"],["file","ملف"]].forEach(([k,n])=>{const b=document.createElement("button");b.type="button";b.dataset.t=k;b.textContent=n;b.onclick=()=>sel(k);$("tabs").appendChild(b)});sel("txt");
+$("enc").onclick=()=>{let r=enc8($("ti").value);if($("us").checked)r=r.replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"");$("to").value=r;$("ts").textContent="الطول: "+r.length+" حرف"};
+$("dec").onclick=()=>{try{$("to").value=dec8(norm($("ti").value));$("ts").textContent="تم فك التشفير"}catch(e){$("to").value="";$("ts").textContent="الكود ده مش Base64 صالح أو مش نص UTF-8 (جرّب تبويب الملف)"}};
+$("tcp").onclick=()=>cp($("to").value,$("tcp"));
+let fcode="";
+dropzone($("dz"),$("fi"),async fs=>{const f=fs[0];if(!f)return;if(f.size>20*1048576){$("fs").textContent="الملف أكبر من 20 ميجا";return}
+ const b=new Uint8Array(await rd(f));let r="";for(let i=0;i<b.length;i+=8192)r+=String.fromCharCode.apply(null,b.subarray(i,i+8192));fcode=btoa(r);window._f=f;fmake(f)});
+function fmake(f){if(!fcode)return;const t=($("du").checked?"data:"+((window._f&&window._f.type)||"application/octet-stream")+";base64,":"")+fcode;$("fo").value=t.length>200000?t.slice(0,200000)+"...":t;$("fo").dataset.full=t;$("fs").textContent=(window._f?window._f.name+" | ":"")+fmt(window._f?window._f.size:0)+" | الكود: "+fmt(t.length)}
+$("du").onchange=fmake;
+$("fcp").onclick=()=>cp($("fo").dataset.full||"",$("fcp"));$("fsv").onclick=()=>{if($("fo").dataset.full)save($("fo").dataset.full,"base64.txt")};
+$("bgo").onclick=()=>{const raw=$("bi").value;const m=raw.match(/^data:([^;,]*)/);try{const r=atob(norm(raw)),u=new Uint8Array(r.length);for(let i=0;i<r.length;i++)u[i]=r.charCodeAt(i);
+ const mime=m&&m[1]||"application/octet-stream";const b=new Blob([u],{type:mime});$("bs").textContent="تم: "+fmt(b.size)+" ("+mime+")";dl(b,$("bn").value||"file.bin")}catch(e){$("bs").textContent="الكود مش Base64 صالح"}};
+
+export {};
+</script></body></html>

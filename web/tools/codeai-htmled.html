@@ -1,0 +1,164 @@
+<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>محرر HTML وCSS</title><style>:root{--bg:#eaf5ff;--bg2:#f6fbff;--card:#fff;--p:#2f9bf0;--p2:#6cc0ff;--p3:#d8ecfd;--p4:#eef7ff;--ink:#17364f;--mut:#5f7e98;--line:#d3e7f8;--ok:#14a06b;--okbg:#e5f8ef;--bad:#d24b4b;--badbg:#fdeeee;--star:#f6b400;--sh:0 10px 30px rgba(47,155,240,.13)}
+*{box-sizing:border-box}
+body.codeai{margin:0;background:radial-gradient(1200px 500px at 85% -10%,#cfe8ff 0,transparent 60%),radial-gradient(900px 400px at 0 0,#dff0ff 0,transparent 55%),var(--bg);color:var(--ink);font-family:"Cairo","Segoe UI",Tahoma,Arial,sans-serif;line-height:1.7;min-height:100vh}
+a{color:inherit;text-decoration:none}
+.top{position:sticky;top:0;z-index:10;background:rgba(255,255,255,.88);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.top-in{max-width:1120px;margin:0 auto;padding:10px 18px;display:flex;align-items:center;gap:14px}
+.brand{white-space:nowrap;display:flex;align-items:center;gap:10px;font-weight:800;font-size:19px;line-height:1.2}
+.logo{width:38px;height:38px;border-radius:11px;background:linear-gradient(135deg,var(--p2),var(--p));display:grid;place-items:center;color:#fff;font:800 15px/1 Consolas,monospace;direction:ltr;box-shadow:0 6px 14px rgba(47,155,240,.35)}
+.brand small{display:block;font-size:11px;font-weight:600;color:var(--mut);direction:ltr;text-align:right}
+nav{margin-inline-start:auto;overflow-x:auto;max-width:100%;display:flex;gap:6px;background:var(--p4);padding:4px;border-radius:14px;border:1px solid var(--line)}
+nav a{padding:7px 16px;border-radius:10px;font-weight:700;font-size:14px;color:var(--mut);white-space:nowrap}
+nav a.on{background:var(--p);color:#fff;box-shadow:0 4px 12px rgba(47,155,240,.35)}
+.wrap{max-width:1120px;margin:0 auto;padding:22px 18px 40px}
+.hero{background:linear-gradient(135deg,#7ec8ff 0,#a9dbff 55%,#cfeaff 100%);border-radius:24px;padding:26px;position:relative;overflow:hidden;box-shadow:var(--sh);margin-bottom:20px}
+.hero:after{content:"</>";position:absolute;left:18px;bottom:-30px;font:800 130px/1 Consolas,monospace;color:rgba(255,255,255,.35);direction:ltr}
+.hero h1{margin:0 0 4px;font-size:28px;font-weight:800;position:relative}
+.hero p{margin:0;color:#244d6e;position:relative;max-width:620px}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px;position:relative}
+.chip{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.88);border-radius:999px;padding:3px 13px;font-size:13px;font-weight:700}
+.chip svg{width:15px;height:15px}
+.grid{display:grid;grid-template-columns:5fr 7fr;gap:18px;align-items:start}
+.grid.ed2{grid-template-columns:7fr 5fr}
+@media(max-width:860px){.grid,.grid.ed2{grid-template-columns:1fr}.hero h1{font-size:23px}.top-in{padding:8px 12px}.brand small{display:none}}
+.card{background:var(--card);border:1px solid var(--line);border-radius:20px;box-shadow:var(--sh);overflow:hidden}
+.card-h{padding:14px 18px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:10px;font-weight:800;background:linear-gradient(180deg,#fafdff,#f2f9ff)}
+.card-b{padding:18px}
+.dot{width:10px;height:10px;border-radius:50%;background:var(--p2)}
+.btn{display:inline-flex;align-items:center;gap:8px;border:0;border-radius:12px;padding:9px 20px;font:700 15px "Cairo",sans-serif;cursor:pointer;background:linear-gradient(135deg,var(--p2),var(--p));color:#fff;box-shadow:0 6px 16px rgba(47,155,240,.35)}
+.btn:disabled{opacity:.5;cursor:wait;box-shadow:none}
+.btn.sec{background:var(--p4);color:var(--ink);box-shadow:none;border:1px solid var(--line)}
+.btn svg{width:16px;height:16px}
+.bar{display:flex;gap:8px;flex-wrap:wrap;padding:12px 14px;border-top:1px solid var(--line);background:var(--bg2)}
+.ed{display:flex;direction:ltr;background:#fbfdff;font:14.5px/1.65 "Cascadia Code",Consolas,Menlo,monospace}
+.gut{padding:12px 10px;text-align:right;color:#9bbbd6;background:#f0f8ff;border-right:1px solid var(--line);user-select:none;white-space:pre;overflow:hidden;min-width:42px;height:auto}
+.ed textarea{flex:1;border:0;outline:0;resize:none;background:transparent;font:inherit;color:var(--ink);padding:12px;min-height:260px;white-space:pre;overflow:auto;tab-size:4;direction:ltr;text-align:left}
+.ed:focus-within{box-shadow:inset 0 0 0 2px var(--p2)}
+.out{direction:ltr;text-align:left;margin:0;padding:14px 16px;min-height:90px;white-space:pre-wrap;font:14px/1.6 "Cascadia Code",Consolas,Menlo,monospace;background:var(--p4);color:var(--ink)}
+.out .err{color:var(--bad)}
+.hint{unicode-bidi:plaintext;margin-top:12px;background:#fff8e3;border:1px solid #f4dc95;border-radius:12px;padding:10px 14px;font-size:14px}
+.test{padding:8px 12px;border-radius:10px;font:13.5px/1.5 Consolas,Menlo,monospace;margin-bottom:6px;background:var(--p4);direction:ltr;text-align:left}
+.test.ok{background:var(--okbg);color:#0b6e49}.test.no{background:var(--badbg);color:#9b2d2d}
+.msg{margin:12px 0 0;padding:12px 16px;border-radius:14px;font-weight:700}
+.msg.ok{background:var(--okbg);color:#0b6e49}.msg.no{background:var(--badbg);color:#9b2d2d}
+.stars{display:flex;gap:6px;direction:ltr;justify-content:center;margin-top:14px}
+.stars svg{width:38px;height:38px;fill:#e1edf7}.stars svg.on{fill:var(--star);filter:drop-shadow(0 3px 5px rgba(246,180,0,.4));animation:pop .4s}
+@keyframes pop{0%{transform:scale(.4)}70%{transform:scale(1.2)}100%{transform:scale(1)}}
+.task h2{margin:0 0 6px;font-size:21px}
+.task p{margin:0 0 12px}
+code.fn{direction:ltr;display:inline-block;background:var(--p3);padding:0 8px;border-radius:7px;font-family:Consolas,monospace;font-size:14px}
+.status{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--mut);font-weight:600}
+.status i{width:9px;height:9px;border-radius:50%;background:#f0b429;display:inline-block}
+.status.ready i{background:var(--ok)}.status.fail i{background:var(--bad)}
+.tag{margin-inline-start:auto}
+.lvl-easy{color:#0b8a5a}.lvl-mid{color:#b86e00}.lvl-hard{color:#b3323c}
+.chipbtn{border:1px solid var(--line);background:#fff;border-radius:999px;padding:5px 14px;font:700 13px "Cairo",sans-serif;color:var(--ink);cursor:pointer}
+.tips{display:grid;gap:6px;margin:0;padding:0;list-style:none;font-size:14px}
+.tips li{display:flex;gap:8px}.tips li:before{content:"";flex:none;width:8px;height:8px;margin-top:10px;border-radius:50%;background:var(--p2)}
+footer{text-align:center;color:var(--mut);font-size:13px;padding:10px}
+
+@media(max-width:860px){.top-in{flex-wrap:wrap}nav{margin-inline-start:0;width:100%}}
+.field{margin-bottom:14px}.field label{display:block;font-weight:800;margin-bottom:6px;font-size:14px}
+.in,.sel{width:100%;border:2px solid var(--line);border-radius:12px;padding:10px 12px;font:600 15px "Cairo",sans-serif;color:var(--ink);background:#fbfdff;outline:0}
+.in:focus,.sel:focus{border-color:var(--p2)}
+textarea.in{min-height:120px;resize:vertical}
+.pills{display:flex;flex-wrap:wrap;gap:8px}
+.pill{border:2px solid var(--line);background:#fff;border-radius:999px;padding:6px 16px;font:700 14px "Cairo",sans-serif;color:var(--ink);cursor:pointer}
+.pill.on{background:var(--p);border-color:var(--p);color:#fff}
+.sec-t{font-weight:800;margin:0 0 6px}
+.box{background:var(--p4);border:1px solid var(--line);border-radius:14px;padding:12px 16px;margin-bottom:12px}
+.box.fix{background:var(--okbg);border-color:#bfe9d6}
+.box.why{background:#fff8e3;border-color:#f4dc95}
+.box pre{direction:ltr;text-align:left;margin:6px 0 0;white-space:pre-wrap;font:14px/1.6 Consolas,Menlo,monospace}
+.etype{display:inline-block;direction:ltr;background:var(--p);color:#fff;padding:2px 12px;border-radius:9px;font:700 14px Consolas,monospace;margin-bottom:8px}
+.pout{direction:ltr;text-align:left;white-space:pre-wrap;font:15px/1.7 "Segoe UI",Arial,sans-serif;background:var(--p4);border:1px solid var(--line);border-radius:14px;padding:14px 16px;min-height:120px}
+.target{direction:ltr;text-align:left;font:22px/1.8 "Cascadia Code",Consolas,Menlo,monospace;background:#fbfdff;border:2px solid var(--line);border-radius:14px;padding:18px;min-height:90px;word-break:break-all}
+.target .ok{color:var(--ok);background:var(--okbg)}.target .no{color:#fff;background:var(--bad)}.target .cur{background:var(--p3);box-shadow:0 2px 0 var(--p)}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:12px 0}
+.stat{background:var(--p4);border:1px solid var(--line);border-radius:14px;padding:10px;text-align:center}
+.stat b{display:block;font-size:24px;direction:ltr}.stat span{font-size:12.5px;color:var(--mut)}
+.prog{height:10px;background:var(--p3);border-radius:99px;overflow:hidden;margin:10px 0}.prog i{display:block;height:100%;background:linear-gradient(90deg,var(--p2),var(--p));width:0;transition:width .3s}
+.drop{border:2.5px dashed var(--p2);background:var(--p4);border-radius:18px;padding:26px 16px;text-align:center;cursor:pointer;transition:.15s}
+.drop.over,.drop:hover{background:var(--p3);border-color:var(--p)}
+.drop b{display:block;font-size:17px}.drop span{color:var(--mut);font-size:13.5px}
+.drop svg{width:42px;height:42px;stroke:var(--p);fill:none;stroke-width:2;margin-bottom:6px}
+.files{display:grid;gap:8px;margin-top:14px}
+.fi{display:flex;align-items:center;gap:12px;background:#fff;border:1px solid var(--line);border-radius:14px;padding:8px 10px}
+.fi img,.fi .ico{width:54px;height:54px;border-radius:10px;object-fit:cover;background:var(--p3);flex:none;display:grid;place-items:center;font:800 13px Consolas,monospace;color:var(--p)}
+.fi .nm{flex:1;min-width:0}.fi .nm b{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;direction:ltr;text-align:right;font-size:14px}
+.fi .nm small{display:block;unicode-bidi:plaintext;color:var(--mut);font-size:12.5px}
+.fi .sv{color:var(--ok);font-weight:800}
+.ib{border:1px solid var(--line);background:var(--p4);border-radius:10px;width:34px;height:34px;cursor:pointer;font:800 15px sans-serif;color:var(--ink)}
+.ib:hover{background:var(--p3)}
+.rng{width:100%;accent-color:var(--p)}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:560px){.two{grid-template-columns:1fr}}
+.qrbox{background:#fff;border:1px solid var(--line);border-radius:18px;padding:18px;display:grid;place-items:center}
+.qrbox canvas{max-width:100%;height:auto;image-rendering:pixelated}
+.note{color:var(--mut);font-size:13px;margin-top:8px}
+</style></head><body class="codeai"><div id="root"><div class="codeai-root"><div class="top"><div class="top-in"><a class="brand" href="/tools"><span class="logo">&lt;/&gt;</span><span>كود إيه آي<small>Think. Code. Build with AI.</small></span></a></div></div><div class="wrap"><div class="wrap"><section class="hero"><div class="chips"><span class="chip">مجاني</span><span class="chip">للأطفال والمبتدئين</span></div>
+<h1>محرر HTML وCSS</h1><p>اكتب الكود على اليمين وشوف الصفحة بتتغير قدامك على طول.</p></section>
+<div class="card" style="margin-bottom:18px"><div class="card-b"><div class="pills" id="ex"></div></div></div>
+<div class="grid ed2">
+<div class="card"><div class="card-h"><span class="dot"></span>الكود</div><div class="card-b">
+<div class="pills" id="tabs" style="margin-bottom:10px"></div>
+<textarea class="in code" id="h" spellcheck="false" style="min-height:300px"></textarea>
+<textarea class="in code" id="c" spellcheck="false" style="min-height:300px" hidden></textarea>
+<p class="note" id="msg"></p>
+<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px"><button class="btn" id="dlb" type="button">نزّل الصفحة HTML</button><button class="btn sec" id="cpb" type="button">انسخ الكود كامل</button><button class="btn sec" id="rst" type="button">ابدأ من جديد</button></div></div></div>
+<div class="card"><div class="card-h"><span class="dot"></span>الناتج</div><div class="card-b"><div id="pv" style="background:#fff;border:1px solid var(--line);border-radius:12px;min-height:340px;overflow:auto;direction:rtl"></div>
+<p class="note">الجافاسكريبت مش بيشتغل هنا (للأمان). الصور لازم تكون من الجهاز أو data:، مش من الإنترنت.</p></div></div>
+</div>
+<div class="card" id="hostres" hidden style="margin-top:18px"><div class="card-h"><span class="dot"></span>الملفات الجاهزة (اضغط على الزرار يفتح الملف في تبويب جديد وتحفظه من هناك)</div><div class="card-b" id="hostlist"></div></div><footer>كود إيه آي | أدوات مجانية</footer></div>
+<style>.code{direction:ltr;text-align:left;font:14px/1.6 Consolas,monospace;white-space:pre;tab-size:2;overflow:auto}</style>
+</div></div><script>
+
+const $=id=>document.getElementById(id);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const fmt=n=>n<1024?n+" B":n<1048576?(n/1024).toFixed(1)+" KB":(n/1048576).toFixed(2)+" MB";
+function dl(blob,name){const u=URL.createObjectURL(blob);$("hostres").hidden=false;const d=document.createElement("div");d.style.cssText="margin:8px 0;display:flex;gap:10px;align-items:center;flex-wrap:wrap";
+ if(blob.type.indexOf("image/")===0){const im=document.createElement("img");im.src=u;im.alt="";im.style.cssText="width:54px;height:54px;object-fit:cover;border-radius:10px";d.appendChild(im)}
+ const a=document.createElement("a");a.href=u;a.target="_blank";a.rel="noopener";a.className="btn";a.textContent="افتح "+name+" ("+fmt(blob.size)+")";d.appendChild(a);$("hostlist").appendChild(d)}
+function dropzone(el,input,onFiles){
+  el.onclick=()=>input.click();
+  input.onchange=()=>{onFiles([...input.files]);input.value=""};
+  ["dragenter","dragover"].forEach(e=>el.addEventListener(e,ev=>{ev.preventDefault();el.classList.add("over")}));
+  ["dragleave","drop"].forEach(e=>el.addEventListener(e,ev=>{ev.preventDefault();el.classList.remove("over")}));
+  el.addEventListener("drop",ev=>onFiles([...ev.dataTransfer.files]));
+}
+const UP='<svg viewBox="0 0 24 24"><path d="M12 16V4M7 9l5-5 5 5M4 16v4h16v-4"/></svg>';
+function rd(f){return new Promise((r,j)=>{const x=new FileReader();x.onload=()=>r(x.result);x.onerror=j;x.readAsArrayBuffer(f)})}
+async function bitmap(f){return await createImageBitmap(f)}
+
+function cp(t,btn){const done=()=>{if(btn){const o=btn.dataset.o||btn.textContent;btn.dataset.o=o;btn.textContent="اتنسخ";setTimeout(()=>btn.textContent=o,1500)}};
+ const fb=()=>{const a=document.createElement("textarea");a.value=t;a.style.cssText="position:fixed;opacity:0";document.body.appendChild(a);a.select();try{document.execCommand("copy")}catch(e){}a.remove();done()};
+ if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(t).then(done,fb);else fb()}
+function save(text,name,type){dl(new Blob([text],{type:type||"text/plain;charset=utf-8"}),name)}
+function lget(k,d){try{const v=localStorage.getItem(k);return v==null?d:JSON.parse(v)}catch(e){return d}}
+function lset(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
+
+const EX={
+"صفحة تعريف":["<h1>أهلا، أنا سارة</h1>\n<p>عندي 10 سنين وبحب البرمجة.</p>\n<ul>\n  <li>بايثون</li>\n  <li>رسم</li>\n  <li>قراءة</li>\n</ul>\n<button>اتفرج على شغلي</button>","body { font-family: sans-serif; background: #eaf5ff; padding: 20px; }\nh1 { color: #2f9bf0; }\nbutton { background: #2f9bf0; color: white; border: 0; padding: 10px 18px; border-radius: 12px; font-size: 16px; }"],
+"كارت":["<div class=\"card\">\n  <h2>كورس بايثون</h2>\n  <p>تعلّم تبرمج من الصفر.</p>\n  <a href=\"#\">سجّل دلوقتي</a>\n</div>","body { background: #f0f7ff; display: grid; place-items: center; padding: 30px; font-family: sans-serif; }\n.card { background: white; padding: 24px; border-radius: 18px; box-shadow: 0 10px 30px rgba(47,155,240,.25); width: 260px; text-align: center; }\n.card h2 { color: #17364f; }\n.card a { display: inline-block; background: #2f9bf0; color: #fff; padding: 8px 16px; border-radius: 10px; text-decoration: none; }"],
+"زرار متحرك":["<button class=\"b\">اضغط عليا</button>","body { display: grid; place-items: center; min-height: 260px; background: #eaf5ff; }\n.b { background: linear-gradient(135deg, #6cc0ff, #2f9bf0); color: white; border: 0; padding: 14px 30px; border-radius: 999px; font-size: 20px; transition: transform .2s; }\n.b:hover { transform: scale(1.15) rotate(-3deg); }"]};
+const DEF="صفحة تعريف";
+function clean(h){const d=new DOMParser().parseFromString("<body>"+h+"</body>","text/html");d.querySelectorAll("script,iframe,object,embed,link,meta,base,form,frame").forEach(e=>e.remove());
+ d.querySelectorAll("*").forEach(e=>[...e.attributes].forEach(a=>{const v=a.value.trim().toLowerCase();if(/^on/i.test(a.name)||(/^(href|src|action|formaction|xlink:href)$/i.test(a.name)&&/^(javascript|vbscript):/i.test(v))||(a.name==="src"&&/^https?:/i.test(v)&&false))e.removeAttribute(a.name)}));return d.body.innerHTML}
+function cssClean(c){return c.replace(/@import[^;]*;?/gi,"").replace(/expression\s*\(/gi,"x(").replace(/javascript:/gi,"")}
+const host=$("pv");const root=host.attachShadow?host.attachShadow({mode:"open"}):host;
+function render(){const h=$("h").value,c=$("c").value;
+ let css=cssClean(c).replace(/(^|})\s*(html|body)\s*(?=[{,])/gi,"$1 .page");
+ root.innerHTML='<style>:host{all:initial}.page{min-height:340px;box-sizing:border-box;margin:0;direction:rtl}'+css+'</style><div class="page">'+clean(h)+"</div>";
+ const open=(h.match(/<([a-z][a-z0-9]*)\b[^>]*>/gi)||[]).length,close=(h.match(/<\/[a-z][a-z0-9]*>/gi)||[]).length;
+ $("msg").textContent=(c.split("{").length!==c.split("}").length)?"في قوس { أو } ناقص في الـ CSS":""}
+function full(){return '<!doctype html>\n<html lang="ar" dir="rtl">\n<head>\n<meta charset="utf-8">\n<meta name="viewport" content="width=device-width,initial-scale=1">\n<title>صفحتي</title>\n<style>\n'+$("c").value+'\n</style>\n</head>\n<body>\n'+$("h").value+'\n</body>\n</html>\n'}
+function load(n){$("h").value=EX[n][0];$("c").value=EX[n][1];[...$("ex").children].forEach(b=>b.className="pill"+(b.dataset.n===n?" on":""));render()}
+for(const n in EX){const b=document.createElement("button");b.type="button";b.dataset.n=n;b.textContent=n;b.onclick=()=>load(n);$("ex").appendChild(b)}
+function tab(t){$("h").hidden=t!=="h";$("c").hidden=t!=="c";[...$("tabs").children].forEach(b=>b.className="pill"+(b.dataset.t===t?" on":""))}
+[["h","HTML"],["c","CSS"]].forEach(([k,n])=>{const b=document.createElement("button");b.type="button";b.dataset.t=k;b.textContent=n;b.onclick=()=>tab(k);$("tabs").appendChild(b)});tab("h");
+["h","c"].forEach(i=>{$(i).oninput=render;$(i).onkeydown=e=>{if(e.key==="Tab"){e.preventDefault();const t=e.target,s=t.selectionStart;t.value=t.value.slice(0,s)+"  "+t.value.slice(t.selectionEnd);t.selectionStart=t.selectionEnd=s+2;render()}}});
+$("dlb").onclick=()=>save(full(),"my-page.html","text/html;charset=utf-8");$("cpb").onclick=()=>cp(full(),$("cpb"));$("rst").onclick=()=>{$("h").value="";$("c").value="";render()};
+load(DEF);
+
+export {};
+</script></body></html>

@@ -1,0 +1,158 @@
+<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>حاسبة الدورة الشهرية وأيام الخصوبة</title><style>:root{--bg:#eaf5ff;--bg2:#f6fbff;--card:#fff;--p:#2f9bf0;--p2:#6cc0ff;--p3:#d8ecfd;--p4:#eef7ff;--ink:#17364f;--mut:#5f7e98;--line:#d3e7f8;--ok:#14a06b;--okbg:#e5f8ef;--bad:#d24b4b;--badbg:#fdeeee;--star:#f6b400;--sh:0 10px 30px rgba(47,155,240,.13)}
+*{box-sizing:border-box}
+body.codeai{margin:0;background:radial-gradient(1200px 500px at 85% -10%,#cfe8ff 0,transparent 60%),radial-gradient(900px 400px at 0 0,#dff0ff 0,transparent 55%),var(--bg);color:var(--ink);font-family:"Cairo","Segoe UI",Tahoma,Arial,sans-serif;line-height:1.7;min-height:100vh}
+a{color:inherit;text-decoration:none}
+.top{position:sticky;top:0;z-index:10;background:rgba(255,255,255,.88);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.top-in{max-width:1120px;margin:0 auto;padding:10px 18px;display:flex;align-items:center;gap:14px}
+.brand{white-space:nowrap;display:flex;align-items:center;gap:10px;font-weight:800;font-size:19px;line-height:1.2}
+.logo{width:38px;height:38px;border-radius:11px;background:linear-gradient(135deg,var(--p2),var(--p));display:grid;place-items:center;color:#fff;font:800 15px/1 Consolas,monospace;direction:ltr;box-shadow:0 6px 14px rgba(47,155,240,.35)}
+.brand small{display:block;font-size:11px;font-weight:600;color:var(--mut);direction:ltr;text-align:right}
+nav{margin-inline-start:auto;overflow-x:auto;max-width:100%;display:flex;gap:6px;background:var(--p4);padding:4px;border-radius:14px;border:1px solid var(--line)}
+nav a{padding:7px 16px;border-radius:10px;font-weight:700;font-size:14px;color:var(--mut);white-space:nowrap}
+nav a.on{background:var(--p);color:#fff;box-shadow:0 4px 12px rgba(47,155,240,.35)}
+.wrap{max-width:1120px;margin:0 auto;padding:22px 18px 40px}
+.hero{background:linear-gradient(135deg,#7ec8ff 0,#a9dbff 55%,#cfeaff 100%);border-radius:24px;padding:26px;position:relative;overflow:hidden;box-shadow:var(--sh);margin-bottom:20px}
+.hero:after{content:"</>";position:absolute;left:18px;bottom:-30px;font:800 130px/1 Consolas,monospace;color:rgba(255,255,255,.35);direction:ltr}
+.hero h1{margin:0 0 4px;font-size:28px;font-weight:800;position:relative}
+.hero p{margin:0;color:#244d6e;position:relative;max-width:620px}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px;position:relative}
+.chip{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.88);border-radius:999px;padding:3px 13px;font-size:13px;font-weight:700}
+.chip svg{width:15px;height:15px}
+.grid{display:grid;grid-template-columns:5fr 7fr;gap:18px;align-items:start}
+.grid.ed2{grid-template-columns:7fr 5fr}
+@media(max-width:860px){.grid,.grid.ed2{grid-template-columns:1fr}.hero h1{font-size:23px}.top-in{padding:8px 12px}.brand small{display:none}}
+.card{background:var(--card);border:1px solid var(--line);border-radius:20px;box-shadow:var(--sh);overflow:hidden}
+.card-h{padding:14px 18px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:10px;font-weight:800;background:linear-gradient(180deg,#fafdff,#f2f9ff)}
+.card-b{padding:18px}
+.dot{width:10px;height:10px;border-radius:50%;background:var(--p2)}
+.btn{display:inline-flex;align-items:center;gap:8px;border:0;border-radius:12px;padding:9px 20px;font:700 15px "Cairo",sans-serif;cursor:pointer;background:linear-gradient(135deg,var(--p2),var(--p));color:#fff;box-shadow:0 6px 16px rgba(47,155,240,.35)}
+.btn:disabled{opacity:.5;cursor:wait;box-shadow:none}
+.btn.sec{background:var(--p4);color:var(--ink);box-shadow:none;border:1px solid var(--line)}
+.btn svg{width:16px;height:16px}
+.bar{display:flex;gap:8px;flex-wrap:wrap;padding:12px 14px;border-top:1px solid var(--line);background:var(--bg2)}
+.ed{display:flex;direction:ltr;background:#fbfdff;font:14.5px/1.65 "Cascadia Code",Consolas,Menlo,monospace}
+.gut{padding:12px 10px;text-align:right;color:#9bbbd6;background:#f0f8ff;border-right:1px solid var(--line);user-select:none;white-space:pre;overflow:hidden;min-width:42px;height:auto}
+.ed textarea{flex:1;border:0;outline:0;resize:none;background:transparent;font:inherit;color:var(--ink);padding:12px;min-height:260px;white-space:pre;overflow:auto;tab-size:4;direction:ltr;text-align:left}
+.ed:focus-within{box-shadow:inset 0 0 0 2px var(--p2)}
+.out{direction:ltr;text-align:left;margin:0;padding:14px 16px;min-height:90px;white-space:pre-wrap;font:14px/1.6 "Cascadia Code",Consolas,Menlo,monospace;background:var(--p4);color:var(--ink)}
+.out .err{color:var(--bad)}
+.hint{unicode-bidi:plaintext;margin-top:12px;background:#fff8e3;border:1px solid #f4dc95;border-radius:12px;padding:10px 14px;font-size:14px}
+.test{padding:8px 12px;border-radius:10px;font:13.5px/1.5 Consolas,Menlo,monospace;margin-bottom:6px;background:var(--p4);direction:ltr;text-align:left}
+.test.ok{background:var(--okbg);color:#0b6e49}.test.no{background:var(--badbg);color:#9b2d2d}
+.msg{margin:12px 0 0;padding:12px 16px;border-radius:14px;font-weight:700}
+.msg.ok{background:var(--okbg);color:#0b6e49}.msg.no{background:var(--badbg);color:#9b2d2d}
+.stars{display:flex;gap:6px;direction:ltr;justify-content:center;margin-top:14px}
+.stars svg{width:38px;height:38px;fill:#e1edf7}.stars svg.on{fill:var(--star);filter:drop-shadow(0 3px 5px rgba(246,180,0,.4));animation:pop .4s}
+@keyframes pop{0%{transform:scale(.4)}70%{transform:scale(1.2)}100%{transform:scale(1)}}
+.task h2{margin:0 0 6px;font-size:21px}
+.task p{margin:0 0 12px}
+code.fn{direction:ltr;display:inline-block;background:var(--p3);padding:0 8px;border-radius:7px;font-family:Consolas,monospace;font-size:14px}
+.status{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--mut);font-weight:600}
+.status i{width:9px;height:9px;border-radius:50%;background:#f0b429;display:inline-block}
+.status.ready i{background:var(--ok)}.status.fail i{background:var(--bad)}
+.tag{margin-inline-start:auto}
+.lvl-easy{color:#0b8a5a}.lvl-mid{color:#b86e00}.lvl-hard{color:#b3323c}
+.chipbtn{border:1px solid var(--line);background:#fff;border-radius:999px;padding:5px 14px;font:700 13px "Cairo",sans-serif;color:var(--ink);cursor:pointer}
+.tips{display:grid;gap:6px;margin:0;padding:0;list-style:none;font-size:14px}
+.tips li{display:flex;gap:8px}.tips li:before{content:"";flex:none;width:8px;height:8px;margin-top:10px;border-radius:50%;background:var(--p2)}
+footer{text-align:center;color:var(--mut);font-size:13px;padding:10px}
+
+@media(max-width:860px){.top-in{flex-wrap:wrap}nav{margin-inline-start:0;width:100%}}
+.field{margin-bottom:14px}.field label{display:block;font-weight:800;margin-bottom:6px;font-size:14px}
+.in,.sel{width:100%;border:2px solid var(--line);border-radius:12px;padding:10px 12px;font:600 15px "Cairo",sans-serif;color:var(--ink);background:#fbfdff;outline:0}
+.in:focus,.sel:focus{border-color:var(--p2)}
+textarea.in{min-height:120px;resize:vertical}
+.pills{display:flex;flex-wrap:wrap;gap:8px}
+.pill{border:2px solid var(--line);background:#fff;border-radius:999px;padding:6px 16px;font:700 14px "Cairo",sans-serif;color:var(--ink);cursor:pointer}
+.pill.on{background:var(--p);border-color:var(--p);color:#fff}
+.sec-t{font-weight:800;margin:0 0 6px}
+.box{background:var(--p4);border:1px solid var(--line);border-radius:14px;padding:12px 16px;margin-bottom:12px}
+.box.fix{background:var(--okbg);border-color:#bfe9d6}
+.box.why{background:#fff8e3;border-color:#f4dc95}
+.box pre{direction:ltr;text-align:left;margin:6px 0 0;white-space:pre-wrap;font:14px/1.6 Consolas,Menlo,monospace}
+.etype{display:inline-block;direction:ltr;background:var(--p);color:#fff;padding:2px 12px;border-radius:9px;font:700 14px Consolas,monospace;margin-bottom:8px}
+.pout{direction:ltr;text-align:left;white-space:pre-wrap;font:15px/1.7 "Segoe UI",Arial,sans-serif;background:var(--p4);border:1px solid var(--line);border-radius:14px;padding:14px 16px;min-height:120px}
+.target{direction:ltr;text-align:left;font:22px/1.8 "Cascadia Code",Consolas,Menlo,monospace;background:#fbfdff;border:2px solid var(--line);border-radius:14px;padding:18px;min-height:90px;word-break:break-all}
+.target .ok{color:var(--ok);background:var(--okbg)}.target .no{color:#fff;background:var(--bad)}.target .cur{background:var(--p3);box-shadow:0 2px 0 var(--p)}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:12px 0}
+.stat{background:var(--p4);border:1px solid var(--line);border-radius:14px;padding:10px;text-align:center}
+.stat b{display:block;font-size:24px;direction:ltr}.stat span{font-size:12.5px;color:var(--mut)}
+.prog{height:10px;background:var(--p3);border-radius:99px;overflow:hidden;margin:10px 0}.prog i{display:block;height:100%;background:linear-gradient(90deg,var(--p2),var(--p));width:0;transition:width .3s}
+.drop{border:2.5px dashed var(--p2);background:var(--p4);border-radius:18px;padding:26px 16px;text-align:center;cursor:pointer;transition:.15s}
+.drop.over,.drop:hover{background:var(--p3);border-color:var(--p)}
+.drop b{display:block;font-size:17px}.drop span{color:var(--mut);font-size:13.5px}
+.drop svg{width:42px;height:42px;stroke:var(--p);fill:none;stroke-width:2;margin-bottom:6px}
+.files{display:grid;gap:8px;margin-top:14px}
+.fi{display:flex;align-items:center;gap:12px;background:#fff;border:1px solid var(--line);border-radius:14px;padding:8px 10px}
+.fi img,.fi .ico{width:54px;height:54px;border-radius:10px;object-fit:cover;background:var(--p3);flex:none;display:grid;place-items:center;font:800 13px Consolas,monospace;color:var(--p)}
+.fi .nm{flex:1;min-width:0}.fi .nm b{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;direction:ltr;text-align:right;font-size:14px}
+.fi .nm small{display:block;unicode-bidi:plaintext;color:var(--mut);font-size:12.5px}
+.fi .sv{color:var(--ok);font-weight:800}
+.ib{border:1px solid var(--line);background:var(--p4);border-radius:10px;width:34px;height:34px;cursor:pointer;font:800 15px sans-serif;color:var(--ink)}
+.ib:hover{background:var(--p3)}
+.rng{width:100%;accent-color:var(--p)}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:560px){.two{grid-template-columns:1fr}}
+.qrbox{background:#fff;border:1px solid var(--line);border-radius:18px;padding:18px;display:grid;place-items:center}
+.qrbox canvas{max-width:100%;height:auto;image-rendering:pixelated}
+.note{color:var(--mut);font-size:13px;margin-top:8px}
+</style></head><body class="codeai"><div id="root"><div class="codeai-root"><div class="top"><div class="top-in"><a class="brand" href="/tools"><span class="logo">&lt;/&gt;</span><span>كود إيه آي<small>Think. Code. Build with AI.</small></span></a></div></div><div class="wrap"><div class="wrap"><section class="hero"><div class="chips"><span class="chip">مجاني</span><span class="chip">بياناتك مبتتحفظش ولا بتتبعت</span></div>
+<h1>حاسبة الدورة الشهرية وأيام الخصوبة</h1><p>اعرفي موعد الدورة الجاية والتبويض وأيام الخصوبة المتوقعة.</p></section>
+<div class="grid ed2">
+<div class="card"><div class="card-h"><span class="dot"></span>البيانات</div><div class="card-b">
+<div class="field"><label>أول يوم في آخر دورة</label><input class="in" type="date" id="d0" dir="ltr"></div>
+<div class="two"><div class="field"><label>طول الدورة (أيام)</label><input class="in" type="number" id="cl" min="21" max="45" value="28" dir="ltr"></div>
+<div class="field"><label>مدة الدورة (أيام)</label><input class="in" type="number" id="pl" min="2" max="10" value="5" dir="ltr"></div></div>
+<p class="note">طول الدورة من أول يوم في دورة لأول يوم في اللي بعدها، وغالبا بين 21 و35 يوم.</p>
+<p class="note" id="msg"></p>
+<div class="box" style="background:#fff8e1;border:1px solid #f6d77a;border-radius:12px;padding:10px 12px;font-size:13.5px;line-height:1.7">الحساب تقديري بنمط منتظم. مش وسيلة منع حمل ومش بديل للدكتورة، وممكن يتغير حسب الجسم والظروف.</div></div></div>
+<div class="card"><div class="card-h"><span class="dot"></span>النتيجة</div><div class="card-b" id="res"><p class="note">اختاري تاريخ أول يوم في آخر دورة.</p></div></div>
+</div>
+<div class="card" style="margin-top:18px"><div class="card-h"><span class="dot"></span>الدورات الجاية</div><div class="card-b"><div class="files" id="list"></div></div></div>
+<div class="card" style="margin-top:18px"><div class="card-h"><span class="dot"></span>التقويم</div><div class="card-b"><div id="cal" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:16px"></div>
+<div style="display:flex;gap:14px;flex-wrap:wrap;margin-top:12px;font-weight:700;font-size:13px"><span><i style="display:inline-block;width:14px;height:14px;border-radius:4px;background:#ff9fb2;vertical-align:middle"></i> الدورة</span><span><i style="display:inline-block;width:14px;height:14px;border-radius:4px;background:#8fd6a7;vertical-align:middle"></i> أيام الخصوبة</span><span><i style="display:inline-block;width:14px;height:14px;border-radius:4px;background:#2f9bf0;vertical-align:middle"></i> التبويض المتوقع</span></div></div></div>
+<div class="card" id="hostres" hidden style="margin-top:18px"><div class="card-h"><span class="dot"></span>الملفات الجاهزة (اضغط على الزرار يفتح الملف في تبويب جديد وتحفظه من هناك)</div><div class="card-b" id="hostlist"></div></div><footer>كود إيه آي | أدوات مجانية</footer></div>
+</div></div><script>
+
+const $=id=>document.getElementById(id);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const fmt=n=>n<1024?n+" B":n<1048576?(n/1024).toFixed(1)+" KB":(n/1048576).toFixed(2)+" MB";
+function dl(blob,name){const u=URL.createObjectURL(blob);$("hostres").hidden=false;const d=document.createElement("div");d.style.cssText="margin:8px 0;display:flex;gap:10px;align-items:center;flex-wrap:wrap";
+ if(blob.type.indexOf("image/")===0){const im=document.createElement("img");im.src=u;im.alt="";im.style.cssText="width:54px;height:54px;object-fit:cover;border-radius:10px";d.appendChild(im)}
+ const a=document.createElement("a");a.href=u;a.target="_blank";a.rel="noopener";a.className="btn";a.textContent="افتح "+name+" ("+fmt(blob.size)+")";d.appendChild(a);$("hostlist").appendChild(d)}
+function dropzone(el,input,onFiles){
+  el.onclick=()=>input.click();
+  input.onchange=()=>{onFiles([...input.files]);input.value=""};
+  ["dragenter","dragover"].forEach(e=>el.addEventListener(e,ev=>{ev.preventDefault();el.classList.add("over")}));
+  ["dragleave","drop"].forEach(e=>el.addEventListener(e,ev=>{ev.preventDefault();el.classList.remove("over")}));
+  el.addEventListener("drop",ev=>onFiles([...ev.dataTransfer.files]));
+}
+const UP='<svg viewBox="0 0 24 24"><path d="M12 16V4M7 9l5-5 5 5M4 16v4h16v-4"/></svg>';
+function rd(f){return new Promise((r,j)=>{const x=new FileReader();x.onload=()=>r(x.result);x.onerror=j;x.readAsArrayBuffer(f)})}
+async function bitmap(f){return await createImageBitmap(f)}
+
+const MN=["يناير","فبراير","مارس","أبريل","مايو","يونيو","يوليو","أغسطس","سبتمبر","أكتوبر","نوفمبر","ديسمبر"],DN=["الأحد","الإثنين","الثلاثاء","الأربعاء","الخميس","الجمعة","السبت"];
+const P=s=>{const [y,m,d]=s.split("-").map(Number);return new Date(y,m-1,d)};
+const A=(d,n)=>{const x=new Date(d);x.setDate(x.getDate()+n);return x};
+const F=d=>DN[d.getDay()]+" "+d.getDate()+" "+MN[d.getMonth()];
+const K=d=>d.getFullYear()+"-"+d.getMonth()+"-"+d.getDate();
+function calc(){const v=$("d0").value;const cl=+$("cl").value,pl=+$("pl").value;
+ if(!v||!(cl>=21&&cl<=45)||!(pl>=2&&pl<=10)){$("msg").textContent=(cl<21||cl>45)?"طول الدورة لازم يكون بين 21 و45":"";$("res").innerHTML='<p class="note">اختاري تاريخ أول يوم في آخر دورة.</p>';$("list").innerHTML="";$("cal").innerHTML="";return}
+ $("msg").textContent="";const s=P(v);const cycles=[];for(let i=0;i<7;i++){const st=A(s,cl*i),ov=A(st,cl-14);cycles.push({st,en:A(st,pl-1),ov,f1:A(ov,-5),f2:A(ov,1)})}
+ const n=cycles[1];const today=new Date();today.setHours(0,0,0,0);
+ const next=cycles.find(c=>c.st>=today)||n;const diff=Math.round((next.st-today)/864e5);
+ $("res").innerHTML='<div class="stats"><div class="stat"><b>'+F(next.st)+'</b><span>الدورة الجاية'+(diff>=0?" (بعد "+diff+" يوم)":"")+'</span></div><div class="stat"><b>'+F(next.ov)+'</b><span>التبويض المتوقع</span></div></div><div class="stats" style="margin-top:10px"><div class="stat"><b>'+F(next.f1)+'</b><span>بداية أيام الخصوبة</span></div><div class="stat"><b>'+F(next.f2)+'</b><span>نهاية أيام الخصوبة</span></div></div>';
+ $("list").innerHTML=cycles.slice(1,7).map((c,i)=>'<div class="fi"><div class="nm"><b>دورة '+(i+1)+': '+F(c.st)+'</b><small>تبويض: '+F(c.ov)+' | خصوبة: '+c.f1.getDate()+" "+MN[c.f1.getMonth()]+" إلى "+c.f2.getDate()+" "+MN[c.f2.getMonth()]+'</small></div></div>').join("");
+ const sets={m:new Set(),f:new Set(),o:new Set()};cycles.forEach(c=>{for(let d=c.st;d<=c.en;d=A(d,1))sets.m.add(K(d));for(let d=c.f1;d<=c.f2;d=A(d,1))sets.f.add(K(d));sets.o.add(K(c.ov))});
+ const first=new Date(s.getFullYear(),s.getMonth(),1);let h="";
+ for(let m=0;m<3;m++){const b=new Date(first.getFullYear(),first.getMonth()+m,1);const dim=new Date(b.getFullYear(),b.getMonth()+1,0).getDate();
+  h+='<div><div style="font-weight:800;margin-bottom:6px">'+MN[b.getMonth()]+" "+b.getFullYear()+'</div><div style="display:grid;grid-template-columns:repeat(7,1fr);gap:3px;text-align:center;font-size:13px;font-weight:700">'+["ح","ن","ث","ر","خ","ج","س"].map(x=>'<span style="color:#5f7e98">'+x+'</span>').join("")+'<span style="grid-column:span '+b.getDay()+'"></span>';
+  for(let d=1;d<=dim;d++){const dt=new Date(b.getFullYear(),b.getMonth(),d),k=K(dt);let bg="#fff",c="#17364f";if(sets.m.has(k))bg="#ff9fb2";else if(sets.o.has(k)){bg="#2f9bf0";c="#fff"}else if(sets.f.has(k))bg="#8fd6a7";if(sets.o.has(k)){bg="#2f9bf0";c="#fff"}
+   h+='<span style="padding:5px 0;border-radius:8px;background:'+bg+';color:'+c+';border:1px solid #d3e7f8">'+d+'</span>'}
+  h+='</div></div>'}
+ $("cal").innerHTML=h}
+["d0","cl","pl"].forEach(i=>$(i).oninput=calc);
+const t=new Date();t.setDate(t.getDate()-10);$("d0").value=t.getFullYear()+"-"+String(t.getMonth()+1).padStart(2,"0")+"-"+String(t.getDate()).padStart(2,"0");calc();
+
+export {};
+</script></body></html>

@@ -1,0 +1,176 @@
+<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>شرح كود بايثون سطر بسطر</title><style>:root{--bg:#eaf5ff;--bg2:#f6fbff;--card:#fff;--p:#2f9bf0;--p2:#6cc0ff;--p3:#d8ecfd;--p4:#eef7ff;--ink:#17364f;--mut:#5f7e98;--line:#d3e7f8;--ok:#14a06b;--okbg:#e5f8ef;--bad:#d24b4b;--badbg:#fdeeee;--star:#f6b400;--sh:0 10px 30px rgba(47,155,240,.13)}
+*{box-sizing:border-box}
+body.codeai{margin:0;background:radial-gradient(1200px 500px at 85% -10%,#cfe8ff 0,transparent 60%),radial-gradient(900px 400px at 0 0,#dff0ff 0,transparent 55%),var(--bg);color:var(--ink);font-family:"Cairo","Segoe UI",Tahoma,Arial,sans-serif;line-height:1.7;min-height:100vh}
+a{color:inherit;text-decoration:none}
+.top{position:sticky;top:0;z-index:10;background:rgba(255,255,255,.88);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.top-in{max-width:1120px;margin:0 auto;padding:10px 18px;display:flex;align-items:center;gap:14px}
+.brand{white-space:nowrap;display:flex;align-items:center;gap:10px;font-weight:800;font-size:19px;line-height:1.2}
+.logo{width:38px;height:38px;border-radius:11px;background:linear-gradient(135deg,var(--p2),var(--p));display:grid;place-items:center;color:#fff;font:800 15px/1 Consolas,monospace;direction:ltr;box-shadow:0 6px 14px rgba(47,155,240,.35)}
+.brand small{display:block;font-size:11px;font-weight:600;color:var(--mut);direction:ltr;text-align:right}
+nav{margin-inline-start:auto;overflow-x:auto;max-width:100%;display:flex;gap:6px;background:var(--p4);padding:4px;border-radius:14px;border:1px solid var(--line)}
+nav a{padding:7px 16px;border-radius:10px;font-weight:700;font-size:14px;color:var(--mut);white-space:nowrap}
+nav a.on{background:var(--p);color:#fff;box-shadow:0 4px 12px rgba(47,155,240,.35)}
+.wrap{max-width:1120px;margin:0 auto;padding:22px 18px 40px}
+.hero{background:linear-gradient(135deg,#7ec8ff 0,#a9dbff 55%,#cfeaff 100%);border-radius:24px;padding:26px;position:relative;overflow:hidden;box-shadow:var(--sh);margin-bottom:20px}
+.hero:after{content:"</>";position:absolute;left:18px;bottom:-30px;font:800 130px/1 Consolas,monospace;color:rgba(255,255,255,.35);direction:ltr}
+.hero h1{margin:0 0 4px;font-size:28px;font-weight:800;position:relative}
+.hero p{margin:0;color:#244d6e;position:relative;max-width:620px}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px;position:relative}
+.chip{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.88);border-radius:999px;padding:3px 13px;font-size:13px;font-weight:700}
+.chip svg{width:15px;height:15px}
+.grid{display:grid;grid-template-columns:5fr 7fr;gap:18px;align-items:start}
+.grid.ed2{grid-template-columns:7fr 5fr}
+@media(max-width:860px){.grid,.grid.ed2{grid-template-columns:1fr}.hero h1{font-size:23px}.top-in{padding:8px 12px}.brand small{display:none}}
+.card{background:var(--card);border:1px solid var(--line);border-radius:20px;box-shadow:var(--sh);overflow:hidden}
+.card-h{padding:14px 18px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:10px;font-weight:800;background:linear-gradient(180deg,#fafdff,#f2f9ff)}
+.card-b{padding:18px}
+.dot{width:10px;height:10px;border-radius:50%;background:var(--p2)}
+.btn{display:inline-flex;align-items:center;gap:8px;border:0;border-radius:12px;padding:9px 20px;font:700 15px "Cairo",sans-serif;cursor:pointer;background:linear-gradient(135deg,var(--p2),var(--p));color:#fff;box-shadow:0 6px 16px rgba(47,155,240,.35)}
+.btn:disabled{opacity:.5;cursor:wait;box-shadow:none}
+.btn.sec{background:var(--p4);color:var(--ink);box-shadow:none;border:1px solid var(--line)}
+.btn svg{width:16px;height:16px}
+.bar{display:flex;gap:8px;flex-wrap:wrap;padding:12px 14px;border-top:1px solid var(--line);background:var(--bg2)}
+.ed{display:flex;direction:ltr;background:#fbfdff;font:14.5px/1.65 "Cascadia Code",Consolas,Menlo,monospace}
+.gut{padding:12px 10px;text-align:right;color:#9bbbd6;background:#f0f8ff;border-right:1px solid var(--line);user-select:none;white-space:pre;overflow:hidden;min-width:42px;height:auto}
+.ed textarea{flex:1;border:0;outline:0;resize:none;background:transparent;font:inherit;color:var(--ink);padding:12px;min-height:260px;white-space:pre;overflow:auto;tab-size:4;direction:ltr;text-align:left}
+.ed:focus-within{box-shadow:inset 0 0 0 2px var(--p2)}
+.out{direction:ltr;text-align:left;margin:0;padding:14px 16px;min-height:90px;white-space:pre-wrap;font:14px/1.6 "Cascadia Code",Consolas,Menlo,monospace;background:var(--p4);color:var(--ink)}
+.out .err{color:var(--bad)}
+.hint{unicode-bidi:plaintext;margin-top:12px;background:#fff8e3;border:1px solid #f4dc95;border-radius:12px;padding:10px 14px;font-size:14px}
+.test{padding:8px 12px;border-radius:10px;font:13.5px/1.5 Consolas,Menlo,monospace;margin-bottom:6px;background:var(--p4);direction:ltr;text-align:left}
+.test.ok{background:var(--okbg);color:#0b6e49}.test.no{background:var(--badbg);color:#9b2d2d}
+.msg{margin:12px 0 0;padding:12px 16px;border-radius:14px;font-weight:700}
+.msg.ok{background:var(--okbg);color:#0b6e49}.msg.no{background:var(--badbg);color:#9b2d2d}
+.stars{display:flex;gap:6px;direction:ltr;justify-content:center;margin-top:14px}
+.stars svg{width:38px;height:38px;fill:#e1edf7}.stars svg.on{fill:var(--star);filter:drop-shadow(0 3px 5px rgba(246,180,0,.4));animation:pop .4s}
+@keyframes pop{0%{transform:scale(.4)}70%{transform:scale(1.2)}100%{transform:scale(1)}}
+.task h2{margin:0 0 6px;font-size:21px}
+.task p{margin:0 0 12px}
+code.fn{direction:ltr;display:inline-block;background:var(--p3);padding:0 8px;border-radius:7px;font-family:Consolas,monospace;font-size:14px}
+.status{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--mut);font-weight:600}
+.status i{width:9px;height:9px;border-radius:50%;background:#f0b429;display:inline-block}
+.status.ready i{background:var(--ok)}.status.fail i{background:var(--bad)}
+.tag{margin-inline-start:auto}
+.lvl-easy{color:#0b8a5a}.lvl-mid{color:#b86e00}.lvl-hard{color:#b3323c}
+.chipbtn{border:1px solid var(--line);background:#fff;border-radius:999px;padding:5px 14px;font:700 13px "Cairo",sans-serif;color:var(--ink);cursor:pointer}
+.tips{display:grid;gap:6px;margin:0;padding:0;list-style:none;font-size:14px}
+.tips li{display:flex;gap:8px}.tips li:before{content:"";flex:none;width:8px;height:8px;margin-top:10px;border-radius:50%;background:var(--p2)}
+footer{text-align:center;color:var(--mut);font-size:13px;padding:10px}
+
+@media(max-width:860px){.top-in{flex-wrap:wrap}nav{margin-inline-start:0;width:100%}}
+.field{margin-bottom:14px}.field label{display:block;font-weight:800;margin-bottom:6px;font-size:14px}
+.in,.sel{width:100%;border:2px solid var(--line);border-radius:12px;padding:10px 12px;font:600 15px "Cairo",sans-serif;color:var(--ink);background:#fbfdff;outline:0}
+.in:focus,.sel:focus{border-color:var(--p2)}
+textarea.in{min-height:120px;resize:vertical}
+.pills{display:flex;flex-wrap:wrap;gap:8px}
+.pill{border:2px solid var(--line);background:#fff;border-radius:999px;padding:6px 16px;font:700 14px "Cairo",sans-serif;color:var(--ink);cursor:pointer}
+.pill.on{background:var(--p);border-color:var(--p);color:#fff}
+.sec-t{font-weight:800;margin:0 0 6px}
+.box{background:var(--p4);border:1px solid var(--line);border-radius:14px;padding:12px 16px;margin-bottom:12px}
+.box.fix{background:var(--okbg);border-color:#bfe9d6}
+.box.why{background:#fff8e3;border-color:#f4dc95}
+.box pre{direction:ltr;text-align:left;margin:6px 0 0;white-space:pre-wrap;font:14px/1.6 Consolas,Menlo,monospace}
+.etype{display:inline-block;direction:ltr;background:var(--p);color:#fff;padding:2px 12px;border-radius:9px;font:700 14px Consolas,monospace;margin-bottom:8px}
+.pout{direction:ltr;text-align:left;white-space:pre-wrap;font:15px/1.7 "Segoe UI",Arial,sans-serif;background:var(--p4);border:1px solid var(--line);border-radius:14px;padding:14px 16px;min-height:120px}
+.target{direction:ltr;text-align:left;font:22px/1.8 "Cascadia Code",Consolas,Menlo,monospace;background:#fbfdff;border:2px solid var(--line);border-radius:14px;padding:18px;min-height:90px;word-break:break-all}
+.target .ok{color:var(--ok);background:var(--okbg)}.target .no{color:#fff;background:var(--bad)}.target .cur{background:var(--p3);box-shadow:0 2px 0 var(--p)}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:12px 0}
+.stat{background:var(--p4);border:1px solid var(--line);border-radius:14px;padding:10px;text-align:center}
+.stat b{display:block;font-size:24px;direction:ltr}.stat span{font-size:12.5px;color:var(--mut)}
+.prog{height:10px;background:var(--p3);border-radius:99px;overflow:hidden;margin:10px 0}.prog i{display:block;height:100%;background:linear-gradient(90deg,var(--p2),var(--p));width:0;transition:width .3s}
+.drop{border:2.5px dashed var(--p2);background:var(--p4);border-radius:18px;padding:26px 16px;text-align:center;cursor:pointer;transition:.15s}
+.drop.over,.drop:hover{background:var(--p3);border-color:var(--p)}
+.drop b{display:block;font-size:17px}.drop span{color:var(--mut);font-size:13.5px}
+.drop svg{width:42px;height:42px;stroke:var(--p);fill:none;stroke-width:2;margin-bottom:6px}
+.files{display:grid;gap:8px;margin-top:14px}
+.fi{display:flex;align-items:center;gap:12px;background:#fff;border:1px solid var(--line);border-radius:14px;padding:8px 10px}
+.fi img,.fi .ico{width:54px;height:54px;border-radius:10px;object-fit:cover;background:var(--p3);flex:none;display:grid;place-items:center;font:800 13px Consolas,monospace;color:var(--p)}
+.fi .nm{flex:1;min-width:0}.fi .nm b{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;direction:ltr;text-align:right;font-size:14px}
+.fi .nm small{display:block;unicode-bidi:plaintext;color:var(--mut);font-size:12.5px}
+.fi .sv{color:var(--ok);font-weight:800}
+.ib{border:1px solid var(--line);background:var(--p4);border-radius:10px;width:34px;height:34px;cursor:pointer;font:800 15px sans-serif;color:var(--ink)}
+.ib:hover{background:var(--p3)}
+.rng{width:100%;accent-color:var(--p)}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:560px){.two{grid-template-columns:1fr}}
+.qrbox{background:#fff;border:1px solid var(--line);border-radius:18px;padding:18px;display:grid;place-items:center}
+.qrbox canvas{max-width:100%;height:auto;image-rendering:pixelated}
+.note{color:var(--mut);font-size:13px;margin-top:8px}
+</style></head><body class="codeai"><div id="root"><div class="codeai-root"><div class="top"><div class="top-in"><a class="brand" href="/tools"><span class="logo">&lt;/&gt;</span><span>كود إيه آي<small>Think. Code. Build with AI.</small></span></a></div></div><div class="wrap"><div class="wrap"><section class="hero"><div class="chips"><span class="chip">مجاني</span><span class="chip">بدون ذكاء اصطناعي</span></div>
+<h1>شرح كود بايثون سطر بسطر</h1><p>الصق كود بايثون وهتاخد شرح بالعربي لكل سطر. الشرح بقواعد جاهزة على جهازك، مش بيفهم أي كود معقد.</p></section>
+<div class="card"><div class="card-h"><span class="dot"></span>الكود</div><div class="card-b">
+<textarea class="ta" id="src" dir="ltr" rows="10" spellcheck="false" style="font-family:Consolas,monospace;width:100%;min-height:220px;box-sizing:border-box;border:1px solid #bfe0fb;border-radius:12px;padding:10px" placeholder="# الصق كود بايثون هنا"></textarea>
+<div style="margin-top:10px"><button class="btn" id="go" type="button">اشرح</button> <button class="btn sec" id="ex" type="button">مثال</button> <span class="note" id="st"></span></div></div></div>
+<div class="card" style="margin-top:18px"><div class="card-h"><span class="dot"></span>الشرح</div><div class="card-b"><div id="out"><p class="note">اضغط اشرح.</p></div>
+<p class="note" style="margin-top:12px">ملحوظة: الشرح مبني على قواعد بتتعرف على الأوامر الشائعة (print, input, if, for, while, def, class, import, try, return, القوائم...). الكود المتقدم أو غير المألوف هيظهر بتنبيه "مش متعرف عليه".</p></div></div>
+<style>.ln{display:grid;grid-template-columns:36px 1fr;gap:8px;padding:8px 0;border-bottom:1px solid #e3f1fd;align-items:start}.ln .n{color:#6a8aa8;font:700 13px Consolas,monospace;text-align:center}.ln code{display:block;direction:ltr;text-align:left;background:#eef7ff;border-radius:8px;padding:4px 8px;font:14px Consolas,monospace;white-space:pre-wrap;word-break:break-all}.ln .e{margin-top:4px;font-weight:600}.ln.unk .e{color:#b26a00}</style>
+<div class="card" id="hostres" hidden style="margin-top:18px"><div class="card-h"><span class="dot"></span>الملفات الجاهزة (اضغط على الزرار يفتح الملف في تبويب جديد وتحفظه من هناك)</div><div class="card-b" id="hostlist"></div></div><footer>كود إيه آي | أدوات مجانية</footer></div>
+</div></div><script>
+
+const $=id=>document.getElementById(id);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const fmt=n=>n<1024?n+" B":n<1048576?(n/1024).toFixed(1)+" KB":(n/1048576).toFixed(2)+" MB";
+function dl(blob,name){const u=URL.createObjectURL(blob);$("hostres").hidden=false;const d=document.createElement("div");d.style.cssText="margin:8px 0;display:flex;gap:10px;align-items:center;flex-wrap:wrap";
+ if(blob.type.indexOf("image/")===0){const im=document.createElement("img");im.src=u;im.alt="";im.style.cssText="width:54px;height:54px;object-fit:cover;border-radius:10px";d.appendChild(im)}
+ const a=document.createElement("a");a.href=u;a.target="_blank";a.rel="noopener";a.className="btn";a.textContent="افتح "+name+" ("+fmt(blob.size)+")";d.appendChild(a);$("hostlist").appendChild(d)}
+function dropzone(el,input,onFiles){
+  el.onclick=()=>input.click();
+  input.onchange=()=>{onFiles([...input.files]);input.value=""};
+  ["dragenter","dragover"].forEach(e=>el.addEventListener(e,ev=>{ev.preventDefault();el.classList.add("over")}));
+  ["dragleave","drop"].forEach(e=>el.addEventListener(e,ev=>{ev.preventDefault();el.classList.remove("over")}));
+  el.addEventListener("drop",ev=>onFiles([...ev.dataTransfer.files]));
+}
+const UP='<svg viewBox="0 0 24 24"><path d="M12 16V4M7 9l5-5 5 5M4 16v4h16v-4"/></svg>';
+function rd(f){return new Promise((r,j)=>{const x=new FileReader();x.onload=()=>r(x.result);x.onerror=j;x.readAsArrayBuffer(f)})}
+async function bitmap(f){return await createImageBitmap(f)}
+
+const EX='name = input("اسمك؟ ")\nage = 20\nif age >= 18:\n    print("أهلا", name)\nelse:\n    print("صغير")\nfor i in range(3):\n    print(i)\n\ndef add(a, b):\n    return a + b\n\nnums = [1, 2, 3]\nnums.append(4)\nprint(add(2, 3))';
+const OPS={"+":"جمع","-":"طرح","*":"ضرب","/":"قسمة","//":"قسمة صحيحة","%":"باقي القسمة","**":"أُس"};
+const CMP={"==":"يساوي",">=":"أكبر من أو يساوي","<=":"أصغر من أو يساوي","!=":"لا يساوي",">":"أكبر من","<":"أصغر من"};
+function cond(c){c=c.trim();let r=c;for(const k of ["==",">=","<=","!=",">","<"]){const i=c.indexOf(k);if(i>0){return "الشرط: <b>"+esc(c.slice(0,i).trim())+"</b> "+CMP[k]+" <b>"+esc(c.slice(i+k.length).trim())+"</b>"}}
+ if(/\bnot\b/.test(c))return "الشرط: عكس <b>"+esc(c.replace(/^not\s+/,""))+"</b>";if(/\b(and|or)\b/.test(c))return "شرط مركب ("+(/\band\b/.test(c)?"and = الاتنين لازم يتحققوا":"or = واحد منهم يكفي")+"): <b>"+esc(c)+"</b>";if(/\bin\b/.test(c))return "بيشوف لو القيمة موجودة: <b>"+esc(c)+"</b>";return "الشرط: <b>"+esc(c)+"</b> يكون صح"}
+function ex(t,st){const s=t.trim();let m;
+ if(!s)return null;
+ if(s[0]==="#")return "تعليق من المبرمج، بايثون بيتجاهله: "+esc(s.slice(1).trim());
+ if(m=s.match(/^print\s*\((.*)\)$/))return m[1].trim()?"بيطبع على الشاشة: <b>"+esc(m[1])+"</b>":"بيطبع سطر فاضي";
+ if(m=s.match(/^(\w+)\s*=\s*input\s*\((.*)\)$/))return "بيسأل المستخدم ويستنى إجابته، ويخزنها في المتغير <b>"+m[1]+"</b>"+(m[2].trim()?" (الرسالة: "+esc(m[2])+")":"")+". الناتج دايما نص.";
+ if(m=s.match(/^(\w+)\s*=\s*(int|float|str)\s*\(\s*input\s*\((.*)\)\s*\)$/))return "بيسأل المستخدم ويحوّل الإجابة لـ "+({int:"رقم صحيح",float:"رقم عشري",str:"نص"})[m[2]]+" ويخزنها في <b>"+m[1]+"</b>";
+ if(m=s.match(/^(\w+)\s*=\s*(int|float|str|bool)\s*\((.*)\)$/))return "بيحوّل <b>"+esc(m[3])+"</b> لـ "+({int:"رقم صحيح",float:"رقم عشري",str:"نص",bool:"صح/غلط"})[m[2]]+" ويخزنه في <b>"+m[1]+"</b>";
+ if(m=s.match(/^(\w+)\s*=\s*\[(.*)\]$/))return m[2].trim()?"بيعمل قائمة (list) اسمها <b>"+m[1]+"</b> فيها: "+esc(m[2]):"بيعمل قائمة فاضية اسمها <b>"+m[1]+"</b>";
+ if(m=s.match(/^(\w+)\s*=\s*\{(.*)\}$/))return m[2].includes(":")||!m[2].trim()?"بيعمل قاموس (dict) اسمه <b>"+m[1]+"</b> فيه مفاتيح وقيم":"بيعمل مجموعة (set) اسمها <b>"+m[1]+"</b>";
+ if(m=s.match(/^(\w+)\s*=\s*\((.*)\)$/))return "بيخزن قيمة/tuple في <b>"+m[1]+"</b>: "+esc(m[2]);
+ if(m=s.match(/^(\w+)\s*(\+|-|\*|\/\/|\/|%|\*\*)=\s*(.+)$/))return "بيعدّل <b>"+m[1]+"</b>: "+OPS[m[2]]+" <b>"+esc(m[3])+"</b> على قيمته الحالية";
+ if(m=s.match(/^(\w+)\s*=\s*(.+)$/)){const v=m[2].trim();let k="";if(/^-?\d+$/.test(v))k=" (رقم صحيح)";else if(/^-?\d*\.\d+$/.test(v))k=" (رقم عشري)";else if(/^(["']).*\1$/.test(v))k=" (نص)";else if(/^(True|False)$/.test(v))k=" (صح/غلط)";else if(v==="None")k=" (لا شيء)";else{const o=v.match(/^(.+?)\s(\+|-|\*\*|\*|\/\/|\/|%)\s(.+)$/);if(o)k=" (نتيجة "+OPS[o[2]]+")"}return "بيخزن القيمة <b>"+esc(v)+"</b>"+k+" في المتغير <b>"+m[1]+"</b>"}
+ if(m=s.match(/^(el)?if\s+(.+):$/))return (m[1]?"وإلا لو (elif) ":"لو (if) ")+cond(m[2]);
+ if(/^else\s*:$/.test(s))return "غير كده (else): الشرط اللي فوق ماتحققش، فبينفذ السطور اللي تحت";
+ if(m=s.match(/^for\s+(\w+)\s+in\s+range\s*\((.*)\)\s*:$/)){const a=m[2].split(",").map(x=>x.trim());return a.length===1?"حلقة تكرار: <b>"+m[1]+"</b> بياخد القيم من 0 لحد "+esc(a[0])+" ناقص 1":"حلقة تكرار: <b>"+m[1]+"</b> بياخد القيم من "+esc(a[0])+" لحد "+esc(a[1])+" ناقص 1"+(a[2]?" بخطوة "+esc(a[2]):"")}
+ if(m=s.match(/^for\s+(.+?)\s+in\s+(.+):$/))return "حلقة تكرار: بتلف على كل عنصر في <b>"+esc(m[2])+"</b> وكل مرة العنصر بيبقى في <b>"+esc(m[1])+"</b>";
+ if(m=s.match(/^while\s+(.+):$/))return "حلقة while: بتكرر طول ما "+cond(m[1]);
+ if(s==="break")return "بيوقف الحلقة ويخرج منها فورا";
+ if(s==="continue")return "بيعدّي باقي الدورة الحالية ويروح للدورة اللي بعدها";
+ if(s==="pass")return "مبيعملش حاجة (مكان فاضي مؤقت)";
+ if(m=s.match(/^def\s+(\w+)\s*\((.*)\)\s*(->.*)?:$/))return "بيعرّف دالة (function) اسمها <b>"+m[1]+"</b>"+(m[2].trim()?" وبتستقبل: "+esc(m[2]):" من غير مدخلات")+". الكود جواها مش بيشتغل غير لما تتندهي.";
+ if(m=s.match(/^class\s+(\w+).*:$/))return "بيعرّف كلاس (class) اسمه <b>"+m[1]+"</b>، يعني قالب لكائنات";
+ if(m=s.match(/^return\b\s*(.*)$/))return m[1]?"الدالة بترجّع القيمة <b>"+esc(m[1])+"</b> وبتنتهي":"الدالة بتنتهي من غير قيمة";
+ if(m=s.match(/^import\s+(.+)$/))return "بيستورد المكتبة <b>"+esc(m[1])+"</b>";
+ if(m=s.match(/^from\s+(\S+)\s+import\s+(.+)$/))return "بيستورد <b>"+esc(m[2])+"</b> من المكتبة <b>"+esc(m[1])+"</b>";
+ if(s==="try:")return "بيجرّب ينفذ الكود اللي تحت، ولو حصل خطأ بيروح لـ except";
+ if(m=s.match(/^except\b\s*(.*):$/))return "لو حصل خطأ"+(m[1]?" من نوع <b>"+esc(m[1])+"</b>":"")+" بينفذ السطور اللي تحت";
+ if(s==="finally:")return "بيتنفذ دايما سواء حصل خطأ أو لا";
+ if(m=s.match(/^raise\b\s*(.*)$/))return "بيطلّع خطأ: <b>"+esc(m[1])+"</b>";
+ if(m=s.match(/^with\s+(.+):$/))return "بيفتح مورد (زي ملف) ويقفله لوحده بعد الكتلة: <b>"+esc(m[1])+"</b>";
+ if(m=s.match(/^(\w+)\.append\s*\((.*)\)$/))return "بيضيف <b>"+esc(m[2])+"</b> في آخر القائمة <b>"+m[1]+"</b>";
+ if(m=s.match(/^(\w+)\.(remove|pop|sort|reverse|extend|insert|clear)\s*\((.*)\)$/)){const d={remove:"بيمسح أول عنصر قيمته",pop:"بيشيل عنصر ويرجّعه",sort:"بيرتب القائمة",reverse:"بيعكس ترتيب القائمة",extend:"بيضيف عناصر من قائمة تانية",insert:"بيدخل عنصر في مكان محدد",clear:"بيفضّي القائمة"};return d[m[2]]+" "+(m[3]?"<b>("+esc(m[3])+")</b> ":"")+"في <b>"+m[1]+"</b>"}
+ if(m=s.match(/^(\w+)\s*\[(.+?)\]\s*=\s*(.+)$/))return "بيحط <b>"+esc(m[3])+"</b> في المكان <b>"+esc(m[2])+"</b> من <b>"+m[1]+"</b>";
+ if(m=s.match(/^(\w+(\.\w+)*)\s*\((.*)\)$/))return "بينده الدالة <b>"+m[1]+"</b>"+(m[3].trim()?" بالمدخلات: "+esc(m[3]):"");
+ if(m=s.match(/^(del)\s+(.+)$/))return "بيمسح <b>"+esc(m[2])+"</b>";
+ return null}
+function run(){const L=$("src").value.replace(/\t/g,"    ").split("\n");let h="",unk=0,n=0;
+ L.forEach((raw,i)=>{if(!raw.trim())return;n++;const ind=raw.match(/^ */)[0].length;let e=null;try{e=ex(raw,i)}catch(x){}
+  const u=e===null;if(u)unk++;
+  h+='<div class="ln'+(u?" unk":"")+'"><div class="n">'+(i+1)+'</div><div><code style="margin-right:'+Math.min(ind,24)*2+'px">'+esc(raw)+'</code><div class="e">'+(u?"مش متعرف على السطر ده بالقواعد البسيطة. ممكن يكون كود متقدم أو جزء من سطر متعدد.":e)+'</div></div></div>'});
+ $("out").innerHTML=h||'<p class="note">مفيش كود.</p>';$("st").textContent=n?("اتشرح "+(n-unk)+" من "+n+" سطر"):""}
+$("go").onclick=run;$("ex").onclick=()=>{$("src").value=EX;run()};
+
+export {};
+</script></body></html>
